@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import styles from './journey-stage.module.css';
 
-const steps = ['Menu', 'Suppliers', 'Request', 'Compare', 'Decision'];
+const steps = ['Menu', 'Suppliers', 'Request', 'Compare', 'Decision', 'Delivery'];
 
 export function JourneyStage({ children }: { children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);

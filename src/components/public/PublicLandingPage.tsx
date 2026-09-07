@@ -20,7 +20,7 @@ const restaurantBenefits = [
   {
     icon: 'history' as const,
     title: 'Reuse each buying cycle',
-    detail: 'Reuse checked menus and past requests. Repeat a completed purchase as a new draft and ask suppliers for fresh prices.',
+    detail: 'Repeat a saved daily plan with fresh stock counts, or turn a completed purchase into a new draft for fresh supplier prices.',
   },
   {
     icon: 'receipt' as const,
@@ -30,7 +30,22 @@ const restaurantBenefits = [
   {
     icon: 'approve' as const,
     title: 'Keep delivery history',
-    detail: 'Record what arrived and any late, missing, wrong or poor quality items. Keep supplier performance and buying history visible to your team.',
+    detail: 'Record received, rejected and billed quantities for each awarded item. Keep partial deliveries and replacement quantities visible.',
+  },
+  {
+    icon: 'list' as const,
+    title: 'Know what service still needs',
+    detail: 'Set portions and recipe batch servings. Check usable stock and confirmed arrivals, account for yield, and create a purchase draft for the shortage.',
+  },
+  {
+    icon: 'price' as const,
+    title: 'Keep credits from getting lost',
+    detail: 'See delivery and billing discrepancies alongside credits claimed, received and still owed. Update each settlement as it happens.',
+  },
+  {
+    icon: 'suppliers' as const,
+    title: 'Choose with delivery evidence',
+    detail: 'Review actual fulfilment, rejection and on-time delivery records. Established delivery evidence helps rank suppliers with equal capability matches.',
   },
 ];
 
@@ -49,8 +64,8 @@ export function PublicLandingPage() {
               <em>Choose the best deal.</em>
             </h1>
             <p className="public-hero__lede">
-              Use suppliers you already know and compare prices, GST, freight, delivery, missing
-              items, and payment terms before your restaurant chooses.
+              Plan what today’s service needs, compare supplier quotes, and check what actually
+              arrives. Keep ingredient shortages, delivery problems and outstanding credits in one workspace.
             </p>
             <div className="public-hero__actions">
               <a className="public-button" href="#watch-demo">Watch the demo <span aria-hidden="true">↓</span></a>
@@ -98,7 +113,7 @@ export function PublicLandingPage() {
             <header className="restaurant-benefits__header">
               <p className="public-eyebrow">Why restaurants keep using it</p>
               <h2 id="restaurant-benefits-title">Useful for every purchase, not just the first one.</h2>
-              <p>QuotePlate helps your team before, during and after each supplier order.</p>
+              <p>Connect planned portions to purchases, accepted deliveries and the money still owed.</p>
             </header>
             <div className="restaurant-benefits__grid">
               {restaurantBenefits.map((benefit) => (
@@ -109,6 +124,7 @@ export function PublicLandingPage() {
                 </article>
               ))}
             </div>
+            <p className="public-hero__note">Planning example: 10 kg usable ingredients needed − 4 kg usable stock = 6 kg short. At 80% yield, prepare a request for 7.5 kg. Your team confirms the inputs and reviews the draft.</p>
           </div>
         </section>
 
@@ -128,7 +144,7 @@ export function PublicLandingPage() {
               <dl className="privacy-map">
                 <div>
                   <dt>Your restaurant team</dt>
-                  <dd>Menus, recipes, suppliers, quotes and buying history</dd>
+                  <dd>Menus, recipes, service plans, stock counts, quotes, delivery checks and credits</dd>
                 </div>
                 <div>
                   <dt>Each supplier</dt>
@@ -154,8 +170,8 @@ export function PublicLandingPage() {
           </div>
           <div>
             <p>
-              Start with one ingredient request and your current suppliers. The pilot needs no
-              payment card.
+              Start with an approved recipe and today’s portions, or one ingredient request and
+              your current suppliers. Follow through to delivery and credits. No payment card needed.
             </p>
             <div className="public-hero__actions">
               <Link className="public-button" href="/start">Start free pilot <span aria-hidden="true">→</span></Link>

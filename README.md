@@ -30,6 +30,10 @@ The current release supports:
 - compare complete and incomplete quotes while keeping the final decision with the restaurant;
 - award the full request to one supplier or split items across suppliers;
 - check each winning supplier delivery, record problems, and automatically flag any difference between the entered invoice total and the accepted total;
+- record received, rejected and billed quantities against each supplier's awarded allocation, keep partial deliveries open, and track credits claimed, received and still owed;
+- save daily portion plans from approved recipe snapshots, enter batch servings, usable stock, expected yield and confirmed incoming supplies, then calculate shared ingredient shortages;
+- turn calculated shortages into an editable procurement draft, and repeat a daily plan while clearing stock and arrival assumptions;
+- compare suppliers using recorded fulfilment, rejection, completed delivery dates and credit balances; use established on-time evidence to break equally capable supplier suggestions;
 - see counts of deliveries waiting for a check and unresolved problems on the restaurant home page;
 - download request, comparison, award, accounting, QR, supplier, and purchase order records;
 - keep delivery check totals and problem counts in history, repeat a completed awarded request into a new draft, and use prior buying facts as guidance;
@@ -39,6 +43,16 @@ The current release supports:
 The landing page includes a two-and-a-half-minute product film with captions and a transcript. It uses condensed recordings of the actual app with fictional restaurant data in an isolated environment. Media is served from `public/media` and the video loads only when played; no external video service is required. The buying journey uses compact, manually selected stages on desktop and phones, with one step counter and no automatic movement. Old `/product` bookmarks redirect to this journey on the homepage.
 
 The product does not introduce suppliers and then disappear from the workflow. Its value is the reusable request, quote, decision, purchase order, and price history for every buying cycle.
+
+### Daily planning and delivery evidence
+
+Open **Plan today’s service** to select an approved menu and enter the number of servings produced by each recipe batch. Recipe quantities represent usable ingredient requirements. Stock and confirmed arrivals must also be usable quantities. The planner subtracts available stock before dividing the remaining shortage by yield: 10 kg needed, 4 kg usable stock and 80% yield means purchasing 7.5 kg. Shared stock is allocated once, in dish order. Missing recipes, unknown stock, incompatible specifications and unsupported pack conversions block procurement rather than imply readiness. The restaurant records arrival confirmations; there is no live inventory or supplier availability integration.
+
+Saved plans preserve their approved recipe version. Optimistic version checks prevent stale edits, and procurement conversion creates one reviewable draft without contacting suppliers. After conversion, repeat the plan to make a new daily record with fresh stock inputs.
+
+Delivery details use cumulative received and rejected quantities, including replacements. Credit balances are restaurant-entered records, not verified bank transactions. **Supplier performance** reads the latest 100 awards; suggestion ranking uses its bounded recent award sample and requires at least three dated, completed deliveries before on-time evidence affects otherwise equal capability matches. Missing checks do not count as successful deliveries.
+
+These features add no dependencies, subscriptions or metered AI services. Existing hosting, database and storage usage still applies. Their practical advantage is connecting portion requirements, purchasing, actual receipts and money recovery in one workflow; competitive uniqueness and business results require validation with restaurants.
 
 ## Safety and privacy
 
@@ -73,6 +87,8 @@ For optional combined supplier results, create a free ad-supported [Google Progr
 2. Apply the committed migrations before the first deployment.
 3. Add the production address and Google callback address to the OAuth client.
 4. Check the live and readiness endpoints before inviting a restaurant.
+
+For upgrades, apply `20260907000100_service_planning` before deploying this version, then regenerate the Prisma client during installation/build. It adds tenant-isolated service plans and immutable plan revisions, and increases the bounded receiving document capacity. Existing award and legacy delivery records remain readable. The readiness and restore checks require the updated schema. Local test migrations do not update the production database.
 
 ## Verification
 

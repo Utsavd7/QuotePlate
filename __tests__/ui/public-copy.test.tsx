@@ -158,8 +158,11 @@ describe('public website contract', () => {
       'Reuse each buying cycle',
       'Check the complete cost',
       'Keep delivery history',
+      'Know what service still needs',
+      'Keep credits from getting lost',
+      'Choose with delivery evidence',
     ]) expect(benefits).toContain(benefit);
-    expect(benefits.match(/class="restaurant-benefit"/g)).toHaveLength(3);
+    expect(benefits.match(/class="restaurant-benefit"/g)).toHaveLength(6);
     expect(benefits).not.toMatch(/guaranteed|save \d+%|recommended supplier/i);
   });
 

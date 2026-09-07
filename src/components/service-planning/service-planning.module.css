@@ -1,0 +1,20 @@
+.workspace { max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; color: var(--foreground, #202a25); }
+.workspace h1 { font-size: 2.4rem; letter-spacing: -.04em; margin: 8px 0; }
+.workspace h2 { font-size: 1.3rem; margin-bottom: 16px; }
+.workspace p { line-height: 1.6; }
+.workspace section, .workspace fieldset { border: 1px solid #dce3dd; border-radius: 14px; padding: 22px; margin: 24px 0; background: var(--background, #fff); min-width: 0; }
+.workspace label { display: grid; gap: 8px; font-size: .9rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 18px; }
+.workspace input, .workspace select { width: 100%; min-height: 42px; border: 1px solid #bbc7be; background: #fff; color: #202a25; border-radius: 7px; padding: 9px; }
+.workspace button { min-height: 42px; padding: 10px 18px; border-radius: 7px; background: #235a43; color: white; margin-top: 16px; cursor: pointer; }
+.workspace button:disabled { opacity: .5; cursor: default; }
+.workspace table { width: 100%; text-align: left; border-collapse: collapse; margin: 16px 0; }
+.workspace th, .workspace td { padding: 12px; border-bottom: 1px solid #dde3de; vertical-align: top; min-width: 110px; }
+.workspace small { display: block; font-weight: normal; }
+.workspace details { padding: 14px 0; border-bottom: 1px solid #dde3de; }
+.workspace summary { cursor: pointer; }
+.arrival { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 14px; padding-top: 18px; }
+.error { padding: 14px; background: #fff0eb; color: #8c2c18; border-radius: 8px; }
+.scroll { overflow-x: auto; }
+.workspace a { text-decoration: underline; }
+@media(max-width: 600px) { .workspace { padding: 18px 12px 50px; } .workspace section, .workspace fieldset { padding: 14px; } }

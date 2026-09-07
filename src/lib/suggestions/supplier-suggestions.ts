@@ -6,6 +6,8 @@ import {
 } from '@/lib/db/tenant-transaction';
 import type { ProcurementCategory } from '@/lib/domain/procurement-categories';
 import { prisma } from '@/lib/prisma';
+import { observationsFromAwards } from '@/lib/reporting/supplier-performance-service';
+import { buildSupplierPerformance } from '@/lib/reporting/supplier-performance';
 import { validateRequestItems } from '@/lib/procurement/request-document';
 import {
   type SupplierCapabilitiesV1,
@@ -99,6 +101,7 @@ export function rankSupplierSuggestions(input: {
   items: SuggestionItem[];
   suppliers: CandidateSupplier[];
   priorAwardSupplierIdsByItemKey: ReadonlyMap<string, ReadonlySet<string>>;
+  deliveryEvidenceBySupplierId?: ReadonlyMap<string, { datedDeliveries: number; onTimeDeliveries: number }>;
 }): Record<string, SupplierSuggestion[]> {
   const candidates = [...input.suppliers]
     .sort(compareNames)
@@ -113,11 +116,34 @@ export function rankSupplierSuggestions(input: {
         if (left.values[index] !== right.values[index]) return left.values[index] ? -1 : 1;
       }
       return compareNames(left.supplier, right.supplier);
-    }).slice(0, SUPPLIER_SUGGESTION_LIMITS.perItem);
-    return [item.id, ranked.map(({ supplier, reason }) => ({
+    });
+    // Reorder only measured suppliers inside an equal capability group. Unknown
+    // suppliers retain their positions, avoiding both a cold-start penalty and
+    // a non-transitive pairwise comparator mixing names with measured rates.
+    const groups = new Map<string, number[]>();
+    ranked.forEach((entry, index) => {
+      const metric = input.deliveryEvidenceBySupplierId?.get(entry.supplier.id);
+      if (!metric || metric.datedDeliveries < 3) return;
+      const key = entry.values.join(':');
+      const positions = groups.get(key) ?? [];
+      positions.push(index);
+      groups.set(key, positions);
+    });
+    for (const positions of groups.values()) {
+      const measured = positions.map(index => ranked[index]).sort((a, b) => {
+        const left = input.deliveryEvidenceBySupplierId!.get(a.supplier.id)!;
+        const right = input.deliveryEvidenceBySupplierId!.get(b.supplier.id)!;
+        return right.onTimeDeliveries * left.datedDeliveries - left.onTimeDeliveries * right.datedDeliveries || compareNames(a.supplier, b.supplier);
+      });
+      positions.forEach((position, index) => { ranked[position] = measured[index]; });
+    }
+    return [item.id, ranked.slice(0, SUPPLIER_SUGGESTION_LIMITS.perItem).map(({ supplier, reason }) => ({
       supplierId: supplier.id,
       businessName: supplier.businessName,
-      reason,
+      reason: (() => {
+        const metric = input.deliveryEvidenceBySupplierId?.get(supplier.id);
+        return metric && metric.datedDeliveries >= 3 ? `${reason}; ${metric.onTimeDeliveries} of ${metric.datedDeliveries} dated deliveries on time (all items)` : reason;
+      })(),
       selected: false as const,
     }))];
   }));
@@ -185,6 +211,9 @@ export async function getSupplierSuggestions(
         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         take: SUPPLIER_SUGGESTION_LIMITS.priorAwards,
         select: {
+          id: true,
+          requestId: true,
+          receiving: true,
           allocationLines: true,
           supplierSnapshots: true,
           deliverySnapshot: true,
@@ -210,6 +239,7 @@ export async function getSupplierSuggestions(
           capabilities: validateSupplierCapabilities(supplier.capabilities),
         })),
         priorAwardSupplierIdsByItemKey: priorSupplierIds(awards),
+        deliveryEvidenceBySupplierId: new Map(buildSupplierPerformance(observationsFromAwards(awards)).map((supplier) => [supplier.supplierId, supplier])),
       }),
     };
   }, client);

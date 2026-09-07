@@ -1,3 +1,4 @@
+import { calculateReceivingDetails, validateReceivingDetails, RECEIVING_JSON_BYTES, type ReceivingDetails, type ReceivingAwardItem, type ReceivingCalculatedDetails } from './receiving-details';
 import { DOCUMENT_LIMITS } from '@/lib/domain/document-limits';
 import { assertBoundedJson } from '@/lib/domain/postgres-json';
 import { MAX_SIGNED_BIGINT, parseUnsignedFixed } from '@/lib/domain/validation';
@@ -21,6 +22,7 @@ export type ReceivingSupplierCheckV1 = {
   issueCodes: ReceivingIssueCode[];
   note: string | null;
   checkedAt: string;
+  details?: ReceivingDetails;
 };
 
 export type AwardReceivingV1 = {
@@ -38,7 +40,8 @@ export type ReceivingSummary = {
     supplierName: string;
     deliveryDate: string;
     expectedTotalPaise: string;
-    check: (ReceivingSupplierCheckV1 & {
+    items?: ReceivingAwardItem[];
+    check: (ReceivingSupplierCheckV1 & Partial<ReceivingCalculatedDetails> & {
       differencePaise: string;
       hasProblem: boolean;
     }) | null;
@@ -138,13 +141,14 @@ function validNote(value: unknown): value is string | null {
   );
 }
 
-function canonicalPaise(value: unknown) {
+function canonicalPaise(value: unknown, allowZero = false) {
+  if (typeof value !== 'string' || value.length > 19) return null;
   try {
     return parseUnsignedFixed(value as never, {
       label: 'Invoice total',
       scale: 0,
       maximumScaled: MAX_SIGNED_BIGINT,
-      allowZero: false,
+      allowZero,
     }).toString();
   } catch {
     return null;
@@ -163,13 +167,19 @@ function validTimestamp(value: unknown): value is string {
   return !Number.isNaN(date.getTime()) && date.toISOString() === value;
 }
 
+function checkKeys(value: unknown, stored: boolean) {
+  const keys = new Set(stored ? STORED_KEYS : INPUT_KEYS);
+  if (value && typeof value === 'object' && Object.hasOwn(value, 'details')) keys.add('details');
+  return isExactRecord(value, keys);
+}
+
 function parseCheck(
   value: unknown,
   stored: boolean,
 ): ReceivingSupplierCheckV1 | null {
-  if (!isExactRecord(value, stored ? STORED_KEYS : INPUT_KEYS)) return null;
+  if (!checkKeys(value, stored)) return null;
   const record = value as Record<string, unknown>;
-  const invoiceTotalPaise = canonicalPaise(record.invoiceTotalPaise);
+  const invoiceTotalPaise = canonicalPaise(record.invoiceTotalPaise, Object.hasOwn(record, 'details'));
   if (
     !validId(record.supplierId) ||
     (record.outcome !== 'MATCHED' && record.outcome !== 'ISSUES') ||
@@ -181,7 +191,10 @@ function parseCheck(
   ) return null;
   const checkedAt = stored ? record.checkedAt : '';
   if (stored && !validTimestamp(checkedAt)) return null;
+  let details: ReceivingDetails | undefined;
+  try { if (Object.hasOwn(record, 'details')) details = validateReceivingDetails(record.details); } catch { return null; }
   return {
+    ...(details ? { details } : {}),
     supplierId: record.supplierId,
     outcome: record.outcome,
     invoiceTotalPaise,
@@ -192,13 +205,14 @@ function parseCheck(
 }
 
 export function validateReceivingInput(value: unknown): ValidReceivingInput {
-  if (!isExactRecord(value, INPUT_KEYS)) throw new ReceivingValidationError();
+  if (!checkKeys(value, false)) throw new ReceivingValidationError();
   const record = value as Record<string, unknown>;
   const expectedCheckedAt = record.expectedCheckedAt;
   if (expectedCheckedAt !== null && !validTimestamp(expectedCheckedAt)) {
     throw new ReceivingValidationError();
   }
   const parsed = parseCheck({
+    ...(Object.hasOwn(record, 'details') ? { details: record.details } : {}),
     supplierId: record.supplierId,
     outcome: record.outcome,
     invoiceTotalPaise: record.invoiceTotalPaise,
@@ -208,6 +222,7 @@ export function validateReceivingInput(value: unknown): ValidReceivingInput {
   }, false);
   if (!parsed) throw new ReceivingValidationError();
   const input: ValidReceivingInput = {
+    ...(parsed.details ? { details: parsed.details } : {}),
     supplierId: parsed.supplierId,
     outcome: parsed.outcome,
     invoiceTotalPaise: parsed.invoiceTotalPaise,
@@ -216,7 +231,7 @@ export function validateReceivingInput(value: unknown): ValidReceivingInput {
     expectedCheckedAt,
   };
   try {
-    assertBoundedJson(input, DOCUMENT_LIMITS.awardReceiving.jsonBytes, 'Delivery check');
+    assertBoundedJson(input, RECEIVING_JSON_BYTES, 'Delivery check');
   } catch {
     throw new ReceivingValidationError();
   }
@@ -226,7 +241,7 @@ export function validateReceivingInput(value: unknown): ValidReceivingInput {
 export function validateStoredReceiving(value: unknown): AwardReceivingV1 {
   if (value === null || value === undefined) return { v: 1, suppliers: [] };
   try {
-    assertBoundedJson(value, DOCUMENT_LIMITS.awardReceiving.jsonBytes, 'Delivery checks');
+    assertBoundedJson(value, RECEIVING_JSON_BYTES, 'Delivery checks');
   } catch {
     throw new ReceivingStorageCorruptionError();
   }
@@ -249,7 +264,7 @@ export function validateStoredReceiving(value: unknown): AwardReceivingV1 {
 export function buildReceivingSummary(input: {
   allocationLines: {
     v: 1;
-    lines: Array<{ supplierId: string; totalPaise: string }>;
+    lines: Array<{ supplierId: string; totalPaise: string; requestItemId?: string; quantity?: string; unit?: string; unitRatePaise?: string; gstBasisPoints?: number }>;
   };
   supplierSnapshots: {
     v: 1;
@@ -258,6 +273,7 @@ export function buildReceivingSummary(input: {
       supplierName: string;
       freightPaise: string;
       deliveryDate: string;
+      lines?: Array<{ requestItemId: string; itemKey?: string; itemName: string; taxInclusive: boolean }>;
     }>;
   };
   receiving: AwardReceivingV1;
@@ -272,9 +288,18 @@ export function buildReceivingSummary(input: {
         expectedTotal += BigInt(line.totalPaise);
       }
     }
+    const items: ReceivingAwardItem[] = input.allocationLines.lines.filter(line => line.supplierId === supplier.supplierId && line.requestItemId && line.quantity && line.unitRatePaise && line.unit).map(line => ({
+      requestItemId: line.requestItemId!, itemKey: supplier.lines?.find(i => i.requestItemId === line.requestItemId)?.itemKey ?? line.requestItemId!, itemName: supplier.lines?.find(i => i.requestItemId === line.requestItemId)?.itemName ?? line.requestItemId!,
+      orderedQuantity: line.quantity!, unit: line.unit!, unitRatePaise: line.unitRatePaise!, gstBasisPoints: line.gstBasisPoints ?? 0,
+      taxInclusive: supplier.lines?.find(i => i.requestItemId === line.requestItemId)?.taxInclusive ?? false,
+    }));
+    const itemFields = items.length ? { items } : {};
     const saved = checkBySupplier.get(supplier.supplierId);
+    let calculated: ReceivingCalculatedDetails | undefined;
+    try { if (saved?.details) calculated = calculateReceivingDetails(items, saved.details); } catch { throw new ReceivingStorageCorruptionError(); }
     if (!saved) {
       return {
+        ...itemFields,
         supplierId: supplier.supplierId,
         supplierName: supplier.supplierName,
         deliveryDate: supplier.deliveryDate,
@@ -284,14 +309,16 @@ export function buildReceivingSummary(input: {
     }
     const difference = BigInt(saved.invoiceTotalPaise) - expectedTotal;
     return {
+      ...itemFields,
       supplierId: supplier.supplierId,
       supplierName: supplier.supplierName,
       deliveryDate: supplier.deliveryDate,
       expectedTotalPaise: expectedTotal.toString(),
       check: {
         ...saved,
+        ...(calculated ?? {}),
         differencePaise: difference.toString(),
-        hasProblem: saved.outcome === 'ISSUES' || difference !== BigInt(0),
+        hasProblem: saved.outcome === 'ISSUES' || difference !== BigInt(0) || Boolean(calculated && (!calculated.deliveryComplete || calculated.discrepancyPaise !== '0' || calculated.creditRemainingPaise !== '0')),
       },
     };
   });
@@ -299,7 +326,7 @@ export function buildReceivingSummary(input: {
   return {
     checkedCount,
     totalCount: suppliers.length,
-    complete: suppliers.length > 0 && checkedCount === suppliers.length,
+    complete: suppliers.length > 0 && checkedCount === suppliers.length && suppliers.every(s => s.check?.deliveryComplete !== false),
     problemCount: suppliers.filter((supplier) => supplier.check?.hasProblem).length,
     suppliers,
   };

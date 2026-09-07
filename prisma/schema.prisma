@@ -57,6 +57,7 @@ model Tenant {
   isActive            Boolean              @default(true)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
+  servicePlans        ServicePlan[]
   users               User[]
   menus               Menu[]
   suppliers           Supplier[]
@@ -91,6 +92,7 @@ model User {
   tenant                Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   invitedBy             User?                @relation("UserInvitations", fields: [tenantId, invitedByUserId], references: [tenantId, id], onDelete: Restrict)
   invitedUsers          User[]               @relation("UserInvitations")
+  servicePlans          ServicePlan[]
   menusApproved         Menu[]               @relation("MenuApprover")
   menusCreated          Menu[]               @relation("MenuCreator")
   suppliersVerified     Supplier[]           @relation("SupplierVerifier")
@@ -119,6 +121,7 @@ model Menu {
   tenant           Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   approvedBy       User?                @relation("MenuApprover", fields: [tenantId, approvedByUserId], references: [tenantId, id], onDelete: Restrict)
   createdBy        User?                @relation("MenuCreator", fields: [tenantId, createdByUserId], references: [tenantId, id], onDelete: Restrict)
+  servicePlans     ServicePlan[]
   requests         ProcurementRequest[]
 
   @@unique([tenantId, id])
@@ -189,6 +192,7 @@ model ProcurementRequest {
   sourceRequest          ProcurementRequest?      @relation("RequestVersions", fields: [tenantId, sourceRequestId], references: [tenantId, id], onDelete: Restrict)
   revisions              ProcurementRequest[]     @relation("RequestVersions")
   createdBy              User                     @relation("ProcurementRequestCreator", fields: [tenantId, createdByUserId], references: [tenantId, id], onDelete: Restrict)
+  servicePlans           ServicePlan[]
   applicantSuppliers     Supplier[]               @relation("SupplierApplicationRequest")
   supplierRequests       SupplierRequest[]
   award                  Award?
@@ -267,4 +271,38 @@ model RateLimitBucket {
   keyDigest String   @id @db.Char(64)
   count     Int      @default(0)
   resetAt   DateTime
+}
+
+model ServicePlan {
+  id              String @id @default(uuid())
+  tenantId        String
+  name            String
+  version         Int @default(1)
+  serviceAt       DateTime
+  menuId          String
+  menuVersion     Int
+  menuSnapshot    Json
+  document        Json
+  requestId       String?
+  createdByUserId String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  tenant          Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  menu            Menu @relation(fields: [tenantId, menuId], references: [tenantId, id], onDelete: Restrict)
+  createdBy       User @relation(fields: [tenantId, createdByUserId], references: [tenantId, id], onDelete: Restrict)
+  request         ProcurementRequest? @relation(fields: [tenantId, requestId], references: [tenantId, id], onDelete: Restrict)
+  revisions       ServicePlanRevision[]
+  @@unique([tenantId, id])
+  @@index([tenantId, serviceAt])
+}
+
+model ServicePlanRevision {
+  id        String @id @default(uuid())
+  tenantId  String
+  planId    String
+  version   Int
+  document  Json
+  createdAt DateTime @default(now())
+  plan      ServicePlan @relation(fields: [tenantId, planId], references: [tenantId, id], onDelete: Restrict)
+  @@unique([tenantId, planId, version])
 }

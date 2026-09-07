@@ -227,3 +227,31 @@ describe('receiving service', () => {
     expect(outsider.award.updateMany).not.toHaveBeenCalled();
   });
 });
+
+const itemDetails = {
+  items: [{ requestItemId: 'tomato', receivedQuantity: '6', rejectedQuantity: '1', billedQuantity: '10', billedUnitRatePaise: '10000' }],
+  actualDeliveryDate: '2026-09-05', creditClaimedPaise: '50000', creditReceivedPaise: '20000', settlementNote: 'Credit pending',
+};
+it('records partial item receipts and credit without changing accepted snapshots', async () => {
+  const transaction = fakeTransaction();
+  const result = await operationsFor(transaction).operations.record({ ...input, check: { ...input.check, details: itemDetails } });
+  expect(result).toMatchObject({ hasProblem: true, deliveryComplete: false, creditRemainingPaise: '30000', discrepancyPaise: '50000', details: itemDetails });
+  expect(Object.keys(transaction.award.updateMany.mock.calls[0][0].data)).toEqual(['receiving']);
+});
+it.each(['foreign', 'excess', 'missing'])('rejects %s item allocations before writing', async candidate => {
+  const transaction = fakeTransaction();
+  const items = candidate === 'missing' ? [] : [{ ...itemDetails.items[0], ...(candidate === 'foreign' ? { requestItemId: 'foreign' } : { receivedQuantity: '12' }) }];
+  await expect(operationsFor(transaction).operations.record({ ...input, check: { ...input.check, details: { ...itemDetails, items } } })).rejects.toMatchObject({ status: 422 });
+  expect(transaction.award.updateMany).not.toHaveBeenCalled();
+});
+it('advances same-millisecond concurrency tokens and prevents legacy downgrade', async () => {
+  const transaction = fakeTransaction();
+  transaction.award.findFirst.mockResolvedValue({ ...awardRecord(), receiving: { v: 1, suppliers: [{ ...input.check, expectedCheckedAt: undefined, checkedAt: '2026-09-04T10:20:30.000Z', details: itemDetails }] } });
+  const stored = transaction.award.findFirst.getMockImplementation();
+  // Use a JSON round trip to model persisted JSON (no undefined properties).
+  transaction.award.findFirst.mockResolvedValue(JSON.parse(JSON.stringify(await stored!(), (_k, v) => typeof v === 'bigint' ? v.toString() : v)));
+  const check = { ...input.check, expectedCheckedAt: '2026-09-04T10:20:30.000Z' };
+  await expect(operationsFor(transaction).operations.record({ ...input, check })).rejects.toMatchObject({ status: 409 });
+  const result = await operationsFor(transaction).operations.record({ ...input, check: { ...check, details: itemDetails } });
+  expect(result.checkedAt).toBe('2026-09-04T10:20:30.001Z');
+});

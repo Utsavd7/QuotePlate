@@ -5,13 +5,13 @@ import {
   ReceivingNotFoundError,
   ReceivingSupplierError,
 } from '@/lib/receiving/receiving-service';
-import { ReceivingValidationError } from '@/lib/receiving/receiving-document';
+import { validateReceivingInput, ReceivingValidationError } from '@/lib/receiving/receiving-document';
 import { requireAccountContext } from '@/lib/server-account';
 
 jest.mock('@/lib/server-account', () => ({ requireAccountContext: jest.fn() }));
 jest.mock('@/lib/receiving/receiving-service', () => ({
   recordDeliveryCheck: jest.fn(),
-  RECEIVING_BODY_BYTES: 8192,
+  RECEIVING_BODY_BYTES: jest.requireActual('@/lib/receiving/receiving-service').RECEIVING_BODY_BYTES,
   ReceivingNotFoundError: jest.requireActual('@/lib/receiving/receiving-service').ReceivingNotFoundError,
   ReceivingSupplierError: jest.requireActual('@/lib/receiving/receiving-service').ReceivingSupplierError,
   ReceivingConflictError: jest.requireActual('@/lib/receiving/receiving-service').ReceivingConflictError,
@@ -81,7 +81,7 @@ describe('receiving route', () => {
     });
     const oversized = new Request('http://localhost/api/awards/award-a/receiving', {
       method: 'POST', headers: {
-        'Content-Type': 'application/json', 'Content-Length': '8193',
+        'Content-Type': 'application/json', 'Content-Length': String(128 * 1024 + 1),
       }, body: '{}',
     });
 
@@ -91,4 +91,20 @@ describe('receiving route', () => {
     expect((await POST(oversized, context as never)).status).toBe(413);
     expect(recordDeliveryCheck).not.toHaveBeenCalled();
   });
+});
+
+
+it('passes detailed receiving through the tenant-bound route and reports exact validation failures', async () => {
+  jest.mocked(requireAccountContext).mockResolvedValue(account as never);
+  jest.mocked(recordDeliveryCheck).mockImplementation(async input => {
+    const parsed = validateReceivingInput(input.check);
+    return { ...parsed, expectedTotalPaise: '105000', differencePaise: '0', checkedAt: '2026-09-05T10:00:00.000Z', hasProblem: true };
+  });
+  const details = { items: [{ requestItemId: 'tomato', receivedQuantity: '5', rejectedQuantity: '1', billedQuantity: '10', billedUnitRatePaise: '10000' }], actualDeliveryDate: '2026-09-05', creditClaimedPaise: '60000', creditReceivedPaise: '10000', settlementNote: 'Awaiting credit note' };
+  const response = await POST(request({ ...body, details }), context);
+  expect(response.status).toBe(200);
+  expect((await response.json()).check.details).toEqual(details);
+  expect(response.headers.get('cache-control')).toBe('private, no-store');
+  expect((await POST(request({ ...body, details: { ...details, creditReceivedPaise: '60001' } }), context)).status).toBe(422);
+  expect((await POST(request({ ...body, tenantId: 'other', details }), context)).status).toBe(422);
 });
