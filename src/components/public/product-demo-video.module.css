@@ -2,8 +2,12 @@
 .header { display: grid; grid-template-columns: 1.2fr 1fr; gap: 3rem; align-items: end; margin-bottom: 2rem; }
 .header h2 { max-width: 22ch; margin: 0; font: 460 clamp(2.2rem, 3.8vw, 3.4rem)/1.04 var(--font-display); letter-spacing: -.035em; text-wrap: balance; }
 .header > p { max-width: 42ch; margin: 0; color: var(--muted); line-height: 1.75; }
-.player { border: 1px solid #c5c1b7; border-radius: 10px; overflow: hidden; background: var(--ink); }
+.player { position: relative; border: 1px solid #c5c1b7; border-radius: 10px; overflow: hidden; background: var(--ink); }
 .player video { width: 100%; height: auto; aspect-ratio: 16 / 9; display: block; }
+.unmute { position: absolute; top: 1rem; right: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: .6rem; min-height: 48px; padding: .75rem 1.25rem; border: 1px solid #c5c1b7; border-radius: 999px; background: #fffdf6; color: #14261e; box-shadow: 0 4px 20px #0004; font: inherit; font-size: .95rem; font-weight: 650; white-space: nowrap; cursor: pointer; }
+.unmute:hover { background: #f1ecdf; }
+.unmute:focus-visible { outline: 3px solid #cb6e35; outline-offset: 4px; }
+.unmute svg { width: 20px; height: 20px; }
 .error a { color: var(--ink); text-underline-offset: .2em; }
 .error { color: #8d3027; line-height: 1.6; }
 @media (max-width: 640px) {
