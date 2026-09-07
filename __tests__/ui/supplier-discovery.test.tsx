@@ -22,7 +22,10 @@ describe('supplier discovery entry point', () => {
     expect(html).toContain('results are not imported into QuotePlate');
     expect(html).toContain('Area matches are approximate');
     expect(html).toContain('Add reviewed supplier');
-    expect(html).not.toContain('href=');
+    expect(html).toContain('https://www.openstreetmap.org/copyright');
+    expect(html.slice(html.indexOf('<details'))).not.toContain('href=');
+    expect(html).not.toContain('https://www.google.com/search');
+    expect(html).not.toContain('https://www.justdial.com');
     expect(html).not.toContain('<iframe');
   });
 

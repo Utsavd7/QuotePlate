@@ -5,10 +5,13 @@ import { PROCUREMENT_CATEGORIES } from '@/lib/domain/procurement-categories';
 import { buildSupplierDiscoveryLinks, type SupplierDiscoveryInput } from '@/lib/suppliers/discovery';
 import { supplierSearchEngineId } from '@/lib/suppliers/google-search-element';
 
+import { NearbySupplierSearch } from './NearbySupplierSearch';
+import type { NearbyPrefill } from '@/lib/suppliers/nearby-types';
+
 import { GoogleSupplierSearch } from './GoogleSupplierSearch';
 import styles from './supplier-discovery.module.css';
 
-export function SupplierDiscovery({ onAddSupplier }: { onAddSupplier: () => void }) {
+export function SupplierDiscovery({ onAddSupplier }: { onAddSupplier: (prefill?: NearbyPrefill) => void }) {
   const searchEngineId = supplierSearchEngineId(process.env.NEXT_PUBLIC_SUPPLIER_SEARCH_ENGINE_ID);
   const [input, setInput] = useState<SupplierDiscoveryInput>({
     ingredient: '', locality: '', city: '', state: '', pin: '',
@@ -32,10 +35,12 @@ export function SupplierDiscovery({ onAddSupplier }: { onAddSupplier: () => void
   }
 
   return (
+    <>
+    <NearbySupplierSearch onAddSupplier={onAddSupplier} />
     <details className={styles.panel}>
       <summary className={styles.summary}>
         <MapPin aria-hidden="true" />
-        <span><strong>Find nearby suppliers</strong><span>Search your area, then add suppliers you have reviewed.</span></span>
+        <span><strong>Search other websites</strong><span>Search your area, then add suppliers you have reviewed.</span></span>
         <ChevronDown className={styles.chevron} aria-hidden="true" />
       </summary>
       <div className={styles.content}>
@@ -85,9 +90,10 @@ export function SupplierDiscovery({ onAddSupplier }: { onAddSupplier: () => void
         </p>
         <div className={styles.nextStep}>
           <p><strong>Found a suitable supplier?</strong><span>Review their details, then add them here. Applications and approvals stay in your existing workflow.</span></p>
-          <button type="button" onClick={onAddSupplier}><Plus aria-hidden="true" /> Add reviewed supplier</button>
+          <button type="button" onClick={() => onAddSupplier()}><Plus aria-hidden="true" /> Add reviewed supplier</button>
         </div>
       </div>
     </details>
+    </>
   );
 }

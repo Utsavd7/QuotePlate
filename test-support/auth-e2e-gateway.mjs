@@ -254,6 +254,22 @@ export async function startAuthGateway({
         return;
       }
 
+      if (url.pathname === '/__test/database/reset-quote-submit-client-rate-limit' && request.method === 'POST') {
+        // Only the production-mode localhost quote-submission client bucket.
+        // Preserve per-grant quotas, quote-access limits, and all application data.
+        const subjectDigest = createHash('sha256')
+          .update('quoteplate:v1:public-client:quote-submit:', 'utf8')
+          .update('production-unidentified', 'utf8')
+          .digest('hex');
+        const keyDigest = createHash('sha256')
+          .update('quoteplate:v1:rate-limit:supplier-quote-submit-client:', 'utf8')
+          .update(subjectDigest, 'ascii')
+          .digest('hex');
+        await admin.rateLimitBucket.deleteMany({ where: { keyDigest } });
+        response.writeHead(204).end();
+        return;
+      }
+
       if (url.pathname === '/__test/database/identity-lookup' && request.method === 'POST') {
         const body = JSON.parse((await bodyBuffer(request)).toString('utf8'));
         const privilege = body.available ? 'GRANT' : 'REVOKE';
@@ -301,6 +317,23 @@ export async function startAuthGateway({
         const grantId = `e2e-grant-${suffix}`;
         const supplierName = 'GreenLeaf Export Foods';
         const itemName = 'Tomato';
+        // Opt-in only: preserve existing export/readiness journeys while giving
+        // collaboration E2E real competing allocations to exclude from the portal.
+        const competitor = body.vendorCollaboration === true ? {
+          supplierId: `e2e-competitor-${suffix}`,
+          grantId: `e2e-competitor-grant-${suffix}`,
+          supplierName: 'Private Rival Produce',
+          itemId: `e2e-rival-item-${suffix}`,
+          itemName: 'Private rival shallots',
+        } : null;
+        const documents = compactRequestDocuments({ itemId, itemName, quantity: '100', supplierId });
+        if (competitor) {
+          documents.sourcing.default.currentSupplierIds.push(competitor.supplierId);
+          documents.items.items.push(...compactRequestDocuments({
+            itemId: competitor.itemId, itemName: competitor.itemName,
+            quantity: '20', supplierId: competitor.supplierId,
+          }).items.items);
+        }
         await admin.$transaction(async (transaction) => {
           await transaction.supplier.create({
             data: {
@@ -329,12 +362,7 @@ export async function startAuthGateway({
               title: 'Fresh produce · Export journey',
               status: 'OPEN',
               version: 2,
-              ...compactRequestDocuments({
-                itemId,
-                itemName,
-                quantity: '100',
-                supplierId,
-              }),
+              ...documents,
               deliveryDetails: {
                 addressLine: '18 Koregaon Park Road',
                 city: 'Pune',
@@ -360,12 +388,33 @@ export async function startAuthGateway({
               quoteRevisions: { v: 1, revisions: [] },
             },
           });
+          if (competitor) {
+            await transaction.supplier.create({ data: {
+              id: competitor.supplierId, tenantId: user.tenantId,
+              businessName: competitor.supplierName,
+              capabilities: { v: 1, categories: [], items: [] },
+              relationshipType: 'CURRENT',
+              verificationStatus: 'VERIFIED',
+              verifiedAt: new Date(),
+              verifiedByUserId: user.id,
+            } });
+            await transaction.supplierRequest.create({ data: {
+              id: competitor.grantId, tenantId: user.tenantId, requestId,
+              supplierId: competitor.supplierId,
+              tokenDigest: randomBytes(32).toString('hex'),
+              expiresAt: new Date('2099-09-03T10:00:00.000Z'),
+              quoteRevisions: { v: 1, revisions: [] },
+            } });
+          }
         });
         json(response, 201, {
           requestId,
           itemId,
           itemName,
           supplierName,
+          supplierId,
+          grantId,
+          ...(competitor ? { competitor } : {}),
         });
         return;
       }

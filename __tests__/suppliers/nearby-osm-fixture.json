@@ -1,0 +1,341 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.4 2390de5a",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-07T16:06:51Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 1575351612,
+  "lat": 19.1030656,
+  "lon": 72.8475709,
+  "tags": {
+    "addr:housename": "Siddhachal",
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Regal Optics",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1575392943,
+  "lat": 19.1032024,
+  "lon": 72.8481771,
+  "tags": {
+    "addr:housename": "Raghuvir Stores",
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Raghuvir Stores",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1577886641,
+  "lat": 19.1034482,
+  "lon": 72.8491050,
+  "tags": {
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Hari Om Milk & Colddrink",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1577896105,
+  "lat": 19.1033823,
+  "lon": 72.8497784,
+  "tags": {
+    "addr:housename": "Thosar Wadi",
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Thote Milk",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1579233928,
+  "lat": 19.1035900,
+  "lon": 72.8514949,
+  "tags": {
+    "addr:housename": "Dunhill Castle",
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Mukesh Lights & Ceramics",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1579236056,
+  "lat": 19.1035804,
+  "lon": 72.8515897,
+  "tags": {
+    "addr:housename": "Pankaj",
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Pankaj",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1579307832,
+  "lat": 19.1036180,
+  "lon": 72.8527235,
+  "tags": {
+    "addr:housename": "Amba Bhavan",
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Jayant Janaral Stores",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1579316214,
+  "lat": 19.1037955,
+  "lon": 72.8527609,
+  "tags": {
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Sapre",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1579320391,
+  "lat": 19.1037751,
+  "lon": 72.8530184,
+  "tags": {
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Vaibhav Decorators",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1579323417,
+  "lat": 19.1038094,
+  "lon": 72.8529082,
+  "tags": {
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Ganesh Stores",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1579346900,
+  "lat": 19.1035647,
+  "lon": 72.8536487,
+  "tags": {
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Naresh Ceramics",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1586923282,
+  "lat": 19.1037984,
+  "lon": 72.8530721,
+  "tags": {
+    "addr:housename": "New Krishna Cottage",
+    "addr:postcode": "400057",
+    "addr:street": "Hanuman Road",
+    "name": "Krishna Dairy Farm",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 1836510486,
+  "lat": 19.1178214,
+  "lon": 72.8533808,
+  "tags": {
+    "designation": "Chartered Accountant",
+    "name": "Jain Tripathi & Co.",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 3659794380,
+  "lat": 19.1130816,
+  "lon": 72.8621873,
+  "tags": {
+    "name": "Maru Stores",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 3979083602,
+  "lat": 19.1137022,
+  "lon": 72.8409461,
+  "tags": {
+    "name": "Vimal Stores",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 6110950085,
+  "lat": 19.1004455,
+  "lon": 72.8457370,
+  "tags": {
+    "name:en": "Big Baazar",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 6220388885,
+  "lat": 19.1105604,
+  "lon": 72.8662660,
+  "tags": {
+    "name:en": "Bon Bon",
+    "shop": "supermarket"
+  }
+},
+{
+  "type": "node",
+  "id": 10632847541,
+  "lat": 19.1327081,
+  "lon": 72.8497098,
+  "tags": {
+    "addr:city": "mumbai",
+    "addr:housenumber": "shop no 2",
+    "addr:postcode": "400060",
+    "addr:street": "Hindu Friends Society Marg",
+    "air_conditioning": "yes",
+    "check_date": "2026-03-12",
+    "name": "saraswati stores",
+    "opening_hours": "Mo-Su 08:00-23:00",
+    "operator": "ritesh and kamlesh chowhan",
+    "payment:cash": "yes",
+    "payment:coins": "yes",
+    "payment:credit_cards": "yes",
+    "payment:debit_cards": "yes",
+    "payment:mastercard": "yes",
+    "payment:visa": "yes",
+    "phone": "02228227111",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 10929744306,
+  "lat": 19.1136158,
+  "lon": 72.8477938,
+  "tags": {
+    "name:en": "D-Mart",
+    "shop": "supermarket"
+  }
+},
+{
+  "type": "node",
+  "id": 13252681185,
+  "lat": 19.1189221,
+  "lon": 72.8463634,
+  "tags": {
+    "level": "1",
+    "name": "Society Tea Terminal",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 13392332995,
+  "lat": 19.1054397,
+  "lon": 72.8588210,
+  "tags": {
+    "level": "0",
+    "name": "Natraj General Stores",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "node",
+  "id": 13501093216,
+  "lat": 19.1046014,
+  "lon": 72.8589890,
+  "tags": {
+    "level": "0",
+    "name": "National Bakery and General Stores",
+    "shop": "convenience",
+    "wheelchair": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 13516940287,
+  "lat": 19.1282199,
+  "lon": 72.8406348,
+  "tags": {
+    "level": "0",
+    "shop": "supermarket"
+  }
+},
+{
+  "type": "node",
+  "id": 13589398557,
+  "lat": 19.1173437,
+  "lon": 72.8480856,
+  "tags": {
+    "level": "0",
+    "name": "Raj Super Market",
+    "shop": "convenience",
+    "wheelchair": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 14077312051,
+  "lat": 19.1161034,
+  "lon": 72.8555018,
+  "tags": {
+    "brand": "7-Eleven",
+    "brand:wikidata": "Q259340",
+    "name": "7-Eleven",
+    "operator": "7/11",
+    "payment:account_cards": "yes",
+    "payment:mobile_app": "yes",
+    "shop": "convenience"
+  }
+},
+{
+  "type": "way",
+  "id": 1330349899,
+  "center": {
+    "lat": 19.1083287,
+    "lon": 72.8394026
+  },
+  "nodes": [
+    12308967212,
+    12308967213,
+    12308967214,
+    12308967215,
+    12308967212
+  ],
+  "tags": {
+    "building": "yes",
+    "name": "Alfa 1",
+    "name:en": "Alfa 1",
+    "shop": "supermarket"
+  }
+}
+
+  ]
+}

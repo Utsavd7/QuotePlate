@@ -14,6 +14,9 @@ const currentTables = [
   'ServicePlan',
   'ServicePlanRevision',
   'Supplier',
+  'SupplierCollaboration',
+  'SupplierDemandShare',
+  'SupplierPortal',
   'SupplierRequest',
   'Tenant',
   'User',
@@ -143,6 +146,11 @@ test('deploys every migration to an empty PostgreSQL database without schema dri
         }),
         expect.objectContaining({
           migration_name: '20260907000100_service_planning',
+          finished_at: expect.any(Date),
+          rolled_back_at: null,
+        }),
+        expect.objectContaining({
+          migration_name: '20260907000200_supplier_collaboration',
           finished_at: expect.any(Date),
           rolled_back_at: null,
         }),

@@ -33,6 +33,7 @@ import {
 
 import styles from './supplier-workspace.module.css';
 import { SupplierDiscovery } from './SupplierDiscovery';
+import type { NearbyPrefill } from '@/lib/suppliers/nearby-types';
 
 type SupplierSummary = {
   id: string;
@@ -317,6 +318,8 @@ export function SupplierWorkspace({
     ? { kind: 'load', message: initialError }
     : null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [discoveryReview, setDiscoveryReview] = useState(false);
+  const [discoveryVerified, setDiscoveryVerified] = useState(false);
   const [editing, setEditing] = useState<SupplierSummary | null>(null);
   const [draft, setDraft] = useState<SupplierDraft>(emptyDraft);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -416,14 +419,16 @@ export function SupplierWorkspace({
     };
   }, [editorOpen]);
 
-  function openCreate() {
+  function openCreate(prefill?: NearbyPrefill) {
+    setDiscoveryReview(Boolean(prefill));
+    setDiscoveryVerified(false);
     editorRequest.current += 1;
     savingRef.current = false;
     setSaving(false);
     setEditorLoading(false);
     setEditorReady(true);
     setEditing(null);
-    setDraft(emptyDraft);
+    setDraft({ ...emptyDraft, ...prefill });
     setFieldErrors({});
     setEditorError(null);
     setEditorOpen(true);
@@ -476,7 +481,7 @@ export function SupplierWorkspace({
 
   async function saveSupplier(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (saving || !editorReady || !draft.businessName.trim()) return;
+    if (saving || !editorReady || !draft.businessName.trim() || (!editing && discoveryReview && !discoveryVerified)) return;
     savingRef.current = true;
     setSaving(true);
     setEditorError(null);
@@ -691,13 +696,13 @@ export function SupplierWorkspace({
             Keep the suppliers you already use and what each one can supply in one place.
           </p>
         </div>
-        <button className={styles.primaryButton} type="button" onClick={openCreate}>
+        <button className={styles.primaryButton} type="button" onClick={() => openCreate()}>
           <Plus aria-hidden="true" /> Add supplier
         </button>
       </header>
 
       <aside aria-label="Restaurant data privacy" className={styles.notice}>
-        <span>Your recipes, menus, supplier prices, and purchase records stay private to your restaurant. Other restaurants cannot see them, and suppliers see only the request you send to them.</span>
+        <span>Your restaurant data is private from other restaurants. Each supplier can see requests you send them, their own orders and delivery checks, and estimates you explicitly share with them. Your recipes, menus and other suppliers’ prices are not shared.</span>
       </aside>
 
       <SupplierDiscovery onAddSupplier={openCreate} />
@@ -790,7 +795,7 @@ export function SupplierWorkspace({
           <p className={styles.eyebrow}>Start here</p>
           <h2>Add your first supplier</h2>
           <p>No supplier account is needed. Add a contact, then send them a secure quote link when your request is ready.</p>
-          <button className={styles.primaryButton} type="button" onClick={openCreate}>
+          <button className={styles.primaryButton} type="button" onClick={() => openCreate()}>
             <Plus aria-hidden="true" /> Add supplier
           </button>
         </section>
@@ -944,6 +949,10 @@ export function SupplierWorkspace({
                   </label>
                 </div>
               </fieldset>
+              {!editing && discoveryReview && <div className={styles.discoveryReview}>
+                <p>This map listing is unverified. Saving it marks the supplier as verified by your restaurant team; the map service has not checked its procurement capability.</p>
+                <label><input type="checkbox" checked={discoveryVerified} disabled={saving} onChange={event => setDiscoveryVerified(event.target.checked)} required /> I have checked this supplier’s contact details and ability to supply our restaurant.</label>
+              </div>}
               <footer>
                 {editing?.isActive && (
                   <button className={styles.dangerButton} type="button" onClick={() => {
@@ -954,7 +963,7 @@ export function SupplierWorkspace({
                   </button>
                 )}
                 <button className={styles.secondaryButton} type="button" disabled={saving} onClick={() => setEditorOpen(false)}>Cancel</button>
-                <button className={styles.primaryButton} type="submit" disabled={saving || !editorReady || !draft.businessName.trim()}>
+                <button className={styles.primaryButton} type="submit" disabled={saving || !editorReady || !draft.businessName.trim() || (!editing && discoveryReview && !discoveryVerified)}>
                   {saving ? 'Saving…' : editing ? 'Save changes' : 'Add supplier'}
                 </button>
               </footer>

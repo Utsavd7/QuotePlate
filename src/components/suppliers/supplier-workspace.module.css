@@ -210,3 +210,7 @@
 }
 
 .search:focus-within { outline: 2px solid #9f4e27; outline-offset: 2px; }
+
+.discoveryReview { margin:0 24px 20px; padding:16px; background:#f7f0df; border:1px solid #d7bf8c; border-radius:8px; color:#4c421f; font-size:.875rem; line-height:1.6; }
+.discoveryReview label { display:flex; align-items:flex-start; gap:10px; min-height:44px; cursor:pointer; }
+.discoveryReview input { flex-shrink:0; width:18px; height:18px; margin-top:4px; }

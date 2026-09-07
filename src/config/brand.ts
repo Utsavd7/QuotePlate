@@ -4,5 +4,5 @@ export const brand = Object.freeze({
   tagline: 'Every quote, accountable.',
   category: 'Restaurant ingredient procurement',
   description:
-    'Plan restaurant portions and ingredient shortages, compare supplier quotes, check deliveries, track credits and learn from supplier performance in one private workspace.',
+    'Find nearby food suppliers, plan ingredient purchases, compare quotes and work with vendors on orders, delivery checks and credits in one private workspace.',
 });

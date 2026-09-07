@@ -678,7 +678,7 @@ export function MenuWorkspace({
         <ArrowRight aria-hidden="true" />
         <span><strong>3</strong> Approve when checked</span>
         <small className={styles.privacyReassurance}>
-          Your recipes and menus stay private to your restaurant. Nothing is sent to suppliers until you open a buying request. Supplier prices and purchase records stay private too, and other restaurants cannot see any of these records. Suppliers see only the request you send to them.
+          Your recipes and menus stay private to your restaurant. Other restaurants cannot see your records. Suppliers see requests you send, their own orders and delivery checks, and ingredient estimates you explicitly share. Other suppliers’ prices remain private.
         </small>
       </aside>
 

@@ -46,7 +46,7 @@ describe('mobile navigation accessibility contract', () => {
     expect(privacy).toBeGreaterThan(-1);
     expect(source).toContain('Private to your restaurant');
     expect(source).toContain(
-      'Recipes, menus, supplier prices, and purchase records stay private. Other restaurants cannot see them. Suppliers see only requests you send.',
+      'Other restaurants cannot see your records. Suppliers see their requests, own orders and delivery checks, and estimates you choose to share. Recipes, menus and other suppliers’ prices stay private.',
     );
     expect(account).toBeGreaterThan(privacy);
     expect(source.slice(privacy, account)).not.toContain('<nav');

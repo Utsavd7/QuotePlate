@@ -358,7 +358,9 @@ describe('public website contract', () => {
     expect(markup).toMatch(/human (?:decision|approval)/i);
     expect(markup).toContain('Your recipes stay private with your restaurant.');
     expect(markup).toContain('Your restaurant team');
-    expect(markup).toContain('Only the request sent to them');
+    expect(markup).toContain('Their requests, awarded items, delivery checks and explicitly shared ingredient estimates');
+    expect(markup).toContain('No supplier account required.');
+    expect(markup).toContain('Open-map listings are free to search');
     expect(markup).toContain('Other restaurants');
     expect(markup).toContain('Cannot see your information');
     expect(markup).toContain('Private supplier links expire');
