@@ -1,7 +1,7 @@
 QuotePlate product film — final media credits
-150 seconds · 2560 × 1440 · 30 fps
+225 seconds · 2560 × 1440 · 30 fps
 
-Working-application footage: QuotePlate, recorded in an isolated local environment with fictional Monsoon Table restaurant, supplier and purchasing data. Routine actions are condensed and selectively accelerated; the film makes no execution-speed claim. Native interface capture is 2560 × 1352, scaled down inside the branded QHD frame. No spatial upscaling. No production records or real supplier messages were used.
+Working-application footage: QuotePlate, recorded in an isolated local environment with fictional Monsoon Table restaurant, supplier and purchasing data. Routine actions are condensed and selectively accelerated; the film makes no execution-speed claim. Native interface capture is 2560 × 1352, placed inside the branded QHD frame. No spatial upscaling. No production records or real supplier messages were used.
 
 Opening and closing footage: the approved kitchen footage is retained, with one extra second of moving tomato-cutting footage and a gentle dissolve into the application. Chef working in a large kitchen (Mixkit 43048) and Splitting cherry tomatoes for a salad (Mixkit 43908), under the Stock Video Free License. Original 4K sources were reduced to QHD. The people shown do not represent QuotePlate customers or endorsements. No kitchen cutaways interrupt the application sequence.
 https://mixkit.co/free-stock-video/chef-working-in-a-large-kitchen-43048/
@@ -12,7 +12,7 @@ Music: Relax Beat, Arulo (Mixkit 292), Stock Music Free License.
 https://mixkit.co/free-stock-music/ambient/
 https://mixkit.co/license/#musicFree
 
-Voice: Kokoro af_heart stock synthetic American-English narration at natural speed, using the previously approved voice with locally generated explanations of the available workflow choices. The original opening and closing lines are reused. No human voice clone.
+Voice: Kokoro af_heart stock synthetic American-English narration at natural speed, using the previously approved voice with locally generated explanations of the available workflow choices. The original opening and closing lines are reused. The September 2026 update adds locally generated narration and real application recordings for item-level receiving, credits, supplier performance and daily service planning. No human voice clone.
 https://github.com/hexgrad/kokoro
 
 Original quiet click effects follow recorded clicks.

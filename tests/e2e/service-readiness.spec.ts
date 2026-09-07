@@ -1,5 +1,6 @@
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { expectNoSeriousAxeViolations } from './helpers/accessibility';
+import { resetSignupClientRateLimit } from './helpers/signup';
 
 // Reuse the real auth and procurement-export-journey setup from product-workspace.spec.ts.
 // No application routes are mocked: the harness starts isolated PostgreSQL with migrations/RLS.
@@ -8,6 +9,7 @@ test.use({ actionTimeout: 15_000, navigationTimeout: 30_000 });
 const fixtureOrigin = 'http://127.0.0.1:52562';
 const password = 'Local-only export test password 42!';
 async function signInOwner(page: Page, testInfo: TestInfo, purpose: string) {
+  await resetSignupClientRateLimit(page.request);
   const email = `readiness-${purpose}-${testInfo.project.name}-${Date.now()}@example.com`;
   const created = await page.request.post('/api/auth/start', { data: {
     method: 'email', restaurantName: 'Service Readiness Kitchen', ownerName: 'Asha Rao', email, password,

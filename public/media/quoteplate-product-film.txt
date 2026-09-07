@@ -1,4 +1,4 @@
-QuotePlate — 150-second product film
+QuotePlate — 225-second product film
 Actual app recordings, condensed for the film. Fictional restaurant data. Synthetic American-English narration.
 
 Your next service starts long before the first plate.
@@ -25,7 +25,17 @@ Choose one supplier for the whole request, or split the purchase by item.
 
 For this order, choose one supplier and save the purchasing decision.
 
-When the order arrives, check the invoice. Record a complete delivery, or flag delays, missing quantities, wrong items or poor quality.
+Check each delivery against the quantities you awarded. Record everything received, separate rejected items, and enter billed quantities and rates. Partial deliveries stay visible until the remaining quantities arrive.
+
+Keep money owed in view. Record the credit claimed, how much has been received, and the settlement reference. Update these recorded amounts when the supplier settles the balance.
+
+Supplier performance brings accepted quantities, rejection rates, delivery dates and outstanding credits together. Missing checks never count as successful deliveries. Limited history is clearly labelled.
+
+Before the next service, choose an approved menu. Enter the servings each recipe batch makes, your planned portions, usable stock and expected yield. Add incoming supplies only when their arrival is confirmed.
+
+Here, the kitchen needs ten kilos, with four kilos already usable. At eighty percent yield, the remaining six kilos require a seven point five kilo purchase. Shared stock is counted once.
+
+Create a purchase draft for the missing ingredients. Review suppliers and delivery terms before sending. Repeat the daily plan for another service, with fresh stock counts.
 
 Next time, open your history. Repeat the purchase as a new draft. Update the dates and review it before sending.
 

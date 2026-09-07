@@ -239,6 +239,21 @@ export async function startAuthGateway({
         return;
       }
 
+      if (url.pathname === '/__test/database/reset-workspace-client-rate-limit' && request.method === 'POST') {
+        // next start has no trusted hosting proxy, so all local signup fixtures
+        // share this client bucket. Reset only it, preserving email limits and data.
+        const subjectDigest = createHash('sha256')
+          .update('quoteplate:v1:auth-rate-limit-subject:client:production-unidentified')
+          .digest('hex');
+        const keyDigest = createHash('sha256')
+          .update('quoteplate:v1:rate-limit:auth-workspace-create-client:')
+          .update(subjectDigest, 'ascii')
+          .digest('hex');
+        await admin.rateLimitBucket.deleteMany({ where: { keyDigest } });
+        response.writeHead(204).end();
+        return;
+      }
+
       if (url.pathname === '/__test/database/identity-lookup' && request.method === 'POST') {
         const body = JSON.parse((await bodyBuffer(request)).toString('utf8'));
         const privilege = body.available ? 'GRANT' : 'REVOKE';

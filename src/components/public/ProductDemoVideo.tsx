@@ -16,7 +16,7 @@ export function ProductDemoVideo() {
           <p className="public-eyebrow">The buying journey</p>
           <h2 id="demo-title">From your kitchen to a clearer purchase.</h2>
         </div>
-        <p>Follow Monsoon Table, our fictional restaurant in Pune, from a menu photo to supplier prices, a purchasing decision and a checked delivery. This film covers the core buying flow; explore service planning, item-level receiving and credit tracking below.</p>
+        <p>Follow Monsoon Table, our fictional restaurant in Pune, from a menu photo to supplier quotes, a purchase and item-level delivery checks. See credit tracking, supplier performance and a daily service plan turn missing ingredients into a purchase draft.</p>
       </header>
       <div className={styles.player}>
         <video controls playsInline preload="none" width={2560} height={1440}

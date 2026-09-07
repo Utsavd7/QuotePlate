@@ -599,6 +599,8 @@ test('footer destinations share the public page frame', async ({ page }, testInf
 test('Security links frame the section below the shared header', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chromium', 'One project covers both header layouts');
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  // Fractional layout and scroll rounding can differ by slightly over one CSS pixel.
+  const anchorTolerance = 2;
   for (const width of [1507, 900, 390]) {
     await page.setViewportSize({ width, height: 751 });
     for (const route of ['/', '/privacy']) {
@@ -606,12 +608,12 @@ test('Security links frame the section below the shared header', async ({ page }
       await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Security' }).click();
       await expect.poll(() => page.locator('#security').evaluate((element) => (
         element.getBoundingClientRect().top
-      )).then(top => Math.abs(top - (width > 760 ? 128 : 0)))).toBeLessThanOrEqual(1);
+      )).then(top => Math.abs(top - (width > 760 ? 128 : 0)))).toBeLessThanOrEqual(anchorTolerance);
       await expect(page.locator('#privacy-story-title')).toBeInViewport();
     }
     await page.getByRole('navigation', { name: 'Footer navigation' }).getByRole('link', { name: 'Security' }).click();
     await expect.poll(() => page.locator('#security').evaluate((element) => (
       element.getBoundingClientRect().top
-    )).then(top => Math.abs(top - (width > 760 ? 128 : 0)))).toBeLessThanOrEqual(1);
+    )).then(top => Math.abs(top - (width > 760 ? 128 : 0)))).toBeLessThanOrEqual(anchorTolerance);
   }
 });
