@@ -1,6 +1,6 @@
 import { assertBoundedJson } from '@/lib/domain/postgres-json';
 import { createHash } from 'node:crypto';
-import type { PortalAction, PortalForecast } from './types';
+import type { PortalAction, PortalForecast, PortalSubmission } from './types';
 export class PortalError extends Error {
   constructor(message: string, readonly status = 422) { super(message); }
 }
@@ -28,6 +28,12 @@ export function parseAction(value: unknown): PortalAction {
   if (action === 'acknowledge' && (b.status === 'confirmed' || b.status === 'needs_change')) return { ...common, action, status: b.status };
   if (action === 'delivery-response' && (b.decision === 'agree' || b.decision === 'dispute') && typeof b.fingerprint === 'string' && /^[a-f0-9]{64}$/.test(b.fingerprint)) return { ...common, action, decision: b.decision, fingerprint: b.fingerprint, evidenceReference: text(b.evidenceReference, 200, true) };
   throw new PortalError('Invalid collaboration action.');
+}
+export function parseSubmission(value: unknown): PortalSubmission {
+  bounded(value, 16384);
+  if (!value || typeof value !== 'object' || Object.getPrototypeOf(value) !== Object.prototype) throw new PortalError('Provide the expected JSON fields.');
+  const { portalId, ...action } = value as Record<string, unknown>;
+  return { ...parseAction(action), portalId: text(portalId) };
 }
 export function parseDemand(value: unknown) {
   bounded(value, 16384);

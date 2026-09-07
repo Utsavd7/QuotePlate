@@ -223,6 +223,26 @@ test('supplier sees only own split award, confirms and disputes receiving; corre
       expect(await supplier.locator('body').innerText()).not.toContain(secret);
     }
     expect(JSON.stringify(view)).not.toMatch(/"(?:quotes|rationale|allocationLines|supplierSnapshots|totalPaise)":/);
+    // Opening another supplier in a second tab must not redirect this tab's response.
+    const otherLink = await json<{ url: string }>(await page.request.post(`/api/suppliers/${fixture.competitor!.supplierId}/portal`, { data: {} }), 200);
+    const otherTab = await context.newPage();
+    await openPortal(otherTab, otherLink.url);
+    const otherView = await publicView(otherTab);
+    expect(otherView.portalId).not.toBe(view.portalId);
+    expect(otherView.orders[0]).toMatchObject({ requestId: fixture.requestId, status: 'selected', version: selected.version });
+    const blockedResponse = supplier.waitForResponse(r => r.url().endsWith(publicPath) && r.request().method() === 'POST');
+    await supplier.getByRole('form', { name: /^Acknowledge / }).getByRole('button', { name: 'Save order response' }).click();
+    const mismatch = await blockedResponse;
+    expect(mismatch.request().postDataJSON().portalId).toBe(view.portalId);
+    expect(mismatch.status()).toBe(409);
+    // The client handles 409 by refreshing without reading the response body.
+    // Assert status and rendered recovery; waiting for Response.body can stall here.
+    await expect(supplier.getByRole('main').getByRole('alert').filter({ hasText: 'The record changed' })).toBeVisible();
+    expect(ownOrder(await ownerView(page, fixture), fixture).acknowledgement).toBeNull();
+    const otherOwnerView = await json<RestaurantPortalView>(await page.request.get(`/api/suppliers/${fixture.competitor!.supplierId}/portal`), 200);
+    expect(otherOwnerView.orders[0].acknowledgement).toBeNull();
+    await otherTab.close();
+    await openPortal(supplier, link);
     await expect(supplier.getByText('60 kilogram', { exact: false })).toBeVisible();
     const ack = supplier.getByRole('form', { name: /^Acknowledge / });
     await ack.getByLabel('Order response').selectOption('confirmed');
@@ -250,7 +270,7 @@ test('supplier sees only own split award, confirms and disputes receiving; corre
     expect(stale.delivery!.fingerprint).not.toBe(checked.delivery!.fingerprint);
     // A stale browser cannot re-confirm the previous check, even with today's version.
     const conflict = await publicRequest(supplier, 'POST', {
-      action: 'delivery-response', requestId: fixture.requestId, expectedVersion: stale.version,
+      portalId: view.portalId, action: 'delivery-response', requestId: fixture.requestId, expectedVersion: stale.version,
       fingerprint: checked.delivery!.fingerprint, decision: 'agree', note: '', evidenceReference: '',
     });
     expect(conflict.status(), await conflict.text()).toBe(409);
@@ -279,7 +299,7 @@ test('supplier sees only own split award, confirms and disputes receiving; corre
     await expect(page.getByText('Supplier access revoked.', { exact: true })).toBeVisible();
     expect((await publicRequest(fresh)).status()).toBe(410);
     const deniedWrite = await publicRequest(fresh, 'POST', {
-      action: 'acknowledge', requestId: fixture.requestId, expectedVersion: stale.version, status: 'confirmed', note: '',
+      portalId: view.portalId, action: 'acknowledge', requestId: fixture.requestId, expectedVersion: stale.version, status: 'confirmed', note: '',
     });
     expect(deniedWrite.status()).toBe(410);
     await refreshPublicDenied(fresh);

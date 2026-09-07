@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { SupplierPortalContent } from '@/components/supplier-portal/SupplierPortalContent';
 import type { SupplierPortalView } from '@/lib/supplier-portal/types';
 const view: SupplierPortalView = {
- restaurantName: 'Monsoon Table', supplierName: 'GreenLeaf', expiresAt: '2026-09-30T00:00:00Z',
+ portalId: 'portal-greenleaf', restaurantName: 'Monsoon Table', supplierName: 'GreenLeaf', expiresAt: '2026-09-30T00:00:00Z',
  forecasts: [{id:'f',planId:'p',planVersion:1,serviceAt:'2026-09-12T12:00:00Z',sharedAt:'2026-09-07T10:00:00Z',stale:true,items:[{itemKey:'tomato',name:'Tomato',quantity:'7.5',unit:'KILOGRAM',specification:'Fresh'}]}],
  orders:[{requestId:'r',title:'Dinner supplies',deliveryDate:'2026-09-12',status:'selected',version:1,items:[{itemId:'tomato',name:'Tomato',quantity:'10',unit:'KILOGRAM'}],acknowledgement:null,delivery:null,response:null,responseIsCurrent:false}]
 };

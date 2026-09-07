@@ -1,13 +1,13 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import type { PortalAction, SupplierPortalView } from '@/lib/supplier-portal/types';
+import type { PortalAction, PortalSubmission, SupplierPortalView } from '@/lib/supplier-portal/types';
 import { SupplierPortalContent } from '@/components/supplier-portal/SupplierPortalContent';
 import styles from '@/components/supplier-portal/supplier-portal-public.module.css';
 
 const endpoint = '/api/public/supplier-portal';
 async function read(response: Response): Promise<SupplierPortalView> {
  const data = await response.json().catch(()=>null);
- if(!response.ok || !data || !Array.isArray(data.orders) || !Array.isArray(data.forecasts)) throw new Error(data?.detail ?? 'Unable to open the supplier workspace. Ask the restaurant for a current link.');
+ if(!response.ok || !data || typeof data.portalId !== 'string' || !data.portalId || !Array.isArray(data.orders) || !Array.isArray(data.forecasts)) throw new Error(data?.detail ?? 'Unable to open the supplier workspace. Ask the restaurant for a current link.');
  return data;
 }
 export function SupplierPortalAccess() {
@@ -36,9 +36,11 @@ export function SupplierPortalAccess() {
  },[load]);
  async function refresh(){setBusy(true);setError('');setNotice('');try{await load();setNotice('Latest records loaded.');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
  async function submit(action:PortalAction){
+  if(!view)return;
+  const submission:PortalSubmission={...action,portalId:view.portalId};
   setBusy(true);setError('');setNotice('');
   try{
-   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(action),cache:'no-store',credentials:'same-origin'});
+   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(submission),cache:'no-store',credentials:'same-origin'});
    if(response.status===410 || response.status===401)setView(null);
    if(response.status===409){await load();throw new Error('The record changed. Review the latest details and submit your response again.');}
    setView(await read(response));setNotice('Your response is saved and visible to the restaurant.');

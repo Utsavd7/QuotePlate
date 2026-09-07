@@ -1,5 +1,5 @@
 import { createPortalHttp } from '@/lib/supplier-portal/http';
-const view = { restaurantName: 'Kitchen', supplierName: 'Vendor', expiresAt: '2026-10-07T00:00:00.000Z', orders: [], forecasts: [] };
+const view = { portalId: 'portal-vendor', restaurantName: 'Kitchen', supplierName: 'Vendor', expiresAt: '2026-10-07T00:00:00.000Z', orders: [], forecasts: [] };
 function setup() {
  const operations = { exchange: jest.fn().mockResolvedValue({ expiresAt: view.expiresAt }), publicView: jest.fn().mockResolvedValue(view), act: jest.fn().mockResolvedValue(view), restaurantView: jest.fn().mockResolvedValue({ canManage: false }), rotate: jest.fn(), revoke: jest.fn(), share: jest.fn(), withdraw: jest.fn() };
  const limit = jest.fn().mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
@@ -22,7 +22,7 @@ test('exchange uses an independent HttpOnly path-scoped cookie and no-store', as
 });
 test('public POST returns the complete snapshot and only uses its own cookie', async () => {
  const { http, operations } = setup();
- const action = { action: 'acknowledge' };
+ const action = { portalId: view.portalId, action: 'acknowledge', requestId: 'r', expectedVersion: 1, status: 'confirmed', note: '' };
  const response = await http.public(req('/api/public/supplier-portal', action, { cookie: 'supplier_portal=' + 'a'.repeat(43) }));
  expect(await response.json()).toEqual(view);
  expect(operations.act).toHaveBeenCalledWith('a'.repeat(43), action);

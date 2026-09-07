@@ -19,8 +19,10 @@ export type PortalForecast = {
   id: string; planId: string; planVersion: number; serviceAt: string; sharedAt: string; stale: boolean;
   items: { itemKey: string; name: string; quantity: string; unit: string; specification: string }[];
 };
-export type SupplierPortalView = { restaurantName: string; supplierName: string; expiresAt: string; orders: PortalOrder[]; forecasts: PortalForecast[] };
+export type SupplierPortalView = { portalId: string; restaurantName: string; supplierName: string; expiresAt: string; orders: PortalOrder[]; forecasts: PortalForecast[] };
 export type RestaurantPortalView = { supplierName: string; access: { expiresAt: string; revokedAt: string | null } | null; orders: PortalOrder[]; forecasts: PortalForecast[]; canManage: boolean };
 export type PortalAction =
  | { action: 'acknowledge'; requestId: string; expectedVersion: number; status: 'confirmed' | 'needs_change'; note: string }
  | { action: 'delivery-response'; requestId: string; expectedVersion: number; fingerprint: string; decision: 'agree' | 'dispute'; note: string; evidenceReference: string };
+// Request-only identity binding; saved revisions retain their existing shape.
+export type PortalSubmission = PortalAction & { portalId: string };

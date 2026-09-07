@@ -10,7 +10,7 @@ Built by [Utsav Doshi](https://github.com/Utsavd7).
 
 [![Watch the QuotePlate product demo — 3 minutes 45 seconds](public/media/quoteplate-product-film.jpg)](https://quoteplate.netlify.app/#watch-demo)
 
-[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 3:45 · 2560 × 1440 QHD
+[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 2:29 · 1920 × 1080 Full HD
 
 Follow a fictional restaurant in Pune from a menu photo through supplier discovery, private quotes, cost comparison and a purchase decision. Updated application footage demonstrates item-level receiving, partial deliveries, credits claimed and received, supplier performance, portion and yield planning, and a shortage-only purchase draft. Routine actions are condensed; the narration explains the inputs and review steps.
 
@@ -44,7 +44,7 @@ The current release supports:
 - manage restaurant details, roles, invitations, Google sign in, sign out, and an optional six step setup guide;
 - use the public site and product workspace on phones, tablets, and laptops.
 
-The landing page includes a three-minute-forty-five-second product film with captions and a transcript. It uses condensed recordings of the actual app with fictional restaurant data in an isolated environment. Media is served from `public/media` and the video loads only when played; no external video service is required. The buying journey uses compact, manually selected stages on desktop and phones, with one step counter and no automatic movement. Old `/product` bookmarks redirect to this journey on the homepage.
+The landing page includes a two-minute-twenty-nine-second product film with captions and a transcript. It uses condensed recordings of the actual app with fictional restaurant records in an isolated environment, and real public nearby listings captured for the demonstration. It includes nearby discovery, supplier delivery responses and selected demand sharing. Media is served from `public/media` and the video loads only when played; no external video service is required. The buying journey uses compact, manually selected stages on desktop and phones, with one step counter and no automatic movement. Old `/product` bookmarks redirect to this journey on the homepage.
 
 The product does not introduce suppliers and then disappear from the workflow. Its value is the reusable request, quote, decision, purchase order, and price history for every buying cycle.
 

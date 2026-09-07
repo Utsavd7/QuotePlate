@@ -1,5 +1,14 @@
-import { parseAction, fingerprint, parseDemand, selectDemand } from '@/lib/supplier-portal/domain';
+import { parseAction, parseSubmission, fingerprint, parseDemand, selectDemand } from '@/lib/supplier-portal/domain';
 const acknowledgement = { action: 'acknowledge', requestId: 'request', expectedVersion: 1, status: 'confirmed', note: '' };
+test('public submissions require a bounded portal identity while legacy revisions remain valid', () => {
+  expect(parseSubmission({ ...acknowledgement, portalId: 'portal-a' })).toEqual({ ...acknowledgement, portalId: 'portal-a' });
+  for (const portalId of [undefined, null, '', ' ', 1, 'x'.repeat(201), '\u0000']) {
+    expect(() => parseSubmission({ ...acknowledgement, portalId })).toThrow();
+  }
+  expect(() => parseSubmission(acknowledgement)).toThrow();
+  expect(() => parseSubmission({ ...acknowledgement, portalId: 'portal-a', supplierId: 'other' })).toThrow();
+  expect(parseAction(acknowledgement)).toEqual(acknowledgement);
+});
 test('requires exact bounded actions and positive versions', () => {
   expect(parseAction(acknowledgement)).toEqual(acknowledgement);
   for (const value of [{ ...acknowledgement, supplierId: 'other' }, { ...acknowledgement, expectedVersion: 0 }, { ...acknowledgement, note: 'x'.repeat(1001) }, { ...acknowledgement, note: '\u0000' }]) expect(() => parseAction(value)).toThrow();

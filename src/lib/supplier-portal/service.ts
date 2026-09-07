@@ -10,7 +10,7 @@ import { buildReceivingSummary, validateStoredReceiving } from '@/lib/receiving/
 import { validateRequestItems } from '@/lib/procurement/request-document';
 import { validateMenuDocument } from '@/lib/menu/menu-document';
 import { computePlan, validatePlanInput } from '@/lib/service-planning/planning';
-import { bounded, exact, fingerprint, parseAction, parseDemand, PortalError, selectDemand, text } from './domain';
+import { bounded, exact, fingerprint, parseAction, parseDemand, parseSubmission, PortalError, selectDemand, text } from './domain';
 import type { PortalAction, PortalForecast, PortalOrder, RestaurantPortalView, SupplierPortalView } from './types';
 
 export type Actor = { tenantId: string; userId: string };
@@ -144,7 +144,7 @@ export function createPortalOperations(client: PrismaClient = prisma) {
   }
   async function snapshot(tx: Tx, grant: Grant, supplierId: string, expiresAt: Date, now: Date): Promise<SupplierPortalView> {
     const supplier = await tx.supplier.findUniqueOrThrow({ where: { id: supplierId }, select: { businessName: true, tenant: { select: { name: true } } } });
-    return { restaurantName: supplier.tenant.name, supplierName: supplier.businessName, expiresAt: expiresAt.toISOString(), orders: await orders(tx, grant.tenantId, supplierId, now), forecasts: await forecasts(tx, grant.tenantId, supplierId) };
+    return { portalId: grant.portalId, restaurantName: supplier.tenant.name, supplierName: supplier.businessName, expiresAt: expiresAt.toISOString(), orders: await orders(tx, grant.tenantId, supplierId, now), forecasts: await forecasts(tx, grant.tenantId, supplierId) };
   }
   return {
     async restaurantView(actor: Actor, supplierId: string): Promise<RestaurantPortalView> {
@@ -174,9 +174,12 @@ export function createPortalOperations(client: PrismaClient = prisma) {
     },
     exchange(raw: unknown) { return access(raw, async (_tx, _grant, _supplier, expiresAt) => ({ expiresAt: expiresAt.toISOString() })); },
     publicView(raw: unknown) { return access(raw, snapshot); },
-    act(raw: unknown, value: unknown) {
-      const action = parseAction(value);
+    async act(raw: unknown, value: unknown) {
+      const { portalId, ...action } = parseSubmission(value);
       return access(raw, async (tx, grant, supplierId, expiresAt) => {
+        // Cookies are shared across tabs. Bind the displayed form to the locked grant
+        // before accessing an order or writing collaboration/audit records.
+        if (portalId !== grant.portalId) throw new PortalError('Supplier workspace changed. Reload before responding.', 409);
         await tx.$queryRaw`SELECT "id" FROM "ProcurementRequest" WHERE "tenantId" = ${grant.tenantId} AND "id" = ${action.requestId} FOR UPDATE`;
         await tx.$queryRaw`SELECT "id" FROM "Award" WHERE "tenantId" = ${grant.tenantId} AND "requestId" = ${action.requestId} FOR UPDATE`;
         const now = await databaseNow(tx);

@@ -22,7 +22,8 @@ test('demo loads on demand, plays with captions, and fits the viewport', async (
 
   await video.evaluate((el: HTMLVideoElement) => el.play());
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBeGreaterThan(0);
-  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeCloseTo(225, 0);
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeLessThanOrEqual(150);
+  expect(await video.evaluate((el: HTMLVideoElement) => el.duration)).toBeGreaterThan(145);
   await video.evaluate((el: HTMLVideoElement) => { el.textTracks[0].mode = 'showing'; });
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].cues?.length ?? 0)).toBeGreaterThan(0);
 
@@ -44,5 +45,8 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toContain('QuotePlate');
   expect(text).toContain('credit claimed');
   expect(text).toContain('Supplier performance');
+  expect(text).toContain('real public map listings');
+  expect(text).toContain('private workspace link');
+  expect(text).toContain('Estimates are not orders');
   expect(text).toContain('seven point five kilo purchase');
 });

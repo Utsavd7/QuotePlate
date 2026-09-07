@@ -44,23 +44,44 @@ test('real runtime portal enforces scope, own allocations, versions, history, fo
    const unselectedLink = await ops.rotate(actor, 'unselected', 'https://example.test');
    const unselectedToken = new URLSearchParams(new URL(unselectedLink.url).hash.slice(1)).get('token')!;
    expect((await ops.publicView(unselectedToken)).orders[0]).toMatchObject({ status: 'closed', items: [], delivery: null });
-   await expect(ops.act(unselectedToken, { action: 'acknowledge', requestId: request.id, expectedVersion: 1, status: 'confirmed', note: '' })).rejects.toMatchObject({ status: 409 });
+   const portalId = (await admin.supplierPortal.findFirstOrThrow({ where: { supplierId: 'own' } })).id;
+   const unselectedPortalId = (await admin.supplierPortal.findFirstOrThrow({ where: { supplierId: 'unselected' } })).id;
+   await expect(ops.act(unselectedToken, { portalId: unselectedPortalId, action: 'acknowledge', requestId: request.id, expectedVersion: 1, status: 'confirmed', note: '' })).rejects.toMatchObject({ status: 409 });
    const action = { action: 'acknowledge', requestId: request.id, expectedVersion: 1, status: 'confirmed', note: '' };
-   const race = await Promise.allSettled([ops.act(token, action), ops.act(token, action)]);
+   // Two tabs share one cookie. Both suppliers have this split award and version 1.
+   await admin.supplierRequest.create({ data: { id: 'competitor-invite', tenantId: actor.tenantId, supplierId: 'competitor', requestId: request.id, tokenDigest: 'd'.repeat(64), expiresAt: new Date(Date.now() + 86400000), quoteRevisions: { v: 1, revisions: [] } } });
+   const competitorLink = await ops.rotate(actor, 'competitor', 'https://example.test');
+   const competitorToken = new URLSearchParams(new URL(competitorLink.url).hash.slice(1)).get('token')!;
+   const competitorPortalId = (await admin.supplierPortal.findFirstOrThrow({ where: { supplierId: 'competitor' } })).id;
+   expect((await ops.publicView(competitorToken)).orders[0]).toMatchObject({ status: 'selected', version: 1 });
+   const auditsBefore = await admin.auditEvent.count();
+   await expect(ops.act(competitorToken, { ...action, portalId })).rejects.toMatchObject({ status: 409 });
+   expect(await admin.supplierCollaboration.count()).toBe(0);
+   expect(await admin.auditEvent.count()).toBe(auditsBefore);
+   expect(await ops.publicView(token)).toMatchObject({ portalId });
+   expect(await ops.publicView(competitorToken)).toMatchObject({ portalId: competitorPortalId });
+   // Missing identity is rejected too; knowing a portal ID does not authenticate.
+   await expect(ops.act(token, action)).rejects.toMatchObject({ status: 422 });
+   await expect(ops.act('x'.repeat(43), { ...action, portalId })).rejects.toMatchObject({ status: 410 });
+   const submitOwn = (value: unknown) => ops.act(token, { ...(value as object), portalId });
+   const race = await Promise.allSettled([submitOwn(action), submitOwn(action)]);
    expect(race.filter(r => r.status === 'fulfilled')).toHaveLength(1);
    expect(race.filter(r => r.status === 'rejected')).toHaveLength(1);
-   await expect(ops.act(token, { ...action, requestId: 'other' })).rejects.toMatchObject({ status: 404 });
+   expect(JSON.stringify((await admin.supplierCollaboration.findFirstOrThrow()).revisions)).not.toContain('portalId');
+   await expect(submitOwn({ ...action, requestId: 'other' })).rejects.toMatchObject({ status: 404 });
    const receiving = { v: 1, suppliers: [{ supplierId: 'own', outcome: 'MATCHED', invoiceTotalPaise: '100', issueCodes: [], note: null, checkedAt: '2026-09-07T12:00:00.000Z' }] };
    await admin.award.update({ where: { id: award.id }, data: { receiving } });
    view = await ops.publicView(token);
    expect(view.orders[0].delivery).toMatchObject({ invoiceTotalPaise: '100', expectedTotalPaise: '100', issueCodes: [], actualDeliveryDate: null });
    const fp = view.orders[0].delivery!.fingerprint;
-   view = await ops.act(token, { action: 'delivery-response', requestId: request.id, expectedVersion: 2, fingerprint: fp, decision: 'agree', note: '', evidenceReference: 'INV-123' });
+   await expect(ops.act(competitorToken, { portalId, action: 'delivery-response', requestId: request.id, expectedVersion: 1, fingerprint: fp, decision: 'agree', note: '', evidenceReference: 'INV-123' })).rejects.toMatchObject({ status: 409, message: 'Supplier workspace changed. Reload before responding.' });
+   expect(await admin.supplierCollaboration.count({ where: { supplierId: 'competitor' } })).toBe(0);
+   view = await submitOwn({ action: 'delivery-response', requestId: request.id, expectedVersion: 2, fingerprint: fp, decision: 'agree', note: '', evidenceReference: 'INV-123' });
    expect(view.orders[0].responseIsCurrent).toBe(true);
    await admin.award.update({ where: { id: award.id }, data: { receiving: { ...receiving, suppliers: [{ ...receiving.suppliers[0], checkedAt: '2026-09-07T12:01:00.000Z' }] } } });
    view = await ops.publicView(token);
    expect(view.orders[0].responseIsCurrent).toBe(false);
-   await expect(ops.act(token, { action: 'delivery-response', requestId: request.id, expectedVersion: 3, fingerprint: fp, decision: 'agree', note: '', evidenceReference: '' })).rejects.toMatchObject({ status: 409 });
+   await expect(submitOwn({ action: 'delivery-response', requestId: request.id, expectedVersion: 3, fingerprint: fp, decision: 'agree', note: '', evidenceReference: '' })).rejects.toMatchObject({ status: 409 });
    expect((await admin.supplierCollaboration.findFirstOrThrow()).revisions).toHaveLength(2);
    const menuSnapshot = { v: 1, source: { kind: 'MANUAL', canonicalUrl: null, permissionConfirmed: false }, dishes: [{ id: 'dish', name: 'Secret recipe', position: 0, ingredients: [{ id: 'rice', itemKey: 'rice', name: 'Rice', quantity: '10', unit: 'KILOGRAM', specification: { v: 1, category: 'OTHER' } }] }] };
    const menu = await admin.menu.create({ data: { tenantId: actor.tenantId, name: 'Secret menu', document: menuSnapshot } });
@@ -93,7 +114,7 @@ test('real runtime portal enforces scope, own allocations, versions, history, fo
    const collaboration = await admin.supplierCollaboration.findFirstOrThrow();
    const history = Array.from({ length: 50 }, (_, i) => ({ ...action, expectedVersion: i + 1, at: '2026-09-07T12:00:00.000Z' }));
    await admin.supplierCollaboration.update({ where: { id: collaboration.id }, data: { version: 51, revisions: history } });
-   await expect(ops.act(token, { ...action, expectedVersion: 51 })).rejects.toMatchObject({ status: 409 });
+   await expect(submitOwn({ ...action, expectedVersion: 51 })).rejects.toMatchObject({ status: 409 });
    expect((await admin.supplierCollaboration.findUniqueOrThrow({ where: { id: collaboration.id } })).revisions).toEqual(history);
    // Latest invited orders are bounded; drafts and uninvited requests stay private.
    await admin.procurementRequest.createMany({ data: Array.from({ length: 36 }, (_, i) => ({ id: 'latest-' + i, tenantId: actor.tenantId, title: 'Latest ' + i, status: i === 35 ? 'DRAFT' as const : i === 34 ? 'CANCELLED' as const : 'OPEN' as const, items: requestItems(), sourcing: requestSourcing('own'), deliveryDetails: {}, deliveryDate: new Date(Date.now() + 3 * 86400000), quoteDeadline: new Date(Date.now() + 86400000), createdByUserId: actor.userId, createdAt: new Date(Date.now() + i * 1000) })) });
