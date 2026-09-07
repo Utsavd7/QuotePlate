@@ -12,6 +12,8 @@ const tenantTables = [
   'Award',
   'Menu',
   'ProcurementRequest',
+  'ServicePlan',
+  'ServicePlanRevision',
   'Supplier',
   'SupplierRequest',
   'Tenant',
@@ -86,6 +88,21 @@ test('forced RLS isolates every tenant transaction under the restricted runtime 
     try {
       await seedTenant(admin, 'tenant-a', 'A');
       await seedTenant(admin, 'tenant-b', 'B');
+      for (const suffix of ['a', 'b']) {
+        await admin.menu.create({ data: {
+          id: `menu-${suffix}`, tenantId: `tenant-${suffix}`, name: 'Menu',
+          document: {}, createdByUserId: `owner-${suffix}`,
+        } });
+        await admin.servicePlan.create({ data: {
+          id: `plan-${suffix}`, tenantId: `tenant-${suffix}`, name: 'Plan',
+          serviceAt: new Date('2026-09-10T12:00:00Z'), menuId: `menu-${suffix}`,
+          menuVersion: 1, menuSnapshot: {}, document: {}, createdByUserId: `owner-${suffix}`,
+        } });
+        await admin.servicePlanRevision.create({ data: {
+          id: `revision-${suffix}`, tenantId: `tenant-${suffix}`,
+          planId: `plan-${suffix}`, version: 1, document: {},
+        } });
+      }
       app = await provisionAppClient(admin, databaseUrl, runtimePassword);
       const [initialRuntimeCredential] = await admin.$queryRaw<
         Array<{ rolpassword: string }>
@@ -209,6 +226,43 @@ test('forced RLS isolates every tenant transaction under the restricted runtime 
       await expect(app.tenant.findMany()).resolves.toEqual([]);
       await expect(app.user.findMany()).resolves.toEqual([]);
       await expect(app.supplier.findMany()).resolves.toEqual([]);
+
+      await expect(app.servicePlan.findMany()).resolves.toEqual([]);
+      await expect(app.servicePlanRevision.findMany()).resolves.toEqual([]);
+      for (const suffix of ['a', 'b']) {
+        const view = await withTenant(`tenant-${suffix}`, async (tx) => ({
+          plans: await tx.servicePlan.findMany({ select: { id: true } }),
+          revisions: await tx.servicePlanRevision.findMany({ select: { id: true } }),
+        }), app);
+        expect(view).toEqual({
+          plans: [{ id: `plan-${suffix}` }], revisions: [{ id: `revision-${suffix}` }],
+        });
+      }
+      await expect(withTenant('tenant-a', (tx) => tx.servicePlan.create({ data: {
+        id: 'forbidden-plan', tenantId: 'tenant-b', name: 'Forbidden',
+        serviceAt: new Date('2026-09-10T12:00:00Z'), menuId: 'menu-b', menuVersion: 1,
+        menuSnapshot: {}, document: {}, createdByUserId: 'owner-b',
+      } }), app)).rejects.toThrow(/row-level security/i);
+      await expect(withTenant('tenant-a', (tx) => tx.servicePlanRevision.create({ data: {
+        id: 'forbidden-revision', tenantId: 'tenant-b', planId: 'plan-b', version: 2, document: {},
+      } }), app)).rejects.toThrow(/row-level security/i);
+      await expect(withTenant('tenant-a', (tx) => tx.servicePlan.updateMany({
+        where: { id: 'plan-b' }, data: { name: 'Forbidden' },
+      }), app)).resolves.toEqual({ count: 0 });
+      await withTenant('tenant-a', async (tx) => {
+        await tx.servicePlan.update({ where: { id: 'plan-a' }, data: { name: 'Updated' } });
+        await tx.servicePlanRevision.create({ data: {
+          id: 'revision-a-2', tenantId: 'tenant-a', planId: 'plan-a', version: 2, document: {},
+        } });
+      }, app);
+      await expect(withTenant('tenant-a', (tx) => tx.servicePlanRevision.updateMany({
+        where: { id: 'revision-a' }, data: { document: { altered: true } },
+      }), app)).rejects.toThrow(/permission denied/i);
+      await expect(withTenant('tenant-a', (tx) => tx.servicePlanRevision.deleteMany({
+        where: { id: 'revision-a' },
+      }), app)).rejects.toThrow(/permission denied/i);
+      await expect(app.servicePlan.findMany()).resolves.toEqual([]);
+      await expect(app.servicePlanRevision.findMany()).resolves.toEqual([]);
 
       const tenantAView = await withTenant(
         'tenant-a',

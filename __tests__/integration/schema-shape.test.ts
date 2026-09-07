@@ -18,7 +18,7 @@ import { checkRuntimeDatabase } from '@/lib/health/readiness';
 import { withMigratedPostgres, withPostgres } from './setup/postgres';
 
 const applicationTables =
-  'AuditEvent Award Menu ProcurementRequest RateLimitBucket Supplier SupplierRequest Tenant User'.split(
+  'AuditEvent Award Menu ProcurementRequest RateLimitBucket ServicePlan ServicePlanRevision Supplier SupplierRequest Tenant User'.split(
     ' ',
   );
 const expectedColumns: Record<string, string> = {
@@ -27,6 +27,8 @@ const expectedColumns: Record<string, string> = {
   Menu: 'id tenantId name sourceText status version approvedAt approvedByUserId createdByUserId createdAt updatedAt document',
   ProcurementRequest: 'id tenantId title status version menuId sourceRequestId deliveryDetails deliveryDate quoteDeadline commercialTerms openedAt awardedAt cancelledAt createdByUserId createdAt updatedAt items sourcing applicationTokenDigest applicationExpiresAt applicationRevokedAt',
   RateLimitBucket: 'keyDigest count resetAt',
+  ServicePlan: 'id tenantId name version serviceAt menuId menuVersion menuSnapshot document requestId createdByUserId createdAt updatedAt',
+  ServicePlanRevision: 'id tenantId planId version document createdAt',
   Supplier: 'id tenantId businessName contactName phone whatsappNumber email addressLine city state pin gstin notes isActive createdAt updatedAt relationshipType verificationStatus applicationRequestId capabilities verifiedAt verifiedByUserId',
   SupplierRequest: 'id tenantId requestId supplierId tokenDigest expiresAt revokedAt viewedAt createdAt quoteRevision quoteRevisions updatedAt',
   Tenant: 'id name addressLine city state pin phone timezone gstin isActive createdAt updatedAt',
@@ -41,11 +43,14 @@ const jsonConstraints = [
   ['Award_allocationLines_size_check', 'Award', 'allocationLines', '2097152'],
   ['Award_deliverySnapshot_size_check', 'Award', 'deliverySnapshot', '16384'],
   ['Award_supplierSnapshots_size_check', 'Award', 'supplierSnapshots', '2097152'],
-  ['Award_receiving_size_check', 'Award', 'receiving', '32768'],
+  ['Award_receiving_size_check', 'Award', 'receiving', '1048576'],
   ['Menu_document_size_check', 'Menu', 'document', '524288'],
   ['ProcurementRequest_deliveryDetails_size_check', 'ProcurementRequest', 'deliveryDetails', '16384'],
   ['ProcurementRequest_items_size_check', 'ProcurementRequest', 'items', '524288'],
   ['ProcurementRequest_sourcing_size_check', 'ProcurementRequest', 'sourcing', '65536'],
+  ['ServicePlan_document_size_check', 'ServicePlan', 'document', '524288'],
+  ['ServicePlan_menuSnapshot_size_check', 'ServicePlan', 'menuSnapshot', '1048576'],
+  ['ServicePlanRevision_document_size_check', 'ServicePlanRevision', 'document', '524288'],
   ['Supplier_capabilities_size_check', 'Supplier', 'capabilities', '65536'],
   ['SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152'],
 ] as const;
@@ -53,6 +58,8 @@ const tenantPolicies = [
   ['Tenant', 'id'],
   ['User', 'tenantId'],
   ['Menu', 'tenantId'],
+  ['ServicePlan', 'tenantId'],
+  ['ServicePlanRevision', 'tenantId'],
   ['Supplier', 'tenantId'],
   ['ProcurementRequest', 'tenantId'],
   ['SupplierRequest', 'tenantId'],
@@ -126,7 +133,7 @@ function deployMigrations(databaseUrl: string) {
   });
 }
 
-test('compact catalog keeps nine bounded tables and fixed digest grants', async () => {
+test('service planning catalog keeps eleven bounded tables and fixed digest grants', async () => {
   await withMigratedPostgres(async (databaseUrl) => {
     const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
     try {
@@ -162,6 +169,7 @@ test('compact catalog keeps nine bounded tables and fixed digest grants', async 
         columns.map((row) => [`${row.table_name}.${row.column_name}`, row]),
       );
       for (const key of [
+        'ServicePlan.document', 'ServicePlan.menuSnapshot', 'ServicePlanRevision.document',
         'Menu.document', 'Supplier.capabilities', 'ProcurementRequest.items',
         'ProcurementRequest.sourcing', 'ProcurementRequest.deliveryDetails',
         'SupplierRequest.quoteRevisions', 'Award.allocationLines',
@@ -243,6 +251,10 @@ test('compact catalog keeps nine bounded tables and fixed digest grants', async 
       `;
       const fkPaths = foreignKeys.map(({ path }) => path);
       for (const path of [
+        'ServicePlan|tenantId,menuId|Menu|tenantId,id',
+        'ServicePlan|tenantId,createdByUserId|User|tenantId,id',
+        'ServicePlan|tenantId,requestId|ProcurementRequest|tenantId,id',
+        'ServicePlanRevision|tenantId,planId|ServicePlan|tenantId,id',
         'User|tenantId,invitedByUserId|User|tenantId,id',
         'Menu|tenantId,approvedByUserId|User|tenantId,id',
         'Menu|tenantId,createdByUserId|User|tenantId,id',
@@ -272,13 +284,14 @@ test('compact catalog keeps nine bounded tables and fixed digest grants', async 
       `;
       const indexPaths = indexes.map(({ path }) => path);
       expect(indexPaths).toEqual(expect.arrayContaining([
+        'ServicePlan|tenantId,serviceAt', 'ServicePlanRevision|tenantId,planId,version',
         'Menu|tenantId,status,updatedAt', 'ProcurementRequest|tenantId,status,updatedAt',
         'ProcurementRequest|tenantId,createdAt', 'Supplier|tenantId,isActive,businessName',
         'Award|tenantId,createdAt', 'AuditEvent|tenantId,createdAt',
         'SupplierRequest|tenantId,requestId,supplierId',
       ]));
       for (const table of applicationTables.filter(
-        (table) => !['Tenant', 'RateLimitBucket'].includes(table),
+        (table) => !['Tenant', 'RateLimitBucket', 'ServicePlanRevision'].includes(table),
       )) expect(indexPaths).toContain(`${table}|tenantId,id`);
 
       const functions = await prisma.$queryRaw<
@@ -305,6 +318,19 @@ test('compact catalog keeps nine bounded tables and fixed digest grants', async 
       expect(functions).toEqual(requiredFunctions.map((name) => ({
         name, security_definer: true, settings: ['search_path=pg_catalog'],
         owner_bypasses_rls: true, owner_attested: true,
+      })));
+      const backupAccess = await prisma.$queryRaw<Array<{ table_name: string; readable: boolean }>>`
+        SELECT table_catalog.relname AS table_name,
+          pg_catalog.has_table_privilege('autorfp_backup', table_catalog.oid, 'SELECT') AS readable
+        FROM pg_catalog.pg_class AS table_catalog
+        JOIN pg_catalog.pg_namespace AS namespace ON namespace.oid = table_catalog.relnamespace
+        WHERE namespace.nspname = 'public'
+          AND table_catalog.relkind = 'r'
+          AND table_catalog.relname <> '_prisma_migrations'
+        ORDER BY table_catalog.relname
+      `;
+      expect(backupAccess).toEqual(applicationTables.map((table_name) => ({
+        table_name, readable: true,
       })));
       await checkReadinessAsApp(prisma);
 
@@ -407,7 +433,7 @@ test('tenant policies hide and protect an empty tenant id without GUC context', 
   });
 });
 
-test('restore verification mirrors the exact compact catalog contract', () => {
+test('restore verification mirrors the exact service planning catalog contract', () => {
   const script = readFileSync(
     path.resolve(__dirname, '../../scripts/restore-verify.sh'),
     'utf8',
@@ -757,7 +783,7 @@ esac
   });
 });
 
-test('readiness rejects compact catalog security drift', async () => {
+test('readiness rejects service planning catalog security drift', async () => {
   await withMigratedPostgres(async (databaseUrl) => {
     const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
     const awardPolicy = `CREATE POLICY tenant_isolation ON public."Award"
@@ -835,6 +861,31 @@ test('readiness rejects compact catalog security drift', async () => {
         CHECK (pg_catalog.octet_length("document"::TEXT) <= 524288)
       `);
       await expect(checkReadinessAsApp(prisma)).resolves.toBeUndefined();
+
+      for (const [name, table, column, cap] of jsonConstraints.filter(
+        ([name]) => name.startsWith('ServicePlan') || name === 'Award_receiving_size_check',
+      )) {
+        const drop = `ALTER TABLE public."${table}" DROP CONSTRAINT "${name}"`;
+        const add = `ALTER TABLE public."${table}" ADD CONSTRAINT "${name}"`;
+        await prisma.$executeRawUnsafe(drop);
+        await expect(checkReadinessAsApp(prisma)).rejects.toThrow('required database migration');
+        await prisma.$executeRawUnsafe(`${add} CHECK (octet_length("${column}"::TEXT) <= ${Number(cap) + 1})`);
+        await expect(checkReadinessAsApp(prisma)).rejects.toThrow('required database migration');
+        await prisma.$executeRawUnsafe(drop);
+        await prisma.$executeRawUnsafe(`${add} CHECK (octet_length("${column}"::TEXT) <= ${cap}) NOT VALID`);
+        await expect(checkReadinessAsApp(prisma)).rejects.toThrow('required database migration');
+        await prisma.$executeRawUnsafe(`ALTER TABLE public."${table}" VALIDATE CONSTRAINT "${name}"`);
+        await expect(checkReadinessAsApp(prisma)).resolves.toBeUndefined();
+      }
+      for (const table of ['ServicePlan', 'ServicePlanRevision']) {
+        await prisma.$executeRawUnsafe(`ALTER TABLE public."${table}" NO FORCE ROW LEVEL SECURITY`);
+        await expect(checkReadinessAsApp(prisma)).rejects.toThrow('required database migration');
+        await prisma.$executeRawUnsafe(`ALTER TABLE public."${table}" FORCE ROW LEVEL SECURITY`);
+        await prisma.$executeRawUnsafe(`REVOKE SELECT ON public."${table}" FROM autorfp_backup`);
+        await expect(checkReadinessAsApp(prisma)).rejects.toThrow('required database migration');
+        await prisma.$executeRawUnsafe(`GRANT SELECT ON public."${table}" TO autorfp_backup`);
+        await expect(checkReadinessAsApp(prisma)).resolves.toBeUndefined();
+      }
 
       await prisma.$executeRawUnsafe(
         'GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA autorfp_private TO PUBLIC',

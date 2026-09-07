@@ -51,7 +51,7 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
             AND tablename <> pg_catalog.concat('_prisma', '_migrations')
         ) = ARRAY[
           'AuditEvent', 'Award', 'Menu', 'ProcurementRequest',
-          'RateLimitBucket', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
+          'RateLimitBucket', 'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
         ]::TEXT[]
         AND EXISTS (
           SELECT 1
@@ -85,16 +85,32 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
         )
         AND NOT EXISTS (
           SELECT 1
+          FROM pg_catalog.pg_class AS backup_table
+          JOIN pg_catalog.pg_namespace AS backup_namespace
+            ON backup_namespace.oid = backup_table.relnamespace
+          WHERE backup_namespace.nspname = 'public'
+            AND backup_table.relkind IN ('r', 'p')
+            AND backup_table.relname <> pg_catalog.concat('_prisma', '_migrations')
+            AND NOT pg_catalog.has_table_privilege(
+              'autorfp_backup', backup_table.oid, 'SELECT'
+            )
+        )
+        AND NOT EXISTS (
+          SELECT 1
           FROM (
             VALUES
               ('AuditEvent_metadata_size_check', 'AuditEvent', 'metadata', '16384'),
               ('Award_allocationLines_size_check', 'Award', 'allocationLines', '2097152'),
               ('Award_deliverySnapshot_size_check', 'Award', 'deliverySnapshot', '16384'),
               ('Award_supplierSnapshots_size_check', 'Award', 'supplierSnapshots', '2097152'),
+              ('Award_receiving_size_check', 'Award', 'receiving', '1048576'),
               ('Menu_document_size_check', 'Menu', 'document', '524288'),
               ('ProcurementRequest_deliveryDetails_size_check', 'ProcurementRequest', 'deliveryDetails', '16384'),
               ('ProcurementRequest_items_size_check', 'ProcurementRequest', 'items', '524288'),
               ('ProcurementRequest_sourcing_size_check', 'ProcurementRequest', 'sourcing', '65536'),
+              ('ServicePlan_document_size_check', 'ServicePlan', 'document', '524288'),
+              ('ServicePlan_menuSnapshot_size_check', 'ServicePlan', 'menuSnapshot', '1048576'),
+              ('ServicePlanRevision_document_size_check', 'ServicePlanRevision', 'document', '524288'),
               ('Supplier_capabilities_size_check', 'Supplier', 'capabilities', '65536'),
               ('SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152')
           ) AS expected(constraint_name, table_name, column_name, byte_cap)
@@ -216,7 +232,7 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
           ) IS NULL
         )
         AND (
-          SELECT COUNT(*) = 8
+          SELECT COUNT(*) = 10
             AND pg_catalog.bool_and(table_catalog.relrowsecurity)
             AND pg_catalog.bool_and(table_catalog.relforcerowsecurity)
           FROM pg_catalog.pg_class AS table_catalog
@@ -225,11 +241,11 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
           WHERE namespace.nspname = 'public'
             AND table_catalog.relname = ANY(ARRAY[
               'AuditEvent', 'Award', 'Menu', 'ProcurementRequest',
-              'Supplier', 'SupplierRequest', 'Tenant', 'User'
+              'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
             ]::TEXT[])
         )
         AND (
-          SELECT COUNT(*) = 8
+          SELECT COUNT(*) = 10
           FROM pg_catalog.pg_policy AS policy_catalog
           JOIN pg_catalog.pg_class AS table_catalog
             ON table_catalog.oid = policy_catalog.polrelid
@@ -245,6 +261,8 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
               ('Tenant', 'id'),
               ('User', 'tenantId'),
               ('Menu', 'tenantId'),
+              ('ServicePlan', 'tenantId'),
+              ('ServicePlanRevision', 'tenantId'),
               ('Supplier', 'tenantId'),
               ('ProcurementRequest', 'tenantId'),
               ('SupplierRequest', 'tenantId'),

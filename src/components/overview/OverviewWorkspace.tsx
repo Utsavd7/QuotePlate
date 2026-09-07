@@ -195,6 +195,11 @@ export function OverviewWorkspace({
         </Link>
       </header>
 
+      <div className={styles.emptyActions}>
+        <Link className={styles.secondaryAction} href="/service-planning">Plan today’s service <ArrowRight aria-hidden="true" /></Link>
+        <Link className={styles.secondaryAction} href="/supplier-performance">Review delivery performance and credits <ArrowRight aria-hidden="true" /></Link>
+      </div>
+
       {error && (
         <div className={styles.inlineError} role="alert">
           <span>{error} The last loaded figures remain on screen. Your saved restaurant records are unchanged.</span>

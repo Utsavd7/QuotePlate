@@ -10,6 +10,7 @@ import {
 } from '@playwright/test';
 
 import { expectNoSeriousAxeViolations } from './helpers/accessibility';
+import { resetSignupClientRateLimit } from './helpers/signup';
 
 const account = {
   name: 'Monsoon Table Pune',
@@ -33,6 +34,7 @@ const localAuthOrigin = 'http://127.0.0.1:52562';
 const exportPassword = 'Local-only export test password 42!';
 
 async function createAndSignInExportOwner(page: Page, email: string) {
+  await resetSignupClientRateLimit(page.request);
   const created = await page.request.post('/api/auth/start', {
     data: {
       method: 'email',

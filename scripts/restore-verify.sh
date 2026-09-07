@@ -420,7 +420,7 @@ verification_result=$(psql \
     ORDER BY tablename
   ) = ARRAY[
     'AuditEvent', 'Award', 'Menu', 'ProcurementRequest', 'RateLimitBucket',
-    'Supplier', 'SupplierRequest', 'Tenant', 'User'
+    'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
   ]::TEXT[]
   AND NOT (
     SELECT COUNT(*) = 17
@@ -444,9 +444,21 @@ verification_result=$(psql \
   AND EXISTS (
     SELECT 1
     FROM public.\"_prisma_migrations\"
-    WHERE migration_name = '20260904000100_award_receiving'
+    WHERE migration_name = '20260907000100_service_planning'
       AND finished_at IS NOT NULL
       AND rolled_back_at IS NULL
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM pg_catalog.pg_class AS backup_table
+    JOIN pg_catalog.pg_namespace AS backup_namespace
+      ON backup_namespace.oid = backup_table.relnamespace
+    WHERE backup_namespace.nspname = 'public'
+      AND backup_table.relkind IN ('r', 'p')
+      AND backup_table.relname <> pg_catalog.concat('_prisma', '_migrations')
+      AND NOT pg_catalog.has_table_privilege(
+        'autorfp_backup', backup_table.oid, 'SELECT'
+      )
   )
   AND NOT EXISTS (
     SELECT 1
@@ -454,12 +466,15 @@ verification_result=$(psql \
       ('AuditEvent_metadata_size_check', 'AuditEvent', 'metadata', '16384'),
       ('Award_allocationLines_size_check', 'Award', 'allocationLines', '2097152'),
       ('Award_deliverySnapshot_size_check', 'Award', 'deliverySnapshot', '16384'),
-      ('Award_receiving_size_check', 'Award', 'receiving', '32768'),
+      ('Award_receiving_size_check', 'Award', 'receiving', '1048576'),
       ('Award_supplierSnapshots_size_check', 'Award', 'supplierSnapshots', '2097152'),
       ('Menu_document_size_check', 'Menu', 'document', '524288'),
       ('ProcurementRequest_deliveryDetails_size_check', 'ProcurementRequest', 'deliveryDetails', '16384'),
       ('ProcurementRequest_items_size_check', 'ProcurementRequest', 'items', '524288'),
       ('ProcurementRequest_sourcing_size_check', 'ProcurementRequest', 'sourcing', '65536'),
+      ('ServicePlan_document_size_check', 'ServicePlan', 'document', '524288'),
+      ('ServicePlan_menuSnapshot_size_check', 'ServicePlan', 'menuSnapshot', '1048576'),
+      ('ServicePlanRevision_document_size_check', 'ServicePlanRevision', 'document', '524288'),
       ('Supplier_capabilities_size_check', 'Supplier', 'capabilities', '65536'),
       ('SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152')
     ) AS expected(constraint_name, table_name, column_name, byte_cap)
@@ -619,7 +634,7 @@ verification_result=$(psql \
     ORDER BY 1
   ) = ARRAY['public:r:autorfp_backup:SELECT']::TEXT[]
   AND (
-    SELECT COUNT(*) = 8
+    SELECT COUNT(*) = 10
       AND bool_and(table_catalog.relrowsecurity)
       AND bool_and(table_catalog.relforcerowsecurity)
     FROM pg_catalog.pg_class AS table_catalog
@@ -628,7 +643,7 @@ verification_result=$(psql \
     WHERE namespace.nspname = 'public'
       AND table_catalog.relname = ANY(ARRAY[
         'AuditEvent', 'Award', 'Menu', 'ProcurementRequest',
-        'Supplier', 'SupplierRequest', 'Tenant', 'User'
+        'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
       ])
   )
   AND NOT (
@@ -637,7 +652,7 @@ verification_result=$(psql \
     WHERE table_catalog.oid = to_regclass('public.\"RateLimitBucket\"')
   )
   AND (
-    SELECT COUNT(*) = 8
+    SELECT COUNT(*) = 10
     FROM pg_catalog.pg_policy AS policy_catalog
     JOIN pg_catalog.pg_class AS table_catalog
       ON table_catalog.oid = policy_catalog.polrelid
@@ -652,6 +667,8 @@ verification_result=$(psql \
       ('Tenant', 'id'),
       ('User', 'tenantId'),
       ('Menu', 'tenantId'),
+      ('ServicePlan', 'tenantId'),
+      ('ServicePlanRevision', 'tenantId'),
       ('Supplier', 'tenantId'),
       ('ProcurementRequest', 'tenantId'),
       ('SupplierRequest', 'tenantId'),
@@ -722,7 +739,7 @@ verification_result=$(psql \
     )
   )
 THEN 1 ELSE 0 END;")
-[ "$verification_result" = '1' ] || fail 'restored database did not contain the compact schema contract'
+[ "$verification_result" = '1' ] || fail 'restored database did not contain the service planning schema contract'
 
 runtime_verification_result=$(psql \
   --set=ON_ERROR_STOP=1 \

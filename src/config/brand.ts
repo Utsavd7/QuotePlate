@@ -4,5 +4,5 @@ export const brand = Object.freeze({
   tagline: 'Every quote, accountable.',
   category: 'Restaurant ingredient procurement',
   description:
-    'A review-first procurement workspace for restaurant teams to issue requests, collect comparable supplier quotes, and record human award decisions.',
+    'Plan restaurant portions and ingredient shortages, compare supplier quotes, check deliveries, track credits and learn from supplier performance in one private workspace.',
 });

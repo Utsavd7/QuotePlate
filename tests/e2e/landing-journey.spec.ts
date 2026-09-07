@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const names = ['Menu', 'Suppliers', 'Request', 'Compare', 'Decision'];
+const names = ['Menu', 'Suppliers', 'Request', 'Compare', 'Decision', 'Delivery'];
 
 test('old product bookmarks lead to the homepage journey', async ({ page }) => {
   await page.goto('/product');
@@ -18,7 +18,7 @@ test('manual steps expose only their content and support keyboard navigation', a
   for (let index = 0; index < names.length; index += 1) {
     await buttons.nth(index).click();
     await expect(buttons.nth(index)).toHaveAttribute('aria-current', 'step');
-    await expect(stage.getByText(`Step ${index + 1} of 5`, { exact: true })).toBeVisible();
+    await expect(stage.getByText(`Step ${index + 1} of ${names.length}`, { exact: true })).toBeVisible();
     await expect(buttons.nth(index)).toHaveText(names[index]);
     await expect(page.locator(`#journey-step-${index + 1}`)).toBeVisible();
     await expect(page.locator('.story-scene:not([inert])')).toHaveCount(1);
@@ -60,7 +60,7 @@ test('the complete journey remains readable without JavaScript', async ({ browse
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto('/');
-  for (let index = 1; index <= 5; index += 1) {
+  for (let index = 1; index <= names.length; index += 1) {
     await expect(page.locator(`#journey-step-${index}`)).toBeVisible();
   }
   await expect(page.getByRole('navigation', { name: 'Buying journey steps' })).toBeHidden();

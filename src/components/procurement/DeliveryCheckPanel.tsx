@@ -7,34 +7,14 @@ import { useState, type FormEvent } from 'react';
 import { workspaceMutationFetch } from '@/lib/client/workspace-prefetch';
 import { formatIndiaDate as displayDate } from '@/lib/domain/india-date';
 import { formatInr, parseInrToPaise } from '@/lib/domain/money';
+import type { ReceivingSummary } from '@/lib/receiving/receiving-document';
+import { calculateReceivingDetails, validateReceivingDetails, type ReceivingDetails } from '@/lib/receiving/receiving-details';
+import detailStyles from './delivery-check.module.css';
 import styles from './request-detail.module.css';
 
 type IssueCode = 'LATE' | 'MISSING_QUANTITY' | 'WRONG_ITEM' | 'QUALITY' | 'PRICE_DIFFERENCE' | 'OTHER';
 
-type SavedCheck = {
-  supplierId: string;
-  outcome: 'MATCHED' | 'ISSUES';
-  invoiceTotalPaise: string;
-  differencePaise: string;
-  issueCodes: IssueCode[];
-  note: string | null;
-  checkedAt: string;
-  hasProblem: boolean;
-};
-
-export type DeliveryReceivingSummary = {
-  checkedCount: number;
-  totalCount: number;
-  complete: boolean;
-  problemCount: number;
-  suppliers: Array<{
-    supplierId: string;
-    supplierName: string;
-    deliveryDate: string;
-    expectedTotalPaise: string;
-    check: SavedCheck | null;
-  }>;
-};
+export type DeliveryReceivingSummary = ReceivingSummary;
 
 const issueOptions: Array<{ code: IssueCode; label: string }> = [
   { code: 'LATE', label: 'Late delivery' },
@@ -59,7 +39,7 @@ function differenceText(value: string) {
   return `${formatInr(absolute.toString())} ${difference > BigInt(0) ? 'higher' : 'lower'}`;
 }
 
-function SupplierCheckForm({ awardId, supplier, onSaved }: {
+export function SupplierCheckForm({ awardId, supplier, onSaved }: {
   awardId: string;
   supplier: DeliveryReceivingSummary['suppliers'][number];
   onSaved: () => Promise<void> | void;
@@ -69,6 +49,27 @@ function SupplierCheckForm({ awardId, supplier, onSaved }: {
   const [outcome, setOutcome] = useState<'MATCHED' | 'ISSUES'>(supplier.check?.outcome ?? 'MATCHED');
   const [issueCodes, setIssueCodes] = useState<IssueCode[]>(supplier.check?.issueCodes ?? []);
   const [note, setNote] = useState(supplier.check?.note ?? '');
+  const [rows, setRows] = useState(() => (supplier.items ?? []).map(item => {
+    const saved = supplier.check?.details?.items.find(row => row.requestItemId === item.requestItemId);
+    return { requestItemId: item.requestItemId, receivedQuantity: saved?.receivedQuantity ?? '', rejectedQuantity: saved?.rejectedQuantity ?? '0', billedQuantity: saved?.billedQuantity ?? '', billedRateInr: saved?.billedUnitRatePaise != null ? rupeesInput(saved.billedUnitRatePaise) : '' };
+  }));
+  const [actualDate, setActualDate] = useState(supplier.check?.details?.actualDeliveryDate ?? '');
+  const [creditClaimed, setCreditClaimed] = useState(rupeesInput(supplier.check?.details?.creditClaimedPaise ?? '0'));
+  const [creditReceived, setCreditReceived] = useState(rupeesInput(supplier.check?.details?.creditReceivedPaise ?? '0'));
+  const [settlementNote, setSettlementNote] = useState(supplier.check?.details?.settlementNote ?? '');
+  function readDetails(): ReceivingDetails | undefined {
+    if (!supplier.items?.length) return undefined;
+    return validateReceivingDetails({
+      items: rows.map(row => ({ requestItemId: row.requestItemId, receivedQuantity: row.receivedQuantity, rejectedQuantity: row.rejectedQuantity,
+        billedQuantity: row.billedQuantity || null, billedUnitRatePaise: row.billedRateInr ? parseInrToPaise(row.billedRateInr).toString() : null })),
+      actualDeliveryDate: actualDate || null, creditClaimedPaise: parseInrToPaise(creditClaimed).toString(), creditReceivedPaise: parseInrToPaise(creditReceived).toString(), settlementNote: settlementNote.trim() || null,
+    });
+  }
+  let preview: ReturnType<typeof calculateReceivingDetails> | undefined;
+  try { const details = readDetails(); if (details) preview = calculateReceivingDetails(supplier.items!, details); } catch { /* Incomplete form; validate on save. */ }
+  function changeRow(index: number, field: 'receivedQuantity' | 'rejectedQuantity' | 'billedQuantity' | 'billedRateInr', value: string) {
+    setRows(current => current.map((row, i) => i === index ? { ...row, [field]: value } : row));
+  }
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -84,7 +85,7 @@ function SupplierCheckForm({ awardId, supplier, onSaved }: {
     let invoiceTotalPaise: string;
     try {
       const paise = parseInrToPaise(invoiceInr);
-      if (paise <= BigInt(0)) throw new RangeError();
+      if (paise < BigInt(0) || (paise === BigInt(0) && !supplier.items?.length)) throw new RangeError();
       invoiceTotalPaise = paise.toString();
     } catch {
       setError('Enter the invoice total in rupees.');
@@ -94,6 +95,14 @@ function SupplierCheckForm({ awardId, supplier, onSaved }: {
       setError('Choose at least one delivery problem.');
       return;
     }
+    let details: ReceivingDetails | undefined;
+    try {
+      details = readDetails();
+      if (details) calculateReceivingDetails(supplier.items!, details);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Check item counts and credit amounts.');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -101,6 +110,7 @@ function SupplierCheckForm({ awardId, supplier, onSaved }: {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          ...(details ? { details } : {}),
           supplierId: supplier.supplierId,
           outcome,
           invoiceTotalPaise,
@@ -138,9 +148,15 @@ function SupplierCheckForm({ awardId, supplier, onSaved }: {
           <div><dt>Invoice total</dt><dd>{formatInr(check.invoiceTotalPaise)}</dd></div>
           <div><dt>Invoice difference</dt><dd>{differenceText(check.differencePaise)}</dd></div>
         </dl>
+        {check.details && <div className={detailStyles.summary}>
+          <p>{check.deliveryComplete ? 'Delivery complete' : 'Partial delivery · quantities outstanding'} · Actual delivery: {check.details.actualDeliveryDate ? displayDate(check.details.actualDeliveryDate) : 'Not recorded'}</p>
+          {check.itemDetails?.map(item => <div key={item.requestItemId}><strong>{item.itemName}</strong><p>Ordered {item.orderedQuantity} · received {item.receivedQuantity} (including rejected {item.rejectedQuantity}) · accepted {item.acceptedQuantity} · outstanding {item.pendingQuantity} {item.unit.toLowerCase()}</p><small>Item discrepancy {formatInr(item.discrepancyPaise)}</small></div>)}
+          <p>Credit claimed {formatInr(check.details.creditClaimedPaise)} · received {formatInr(check.details.creditReceivedPaise)} · remaining {formatInr(check.creditRemainingPaise ?? '0')}</p>
+          {check.details.settlementNote && <blockquote>{check.details.settlementNote}</blockquote>}
+        </div>}
         {check.issueCodes.length > 0 && <p>{check.issueCodes.map((code) => issueOptions.find((option) => option.code === code)?.label).join(' · ')}</p>}
         {check.note && <blockquote>{check.note}</blockquote>}
-        <footer><small>Checked {displayDate(check.checkedAt, true)}</small><button type="button" onClick={() => setEditing(true)}>Update check</button></footer>
+        <footer><small>Checked {displayDate(check.checkedAt, true)}</small><button type="button" onClick={() => setEditing(true)}>{!check.details && supplier.items?.length ? 'Add item details' : 'Update check'}</button></footer>
       </article>
     );
   }
@@ -152,6 +168,30 @@ function SupplierCheckForm({ awardId, supplier, onSaved }: {
         {supplier.check && <button type="button" onClick={() => setEditing(false)}>Cancel</button>}
       </header>
       <label className={styles.invoiceField}><span>Invoice total in rupees *</span><span><b>₹</b><input inputMode="decimal" value={invoiceInr} placeholder="1,250.00" onChange={(event) => setInvoiceInr(event.target.value.replace(/,/g, ''))} /></span></label>
+      {supplier.items?.length ? <div className={detailStyles.details}>
+        <p>Enter cumulative totals across all deliveries, including rejected units in received counts. Updating replaces the previous totals. Rejected units remain outstanding until accepted replacements arrive.</p>
+        {supplier.check && !supplier.check.details && <p>Upgrade this summary by entering the item counts you have verified. The accepted award stays unchanged.</p>}
+        {supplier.items.map((item, index) => <fieldset key={item.requestItemId} className={detailStyles.item}>
+          <legend>{item.itemName}</legend>
+          <p>Ordered: {item.orderedQuantity} {item.unit.toLowerCase()} · accepted rate {formatInr(item.unitRatePaise)} · {item.taxInclusive ? 'including' : 'excluding'} GST</p>
+          <div className={detailStyles.fields}>
+            <label>Cumulative received<input required inputMode="decimal" maxLength={24} value={rows[index]?.receivedQuantity ?? ''} onChange={event => changeRow(index, 'receivedQuantity', event.target.value)} /></label>
+            <label>Cumulative rejected<input required inputMode="decimal" maxLength={24} value={rows[index]?.rejectedQuantity ?? ''} onChange={event => changeRow(index, 'rejectedQuantity', event.target.value)} /></label>
+            <label>Billed quantity (optional)<input inputMode="decimal" maxLength={24} value={rows[index]?.billedQuantity ?? ''} onChange={event => changeRow(index, 'billedQuantity', event.target.value)} /></label>
+            <label>Billed rate in rupees<input inputMode="decimal" maxLength={24} value={rows[index]?.billedRateInr ?? ''} onChange={event => changeRow(index, 'billedRateInr', event.target.value)} /></label>
+          </div>
+          {preview && <p>Accepted {preview.itemDetails[index].acceptedQuantity} · outstanding {preview.itemDetails[index].pendingQuantity} · discrepancy {formatInr(preview.itemDetails[index].discrepancyPaise)}</p>}
+        </fieldset>)}
+        <p className={detailStyles.help}>Item discrepancy compares billed value with accepted quantity at the awarded rate, using awarded GST. Without billing details it estimates against the full allocated value. Freight is excluded; the invoice difference above compares the whole invoice.</p>
+        <div className={detailStyles.fields}>
+          <label>Actual delivery date<input type="date" value={actualDate} onChange={event => setActualDate(event.target.value)} /></label>
+          <label>Credit claimed in rupees<input inputMode="decimal" maxLength={24} value={creditClaimed} onChange={event => setCreditClaimed(event.target.value)} /></label>
+          <label>Credit received in rupees<input inputMode="decimal" maxLength={24} value={creditReceived} onChange={event => setCreditReceived(event.target.value)} /></label>
+        </div>
+        <p className={detailStyles.help}>Use the latest arrival date, including replacement shipments. When the delivery is complete, this date is used to measure on-time performance.</p>
+        {preview && <p role="status">Item discrepancy {formatInr(preview.discrepancyPaise)} · Credit remaining {formatInr(preview.creditRemainingPaise)}</p>}
+        <label>Settlement notes<textarea maxLength={500} rows={2} value={settlementNote} onChange={event => setSettlementNote(event.target.value)} placeholder="Credit note reference, refund or agreed adjustment" /></label>
+      </div> : null}
       <fieldset className={styles.deliveryOutcome}>
         <legend>How was the delivery?</legend>
         <label><input type="radio" name={`outcome-${supplier.supplierId}`} checked={outcome === 'MATCHED'} onChange={() => { setOutcome('MATCHED'); setIssueCodes([]); }} />Received as agreed</label>
@@ -180,7 +220,7 @@ export function DeliveryCheckPanel({ awardId, requestId, receiving, onSaved }: {
       <header><div><p className={styles.eyebrow}>After delivery</p><h2 id="delivery-check-heading">Check delivery</h2></div><span>{receiving.checkedCount} of {receiving.totalCount} checked</span></header>
       <p className={styles.deliveryIntro}>Enter the supplier invoice total and record whether the order arrived as agreed.</p>
       <div className={styles.deliveryGrid}>{receiving.suppliers.map((supplier) => (
-        <SupplierCheckForm key={supplier.supplierId} awardId={awardId} supplier={supplier} onSaved={onSaved} />
+        <SupplierCheckForm key={`${supplier.supplierId}:${supplier.check?.checkedAt ?? 'new'}`} awardId={awardId} supplier={supplier} onSaved={onSaved} />
       ))}</div>
       {receiving.complete && (
         <div className={styles.repeatOrder}>

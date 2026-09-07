@@ -1,5 +1,7 @@
 export const WORKSPACE_FIRST_REQUESTS = {
   '/dashboard': '/api/overview',
+  '/service-planning': '/api/service-planning',
+  '/supplier-performance': '/api/supplier-performance',
   '/procurement': '/api/requests?limit=50',
   '/menus': '/api/menus?limit=50',
   '/suppliers': '/api/suppliers?active=true&limit=50',

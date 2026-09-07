@@ -5,12 +5,14 @@ import { PrismaClient } from '@prisma/client';
 
 import { withMigratedPostgres, withPostgres } from './setup/postgres';
 
-const compactTables = [
+const currentTables = [
   'AuditEvent',
   'Award',
   'Menu',
   'ProcurementRequest',
   'RateLimitBucket',
+  'ServicePlan',
+  'ServicePlanRevision',
   'Supplier',
   'SupplierRequest',
   'Tenant',
@@ -65,7 +67,7 @@ test('deploys every migration to an empty PostgreSQL database without schema dri
       `;
 
       expect(tables.map(({ tablename }) => tablename).sort()).toEqual([
-        ...compactTables,
+        ...currentTables,
         '_prisma_migrations',
       ].sort());
       expect(migrations).toEqual([
@@ -136,6 +138,11 @@ test('deploys every migration to an empty PostgreSQL database without schema dri
         }),
         expect.objectContaining({
           migration_name: '20260904000100_award_receiving',
+          finished_at: expect.any(Date),
+          rolled_back_at: null,
+        }),
+        expect.objectContaining({
+          migration_name: '20260907000100_service_planning',
           finished_at: expect.any(Date),
           rolled_back_at: null,
         }),

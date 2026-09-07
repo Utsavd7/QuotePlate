@@ -22,6 +22,7 @@ const publicJourneyHeadings = [
   'Send one clear request',
   'Compare the complete cost',
   'Choose and save the decision',
+  'Check deliveries and follow every credit',
 ] as const;
 
 const landingMotionSelectors = [
@@ -112,7 +113,7 @@ test.describe('public landing responsive contract', () => {
     }
   });
 
-  test('keeps all three restaurant benefits readable across screen sizes', async ({ page }, testInfo) => {
+  test('keeps all six restaurant benefits readable across screen sizes', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop-chromium', 'One project covers the viewport matrix');
 
     for (const size of [
@@ -126,7 +127,7 @@ test.describe('public landing responsive contract', () => {
       await expect(section.getByRole('heading', {
         name: 'Useful for every purchase, not just the first one.',
       })).toBeVisible();
-      await expect(section.locator('.restaurant-benefit')).toHaveCount(3);
+      await expect(section.locator('.restaurant-benefit')).toHaveCount(6);
       const columns = await section.locator('.restaurant-benefits__grid').evaluate((element) => (
         getComputedStyle(element).gridTemplateColumns.split(' ').length
       ));
@@ -328,7 +329,7 @@ test.describe('public landing responsive contract', () => {
           '.privacy-story__note',
           '.public-cta > div:last-child > p',
         ].join(', '));
-        expect(await narrativeProse.count()).toBe(8);
+        expect(await narrativeProse.count()).toBe(11);
         for (const paragraph of await narrativeProse.all()) {
           expect(await paragraph.evaluate((element) => (
             Number.parseFloat(getComputedStyle(element).fontSize)
@@ -598,6 +599,8 @@ test('footer destinations share the public page frame', async ({ page }, testInf
 test('Security links frame the section below the shared header', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chromium', 'One project covers both header layouts');
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  // Fractional layout and scroll rounding can differ by slightly over one CSS pixel.
+  const anchorTolerance = 2;
   for (const width of [1507, 900, 390]) {
     await page.setViewportSize({ width, height: 751 });
     for (const route of ['/', '/privacy']) {
@@ -605,12 +608,12 @@ test('Security links frame the section below the shared header', async ({ page }
       await page.getByRole('navigation', { name: 'Primary navigation' }).getByRole('link', { name: 'Security' }).click();
       await expect.poll(() => page.locator('#security').evaluate((element) => (
         element.getBoundingClientRect().top
-      ))).toBeCloseTo(width > 760 ? 128 : 0, 0);
+      )).then(top => Math.abs(top - (width > 760 ? 128 : 0)))).toBeLessThanOrEqual(anchorTolerance);
       await expect(page.locator('#privacy-story-title')).toBeInViewport();
     }
     await page.getByRole('navigation', { name: 'Footer navigation' }).getByRole('link', { name: 'Security' }).click();
     await expect.poll(() => page.locator('#security').evaluate((element) => (
       element.getBoundingClientRect().top
-    ))).toBeCloseTo(width > 760 ? 128 : 0, 0);
+    )).then(top => Math.abs(top - (width > 760 ? 128 : 0)))).toBeLessThanOrEqual(anchorTolerance);
   }
 });

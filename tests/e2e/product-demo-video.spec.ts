@@ -22,7 +22,7 @@ test('demo loads on demand, plays with captions, and fits the viewport', async (
 
   await video.evaluate((el: HTMLVideoElement) => el.play());
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBeGreaterThan(0);
-  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeCloseTo(150, 0);
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeCloseTo(225, 0);
   await video.evaluate((el: HTMLVideoElement) => { el.textTracks[0].mode = 'showing'; });
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].cues?.length ?? 0)).toBeGreaterThan(0);
 
@@ -40,5 +40,9 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   await expect(page.getByRole('link', { name: 'Open the video directly' })).toHaveAttribute('href', '/media/quoteplate-product-film.mp4');
   const transcript = await page.request.get('/media/quoteplate-product-film.txt');
   expect(transcript.ok()).toBe(true);
-  expect(await transcript.text()).toContain('QuotePlate');
+  const text = await transcript.text();
+  expect(text).toContain('QuotePlate');
+  expect(text).toContain('credit claimed');
+  expect(text).toContain('Supplier performance');
+  expect(text).toContain('seven point five kilo purchase');
 });

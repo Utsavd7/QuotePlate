@@ -46,6 +46,7 @@ export function LandingJourney() {
                 Start with a menu or enter the items yourself. QuotePlate turns the dishes into an
                 ingredient list for your team to check before it is used.
               </p>
+              <p>For daily service, set portions and batch servings, enter usable stock and confirmed arrivals, and calculate what is missing before preparing a request.</p>
             </div>
             <div
               className="intake-diagram"
@@ -146,6 +147,18 @@ export function LandingJourney() {
                 <JourneyIcon name="history" />
                 <span>Saved buying history</span>
               </div>
+            </div>
+          </li>
+          <li className="story-scene story-scene--decision" id="journey-step-6">
+            <div className="story-scene__copy">
+              <h3>Check deliveries and follow every credit</h3>
+              <p>Record received, rejected and billed quantities against the order. Keep partial deliveries open and track credits claimed, received and still owed.</p>
+              <p>Use those recorded outcomes to review supplier fulfilment and delivery reliability before your next purchase.</p>
+            </div>
+            <div className="decision-route" role="group" aria-label="Delivery checks connect accepted quantities with credit balances">
+              <div><JourneyIcon name="receipt" /><span>Record actual quantities</span></div>
+              <span aria-hidden="true" />
+              <div><JourneyIcon name="history" /><span>Track credits and supplier history</span></div>
             </div>
           </li>
         </ol>

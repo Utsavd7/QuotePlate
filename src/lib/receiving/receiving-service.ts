@@ -1,3 +1,4 @@
+import { calculateReceivingDetails, RECEIVING_JSON_BYTES, type ReceivingCalculatedDetails } from './receiving-details';
 import { Prisma } from '@prisma/client';
 
 import { writeAuditEvent } from '@/lib/audit/write-event';
@@ -8,6 +9,7 @@ import { assertBoundedJson } from '@/lib/domain/postgres-json';
 import { MAX_SIGNED_BIGINT } from '@/lib/domain/validation';
 import { prisma } from '@/lib/prisma';
 import {
+  ReceivingValidationError,
   type AwardReceivingV1,
   type ValidReceivingInput,
   buildReceivingSummary,
@@ -15,7 +17,7 @@ import {
   validateStoredReceiving,
 } from '@/lib/receiving/receiving-document';
 
-export const RECEIVING_BODY_BYTES = 8 * 1024;
+export const RECEIVING_BODY_BYTES = 128 * 1024;
 
 export class ReceivingNotFoundError extends Error {
   readonly code = 'AWARD_NOT_FOUND';
@@ -47,7 +49,7 @@ export class ReceivingConflictError extends Error {
   }
 }
 
-export type DeliveryCheckResult = Omit<ValidReceivingInput, 'expectedCheckedAt'> & {
+export type DeliveryCheckResult = Omit<ValidReceivingInput, 'expectedCheckedAt'> & Partial<ReceivingCalculatedDetails> & {
   expectedTotalPaise: string;
   differencePaise: string;
   checkedAt: string;
@@ -149,11 +151,17 @@ export function createReceivingOperations(
         if ((currentCheck?.checkedAt ?? null) !== expectedCheckedAt) {
           throw new ReceivingConflictError();
         }
+        if (currentCheck?.details && !deliveryCheck.details) throw new ReceivingConflictError();
+        let calculated: ReceivingCalculatedDetails | undefined;
+        try { if (deliveryCheck.details) calculated = calculateReceivingDetails(supplierSummary.items ?? [], deliveryCheck.details); }
+        catch { throw new ReceivingValidationError(); }
         const expectedTotal = BigInt(supplierSummary.expectedTotalPaise);
         if (expectedTotal > MAX_SIGNED_BIGINT) throw new ReceivingSupplierError();
         const invoiceTotal = BigInt(deliveryCheck.invoiceTotalPaise);
         const difference = invoiceTotal - expectedTotal;
-        const checkedAt = validClock(dependencies.now());
+        const clock = validClock(dependencies.now());
+        const checkedAt = currentCheck && clock <= currentCheck.checkedAt
+          ? new Date(Date.parse(currentCheck.checkedAt) + 1).toISOString() : clock;
         const invoiceDiffers = difference !== BigInt(0);
         const normalizedCheck = invoiceDiffers ? {
           ...deliveryCheck,
@@ -162,6 +170,16 @@ export function createReceivingOperations(
             ? deliveryCheck.issueCodes
             : [...deliveryCheck.issueCodes, 'PRICE_DIFFERENCE' as const],
         } : deliveryCheck;
+        if (calculated) {
+          const codes = new Set(normalizedCheck.issueCodes);
+          if (!calculated.deliveryComplete) codes.add('MISSING_QUANTITY');
+          if (calculated.itemDetails.some(i => i.rejectedQuantity !== '0')) codes.add('QUALITY');
+          if (calculated.discrepancyPaise !== '0') codes.add('PRICE_DIFFERENCE');
+          if (deliveryCheck.details!.actualDeliveryDate && deliveryCheck.details!.actualDeliveryDate > supplierSummary.deliveryDate) codes.add('LATE');
+          if (calculated.creditRemainingPaise !== '0' && codes.size === 0) codes.add('OTHER');
+          normalizedCheck.issueCodes = [...codes];
+          if (codes.size) normalizedCheck.outcome = 'ISSUES';
+        }
         const entry = { ...normalizedCheck, checkedAt };
         const receiving: AwardReceivingV1 = {
           v: 1,
@@ -172,7 +190,7 @@ export function createReceivingOperations(
             entry,
           ].sort((left, right) => left.supplierId.localeCompare(right.supplierId)),
         };
-        assertBoundedJson(receiving, 32 * 1024, 'Delivery checks');
+        try { assertBoundedJson(receiving, RECEIVING_JSON_BYTES, 'Delivery checks'); } catch { throw new ReceivingValidationError(); }
 
         const updated = await transaction.award.updateMany({
           where: { tenantId: input.actor.tenantId, id: input.awardId },
@@ -196,6 +214,7 @@ export function createReceivingOperations(
 
         return {
           ...normalizedCheck,
+          ...(calculated ?? {}),
           expectedTotalPaise: expectedTotal.toString(),
           differencePaise: difference.toString(),
           checkedAt,

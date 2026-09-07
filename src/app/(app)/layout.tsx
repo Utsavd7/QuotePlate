@@ -4,12 +4,14 @@ import {
   BarChart3,
   BookOpen,
   ClipboardList,
+  ClipboardCheck,
   History,
   LayoutDashboard,
   Menu,
   Plus,
   Settings,
   Users,
+  Truck,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -42,9 +44,11 @@ type RestaurantAccount = {
 
 const NAV = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Home' },
+  { href: '/service-planning', icon: ClipboardCheck, label: 'Plan today’s service' },
   { href: '/procurement', icon: ClipboardList, label: 'Buy ingredients' },
   { href: '/menus', icon: BookOpen, label: 'Menu and ingredients' },
   { href: '/suppliers', icon: Users, label: 'Suppliers' },
+  { href: '/supplier-performance', icon: Truck, label: 'Supplier performance' },
   { href: '/insights', icon: BarChart3, label: 'Savings and prices' },
   { href: '/history', icon: History, label: 'Past purchases' },
   { href: '/settings', icon: Settings, label: 'Restaurant settings' },

@@ -19,6 +19,34 @@ const capabilities = (
 });
 
 describe('supplier suggestions', () => {
+  it('uses completed delivery evidence to break otherwise equal capability matches', () => {
+    const result = rankSupplierSuggestions({
+      items: [{ id: 'item-1', itemKey: 'tomato', category: 'VEGETABLES' }],
+      suppliers: [
+        { id: 'a', businessName: 'A Farm', capabilities: capabilities({ categoryTier: 'CAPABLE' }) },
+        { id: 'b', businessName: 'B Farm', capabilities: capabilities({ categoryTier: 'CAPABLE' }) },
+      ],
+      priorAwardSupplierIdsByItemKey: new Map(),
+      deliveryEvidenceBySupplierId: new Map([
+        ['a', { datedDeliveries: 4, onTimeDeliveries: 2 }],
+        ['b', { datedDeliveries: 4, onTimeDeliveries: 4 }],
+      ]),
+    });
+    expect(result['item-1'].map(s => s.supplierId)).toEqual(['b', 'a']);
+    expect(result['item-1'][0].reason).toContain('4 of 4 dated deliveries on time');
+  });
+
+  it('never treats missing or limited delivery evidence as poor performance', () => {
+    const result = rankSupplierSuggestions({
+      items: [{ id: 'item-1', itemKey: 'tomato', category: 'VEGETABLES' }],
+      suppliers: [
+        { id: 'a', businessName: 'A Farm', capabilities: capabilities({ categoryTier: 'CAPABLE' }) },
+        { id: 'b', businessName: 'B Farm', capabilities: capabilities({ categoryTier: 'CAPABLE' }) },
+      ], priorAwardSupplierIdsByItemKey: new Map(),
+      deliveryEvidenceBySupplierId: new Map([['b', { datedDeliveries: 1, onTimeDeliveries: 1 }]]),
+    });
+    expect(result['item-1'].map(s => s.supplierId)).toEqual(['a', 'b']);
+  });
   it('uses the specified evidence precedence and literal reasons', () => {
     const result = rankSupplierSuggestions({
       items: [{ id: 'item-1', itemKey: 'tomato', category: 'VEGETABLES' }],

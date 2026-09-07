@@ -94,6 +94,7 @@ export function InsightsWorkspace({ initialData }: { initialData?: FactualInsigh
         <div><p>Submitted facts only</p><h1>Savings and prices</h1><span>See supplier response, submitted price differences, and facts from previous buying.</span></div>
         <button type="button" disabled={loading} onClick={() => void load()}><RefreshCw aria-hidden="true" />{loading ? 'Refreshing…' : 'Refresh'}</button>
       </header>
+      <p><Link href="/supplier-performance">See delivery performance and credits owed</Link> · <Link href="/service-planning">Plan ingredients for today’s service</Link></p>
       {error && <div className={styles.error} role="alert">{error} Your saved restaurant records are unchanged.</div>}
       {loading && !data ? <div className={styles.loading} aria-label="Loading insights"><span /><span /><span /></div> : data && data.summary.requestSampleSize > 0 ? (
         <>

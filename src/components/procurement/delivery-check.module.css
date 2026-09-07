@@ -1,0 +1,11 @@
+.details, .summary { display: grid; gap: 1rem; min-width: 0; }
+.details p, .summary p { margin: 0; line-height: 1.5; }
+.item { border: 1px solid #d8ddd5; border-radius: 10px; padding: 1rem; min-width: 0; }
+.item legend { padding: 0 .4rem; font-weight: 700; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: .75rem; }
+.details label { display: grid; gap: .4rem; font-size: .875rem; }
+.details input, .details textarea { box-sizing: border-box; width: 100%; min-width: 0; padding: .65rem; border: 1px solid #adb8a9; border-radius: 6px; background: white; color: #223225; font: inherit; }
+.details input:focus-visible, .details textarea:focus-visible { outline: 2px solid #386044; outline-offset: 2px; }
+.help { color: #596455; font-size: .8rem; }
+.summary { border-top: 1px solid #d8ddd5; padding-top: 1rem; font-size: .875rem; }
+@media (max-width: 540px) { .fields { grid-template-columns: 1fr; } }
