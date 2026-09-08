@@ -28,6 +28,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { workspaceMutationFetch } from '@/lib/client/workspace-prefetch';
+import { loadPurchase } from '@/lib/client/load-purchase';
 import { formatIndiaDate as displayDate } from '@/lib/domain/india-date';
 import { formatInr } from '@/lib/domain/money';
 import type {
@@ -262,18 +263,27 @@ export function SupplierFreshLinkActions({
   );
 }
 
-export function RequestDetail({
-  requestId,
-  initialRequest,
-  initialComparison,
-}: {
+type RequestDetailProps = {
   requestId: string;
   initialRequest?: ProcurementRequestDetail;
   initialComparison?: QuoteComparison;
-}) {
+};
+
+export function RequestDetail(props: RequestDetailProps) {
+  return <RequestDetailContent key={props.requestId} {...props} />;
+}
+
+function RequestDetailContent({
+  requestId,
+  initialRequest,
+  initialComparison,
+}: RequestDetailProps) {
   const router = useRouter();
   const [request, setRequest] = useState<ProcurementRequestDetail | null>(initialRequest ?? null);
   const [comparison, setComparison] = useState<QuoteComparison | null>(initialComparison ?? null);
+  const [confirmedAward, setConfirmedAward] = useState<AwardDetail | null>(() =>
+    initialComparison?.request.id === requestId && initialComparison.request.award?.requestId === requestId
+      ? initialComparison.request.award : null);
   const [shareLinks, setShareLinks] = useState<ShareLink[]>([]);
   const [applicationLink, setApplicationLink] = useState<SupplierApplicationLink | null>(null);
   const [loading, setLoading] = useState(!initialRequest);
@@ -282,30 +292,43 @@ export function RequestDetail({
   const [notice, setNotice] = useState('');
   const [editingDraft, setEditingDraft] = useState(false);
   const [refreshingQuotes, setRefreshingQuotes] = useState(false);
+  const [loadingComparison, setLoadingComparison] = useState(false);
   const [awardMode, setAwardMode] = useState<'WHOLE' | 'SPLIT'>('WHOLE');
   const [wholeSupplierRequestId, setWholeSupplierRequestId] = useState('');
   const [splitAllocations, setSplitAllocations] = useState<Record<string, SplitAllocation[]>>({});
   const [rationale, setRationale] = useState('');
-  const initialLoadStarted = useRef(false);
+  const purchaseLoad = useRef<AbortController | null>(null);
+  const comparisonLoad = useRef<AbortController | null>(null);
   const comparisonEpoch = useRef(0);
 
+  const acceptComparison = useCallback((next: QuoteComparison | null) => {
+    setComparison(next);
+    // Clearing prices for a refresh must not discard the server-confirmed award.
+    // A completed comparison replaces the snapshot, including an explicit absence.
+    if (next) setConfirmedAward(next.request.id === requestId && next.request.award?.requestId === requestId
+      ? next.request.award : null);
+  }, [requestId]);
+
   const loadComparison = useCallback(async (quiet = false) => {
-    const epoch = comparisonEpoch.current;
+    comparisonLoad.current?.abort();
+    const controller = new AbortController();
+    comparisonLoad.current = controller;
+    const epoch = ++comparisonEpoch.current;
     if (!quiet) setRefreshingQuotes(true);
     try {
       const comparisonResponse = await fetch(
         `/api/requests/${encodeURIComponent(requestId)}/comparison`,
-        { cache: 'no-store' },
+        { cache: 'no-store', signal: controller.signal },
       );
       if (!comparisonResponse.ok) {
         throw new Error(await problemMessage(comparisonResponse, 'We could not load supplier quotes.'));
       }
       const result = (await comparisonResponse.json()) as QuoteComparison;
-      if (comparisonEpoch.current !== epoch) return;
-      setComparison(result);
+      if (controller.signal.aborted || comparisonEpoch.current !== epoch) return;
+      acceptComparison(result);
       if (!quiet) setNotice('Supplier quotes refreshed.');
     } catch (caught) {
-      if (comparisonEpoch.current !== epoch) return;
+      if (controller.signal.aborted || comparisonEpoch.current !== epoch) return;
       if (!quiet) {
         setError({
           message: caught instanceof Error ? caught.message : 'We could not load supplier quotes.',
@@ -313,44 +336,55 @@ export function RequestDetail({
         });
       }
     } finally {
-      if (!quiet) setRefreshingQuotes(false);
+      if (!controller.signal.aborted && comparisonEpoch.current === epoch) setRefreshingQuotes(false);
     }
-  }, [requestId]);
+  }, [requestId, acceptComparison]);
 
   const loadAll = useCallback(async (showFailure = true) => {
+    purchaseLoad.current?.abort();
+    comparisonLoad.current?.abort();
+    comparisonEpoch.current += 1;
+    const controller = new AbortController();
+    purchaseLoad.current = controller;
+    setRefreshingQuotes(false);
     if (showFailure) setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/requests/${encodeURIComponent(requestId)}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(await problemMessage(response, 'We could not load this request.'));
-      const result = (await response.json()) as { request: ProcurementRequestDetail };
-      setRequest(result.request);
-      if (result.request.status === 'OPEN' || result.request.status === 'AWARDED') {
-        const comparisonResponse = await fetch(`/api/requests/${encodeURIComponent(requestId)}/comparison`, { cache: 'no-store' });
-        if (!comparisonResponse.ok) throw new Error(await problemMessage(comparisonResponse, 'We could not load supplier quotes.'));
-        setComparison((await comparisonResponse.json()) as QuoteComparison);
-      } else {
-        setComparison(null);
-      }
+      await loadPurchase<ProcurementRequestDetail, QuoteComparison>(requestId, (loaded, needsComparison) => {
+        setRequest(loaded);
+        setLoadingComparison(needsComparison);
+        if (showFailure) setLoading(false);
+      }, acceptComparison, controller.signal);
     } catch (caught) {
+      if (controller.signal.aborted) return;
       if (!showFailure) throw caught;
       setError({
         message: caught instanceof Error ? caught.message : 'We could not load this request.',
         kind: 'load',
       });
     } finally {
-      if (showFailure) setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoadingComparison(false);
+        if (showFailure) setLoading(false);
+      }
     }
-  }, [requestId]);
+  }, [requestId, acceptComparison]);
 
   useEffect(() => {
-    if (initialRequest || initialLoadStarted.current) return;
-    initialLoadStarted.current = true;
-    void loadAll();
+    let disposed = false;
+    // Defer load-state updates until after the mounting effect; cleanup can cancel
+    // this scheduled work before it starts (including Strict Mode's first mount).
+    if (!initialRequest) queueMicrotask(() => { if (!disposed) void loadAll(); });
+    return () => {
+      disposed = true;
+      purchaseLoad.current?.abort();
+      comparisonLoad.current?.abort();
+      comparisonEpoch.current += 1;
+    };
   }, [initialRequest, loadAll]);
 
   useEffect(() => {
-    if (request?.status !== 'OPEN') return;
+    if (request?.status !== 'OPEN' || loadingComparison) return;
     const refreshWhenVisible = () => {
       if (document.visibilityState === 'visible') void loadComparison(true);
     };
@@ -360,7 +394,7 @@ export function RequestDetail({
       window.clearInterval(interval);
       document.removeEventListener('visibilitychange', refreshWhenVisible);
     };
-  }, [loadComparison, request?.status]);
+  }, [loadComparison, request?.status, loadingComparison]);
 
   const quoteByGrant = useMemo(() => new Map((comparison?.quotes ?? []).map((quote) => [quote.supplierRequestId, quote])), [comparison]);
 
@@ -657,7 +691,8 @@ export function RequestDetail({
       if (!response.ok) throw new Error(await problemMessage(response, 'We could not record this award.'));
       comparisonEpoch.current += 1;
       const result = (await response.json()) as { award?: AwardDetail };
-      if (!result.award) throw new Error('The recorded supplier selection was not returned.');
+      if (!result.award || result.award.requestId !== request.id) throw new Error('The recorded supplier selection was not returned.');
+      setConfirmedAward(result.award);
       const nextVersion = request.version + 1;
       setRequest((current) => current && current.id === request.id
         ? { ...current, status: 'AWARDED', version: nextVersion }
@@ -696,7 +731,8 @@ export function RequestDetail({
   if (!request) return <main className={`${styles.page} ${ui.surface}`}><section className={styles.missing}><h1>Request unavailable</h1><p>{error?.message || 'This request could not be found.'} Your saved restaurant records are unchanged.</p><button type="button" onClick={() => void loadAll()}>Try again</button></section></main>;
 
   const delivery = request.deliveryDetails;
-  const committedAward = comparison?.request.award ?? null;
+  const committedAward = request.status === 'AWARDED' && confirmedAward?.requestId === request.id
+    ? confirmedAward : null;
   return (
     <main className={`${styles.page} ${ui.surface}`}>
       <header className={styles.header}>
@@ -733,7 +769,7 @@ export function RequestDetail({
         }}
       />
       {request.status === 'DRAFT' && <p className={ui.nextStep}>Review ingredients and suppliers, then create links to ask for prices. Nothing is shared automatically.</p>}
-      {request.status === 'OPEN' && <p className={ui.nextStep}>{comparison?.quotes.length ? 'Compare prices below, then choose one supplier or split the order.' : 'Share each private supplier link below. Prices will appear here when suppliers reply.'}</p>}
+      {request.status === 'OPEN' && <p className={ui.nextStep}>{loadingComparison ? 'Your request is ready. Loading supplier prices…' : comparison?.quotes.length ? 'Compare prices below, then choose one supplier or split the order.' : 'Share each private supplier link below. Prices will appear here when suppliers reply.'}</p>}
 
       {notice && <div className={styles.notice} role="status"><Check aria-hidden="true" />{notice}</div>}
       {error && <div className={styles.error} role="alert">{error.message}{error.kind === 'load' && <> Your saved restaurant records are unchanged.</>}</div>}
@@ -796,15 +832,19 @@ export function RequestDetail({
           <header className={styles.comparisonHeader}>
             <h2>Supplier prices</h2>
             <div className={styles.quoteHeaderAction}>
-              <span>{comparison?.quotes.length ?? 0} received</span>
+              <span>{loadingComparison ? 'Loading prices…' : `${comparison?.quotes.length ?? 0} received`}</span>
               {request.status === 'OPEN' && (
-                <button type="button" disabled={refreshingQuotes} onClick={() => void loadComparison()}>
+                <button type="button" disabled={refreshingQuotes || loadingComparison} onClick={() => void loadComparison()}>
                   <RefreshCw aria-hidden="true" />{refreshingQuotes ? 'Refreshing…' : 'Refresh quotes'}
                 </button>
               )}
             </div>
           </header>
-          {!comparison || comparison.quotes.length === 0 ? (
+          {loadingComparison ? (
+            <div className={styles.quoteEmpty} role="status">Loading supplier prices…</div>
+          ) : !comparison && error ? (
+            <div className={styles.quoteEmpty}><p>Supplier prices could not be loaded.</p><button type="button" onClick={() => void loadAll()}>Try again</button></div>
+          ) : !comparison || comparison.quotes.length === 0 ? (
             <div className={styles.quoteEmpty}><MessageCircle aria-hidden="true" /><h3>Waiting for supplier quotes</h3><p>Submitted quotes will appear here with GST, freight, coverage and delivery facts.</p></div>
           ) : (
             <>
@@ -940,8 +980,11 @@ export function RequestDetail({
                 </div>
               )}
 
-              {request.status === 'AWARDED' && comparison.request.award && (() => {
-                const award = comparison.request.award;
+
+            </>
+          )}
+              {committedAward && (() => {
+                const award = committedAward;
                 const suppliers = new Map(award.suppliers.map((supplier) => [supplier.supplierId, supplier]));
                 return (
                   <section className={styles.awardRecord} aria-label="Recorded award">
@@ -984,8 +1027,6 @@ export function RequestDetail({
                   </section>
                 );
               })()}
-            </>
-          )}
         </details>
       )}
       <section className={styles.panel}>

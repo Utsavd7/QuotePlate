@@ -21,7 +21,7 @@
 }
 .surface.surface button { min-width: 44px; }
 .surface.surface :is(button, input, select, textarea, summary, a):focus-visible {
-  outline: 2px solid #9b4c26;
+  outline: 2px solid var(--workspace-accent);
   outline-offset: 3px;
 }
 .surface.surface label:has(input[type="checkbox"], input[type="radio"]) { min-height: 44px; }
@@ -32,7 +32,7 @@
   flex: 0 0 auto;
   width: 18px;
   height: 18px;
-  accent-color: #285e4d;
+  accent-color: var(--workspace-accent);
 }
 .surface.surface :is(input, select, textarea) { min-width: 0; font-size: 1rem; }
 .surface.surface a { min-height: 44px; display: inline-flex; align-items: center; }
@@ -44,30 +44,35 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   list-style: none;
-  border-block: 1px solid #dce1db;
+  border-block: 1px solid var(--workspace-line);
 }
-.journey li { min-width: 0; color: #626764; font-size: .8125rem; font-weight: 650; }
+.journey li { min-width: 0; color: var(--workspace-muted); font-size: .8125rem; font-weight: 650; }
 .journey li > :is(a, span) { min-height: 52px; padding: .5rem; display: flex; align-items: center; gap: .5rem; color: inherit; text-decoration: none; }
-.journey li > :is(a, span) > span { flex-shrink: 0; width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid #dce1db; border-radius: 50%; font-size: .75rem; }
-.journey li[aria-current="step"] { color: #245839; background: #e5f1e8; }
-.journey li[aria-current="step"] > :is(a, span) > span { color: #ffffff; background: #285e4d; border-color: #285e4d; }
+.journey li > :is(a, span) > span { flex-shrink: 0; width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid var(--workspace-line); border-radius: 50%; font-size: .75rem; }
+.journey li[aria-current="step"] { color: var(--workspace-accent); background: var(--workspace-selected); }
+.journey li[aria-current="step"] > :is(a, span) > span { color: var(--workspace-surface); background: var(--workspace-accent); border-color: var(--workspace-accent); }
 .journey a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .disclosure {
   max-width: 82rem;
   min-width: 0;
   margin: 0 auto 1rem;
   width: 100%;
-  border-block: 1px solid #dce1db;
-  background: #ffffff;
+  border-block: 1px solid var(--workspace-line);
+  background: var(--workspace-surface);
 }
-.disclosure > summary { padding: .75rem 1rem; font-size: .9375rem; font-weight: 750; color: #101817; cursor: pointer; }
-.disclosure[open] > summary { border-bottom: 1px solid #dce1db; }
+.disclosure > summary { padding: .75rem 1rem; font-size: .9375rem; font-weight: 750; color: var(--workspace-ink); cursor: pointer; }
+.disclosure[open] > summary { border-bottom: 1px solid var(--workspace-line); }
 .disclosureBody { padding: 1rem; display: grid; gap: .5rem; }
-.disclosureBody a { color: #285e4d; text-underline-offset: 3px; }
-.nextStep { max-width: 82rem; margin: 0 auto 1rem; font-size: .875rem; color: #285e4d; }
+.disclosureBody a { color: var(--workspace-accent); text-underline-offset: 3px; }
+.nextStep { max-width: 82rem; margin: 0 auto 1rem; font-size: .875rem; color: var(--workspace-accent); }
 .surface :is([id="purchase-choice"], [id="purchase-items"], [id="purchase-comparison"], [id="delivery-check-heading"]) { scroll-margin-top: 1rem; }
 @media (max-width: 44rem) {
   .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .journey li { font-size: .75rem; }
   .surface.surface :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 1rem; }
 }
+
+
+.surface :where(button, a) { transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 100ms ease; }
+.surface :where(button:not(:disabled), a):active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) { .surface :where(button, a) { transition: none; } .surface :where(button, a):active { transform: none; } }

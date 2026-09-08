@@ -21,8 +21,12 @@ The React component in `src/components/brand/BrandMark.tsx` is the canonical geo
 | `public/brand/wordmark-horizontal.svg` | Navigation, documents, presentations, and partner listings; Newsreader lettering is converted to real vector outlines |
 | `public/brand/app-icon.svg` | Square application, social, and shortcut icon |
 | `public/brand/social-card.png` | 1200 × 630 Open Graph and large Twitter/X link preview |
+| `docs/brand/social-card.svg` | Generated, outlined source for the social card |
+| `scripts/media/render-social-card.mjs` | Reproducible local social-card layout and renderer |
 
 The logo assets are scalable SVGs with clean view boxes and no gradients or embedded raster images. The outlined wordmark is self-contained and does not require Newsreader to be installed. The social card is a static PNG so sharing crawlers do not need JavaScript, a font service, or a paid image API.
+
+Regenerate the social card with `node scripts/media/render-social-card.mjs` from the repository root. The renderer reads the workspace palette from `src/app/globals.css`, embeds the existing canonical wordmark and duotone mark unchanged, and converts the bundled Newsreader and Manrope fonts to vector paths. It writes the SVG source and the exact 1200 × 630 PNG together, checking text-column widths and image dimensions. It uses the existing local Sharp/Fontkit packages and Python 3 with FontTools/Brotli to unwrap the bundled WOFF2 fonts; `PYTHON` may select another local Python executable. No browser, application server, external fonts or image service is used. The original PNG's renderer was not archived; this script is its reproducible replacement.
 
 ## Colour
 
@@ -30,17 +34,21 @@ The logo assets are scalable SVGs with clean view boxes and no gradients or embe
 | --- | --- | --- |
 | Ink | `#101817` | Primary text, dark surfaces, and one-colour mark |
 | Raised ink | `#172521` | Elevated dark surfaces |
-| Stone | `#F5F1E8` | Primary light surface |
-| Soft stone | `#EBE5D9` | Secondary light surface and table headers |
+| Workspace gray | `#F6F7F5` | Public and product page background |
+| White | `#FFFFFF` | Content and form surfaces |
+| Divider | `#DCE1DB` | Panel borders and table rules |
+| Control border | `#7C8981` | Visible input boundaries |
+| Muted text | `#515E56` | Secondary text on light surfaces |
+| Selected surface | `#E7F0EB` | Selected controls and success notices |
 | Copper | `#D8834F` | Brand decoration and logo accent |
 | Copper text | `#9B4C26` | Contrast-safe copper text on light surfaces |
-| Success green | `#285E4D` | Real valid or successful states only |
+| Workspace green | `#285E4D` | Primary actions, links, selected states and success |
 
-Copper is the only brand accent. Do not replace it with purple, blue, a glow, or a gradient. Green is semantic, not decorative.
+Copper remains the canonical logo accent. Public and product interfaces use workspace green for actions and emphasis, including the social card. Preserve distinct red error and amber warning colors. Do not recolor the canonical logo assets as part of an interface palette update; their existing reversed stone mark remains intentional.
 
 ## Typography and licence
 
-- **Newsreader Variable**: display headings and the QuotePlate wordmark.
+- **Newsreader Variable**: public editorial headings and the QuotePlate wordmark. Working app headings use Manrope.
 - **Manrope Variable**: navigation, body copy, controls, and product UI.
 - Use tabular numerals for INR values, quantities, and dates.
 

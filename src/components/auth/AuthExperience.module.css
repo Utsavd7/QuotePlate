@@ -1,11 +1,11 @@
 .page {
-  --auth-paper: #fbf8f1;
-  --auth-rule: rgba(16, 24, 23, 0.18);
-  --auth-muted: #5a5e59;
+  --auth-paper: var(--workspace-surface);
+  --auth-rule: var(--workspace-line);
+  --auth-muted: var(--workspace-muted);
   min-height: 100dvh;
   overflow-x: clip;
   position: relative;
-  background: var(--stone);
+  background: var(--workspace-canvas);
 }
 
 .layout {
@@ -45,7 +45,7 @@
   font-family: var(--font-display);
   font-size: clamp(3.2rem, 6vw, 5.8rem);
   font-weight: 480;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.035em;
   line-height: 0.89;
   text-wrap: balance;
 }
@@ -81,7 +81,7 @@
 
 .assurances dd {
   margin: 0;
-  color: var(--ink);
+  color: var(--workspace-ink);
   font-size: 0.82rem;
   font-weight: 650;
   line-height: 1.55;
@@ -96,20 +96,14 @@
 
 .sheet {
   overflow: hidden;
-  border: 1px solid rgba(16, 24, 23, 0.26);
+  border: 1px solid var(--workspace-line);
   border-radius: 0.75rem;
   background: var(--auth-paper);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.85) inset,
-    0.55rem 0.55rem 0 rgba(216, 131, 79, 0.42),
-    0 2rem 5rem rgba(63, 44, 29, 0.14);
+  box-shadow: none;
 }
 
 .sheet::before {
-  content: "";
-  display: block;
-  height: 0.3rem;
-  background: var(--copper);
+  display: none;
 }
 
 .sheetHeader {
@@ -117,9 +111,9 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1.15rem clamp(1.25rem, 4vw, 2.5rem);
-  border-bottom: 1px solid var(--ink);
-  background: var(--raised-ink);
-  color: rgba(245, 241, 232, 0.68);
+  border-bottom: 1px solid var(--workspace-line);
+  background: var(--workspace-canvas);
+  color: var(--workspace-muted);
   font-family: var(--font-mono);
   font-size: 0.61rem;
   letter-spacing: 0.08em;
@@ -133,7 +127,7 @@
 }
 
 .sheetHeader strong {
-  color: var(--stone);
+  color: var(--workspace-ink);
   font-family: var(--font-ui);
   font-size: 0.7rem;
   font-weight: 800;
@@ -143,14 +137,13 @@
   margin: 1.5rem 1.5rem 0;
   padding: 1rem 1.1rem 1.05rem;
   border: 1px solid var(--auth-rule);
-  border-left: 0.25rem solid var(--copper);
   border-radius: 0.25rem;
-  background: var(--soft-stone);
+  background: var(--workspace-selected);
 }
 
 .pilotNotice > strong {
-  color: var(--ink);
-  font-family: var(--font-display);
+  color: var(--workspace-ink);
+  font-family: var(--font-ui);
   font-size: 1.05rem;
   font-weight: 580;
 }
@@ -188,7 +181,7 @@
 
 .formIntro h2 {
   margin: 0.5rem 0 0;
-  color: var(--ink);
+  color: var(--workspace-ink);
   font-size: clamp(1.55rem, 3vw, 2.15rem);
   font-weight: 750;
   letter-spacing: -0.04em;
@@ -214,7 +207,7 @@
   float: left;
   width: 100%;
   margin-bottom: 1.15rem;
-  color: var(--ink);
+  color: var(--workspace-ink);
   font-size: 0.73rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -233,7 +226,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
-  color: var(--ink);
+  color: var(--workspace-ink);
   font-size: 0.8rem;
   font-weight: 750;
 }
@@ -253,10 +246,10 @@
 .fieldGrid input {
   width: 100%;
   min-height: 3rem;
-  border: 1px solid rgba(16, 24, 23, 0.26);
+  border: 1px solid var(--workspace-control-line);
   border-radius: 0.3rem;
-  background: rgba(255, 255, 255, 0.58);
-  color: var(--ink);
+  background: var(--workspace-surface);
+  color: var(--workspace-ink);
   padding: 0.72rem 0.85rem;
   outline: none;
   transition:
@@ -265,12 +258,12 @@
     background-color 160ms ease;
 }
 
-.fieldGrid input:hover { border-color: rgba(16, 24, 23, 0.46); }
+.fieldGrid input:hover { border-color: var(--workspace-control-line); }
 
 .fieldGrid input:focus {
-  border-color: var(--copper-text);
-  background: #fffdf8;
-  box-shadow: 0 0 0 3px rgba(216, 131, 79, 0.18);
+  border-color: var(--workspace-accent);
+  background: var(--workspace-surface);
+  box-shadow: none;
 }
 
 .fieldGrid small {
@@ -284,8 +277,9 @@
 
 .error {
   margin: 0 0 1rem;
-  border-left: 3px solid #9b3f2b;
-  background: rgba(155, 63, 43, 0.08);
+  border: 1px solid #d6a586;
+  border-radius: 8px;
+  background: #fff0e9;
   color: #762f20;
   padding: 0.8rem 0.9rem;
   font-size: 0.75rem;
@@ -323,21 +317,21 @@
 }
 
 .primaryButton {
-  border: 1px solid var(--ink);
-  background: var(--ink);
-  color: var(--stone);
+  border: 1px solid var(--workspace-accent);
+  background: var(--workspace-accent);
+  color: var(--workspace-surface);
 }
 
-.primaryButton:hover:not(:disabled) { background: var(--raised-ink); }
+.primaryButton:hover:not(:disabled) { background: var(--workspace-accent-hover); }
 
 .googleButton {
   border: 1px solid #747775;
-  background: #fff;
+  background: var(--workspace-surface);
   color: #1f1f1f;
   font-weight: 650;
 }
 
-.googleButton:hover:not(:disabled) { background: #f8f9fa; }
+.googleButton:hover:not(:disabled) { background: var(--workspace-canvas); }
 
 .primaryButton:active:not(:disabled),
 .googleButton:active:not(:disabled) { transform: translateY(1px); }
@@ -386,7 +380,7 @@
 
 .switchMode a,
 .terms a {
-  color: var(--ink);
+  color: var(--workspace-ink);
   font-weight: 750;
   text-underline-offset: 0.2rem;
 }
@@ -406,7 +400,7 @@
 
 .page .assurances {
   margin-top: 2rem;
-  border: 1px solid color-mix(in srgb, var(--ink) 15%, transparent);
+  border: 1px solid var(--workspace-line);
   border-radius: 1rem;
   padding-inline: 1rem;
   background: var(--auth-paper);
@@ -430,7 +424,7 @@
 }
 
 .page .sheet {
-  border-color: color-mix(in srgb, var(--ink) 15%, transparent);
+  border-color: var(--workspace-line);
   border-radius: 1rem;
   box-shadow: none;
   animation: none;
@@ -456,7 +450,7 @@
   font-size: 0.8rem;
   letter-spacing: -0.015em;
 }
-.page .primaryButton { font-weight: 700; box-shadow: 0 0.3rem 0 var(--copper); }
+.page .primaryButton { font-weight: 700; box-shadow: none; }
 .page .providerNote,
 .page .switchMode,
 .page .contextNote { font-size: 0.75rem; }
@@ -523,4 +517,43 @@
   .fieldGrid input,
   .primaryButton,
   .googleButton { transition: none; }
+}
+
+/* The story keeps its brand type; account fields share the workspace controls. */
+.page { background:var(--workspace-canvas); color:var(--workspace-ink); font-family:var(--font-ui); }
+.page .sheet { background:var(--workspace-surface); border-color:var(--workspace-line); border-radius:12px; overflow:visible; }
+.sheet::before {
+  display: none; }
+.page .sheetHeader { border-bottom:1px solid var(--workspace-line); border-radius:12px 12px 0 0; background:var(--workspace-canvas); color:var(--workspace-muted); font-family:var(--font-ui); font-size:.875rem; letter-spacing:normal; text-transform:none; flex-wrap:wrap; }
+.sheetHeader strong { color:var(--workspace-ink); font-size:.875rem; }
+.page .formIntro h2 { font-family:var(--font-ui); font-size:1.15rem; line-height:1.35; letter-spacing:-.02em; text-wrap:balance; }
+.formKicker { color:var(--workspace-accent); font-size:.875rem; text-transform:none; letter-spacing:normal; }
+.formIntro, .fieldGrid label, .sheetHeader > * { min-width:0; overflow-wrap:anywhere; }
+.page .formIntro > p, .page .providerNote, .page .switchMode, .page .contextNote, .terms, .fieldGrid small, .error, .progress, .divider, .pilotNotice li { font-size:.875rem; line-height:1.6; }
+.page .fieldset legend { font-size:.875rem; text-transform:none; letter-spacing:normal; }
+.fieldGrid label { font-size:.875rem; }
+.fieldGrid label > span { flex-wrap:wrap; }
+.page .fieldGrid input { min-width:0; min-height:48px; background:var(--workspace-surface); border-color:var(--workspace-control-line); color:var(--workspace-ink); font:500 1rem/1.5 var(--font-ui); }
+.page .fieldGrid input::placeholder { color:var(--workspace-muted); opacity:1; }
+.page .fieldGrid input:not(:disabled):hover { border-color:var(--workspace-muted); }
+.page .fieldGrid input:focus { border-color:var(--workspace-accent); background:var(--workspace-surface); box-shadow:none; outline:3px solid var(--workspace-accent); outline-offset:3px; }
+.page .fieldGrid input:disabled { color:var(--workspace-muted); background:var(--workspace-canvas); cursor:not-allowed; opacity:1; }
+.page .fieldGrid input[aria-invalid='true'] { border-color:#762f20; }
+.page .primaryButton, .page .googleButton { font:700 1rem/1.5 var(--font-ui); letter-spacing:normal; }
+.page .primaryButton { background:var(--workspace-accent); border-color:var(--workspace-accent); color:var(--workspace-surface); }
+.page .primaryButton:not(:disabled):hover { background:var(--workspace-accent-hover); border-color:var(--workspace-accent-hover); }
+.page .googleButton:not(:disabled):hover { background:var(--workspace-canvas); }
+.page .primaryButton:active:not(:disabled), .page .googleButton:active:not(:disabled) { transform:none; border-color:var(--workspace-ink); }
+.page .primaryButton:disabled, .page .googleButton:disabled { opacity:1; color:var(--workspace-muted); background:var(--workspace-canvas); border-color:var(--workspace-line); cursor:not-allowed; }
+.page .sheet :focus-visible, .page .context :focus-visible { outline:3px solid var(--workspace-accent); outline-offset:3px; }
+.page .switchMode a, .page .terms a { color:var(--workspace-accent); text-decoration:underline; }
+.page .switchMode a:hover, .page .terms a:hover { color:var(--workspace-accent-hover); opacity:1; }
+.page .switchMode a { display:inline-flex; align-items:center; min-height:44px; }
+.pilotNotice { border-radius:8px; background:var(--workspace-canvas); }
+.pilotNotice > strong { font-family:var(--font-ui); font-size:1rem; font-weight:700; }
+.error, .progress, .providerNote { overflow-wrap:anywhere; }
+@media(max-width:480px) {
+ .page .form { padding:1.25rem 1rem; }
+ .page .sheetHeader { padding:1rem; }
+ .pilotNotice { margin-inline:1rem; }
 }

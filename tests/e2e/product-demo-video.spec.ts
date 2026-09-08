@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('demo waits offscreen then autoplays muted with captions and fits the viewport', async ({ page }, testInfo) => {
+test('demo autoplays muted, keeps subtitles optional and fits the viewport', async ({ page }, testInfo) => {
   const mediaRequests: string[] = [];
   page.on('request', (request) => {
     if (request.url().endsWith('.mp4')) mediaRequests.push(request.url());
@@ -19,6 +19,8 @@ test('demo waits offscreen then autoplays muted with captions and fits the viewp
   }).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('demo-player.png'), animations: 'disabled' });
   await expect(video).toHaveAttribute('preload', 'none');
+  await expect(section.getByRole('button', { name: 'Subtitles off', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  expect(await video.evaluate((el: HTMLVideoElement) => el.textTracks[0].mode)).not.toBe('showing');
   expect(await video.evaluate((el: HTMLVideoElement) => el.muted)).toBe(true);
   const unmute = section.getByRole('button', { name: 'Unmute video', exact: true });
   await expect(unmute).toBeVisible();
@@ -35,8 +37,15 @@ test('demo waits offscreen then autoplays muted with captions and fits the viewp
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBeGreaterThan(0);
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeLessThanOrEqual(165);
   expect(await video.evaluate((el: HTMLVideoElement) => el.duration)).toBeGreaterThan(160);
+  await section.getByRole('button', { name: 'Subtitles off', exact: true }).click();
+  await expect(section.getByRole('button', { name: 'Subtitles on', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].mode)).toBe('showing');
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].cues?.length ?? 0)).toBeGreaterThan(0);
+  await section.getByRole('button', { name: 'Subtitles on', exact: true }).click();
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].mode)).toBe('disabled');
+  // Native caption controls and the visible toggle share the same state.
+  await video.evaluate((el: HTMLVideoElement) => { el.textTracks[0].mode = 'showing'; });
+  await expect(section.getByRole('button', { name: 'Subtitles on', exact: true })).toHaveAttribute('aria-pressed', 'true');
 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(section).toContainText('our fictional restaurant in Pune');
