@@ -115,10 +115,10 @@
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid #d9aa8d;
+  border: 1px solid var(--workspace-line);
   border-radius: .2rem;
-  background: #efd1bd;
-  color: #713917;
+  background: var(--workspace-selected);
+  color: var(--workspace-accent);
   font-family: var(--font-display), Georgia, serif;
   font-size: 1.05rem;
 }
@@ -169,13 +169,13 @@
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: var(--shell-stone, #f5f1e8);
+  background: var(--workspace-canvas);
 }
-.connectionCard { width: min(30rem, 100%); padding: 2rem; border: 1px solid #d9d2c6; background: #fbf9f4; }
-.connectionCard > p { margin: 0; color: #9f4e27; font-size: .68rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.connectionCard { width: min(30rem, 100%); padding: 2rem; border: 1px solid var(--workspace-line); background: var(--workspace-surface); }
+.connectionCard > p { margin: 0; color: var(--workspace-accent); font-size: .68rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .connectionCard h1 { margin: .4rem 0; font-family: var(--font-display), Georgia, serif; font-size: 2rem; font-weight: 500; }
-.connectionCard span { color: #626764; line-height: 1.55; }
-.connectionCard button { min-height: 2.75rem; margin-top: 1.2rem; padding: .65rem 1rem; border: 1px solid #101817; background: #101817; color: #fffdf8; font: inherit; font-weight: 800; cursor: pointer; }
+.connectionCard span { color: var(--workspace-muted); line-height: 1.55; }
+.connectionCard button { min-height: 2.75rem; margin-top: 1.2rem; padding: .65rem 1rem; border: 1px solid var(--workspace-accent); background: var(--workspace-accent); color: var(--workspace-surface); font: inherit; font-weight: 800; cursor: pointer; }
 
 .newRequest:focus-visible,
 .navLink:focus-visible,
@@ -187,7 +187,7 @@
 .mobileScrim:focus-visible,
 .mobileClose:focus-visible,
 .connectionCard button:focus-visible {
-  outline: 3px solid var(--shell-copper);
+  outline: 3px solid var(--workspace-accent);
   outline-offset: 2px;
 }
 

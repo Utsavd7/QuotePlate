@@ -27,6 +27,11 @@ test('five main choices keep planning, history, supplier replies and reports rea
   for (const name of ['Today', 'Purchases', 'Suppliers', 'Menu', 'Reports']) {
     await expect(navigation.getByRole('link', { name, exact: true })).toBeVisible();
   }
+  const todayLink = navigation.getByRole('link', { name: 'Today', exact: true });
+  await page.keyboard.press('Tab');
+  await todayLink.focus();
+  await expect(todayLink).toHaveCSS('outline-color', 'rgb(40, 94, 77)');
+  await expect(todayLink).toHaveCSS('outline-style', 'solid');
   if (mobile) await page.getByRole('dialog', { name: 'Workspace navigation' }).getByRole('button', { name: 'Close navigation' }).click();
   await page.getByRole('navigation', { name: 'Today sections' }).getByRole('link', { name: 'Plan meals' }).click();
   await expect(page).toHaveURL(/\/service-planning$/);
