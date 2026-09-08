@@ -354,7 +354,7 @@ async function saveDemandPlan(page: Page) {
   await expect(option).toHaveCount(1);
   await menu.selectOption((await option.getAttribute('value'))!);
   await page.getByLabel('Plan name', { exact: true }).fill('Private staffing plan');
-  await page.getByLabel('Service date and time (your local timezone)').fill('2099-09-10T19:00');
+  await page.getByLabel('Service date and time (local time)').fill('2099-09-10T19:00');
   await page.getByRole('textbox', { name: /^Batch servings for/ }).fill('10');
   await page.getByRole('textbox', { name: /^Desired portions for/ }).fill('10');
   for (const [name, stock, yieldPercent] of [['Tomato', '4', '80'], ['Carrot', '0', '100']]) {
