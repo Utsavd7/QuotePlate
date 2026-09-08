@@ -39,3 +39,16 @@
 .followUps a { display: inline-flex; align-items: center; min-height: 44px; }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 @media (max-width: 500px) { .followUps li { flex-direction: column; } .followUps li > div:last-child { justify-items: start; text-align: left; } }
+
+.page { background: transparent; }
+.header { margin-bottom: 1.5rem; }
+.metrics article { border-radius: .5rem; background: #fff; padding: 1rem; }
+.metrics strong { font-family: var(--font-ui); font-size: 1.5rem; }
+.card { background: #fff; border-color: #dce1db; border-radius: .5rem; }
+.card > details { margin-top: .75rem; border-top: 1px solid #dce1db; }
+.card > details > summary { display: flex; align-items: center; gap: .75rem; padding: .75rem 0; font-weight: 650; color: #285e4d; }
+.card > details > summary::after { content: '+'; margin-left: auto; }
+.card > details[open] > summary::after { content: '−'; }
+.method summary { padding: .75rem 0; cursor: pointer; font-weight: 650; }
+.facts small, .scope { font-size: .8rem; line-height: 1.6; }
+.tableWrap table { font-size: .85rem; }

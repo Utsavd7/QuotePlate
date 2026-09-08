@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PortalAction, PortalSubmission, SupplierPortalView } from '@/lib/supplier-portal/types';
 import { SupplierPortalContent } from '@/components/supplier-portal/SupplierPortalContent';
 import styles from '@/components/supplier-portal/supplier-portal-public.module.css';
@@ -12,6 +12,8 @@ async function read(response: Response): Promise<SupplierPortalView> {
 }
 export function SupplierPortalAccess() {
  const [view,setView]=useState<SupplierPortalView|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
+ const feedback = useRef<HTMLParagraphElement>(null);
+ useEffect(() => { if(error || notice) feedback.current?.focus(); }, [error, notice]);
  const load=useCallback(async(signal?:AbortSignal)=>{
   const response=await fetch(endpoint,{cache:'no-store',credentials:'same-origin',signal});
   if(response.status===410 || response.status===401) setView(null);
@@ -47,10 +49,10 @@ export function SupplierPortalAccess() {
   }catch(e){setError((e as Error).message);}finally{setBusy(false);}
  }
  return <>
-  {loading && <p className={styles.empty} role="status">Opening your private supplier workspace…</p>}
-  {error && <p className={styles.error} role="alert">{error}</p>}
-  {notice && <p className={styles.notice} role="status">{notice}</p>}
-  {view && <><div className={styles.toolbar}><button className={styles.refresh} disabled={busy} onClick={refresh}>{busy?'Saving…':'Refresh records'}</button></div><SupplierPortalContent view={view} busy={busy} onSubmit={submit}/></>}
-  {!loading && !view && <section className={styles.intro}><p className={styles.eyebrow}>Supplier workspace</p><h1>Your connection to the restaurant.</h1><p>Open the private link sent by your restaurant to view order status, respond to delivery records and see shared ingredient estimates.</p><p className={styles.help}>No supplier account is required. The restaurant can replace or revoke access at any time.</p></section>}
+  {loading && <p className={styles.empty} role="status">Opening your orders…</p>}
+  {error && <p className={styles.error} ref={feedback} tabIndex={-1} role="alert">{error}</p>}
+  {notice && <p className={styles.notice} ref={feedback} tabIndex={-1} role="status">{notice}</p>}
+  {view && <><div className={styles.toolbar}><button className={styles.refresh} disabled={busy} onClick={refresh}>{busy?'Please wait…':'Refresh records'}</button></div><SupplierPortalContent view={view} busy={busy} onSubmit={submit}/></>}
+  {!loading && !view && <section className={styles.intro}><p className={styles.eyebrow}>Your supplier page</p><h1>Your connection to the restaurant.</h1><p>Open the private link sent by your restaurant to view order status, respond to delivery records and see shared ingredient estimates.</p><p className={styles.help}>No supplier account is required. The restaurant can replace or revoke access at any time.</p></section>}
  </>;
 }

@@ -41,6 +41,8 @@ import {
 } from '@/lib/awards/award-preview';
 import { DraftRequestEditor } from './DraftRequestEditor';
 import { DeliveryCheckPanel, type DeliveryReceivingSummary } from './DeliveryCheckPanel';
+import { PurchaseJourney } from './PurchaseJourney';
+import ui from './purchase-ui.module.css';
 import styles from './request-detail.module.css';
 
 type Status = 'DRAFT' | 'OPEN' | 'AWARDED' | 'CANCELLED';
@@ -690,17 +692,17 @@ export function RequestDetail({
     }
   }
 
-  if (loading) return <main className={styles.page}><div className={styles.loading} aria-label="Loading request"><span /><span /><span /></div></main>;
-  if (!request) return <main className={styles.page}><section className={styles.missing}><h1>Request unavailable</h1><p>{error?.message || 'This request could not be found.'} Your saved restaurant records are unchanged.</p><button type="button" onClick={() => void loadAll()}>Try again</button></section></main>;
+  if (loading) return <main className={`${styles.page} ${ui.surface}`}><div className={styles.loading} aria-label="Loading request"><span /><span /><span /></div></main>;
+  if (!request) return <main className={`${styles.page} ${ui.surface}`}><section className={styles.missing}><h1>Request unavailable</h1><p>{error?.message || 'This request could not be found.'} Your saved restaurant records are unchanged.</p><button type="button" onClick={() => void loadAll()}>Try again</button></section></main>;
 
   const delivery = request.deliveryDetails;
   const committedAward = comparison?.request.award ?? null;
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${ui.surface}`}>
       <header className={styles.header}>
         <div>
-          <button className={styles.back} type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" />Buy ingredients</button>
-          <p className={styles.eyebrow}>Buying request</p>
+          <button className={styles.back} type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" />Purchases</button>
+          <p className={styles.eyebrow}>Purchase</p>
           <h1>{request.title}</h1>
           <div className={styles.headerMeta}>
             <span className={styles[`status${request.status}`]}>{statusLabel[request.status]}</span>
@@ -715,12 +717,23 @@ export function RequestDetail({
               <Pencil aria-hidden="true" />{editingDraft ? 'Close editor' : 'Edit draft'}
             </button>
             <button className={styles.primaryButton} type="button" disabled={Boolean(working) || editingDraft} onClick={() => void openRequest()}>
-              <ExternalLink aria-hidden="true" />{working === 'open' ? 'Opening…' : 'Open and create links'}
+              <ExternalLink aria-hidden="true" />{working === 'open' ? 'Opening…' : 'Create supplier links'}
             </button>
           </div>
         )}
-        {request.status === 'AWARDED' && <div className={styles.locked}><ShieldCheck aria-hidden="true" />Award recorded</div>}
+        {request.status === 'AWARDED' && <div className={styles.locked}><ShieldCheck aria-hidden="true" />Supplier choice saved</div>}
       </header>
+
+      <PurchaseJourney
+        current={request.status === 'DRAFT' ? 0 : request.status === 'OPEN' ? (wholeSupplierRequestId || awardMode === 'SPLIT' ? 2 : 1) : request.status === 'AWARDED' ? 3 : undefined}
+        links={request.status === 'CANCELLED' ? undefined : {
+          0: '#purchase-items',
+          ...(request.status === 'OPEN' ? { 1: '#purchase-comparison', ...(comparison?.quotes.length ? { 2: '#purchase-choice' } : {}) } : {}),
+          ...(committedAward?.receiving ? { 3: '#delivery-check-heading' } : {}),
+        }}
+      />
+      {request.status === 'DRAFT' && <p className={ui.nextStep}>Review ingredients and suppliers, then create links to ask for prices. Nothing is shared automatically.</p>}
+      {request.status === 'OPEN' && <p className={ui.nextStep}>{comparison?.quotes.length ? 'Compare prices below, then choose one supplier or split the order.' : 'Share each private supplier link below. Prices will appear here when suppliers reply.'}</p>}
 
       {notice && <div className={styles.notice} role="status"><Check aria-hidden="true" />{notice}</div>}
       {error && <div className={styles.error} role="alert">{error.message}{error.kind === 'load' && <> Your saved restaurant records are unchanged.</>}</div>}
@@ -744,8 +757,8 @@ export function RequestDetail({
       </section>
       {delivery.instructions && <aside className={styles.instructions}><strong>Delivery instructions</strong>{delivery.instructions}</aside>}
 
-      <section className={styles.panel}>
-        <header><div><p className={styles.eyebrow}>Items you need</p><h2>Requested items</h2></div><span>{request.items.items.length} total</span></header>
+      <details id="purchase-items" className={ui.disclosure} open={request.status === 'DRAFT'}>
+        <summary>Requested ingredients · {request.items.items.length} items</summary>
         <div className={styles.itemTable}>
           <div className={styles.tableHeader}><span>Item</span><span>Quantity</span></div>
           {request.items.items.map((item) => (
@@ -763,7 +776,7 @@ export function RequestDetail({
           ))}
         </div>
         {request.commercialTerms && <div className={styles.terms}><strong>Terms shared with suppliers</strong><p>{request.commercialTerms}</p></div>}
-      </section>
+      </details>
 
       {committedAward?.receiving && (
         <DeliveryCheckPanel
@@ -777,11 +790,254 @@ export function RequestDetail({
         />
       )}
 
-      <section className={`${styles.panel} ${styles.exportPanel}`} aria-labelledby="request-downloads-heading">
-        <header>
-          <div><p className={styles.eyebrow}>Records</p><h2 id="request-downloads-heading">Download records</h2></div>
-          <span>Private · prepared only when you click</span>
-        </header>
+      {(request.status === 'OPEN' || request.status === 'AWARDED') && (
+        <details id="purchase-comparison" className={ui.disclosure} open={request.status === 'OPEN'}>
+          <summary>{request.status === 'AWARDED' ? 'Prices & decision history' : 'Compare prices'}</summary>
+          <header className={styles.comparisonHeader}>
+            <h2>Supplier prices</h2>
+            <div className={styles.quoteHeaderAction}>
+              <span>{comparison?.quotes.length ?? 0} received</span>
+              {request.status === 'OPEN' && (
+                <button type="button" disabled={refreshingQuotes} onClick={() => void loadComparison()}>
+                  <RefreshCw aria-hidden="true" />{refreshingQuotes ? 'Refreshing…' : 'Refresh quotes'}
+                </button>
+              )}
+            </div>
+          </header>
+          {!comparison || comparison.quotes.length === 0 ? (
+            <div className={styles.quoteEmpty}><MessageCircle aria-hidden="true" /><h3>Waiting for supplier quotes</h3><p>Submitted quotes will appear here with GST, freight, coverage and delivery facts.</p></div>
+          ) : (
+            <>
+              <div className={styles.quoteCards}>
+                {comparison.quotes.map((quote) => (
+                  <article key={quote.supplierRequestId}>
+                    <div className={styles.quoteTop}><span><strong>{quote.supplierName}</strong><small>Revision {quote.revision}</small></span><i className={quote.fullCoverage ? styles.comparable : styles.incomplete}>{quote.fullCoverage ? 'Full quote' : 'Check coverage'}</i></div>
+                    <strong className={styles.quoteTotal}>{formatInr(quote.totalPaise)}</strong>
+                    <div className={styles.quoteBreakdown}><span>Before GST {formatInr(quote.subtotalPaise)}</span><span>GST {formatInr(quote.gstPaise)}</span><span>Freight {formatInr(quote.freightPaise)}</span></div>
+                    <div className={styles.quoteFacts}><span>{quote.coveredItemCount}/{quote.totalItemCount} items</span><span>Delivery {displayDate(quote.deliveryDate)}</span><span>Valid to {displayDate(quote.validUntil)}</span></div>
+                    {quote.commercialTerms && <p>{quote.commercialTerms}</p>}
+                    {quote.substitutions.length > 0 && <p className={styles.substitution}>{quote.substitutions.length} substitution {quote.substitutions.length === 1 ? 'noted' : 'notes'}</p>}
+                    {(quote.expired || quote.deliveryFit === 'AFTER_REQUESTED_DATE' || quote.missingTerms || !quote.supplierActive) && (
+                      <div className={styles.quoteWarnings}>
+                        <AlertTriangle aria-hidden="true" />
+                        <ul>
+                          {quote.expired && <li>Quote validity has ended.</li>}
+                          {quote.deliveryFit === 'AFTER_REQUESTED_DATE' && <li>Delivery is later than requested.</li>}
+                          {quote.missingTerms && <li>Payment terms were not supplied.</li>}
+                          {!quote.supplierActive && <li>Supplier is inactive and cannot receive an award.</li>}
+                        </ul>
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+              <div className={styles.comparisonWrap} role="region" aria-label="Prices by ingredient" tabIndex={0}>
+                <table>
+                  <thead><tr><th>Requested item</th>{comparison.quotes.map((quote) => <th key={quote.supplierRequestId}>{quote.supplierName}</th>)}</tr></thead>
+                  <tbody>{comparison.request.items.map((requested) => (
+                    <tr key={requested.id}>
+                      <th><strong>{requested.name}</strong><small>{requested.quantity} {unitLabel(requested.unit)}</small></th>
+                      {comparison.quotes.map((quote) => {
+                        const item = quote.items.find(({ requestItemId }) => requestItemId === requested.id);
+                        return <td key={quote.supplierRequestId}>{item?.unitComparable && item.normalizedUnitRatePaise ? <><strong>{formatInr(item.normalizedUnitRatePaise)} / {unitLabel(requested.unit)}</strong><small>{item.coverage === 'PARTIAL' ? `${item.normalizedAvailableQuantity} ${unitLabel(requested.unit)} available` : 'Full requested quantity available'}</small><small>{item.gstBasisPoints === null ? 'GST not supplied' : `${item.gstBasisPoints / 100}% GST${item.taxInclusive ? ' included' : ''}`}</small>{item.substitution && <em>{item.substitution}</em>}</> : <span className={styles.unavailable}>{item?.coverage === 'UNIT_MISMATCH' ? 'Unit mismatch' : item?.coverage === 'NOT_REQUESTED' ? 'Not requested from supplier' : 'Not quoted'}</span>}</td>;
+                      })}
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+
+              {request.status === 'OPEN' && (
+                <div id="purchase-choice" className={styles.awardBox}>
+                  <div><h3>Choose supplier</h3><p>Your choice is final once saved.</p></div>
+                  <div aria-label="Award method" className={styles.awardModes} role="group">
+                    <button aria-pressed={awardMode === 'WHOLE'} type="button" className={awardMode === 'WHOLE' ? styles.selectedMode : ''} onClick={() => setAwardMode('WHOLE')}>One supplier</button>
+                    <button aria-pressed={awardMode === 'SPLIT'} type="button" className={awardMode === 'SPLIT' ? styles.selectedMode : ''} onClick={() => setAwardMode('SPLIT')}>Split by item</button>
+                  </div>
+                  {awardMode === 'WHOLE' ? (
+                    <div className={styles.awardChoices}>{comparison.quotes.map((quote) => {
+                      const eligible =
+                        quote.fullCoverage &&
+                        quote.totalItemCount === comparison.request.itemCount &&
+                        quote.items.every(({ coverage }) => coverage === 'FULL') &&
+                        !quote.expired &&
+                        quote.supplierActive;
+                      return (
+                        <label className={wholeSupplierRequestId === quote.supplierRequestId ? styles.selectedChoice : styles.awardChoice} key={quote.supplierRequestId}>
+                          <input type="radio" name="whole-award" disabled={!eligible} checked={wholeSupplierRequestId === quote.supplierRequestId} onChange={() => setWholeSupplierRequestId(quote.supplierRequestId)} />
+                          <span>
+                            <strong>{quote.supplierName}</strong>
+                            <small>{eligible ? `${formatInr(quote.totalPaise)} · including GST & freight` : !quote.supplierActive ? 'Supplier is inactive' : quote.expired ? 'Quote validity has ended' : 'Must quote for every item in matching units'}</small>
+                          </span>
+                          {wholeSupplierRequestId === quote.supplierRequestId && <CheckCircle2 aria-hidden="true" />}
+                        </label>
+                      );
+                    })}</div>
+                  ) : (
+                    <div className={styles.splitBuilder}>{comparison.request.items.map((requested) => {
+                      const candidates = comparison.quotes.flatMap((quote) => {
+                        const item = quote.items.find(({ requestItemId }) => requestItemId === requested.id);
+                        return item && awardableLine(quote, item) ? [{ quote, item }] : [];
+                      });
+                      const allocations = splitAllocations[requested.id] ?? [];
+                      const coverage = splitPreview?.itemCoverage[requested.id];
+                      return (
+                        <section className={styles.allocationItem} key={requested.id}>
+                          <header>
+                            <span><strong>{requested.name}</strong><small>{requested.quantity} {unitLabel(requested.unit)} needed</small></span>
+                            <span className={coverage?.valid ? styles.coverageComplete : styles.coverageRemaining}>
+                              {coverage?.valid ? 'Fully allocated' : `${coverage?.remaining ?? requested.quantity} ${unitLabel(requested.unit)} remaining`}
+                            </span>
+                          </header>
+                          {allocations.map((allocation) => {
+                            const selected = candidates.find(({ quote }) =>
+                              quote.supplierRequestId === allocation.supplierRequestId &&
+                              quote.revision === allocation.quoteRevision
+                            );
+                            if (!selected) return null;
+                            return (
+                              <div className={styles.allocationRow} key={`${allocation.supplierRequestId}:${allocation.quoteRevision}`}>
+                                <span><strong>{selected.quote.supplierName}</strong><small>{formatInr(selected.item.normalizedUnitRatePaise!)} / {unitLabel(requested.unit)} · up to {selected.item.normalizedAvailableQuantity} {unitLabel(requested.unit)}</small></span>
+                                <label><span>Quantity</span><input aria-label={`${requested.name} quantity from ${selected.quote.supplierName}`} inputMode="decimal" value={allocation.quantity} onChange={(event) => updateSplitQuantity(requested.id, allocation.supplierRequestId, allocation.quoteRevision, event.target.value)} /></label>
+                                <button type="button" aria-label={`Remove ${selected.quote.supplierName} from ${requested.name}`} onClick={() => removeSplitAllocation(requested.id, allocation.supplierRequestId, allocation.quoteRevision)}><Trash2 aria-hidden="true" /></button>
+                              </div>
+                            );
+                          })}
+                          <div className={styles.availableSuppliers}>
+                            {candidates.filter(({ quote }) => !allocations.some((allocation) =>
+                              allocation.supplierRequestId === quote.supplierRequestId &&
+                              allocation.quoteRevision === quote.revision
+                            )).map(({ quote, item }) => (
+                              <button type="button" disabled={coverage?.valid} key={`${quote.supplierRequestId}:${quote.revision}`} onClick={() => addSplitAllocation(requested, quote, item)}>
+                                <Plus aria-hidden="true" />{quote.supplierName}<small>{item.normalizedAvailableQuantity} {unitLabel(requested.unit)} available</small>
+                              </button>
+                            ))}
+                            {candidates.length === 0 && <p>No valid comparable supplier line is available for this item.</p>}
+                          </div>
+                        </section>
+                      );
+                    })}
+                    {splitPreview && splitPreview.errors.length > 0 && <ul className={styles.allocationErrors}>{[...new Set(splitPreview.errors)].slice(0, 4).map((issue) => <li key={issue}>{issue}</li>)}</ul>}
+                    </div>
+                  )}
+                  {(wholeQuote && awardMode === 'WHOLE') && (
+                    <div className={styles.awardPreview} aria-label="Whole award landed total">
+                      <span><small>Before GST</small><strong>{formatInr(wholeQuote.subtotalPaise)}</strong></span>
+                      <span><small>GST</small><strong>{formatInr(wholeQuote.gstPaise)}</strong></span>
+                      <span><small>Freight</small><strong>{formatInr(wholeQuote.freightPaise)}</strong></span>
+                      <span className={styles.finalTotal}><small>Total including delivery</small><strong>{formatInr(wholeQuote.totalPaise)}</strong></span>
+                    </div>
+                  )}
+                  {(splitPreview && awardMode === 'SPLIT') && (
+                    <div className={styles.awardPreview} aria-label="Split award landed total">
+                      <span><small>Before GST</small><strong>{formatInr(splitPreview.subtotalPaise)}</strong></span>
+                      <span><small>GST</small><strong>{formatInr(splitPreview.gstPaise)}</strong></span>
+                      <span><small>Freight</small><strong>{formatInr(splitPreview.freightPaise)}</strong></span>
+                      <span className={styles.finalTotal}><small>Total including delivery</small><strong>{formatInr(splitPreview.totalPaise)}</strong></span>
+                    </div>
+                  )}
+                  <label className={styles.rationale}><span>Reason for this decision *</span><textarea rows={3} maxLength={500} value={rationale} placeholder="Best complete price with delivery on the requested date." onChange={(event) => setRationale(event.target.value)} /></label>
+                  <button className={styles.primaryButton} type="button" disabled={!awardReady || Boolean(working)} onClick={() => void recordAward()}>{working === 'award' ? 'Recording…' : 'Confirm supplier choice'}</button>
+                </div>
+              )}
+
+              {request.status === 'AWARDED' && comparison.request.award && (() => {
+                const award = comparison.request.award;
+                const suppliers = new Map(award.suppliers.map((supplier) => [supplier.supplierId, supplier]));
+                return (
+                  <section className={styles.awardRecord} aria-label="Recorded award">
+                    <header>
+                      <div><p className={styles.eyebrow}>Final decision record</p><h3>{award.splitAward ? 'Split award' : 'Supplier award'}</h3></div>
+                      <span><small>Awarded {displayDate(award.createdAt, true)}</small><strong>{formatInr(award.totalPaise)}</strong></span>
+                    </header>
+                    <div className={styles.awardReason}><strong>Why this decision was made</strong><p>{award.rationale || 'No decision note was recorded.'}</p></div>
+                    <div className={styles.awardLines}>
+                      <div className={styles.awardLineHeader}><span>Item and supplier</span><span>Quantity</span><span>Rate</span><span>GST</span><span>Line total</span></div>
+                      {award.lines.map((line) => {
+                        const supplier = suppliers.get(line.supplierId);
+                        const description = supplier?.lines.find(
+                          ({ requestItemId }) => requestItemId === line.requestItemId,
+                        );
+                        return (
+                          <div className={styles.awardLine} key={`${line.requestItemId}:${line.supplierRequestId}:${line.quoteRevision}`}>
+                            <span><strong>{description?.itemName ?? 'Requested item'}</strong><small>{supplier?.supplierName ?? 'Supplier snapshot'}</small></span>
+                            <span>{line.quantity} {unitLabel(line.unit)}</span>
+                            <span>{formatInr(line.unitRatePaise)} / {unitLabel(line.unit)}</span>
+                            <span>{line.gstBasisPoints / 100}%</span>
+                            <strong>{formatInr(line.totalPaise)}</strong>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className={styles.awardSuppliers}>
+                      {award.suppliers.map((supplier) => (
+                        <article key={`${supplier.supplierRequestId}:${supplier.quoteRevision}`}>
+                          <strong>{supplier.supplierName}</strong>
+                          <span>Quote revision {supplier.quoteRevision}</span>
+                          <span>Freight {formatInr(supplier.freightPaise)}</span>
+                          <span>Delivery {displayDate(supplier.deliveryDate)}</span>
+                          {supplier.gstin && <span>GSTIN {supplier.gstin}</span>}
+                          {supplier.commercialTerms && <p>{supplier.commercialTerms}</p>}
+                        </article>
+                      ))}
+                    </div>
+                    <p className={styles.immutableNote}><ShieldCheck aria-hidden="true" />This record uses the supplier, quote, quantity, tax and delivery facts saved at the time of the award.</p>
+                  </section>
+                );
+              })()}
+            </>
+          )}
+        </details>
+      )}
+      <section className={styles.panel}>
+        <header><div><h2>Supplier links & access</h2></div><Users aria-hidden="true" /></header>
+        {applicationLink && (
+          <div className={styles.applicationInvite}>
+            <div>
+              <strong>New supplier application link</strong>
+              <p>Share this with suppliers you do not already work with. You must approve each applicant before they can send a quote.</p>
+              <code>{applicationLink.url}</code>
+              <small>Available until {displayDate(applicationLink.expiresAt, true)}</small>
+            </div>
+            <span>
+              <button type="button" onClick={() => void copyApplicationLink()}><Clipboard aria-hidden="true" />Copy</button>
+              <button type="button" onClick={shareApplicationOnWhatsApp}><MessageCircle aria-hidden="true" />WhatsApp</button>
+            </span>
+          </div>
+        )}
+        <div className={styles.grantList}>
+          {request.supplierRequests.map((grant) => {
+            const quote = quoteByGrant.get(grant.id);
+            const state = grantState(grant, Boolean(quote));
+            const freshLink = shareLinks.find(({ supplierRequestId }) => supplierRequestId === grant.id);
+            return (
+              <article key={grant.id}>
+                <span className={styles.supplierInitial}>{grant.supplier.businessName.charAt(0).toUpperCase()}</span>
+                <span className={styles.supplierName}><strong>{grant.supplier.businessName}</strong><small>{grant.supplier.contactName || grant.supplier.phone || 'Supplier contact'}</small></span>
+                <span className={styles[`grant${state.replace(' ', '')}`]}>{state}</span>
+                <span className={styles.grantDate}>{grant.viewedAt ? `Viewed ${displayDate(grant.viewedAt, true)}` : `Expires ${displayDate(grant.expiresAt, true)}`}</span>
+                <span className={styles.linkActions}>
+                  {freshLink && (
+                    <SupplierFreshLinkActions
+                      link={freshLink}
+                      busy={Boolean(working)}
+                      onCopy={() => void copyLink(freshLink)}
+                      onWhatsApp={() => whatsappLink(freshLink)}
+                      onQr={() => void downloadQr(freshLink)}
+                    />
+                  )}
+                  {request.status === 'OPEN' && !grant.revokedAt && <button type="button" disabled={Boolean(working)} onClick={() => void changeLink(grant, 'rotate')}><RefreshCw aria-hidden="true" />New link</button>}
+                  {request.status === 'OPEN' && !grant.revokedAt && <button className={styles.revoke} type="button" disabled={Boolean(working)} onClick={() => void changeLink(grant, 'revoke')}><XCircle aria-hidden="true" />Revoke</button>}
+                </span>
+                {freshLink && <code>{freshLink.url}</code>}
+              </article>
+            );
+          })}
+        </div>
+        {request.status === 'OPEN' && shareLinks.length === 0 && <p className={styles.linkHelp}><Link2 aria-hidden="true" />For safety, old links cannot be displayed again. Use “New link” only when you need another copy.</p>}
+      </section>
+
+      <details className={ui.disclosure} aria-labelledby="request-downloads-heading">
+        <summary id="request-downloads-heading">Download records & purchase orders</summary>
         <div className={styles.exportGrid}>
           <button
             type="button"
@@ -864,253 +1120,7 @@ export function RequestDetail({
             </div>
           </div>
         )}
-      </section>
-
-      <section className={styles.panel}>
-        <header><div><p className={styles.eyebrow}>Supplier progress</p><h2>Private quote links</h2></div><Users aria-hidden="true" /></header>
-        {applicationLink && (
-          <div className={styles.applicationInvite}>
-            <div>
-              <strong>New supplier application link</strong>
-              <p>Share this with suppliers you do not already work with. You must approve each applicant before they can send a quote.</p>
-              <code>{applicationLink.url}</code>
-              <small>Available until {displayDate(applicationLink.expiresAt, true)}</small>
-            </div>
-            <span>
-              <button type="button" onClick={() => void copyApplicationLink()}><Clipboard aria-hidden="true" />Copy</button>
-              <button type="button" onClick={shareApplicationOnWhatsApp}><MessageCircle aria-hidden="true" />WhatsApp</button>
-            </span>
-          </div>
-        )}
-        <div className={styles.grantList}>
-          {request.supplierRequests.map((grant) => {
-            const quote = quoteByGrant.get(grant.id);
-            const state = grantState(grant, Boolean(quote));
-            const freshLink = shareLinks.find(({ supplierRequestId }) => supplierRequestId === grant.id);
-            return (
-              <article key={grant.id}>
-                <span className={styles.supplierInitial}>{grant.supplier.businessName.charAt(0).toUpperCase()}</span>
-                <span className={styles.supplierName}><strong>{grant.supplier.businessName}</strong><small>{grant.supplier.contactName || grant.supplier.phone || 'Supplier contact'}</small></span>
-                <span className={styles[`grant${state.replace(' ', '')}`]}>{state}</span>
-                <span className={styles.grantDate}>{grant.viewedAt ? `Viewed ${displayDate(grant.viewedAt, true)}` : `Expires ${displayDate(grant.expiresAt, true)}`}</span>
-                <span className={styles.linkActions}>
-                  {freshLink && (
-                    <SupplierFreshLinkActions
-                      link={freshLink}
-                      busy={Boolean(working)}
-                      onCopy={() => void copyLink(freshLink)}
-                      onWhatsApp={() => whatsappLink(freshLink)}
-                      onQr={() => void downloadQr(freshLink)}
-                    />
-                  )}
-                  {request.status === 'OPEN' && !grant.revokedAt && <button type="button" disabled={Boolean(working)} onClick={() => void changeLink(grant, 'rotate')}><RefreshCw aria-hidden="true" />New link</button>}
-                  {request.status === 'OPEN' && !grant.revokedAt && <button className={styles.revoke} type="button" disabled={Boolean(working)} onClick={() => void changeLink(grant, 'revoke')}><XCircle aria-hidden="true" />Revoke</button>}
-                </span>
-                {freshLink && <code>{freshLink.url}</code>}
-              </article>
-            );
-          })}
-        </div>
-        {request.status === 'OPEN' && shareLinks.length === 0 && <p className={styles.linkHelp}><Link2 aria-hidden="true" />For safety, old links cannot be displayed again. Use “New link” only when you need another copy.</p>}
-      </section>
-
-      {(request.status === 'OPEN' || request.status === 'AWARDED') && (
-        <section className={styles.panel}>
-          <header>
-            <div><p className={styles.eyebrow}>Compare supplier prices</p><h2>Supplier quotes</h2></div>
-            <div className={styles.quoteHeaderAction}>
-              <span>{comparison?.quotes.length ?? 0} received</span>
-              {request.status === 'OPEN' && (
-                <button type="button" disabled={refreshingQuotes} onClick={() => void loadComparison()}>
-                  <RefreshCw aria-hidden="true" />{refreshingQuotes ? 'Refreshing…' : 'Refresh quotes'}
-                </button>
-              )}
-            </div>
-          </header>
-          {!comparison || comparison.quotes.length === 0 ? (
-            <div className={styles.quoteEmpty}><MessageCircle aria-hidden="true" /><h3>Waiting for supplier quotes</h3><p>Submitted quotes will appear here with GST, freight, coverage and delivery facts.</p></div>
-          ) : (
-            <>
-              <div className={styles.quoteCards}>
-                {comparison.quotes.map((quote) => (
-                  <article key={quote.supplierRequestId}>
-                    <div className={styles.quoteTop}><span><strong>{quote.supplierName}</strong><small>Revision {quote.revision}</small></span><i className={quote.fullCoverage ? styles.comparable : styles.incomplete}>{quote.fullCoverage ? 'Full quote' : 'Check coverage'}</i></div>
-                    <strong className={styles.quoteTotal}>{formatInr(quote.totalPaise)}</strong>
-                    <div className={styles.quoteBreakdown}><span>Before GST {formatInr(quote.subtotalPaise)}</span><span>GST {formatInr(quote.gstPaise)}</span><span>Freight {formatInr(quote.freightPaise)}</span></div>
-                    <div className={styles.quoteFacts}><span>{quote.coveredItemCount}/{quote.totalItemCount} items</span><span>Delivery {displayDate(quote.deliveryDate)}</span><span>Valid to {displayDate(quote.validUntil)}</span></div>
-                    {quote.commercialTerms && <p>{quote.commercialTerms}</p>}
-                    {quote.substitutions.length > 0 && <p className={styles.substitution}>{quote.substitutions.length} substitution {quote.substitutions.length === 1 ? 'noted' : 'notes'}</p>}
-                    {(quote.expired || quote.deliveryFit === 'AFTER_REQUESTED_DATE' || quote.missingTerms || !quote.supplierActive) && (
-                      <div className={styles.quoteWarnings}>
-                        <AlertTriangle aria-hidden="true" />
-                        <ul>
-                          {quote.expired && <li>Quote validity has ended.</li>}
-                          {quote.deliveryFit === 'AFTER_REQUESTED_DATE' && <li>Delivery is later than requested.</li>}
-                          {quote.missingTerms && <li>Payment terms were not supplied.</li>}
-                          {!quote.supplierActive && <li>Supplier is inactive and cannot receive an award.</li>}
-                        </ul>
-                      </div>
-                    )}
-                  </article>
-                ))}
-              </div>
-              <div className={styles.comparisonWrap}>
-                <table>
-                  <thead><tr><th>Requested item</th>{comparison.quotes.map((quote) => <th key={quote.supplierRequestId}>{quote.supplierName}</th>)}</tr></thead>
-                  <tbody>{comparison.request.items.map((requested) => (
-                    <tr key={requested.id}>
-                      <th><strong>{requested.name}</strong><small>{requested.quantity} {unitLabel(requested.unit)}</small></th>
-                      {comparison.quotes.map((quote) => {
-                        const item = quote.items.find(({ requestItemId }) => requestItemId === requested.id);
-                        return <td key={quote.supplierRequestId}>{item?.unitComparable && item.normalizedUnitRatePaise ? <><strong>{formatInr(item.normalizedUnitRatePaise)} / {unitLabel(requested.unit)}</strong><small>{item.coverage === 'PARTIAL' ? `${item.normalizedAvailableQuantity} ${unitLabel(requested.unit)} available` : 'Full requested quantity available'}</small><small>{item.gstBasisPoints === null ? 'GST not supplied' : `${item.gstBasisPoints / 100}% GST${item.taxInclusive ? ' included' : ''}`}</small>{item.substitution && <em>{item.substitution}</em>}</> : <span className={styles.unavailable}>{item?.coverage === 'UNIT_MISMATCH' ? 'Unit mismatch' : item?.coverage === 'NOT_REQUESTED' ? 'Not requested from supplier' : 'Not quoted'}</span>}</td>;
-                      })}
-                    </tr>
-                  ))}</tbody>
-                </table>
-              </div>
-
-              {request.status === 'OPEN' && (
-                <div className={styles.awardBox}>
-                  <div><p className={styles.eyebrow}>Your decision</p><h3>Record the supplier you choose</h3><p>QuotePlate shows the prices and terms. Your restaurant makes the final choice.</p></div>
-                  <div aria-label="Award method" className={styles.awardModes} role="group">
-                    <button aria-pressed={awardMode === 'WHOLE'} type="button" className={awardMode === 'WHOLE' ? styles.selectedMode : ''} onClick={() => setAwardMode('WHOLE')}>Whole request</button>
-                    <button aria-pressed={awardMode === 'SPLIT'} type="button" className={awardMode === 'SPLIT' ? styles.selectedMode : ''} onClick={() => setAwardMode('SPLIT')}>Split by item</button>
-                  </div>
-                  {awardMode === 'WHOLE' ? (
-                    <div className={styles.awardChoices}>{comparison.quotes.map((quote) => {
-                      const eligible =
-                        quote.fullCoverage &&
-                        quote.totalItemCount === comparison.request.itemCount &&
-                        quote.items.every(({ coverage }) => coverage === 'FULL') &&
-                        !quote.expired &&
-                        quote.supplierActive;
-                      return (
-                        <label className={wholeSupplierRequestId === quote.supplierRequestId ? styles.selectedChoice : styles.awardChoice} key={quote.supplierRequestId}>
-                          <input type="radio" name="whole-award" disabled={!eligible} checked={wholeSupplierRequestId === quote.supplierRequestId} onChange={() => setWholeSupplierRequestId(quote.supplierRequestId)} />
-                          <span>
-                            <strong>{quote.supplierName}</strong>
-                            <small>{eligible ? `${formatInr(quote.totalPaise)} · full landed total` : !quote.supplierActive ? 'Supplier is inactive' : quote.expired ? 'Quote validity has ended' : 'Complete comparable coverage required'}</small>
-                          </span>
-                          {wholeSupplierRequestId === quote.supplierRequestId && <CheckCircle2 aria-hidden="true" />}
-                        </label>
-                      );
-                    })}</div>
-                  ) : (
-                    <div className={styles.splitBuilder}>{comparison.request.items.map((requested) => {
-                      const candidates = comparison.quotes.flatMap((quote) => {
-                        const item = quote.items.find(({ requestItemId }) => requestItemId === requested.id);
-                        return item && awardableLine(quote, item) ? [{ quote, item }] : [];
-                      });
-                      const allocations = splitAllocations[requested.id] ?? [];
-                      const coverage = splitPreview?.itemCoverage[requested.id];
-                      return (
-                        <section className={styles.allocationItem} key={requested.id}>
-                          <header>
-                            <span><strong>{requested.name}</strong><small>{requested.quantity} {unitLabel(requested.unit)} needed</small></span>
-                            <span className={coverage?.valid ? styles.coverageComplete : styles.coverageRemaining}>
-                              {coverage?.valid ? 'Fully allocated' : `${coverage?.remaining ?? requested.quantity} ${unitLabel(requested.unit)} remaining`}
-                            </span>
-                          </header>
-                          {allocations.map((allocation) => {
-                            const selected = candidates.find(({ quote }) =>
-                              quote.supplierRequestId === allocation.supplierRequestId &&
-                              quote.revision === allocation.quoteRevision
-                            );
-                            if (!selected) return null;
-                            return (
-                              <div className={styles.allocationRow} key={`${allocation.supplierRequestId}:${allocation.quoteRevision}`}>
-                                <span><strong>{selected.quote.supplierName}</strong><small>{formatInr(selected.item.normalizedUnitRatePaise!)} / {unitLabel(requested.unit)} · up to {selected.item.normalizedAvailableQuantity} {unitLabel(requested.unit)}</small></span>
-                                <label><span>Quantity</span><input aria-label={`${requested.name} quantity from ${selected.quote.supplierName}`} inputMode="decimal" value={allocation.quantity} onChange={(event) => updateSplitQuantity(requested.id, allocation.supplierRequestId, allocation.quoteRevision, event.target.value)} /></label>
-                                <button type="button" aria-label={`Remove ${selected.quote.supplierName} from ${requested.name}`} onClick={() => removeSplitAllocation(requested.id, allocation.supplierRequestId, allocation.quoteRevision)}><Trash2 aria-hidden="true" /></button>
-                              </div>
-                            );
-                          })}
-                          <div className={styles.availableSuppliers}>
-                            {candidates.filter(({ quote }) => !allocations.some((allocation) =>
-                              allocation.supplierRequestId === quote.supplierRequestId &&
-                              allocation.quoteRevision === quote.revision
-                            )).map(({ quote, item }) => (
-                              <button type="button" disabled={coverage?.valid} key={`${quote.supplierRequestId}:${quote.revision}`} onClick={() => addSplitAllocation(requested, quote, item)}>
-                                <Plus aria-hidden="true" />{quote.supplierName}<small>{item.normalizedAvailableQuantity} {unitLabel(requested.unit)} available</small>
-                              </button>
-                            ))}
-                            {candidates.length === 0 && <p>No valid comparable supplier line is available for this item.</p>}
-                          </div>
-                        </section>
-                      );
-                    })}
-                    {splitPreview && splitPreview.errors.length > 0 && <ul className={styles.allocationErrors}>{[...new Set(splitPreview.errors)].slice(0, 4).map((issue) => <li key={issue}>{issue}</li>)}</ul>}
-                    </div>
-                  )}
-                  {(wholeQuote && awardMode === 'WHOLE') && (
-                    <div className={styles.awardPreview} aria-label="Whole award landed total">
-                      <span><small>Before GST</small><strong>{formatInr(wholeQuote.subtotalPaise)}</strong></span>
-                      <span><small>GST</small><strong>{formatInr(wholeQuote.gstPaise)}</strong></span>
-                      <span><small>Freight</small><strong>{formatInr(wholeQuote.freightPaise)}</strong></span>
-                      <span className={styles.finalTotal}><small>Final landed total</small><strong>{formatInr(wholeQuote.totalPaise)}</strong></span>
-                    </div>
-                  )}
-                  {(splitPreview && awardMode === 'SPLIT') && (
-                    <div className={styles.awardPreview} aria-label="Split award landed total">
-                      <span><small>Before GST</small><strong>{formatInr(splitPreview.subtotalPaise)}</strong></span>
-                      <span><small>GST</small><strong>{formatInr(splitPreview.gstPaise)}</strong></span>
-                      <span><small>Freight</small><strong>{formatInr(splitPreview.freightPaise)}</strong></span>
-                      <span className={styles.finalTotal}><small>Final landed total</small><strong>{formatInr(splitPreview.totalPaise)}</strong></span>
-                    </div>
-                  )}
-                  <label className={styles.rationale}><span>Reason for this decision *</span><textarea rows={3} maxLength={500} value={rationale} placeholder="Best complete price with delivery on the requested date." onChange={(event) => setRationale(event.target.value)} /></label>
-                  <button className={styles.primaryButton} type="button" disabled={!awardReady || Boolean(working)} onClick={() => void recordAward()}>{working === 'award' ? 'Recording…' : 'Record award'}</button>
-                </div>
-              )}
-
-              {request.status === 'AWARDED' && comparison.request.award && (() => {
-                const award = comparison.request.award;
-                const suppliers = new Map(award.suppliers.map((supplier) => [supplier.supplierId, supplier]));
-                return (
-                  <section className={styles.awardRecord} aria-label="Recorded award">
-                    <header>
-                      <div><p className={styles.eyebrow}>Final decision record</p><h3>{award.splitAward ? 'Split award' : 'Supplier award'}</h3></div>
-                      <span><small>Awarded {displayDate(award.createdAt, true)}</small><strong>{formatInr(award.totalPaise)}</strong></span>
-                    </header>
-                    <div className={styles.awardReason}><strong>Why this decision was made</strong><p>{award.rationale || 'No decision note was recorded.'}</p></div>
-                    <div className={styles.awardLines}>
-                      <div className={styles.awardLineHeader}><span>Item and supplier</span><span>Quantity</span><span>Rate</span><span>GST</span><span>Line total</span></div>
-                      {award.lines.map((line) => {
-                        const supplier = suppliers.get(line.supplierId);
-                        const description = supplier?.lines.find(
-                          ({ requestItemId }) => requestItemId === line.requestItemId,
-                        );
-                        return (
-                          <div className={styles.awardLine} key={`${line.requestItemId}:${line.supplierRequestId}:${line.quoteRevision}`}>
-                            <span><strong>{description?.itemName ?? 'Requested item'}</strong><small>{supplier?.supplierName ?? 'Supplier snapshot'}</small></span>
-                            <span>{line.quantity} {unitLabel(line.unit)}</span>
-                            <span>{formatInr(line.unitRatePaise)} / {unitLabel(line.unit)}</span>
-                            <span>{line.gstBasisPoints / 100}%</span>
-                            <strong>{formatInr(line.totalPaise)}</strong>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className={styles.awardSuppliers}>
-                      {award.suppliers.map((supplier) => (
-                        <article key={`${supplier.supplierRequestId}:${supplier.quoteRevision}`}>
-                          <strong>{supplier.supplierName}</strong>
-                          <span>Quote revision {supplier.quoteRevision}</span>
-                          <span>Freight {formatInr(supplier.freightPaise)}</span>
-                          <span>Delivery {displayDate(supplier.deliveryDate)}</span>
-                          {supplier.gstin && <span>GSTIN {supplier.gstin}</span>}
-                          {supplier.commercialTerms && <p>{supplier.commercialTerms}</p>}
-                        </article>
-                      ))}
-                    </div>
-                    <p className={styles.immutableNote}><ShieldCheck aria-hidden="true" />This record uses the supplier, quote, quantity, tax and delivery facts saved at the time of the award.</p>
-                  </section>
-                );
-              })()}
-            </>
-          )}
-        </section>
-      )}
+      </details>
     </main>
   );
 }

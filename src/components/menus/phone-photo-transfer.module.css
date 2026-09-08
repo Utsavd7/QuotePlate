@@ -2,14 +2,14 @@
 .phoneOption > button { width: 100%; display: grid; grid-template-columns: 2.4rem 1fr; align-items: center; gap: .7rem; padding: .8rem; border: 1px solid var(--line); background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
 .phoneOption > button > svg { width: 1.4rem; color: #9f4e27; }
 .phoneOption > button span { display: flex; flex-direction: column; gap: .18rem; }
-.phoneOption > button strong { font-family: var(--font-display),Georgia,serif; font-size: 1.12rem; font-weight: 600; }
+.phoneOption > button strong { font-family: var(--font-ui),sans-serif; font-size: 1.12rem; font-weight: 600; }
 .phoneOption > button small { color: var(--muted); font-size: .72rem; line-height: 1.45; }
-.panel { margin-top: .6rem; padding: 1rem; border: 1px solid var(--line); background: #fffdf8; }
+.panel { margin-top: .6rem; padding: 1rem; border: 1px solid var(--line); background: #ffffff; }
 .panel > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .panel > header > div { display: flex; flex-direction: column; gap: .15rem; }
-.panel > header strong { font-family: var(--font-display),Georgia,serif; font-size: 1.1rem; }
+.panel > header strong { font-family: var(--font-ui),sans-serif; font-size: 1.1rem; }
 .panel > header span { color: var(--muted); font-size: .7rem; }
-.panel > header button { width: 2.2rem; height: 2.2rem; display: grid; place-items: center; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.panel > header button { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
 .panel > header button svg { width: .95rem; }
 .qrArea { margin-top: .85rem; display: grid; grid-template-columns: 9.5rem 1fr; align-items: center; gap: 1rem; }
 .qrArea img { width: 9.5rem; height: 9.5rem; display: block; border: 1px solid #e5ded2; }
@@ -23,7 +23,7 @@
 .status svg,.saved svg { width: 1rem; flex: 0 0 auto; }
 .spin { animation: transferSpin 1s linear infinite; }
 @keyframes transferSpin { to { transform: rotate(360deg); } }
-.scanAgain { margin-top: .8rem; min-height: 2.5rem; display: inline-flex; align-items: center; gap: .45rem; padding: 0 .8rem; border: 1px solid var(--ink); background: var(--ink); color: white; font-size: .74rem; font-weight: 800; cursor: pointer; }
+.scanAgain { margin-top: .8rem; min-height: 2.75rem; display: inline-flex; align-items: center; gap: .45rem; padding: 0 .8rem; border: 1px solid var(--ink); background: var(--ink); color: white; font-size: .74rem; font-weight: 800; cursor: pointer; }
 .scanAgain svg { width: .95rem; }
 .privacy { margin-top: .9rem; padding-top: .8rem; display: grid; grid-template-columns: 1.1rem 1fr; gap: .55rem; border-top: 1px solid var(--line); color: var(--muted); }
 .privacy svg { width: 1rem; color: #285e4d; }
@@ -34,7 +34,7 @@
 .gallery { max-width: 82rem; margin: 2rem auto 0; padding-top: 1.25rem; border-top: 1px solid var(--line); }
 .gallery > header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
 .gallery > header p { margin: 0 0 .25rem; color: #9f4e27; font-size: .62rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.gallery h2 { margin: 0; font-family: var(--font-display),Georgia,serif; font-size: 1.45rem; font-weight: 550; letter-spacing: -.03em; }
+.gallery h2 { margin: 0; font-family: var(--font-ui),sans-serif; font-size: 18.4px; font-weight: 550; letter-spacing: -.03em; }
 .gallery > header > span { color: var(--muted); font-size: .68rem; }
 .galleryEmpty,.galleryError { margin: .75rem 0 0; color: var(--muted); font-size: .74rem; }
 .galleryError { color: #842d25; }
@@ -46,8 +46,8 @@
 .batchMeta { min-width: 0; display: flex; flex-direction: column; gap: .12rem; }
 .batchMeta strong { font-size: .75rem; }
 .batchMeta span,.batchMeta small { color: var(--muted); font-size: .62rem; line-height: 1.35; }
-.batchList article > button { grid-column: 1 / -1; min-height: 2.2rem; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: .65rem; font-weight: 750; cursor: pointer; }
+.batchList article > button { grid-column: 1 / -1; min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: .65rem; font-weight: 750; cursor: pointer; }
 .batchList article > button svg { width: .85rem; }
 @media (max-width: 64rem) { .batchList { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 44rem) { .qrArea { grid-template-columns: 1fr; justify-items: center; text-align: center; } .qrArea span { justify-content: center; } .temporaryGrid { grid-template-columns: repeat(3,minmax(0,1fr)); } .gallery > header { align-items: flex-start; flex-direction: column; } .batchList { grid-template-columns: 1fr; } }
-@media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2s; } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }

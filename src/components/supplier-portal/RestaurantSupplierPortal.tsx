@@ -227,11 +227,11 @@ export function RestaurantSupplierPortal() {
   }
 
   return <main className={styles.workspace}>
-    <header className={styles.header}><p className={styles.eyebrow}>Work together, supplier by supplier</p><h1>Supplier collaboration</h1><p>Keep orders, delivery conversations and upcoming ingredient needs in one place.</p></header>
+    <header className={styles.header}><h1>Orders & messages</h1><p>Choose a supplier to check orders, delivery replies or share upcoming needs.</p></header>
     <section className={styles.supplierPicker} aria-label="Choose supplier"><label>Supplier<select aria-label="Supplier" value={supplierId} disabled={busy} onChange={e => selectSupplier(e.target.value)}><option value="">Choose an active supplier</option>{suppliers.map(s => <option key={s.id} value={s.id}>{s.businessName}</option>)}</select></label><Link href="/suppliers">Manage suppliers →</Link>{cursor && <button className={styles.secondary} disabled={listingBusy || busy} onClick={() => void moreSuppliers()}>Load more suppliers</button>}</section>
     {listingBusy && <p role="status">Loading suppliers…</p>}
     {listingError && <p role="alert" className={styles.error}>{listingError} <button disabled={busy} onClick={refresh}>Retry</button></p>}
-    {listingLoaded && !suppliers.length && <p className={styles.empty}>Add an active supplier to begin collaboration.</p>}
+    {listingLoaded && !suppliers.length && <p className={styles.empty}>Add a supplier first, then manage orders and messages here.</p>}
     {error && <p role="alert" className={styles.error}>{error}</p>}
     {notice && <p role="status" className={styles.notice}>{notice}</p>}
     {supplierId && <button className={styles.secondary} disabled={busy || loading || planLoading} onClick={refresh}>Refresh activity</button>}
@@ -239,11 +239,13 @@ export function RestaurantSupplierPortal() {
     {view && <>
       <h2 className={styles.supplierName}>{view.supplierName}</h2>
       <PortalControls canManage={view.canManage} access={view.access} freshLink={freshLink} busy={busy} onCreate={() => void mutate('create')} onRevoke={() => void mutate('revoke')} onCopy={() => void copyLink()} onDismiss={() => setFreshLink(null)} />
-      <TradingProfileReadView profile={view.tradingProfile} />
+      <details className={styles.secondaryDetails}><summary>Supplier delivery terms</summary><TradingProfileReadView profile={view.tradingProfile} /></details>
       <SupplierOrders orders={view.orders} />
-      <section className={styles.panel} aria-labelledby="demand-title"><div className={styles.sectionHeading}><Sprout aria-hidden="true" /><h2 id="demand-title">Upcoming demand estimates</h2></div>
-        <p>Share only the ingredients you choose, their purchase quantities, specifications and service date. Plan names, recipes, portions, stock and prices stay private.</p>
-        <p className={styles.hint}>An estimate is not an order or an inventory confirmation. Availability and delivery still need agreement.</p>
+      <details key={supplierId} className={styles.secondaryDetails} open={view.forecasts.length > 0}>
+      <summary>Plan ahead: share ingredient needs{view.forecasts.length > 0 ? ` · ${view.forecasts.length} shared${view.forecasts.some(forecast => forecast.stale) ? ' · Review outdated estimates' : ''}` : ''}</summary>
+      <section className={styles.panel} aria-labelledby="demand-title"><div className={styles.sectionHeading}><Sprout aria-hidden="true" /><h2 id="demand-title">Share upcoming needs</h2></div>
+        <p>Choose ingredients to help this supplier prepare. Only selected quantities, specifications and the date are shared. Recipes, portions, stock and prices stay private.</p>
+        <p className={styles.hint}>This is a plan, not an order. Confirm stock and delivery with the supplier.</p>
         {view.canManage && <>
           <label>Saved service plan<select aria-label="Saved service plan" value={planId} disabled={busy || !plansLoaded} onChange={e => selectPlan(e.target.value)}><option value="">Choose a saved plan</option>{plans.map(p => <option key={p.id} value={p.id}>{p.name} · v{p.version} · {date(p.serviceAt)}</option>)}</select></label>
           {!plansLoaded ? <p>Loading saved plans…</p> : !plans.length && <p>No saved plans yet. <Link href="/service-planning">Create and save a service plan</Link>.</p>}
@@ -262,7 +264,8 @@ export function RestaurantSupplierPortal() {
           {view.canManage && <button className={styles.secondary} disabled={busy} onClick={() => void mutate('withdraw', forecast.id)} aria-label={`Withdraw estimate for ${date(forecast.serviceAt)} shared ${date(forecast.sharedAt)}`}>Withdraw estimate</button>}
         </article>)}
       </section>
+      </details>
     </>}
-    {!supplierId && suppliers.length > 0 && <p className={styles.empty}>Choose a supplier to review their activity and manage what you share.</p>}
+    {!supplierId && suppliers.length > 0 && <p className={styles.empty}>Choose a supplier above to see their orders and replies.</p>}
   </main>;
 }

@@ -8,8 +8,8 @@ export function DeliveryFollowUps({ suppliers }: { suppliers: SupplierPerformanc
     .sort((a, b) => a.promisedDate.localeCompare(b.promisedDate) || a.awardId.localeCompare(b.awardId) || a.supplierId.localeCompare(b.supplierId));
   if (!suppliers.length) return null;
   return <section className={styles.card} aria-labelledby="delivery-follow-ups">
-    <h2 id="delivery-follow-ups">Purchases needing follow-up</h2>
-    <p>{rows.length ? `${rows.length} supplier deliveries in this report need a delivery check, quantity details, remaining items or credit settlement.` : 'No unchecked deliveries, missing quantity records, remaining quantities or outstanding credits in this report.'} Promised dates refer to delivery, not credit payment deadlines.</p>
+    <h2 id="delivery-follow-ups">Needs your attention</h2>
+    <p>{rows.length ? `${rows.length} deliveries need a check, missing items or a credit follow-up.` : 'No delivery or credit follow-ups in this report.'} Promised dates refer to delivery, not credit payment deadlines.</p>
     {rows.length > 0 && <ul className={styles.followUps}>{rows.map((row) => <li key={`${row.awardId}:${row.supplierId}`}>
       <div><strong>{row.supplierName}</strong><span>{row.reasons.join(' · ')}</span><span>Delivery promised {row.promisedDate}{row.checkedAt ? ` · Last checked ${row.checkedAt.slice(0, 10)}` : ''}</span></div>
       <div>{BigInt(row.creditOutstandingPaise) > BigInt(0) && <strong>{formatInr(row.creditOutstandingPaise)} owed</strong>}<Link href={`/procurement/${encodeURIComponent(row.requestId)}`}>Review purchase<span className={styles.srOnly}> for {row.supplierName}, promised {row.promisedDate}</span></Link></div>

@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { tradingProfileIsStale, type TradingProfile, type TradingProfileInput } from '@/lib/trading-profile/types';
 import type { SupplierPortalView } from '@/lib/supplier-portal/types';
 import styles from './supplier-portal-public.module.css';
@@ -25,6 +25,13 @@ export function TradingProfileEditor({ initialProfile, portalId, disabled }: { i
  const [error, setError] = useState('');
  const [notice, setNotice] = useState('');
  const lock = useRef(false);
+ const feedback = useRef<HTMLParagraphElement>(null);
+ useEffect(() => {
+  if (!error && !notice) return;
+  let parent = feedback.current?.parentElement;
+  while (parent) { if (parent instanceof HTMLDetailsElement) parent.open = true; parent = parent.parentElement; }
+  feedback.current?.focus();
+ }, [error, notice]);
  async function responseView(response: Response) {
   const body = await response.json();
   if (!response.ok) throw new Error(body.detail || 'Unable to save trading profile.');
@@ -54,18 +61,18 @@ export function TradingProfileEditor({ initialProfile, portalId, disabled }: { i
  return <>
   <TradingProfileReadView profile={profile} />
   <form className={styles.order} onSubmit={save} aria-label="Edit trading profile" key={profile?.revision ?? 0}>
-   <fieldset disabled={disabled || busy}><legend>Confirm your trading profile</legend>
-    <p className={styles.help}>Declare your current terms for this restaurant. Leave optional fields blank if unknown. Saving reconfirms all values above.</p>
+   <fieldset disabled={disabled || busy}><legend>Your delivery areas and order terms</legend>
+    <p className={styles.help}>These details help the restaurant plan orders. Leave anything you do not know blank. Saving confirms all your details again.</p>
     <label>Wholesale supply<select name="wholesale" defaultValue={profile?.wholesale ?? 'unknown'}><option value="unknown">Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></label>
-    <label>Served PINs (up to 100, optional)<textarea name="servedPins" maxLength={799} rows={3} defaultValue={profile?.servedPins.join(', ') ?? ''} placeholder="400001, 400002" /></label>
+    <label>Delivery PIN codes (up to 100, optional)<textarea name="servedPins" maxLength={799} rows={3} defaultValue={profile?.servedPins.join(', ') ?? ''} placeholder="400001, 400002" /></label>
     <label>Minimum order (INR, optional)<input name="minimumOrderInr" inputMode="decimal" maxLength={12} pattern="(0|[1-9][0-9]{0,8})(\.[0-9]{1,2})?" defaultValue={profile?.minimumOrderInr ?? ''} /></label>
-    <label>Local order cutoff (HH:mm IST, optional)<input name="orderCutoffIst" type="time" defaultValue={profile?.orderCutoffIst ?? ''} /></label>
-    <label>Lead time (whole days, optional)<input name="leadTimeDays" type="number" min={0} max={365} step={1} defaultValue={profile?.leadTimeDays ?? ''} /></label>
+    <label>Order by this time (HH:mm IST, optional)<input name="orderCutoffIst" type="time" defaultValue={profile?.orderCutoffIst ?? ''} /></label>
+    <label>Days needed before delivery (whole days, optional)<input name="leadTimeDays" type="number" min={0} max={365} step={1} defaultValue={profile?.leadTimeDays ?? ''} /></label>
     <label>Supplier note (optional)<input name="note" maxLength={500} defaultValue={profile?.note ?? ''} /></label>
-    <button type="submit">{busy ? 'Saving…' : 'Confirm trading profile'}</button>
-    <button type="button" onClick={() => void reload()}>Reload trading profile</button>
+    <button type="submit">{busy ? 'Saving…' : 'Save business details'}</button>
+    <button type="button" onClick={() => void reload()}>Load latest saved details</button>
    </fieldset>
   </form>
-  {error && <p role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
+  {error && <p className={styles.error} ref={feedback} tabIndex={-1} role="alert">{error} Check your details or load the latest saved details before trying again.</p>}{notice && <p className={styles.notice} ref={feedback} tabIndex={-1} role="status">{notice}</p>}
  </>;
 }

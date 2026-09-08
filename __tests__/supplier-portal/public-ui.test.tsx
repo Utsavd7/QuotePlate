@@ -39,3 +39,11 @@ it('makes the invoice and issue facts visible before supplier agreement',()=>{
  expect(output).toContain('Price difference');
  expect(output).toContain('CN-44 pending');
 });
+
+it('puts requested actions before optional history and business details', () => {
+ const output = html({...view, orders: [{...view.orders[0], requestId:'old', title:'Old completed request', status:'closed'}, view.orders[0]]});
+ expect(output.indexOf('Needs your response')).toBeLessThan(output.indexOf('Dinner supplies'));
+ expect(output.indexOf('Dinner supplies')).toBeLessThan(output.indexOf('Old completed request'));
+ expect(output.indexOf('Order history')).toBeLessThan(output.indexOf('Your business details (optional)'));
+ expect(output).toContain('<summary>Your business details (optional)</summary>');
+});

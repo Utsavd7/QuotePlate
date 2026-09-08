@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, CalendarDays, Check, ChevronDown, MapPin, Store, Users } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, MapPin, Store, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -8,6 +8,8 @@ import { workspaceMutationFetch } from '@/lib/client/workspace-prefetch';
 import type { MenuDocumentV1 } from '@/lib/menu/menu-document';
 import { buildDefaultSourcingSelection } from '@/lib/procurement/request-document';
 
+import { PurchaseJourney } from './PurchaseJourney';
+import ui from './purchase-ui.module.css';
 import styles from './new-request-form.module.css';
 
 type MenuSummary = {
@@ -95,6 +97,7 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<RequestFormError>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [optionalDetailsOpen, setOptionalDetailsOpen] = useState(false);
   const initialLoadStarted = useRef(false);
   const menuRequest = useRef<AbortController | null>(null);
 
@@ -292,6 +295,7 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
       if (!result.request?.id) throw new Error('The saved request was not returned.');
       router.push(`/procurement/${encodeURIComponent(result.request.id)}`);
     } catch (caught) {
+      setOptionalDetailsOpen(true);
       setError({
         message: caught instanceof Error ? caught.message : 'We could not save this request.',
         kind: 'operation',
@@ -300,23 +304,25 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
     }
   }
 
-  if (loading) return <main className={styles.page}><div className={styles.loading} aria-label="Preparing request"><span /><span /><span /></div></main>;
+  if (loading) return <main className={`${styles.page} ${ui.surface}`}><div className={styles.loading} aria-label="Preparing request"><span /><span /><span /></div></main>;
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${ui.surface}`}>
       <header className={styles.header}>
-        <button type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" /> Buy ingredients</button>
+        <button type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" /> Purchases</button>
         <p className={styles.eyebrow}>Not sent</p>
-        <h1>New supplier price request</h1>
-        <p>Choose what you need, who should quote, and when the order must arrive.</p>
+        <h1>Choose ingredients</h1>
+        <p>Start with an approved menu. Review your draft before sharing.</p>
       </header>
 
+      <PurchaseJourney current={0} />
+
       {error && <div className={styles.error} role="alert">{error.message}{error.kind === 'load' && <> Your saved restaurant records are unchanged. <button type="button" onClick={retryLoad}>Try again</button></>}</div>}
+      {Object.keys(fieldErrors).length > 0 && <ul className={styles.error} role="alert">{Object.entries(fieldErrors).flatMap(([field, messages]) => messages.map((message) => <li key={`${field}:${message}`}>{message}</li>))}</ul>}
       {!(error?.kind === 'load' && error.retry === 'initial') && <form className={styles.form} onSubmit={submit}>
         <section className={styles.section}>
-          <div className={styles.sectionNumber}>01</div>
           <div className={styles.sectionBody}>
-            <div className={styles.sectionTitle}><div><h2>Request details</h2><p>Choose an approved menu and the ingredients you need.</p></div><Store aria-hidden="true" /></div>
+            <div className={styles.sectionTitle}><div><h2>Ingredients</h2></div><Store aria-hidden="true" /></div>
             <label className={styles.field}>
               <span>Request title *</span>
               <input value={title} maxLength={160} placeholder="Fresh produce · Week 36" onChange={(event) => setTitle(event.target.value)} />
@@ -337,8 +343,8 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
             {selectedMenu && (
               <div className={styles.demand}>
                 <div className={styles.segmented}>
-                  <button type="button" className={selectionMode === 'ALL' ? styles.selected : ''} onClick={() => setSelectionMode('ALL')}>All ingredients</button>
-                  <button type="button" className={selectionMode === 'SELECTED' ? styles.selected : ''} onClick={() => setSelectionMode('SELECTED')}>Choose ingredients</button>
+                  <button type="button" aria-pressed={selectionMode === 'ALL'} className={selectionMode === 'ALL' ? styles.selected : ''} onClick={() => setSelectionMode('ALL')}>All ingredients</button>
+                  <button type="button" aria-pressed={selectionMode === 'SELECTED'} className={selectionMode === 'SELECTED' ? styles.selected : ''} onClick={() => setSelectionMode('SELECTED')}>Choose ingredients</button>
                 </div>
                 {selectionMode === 'SELECTED' && selectedMenu.document.dishes.map((dish) => (
                   <fieldset key={dish.id}>
@@ -354,28 +360,14 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
                 ))}
               </div>
             )}
-            {supplierNextCursor && <button className={styles.choiceMore} type="button" disabled={loadingMoreSuppliers} onClick={() => void loadMoreSuppliers()}>{loadingMoreSuppliers ? 'Loading…' : 'Load more suppliers'}</button>}
           </div>
         </section>
 
         <section className={styles.section}>
-          <div className={styles.sectionNumber}>02</div>
           <div className={styles.sectionBody}>
-            <div className={styles.sectionTitle}><div><h2>Suppliers</h2><p>Choose the suppliers who should receive their own secure link.</p></div><Users aria-hidden="true" /></div>
-            <label className={openToNewSuppliers ? styles.selectedOpenSupplier : styles.openSupplier}>
-              <input
-                type="checkbox"
-                checked={openToNewSuppliers}
-                onChange={(event) => setOpenToNewSuppliers(event.target.checked)}
-              />
-              <span>
-                <strong>Also invite new verified suppliers</strong>
-                <small>You will get one public application link after opening this request. You approve every supplier before they can quote.</small>
-              </span>
-              {openToNewSuppliers && <Check aria-hidden="true" />}
-            </label>
+            <div className={styles.sectionTitle}><div><h2>Ask which suppliers?</h2><p>Each supplier gets a private link.</p></div><Users aria-hidden="true" /></div>
             {suppliers.length === 0 ? (
-              <div className={styles.inlineEmpty}>No saved supplier yet. You can invite new suppliers above or <button type="button" onClick={() => router.push('/suppliers')}>add a supplier</button>.</div>
+              <div className={styles.inlineEmpty}>No saved supplier yet. You can invite new suppliers below or <button type="button" onClick={() => router.push('/suppliers')}>add a supplier</button>.</div>
             ) : (
               <div className={styles.supplierGrid}>
                 {suppliers.map((supplier) => (
@@ -388,11 +380,24 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
                 ))}
               </div>
             )}
+            {supplierNextCursor && <button className={styles.choiceMore} type="button" disabled={loadingMoreSuppliers} onClick={() => void loadMoreSuppliers()}>{loadingMoreSuppliers ? 'Loading…' : 'Load more suppliers'}</button>}
+            <label className={openToNewSuppliers ? styles.selectedOpenSupplier : styles.openSupplier}>
+              <input
+                type="checkbox"
+                checked={openToNewSuppliers}
+                onChange={(event) => setOpenToNewSuppliers(event.target.checked)}
+              />
+              <span>
+                <strong>Also invite new verified suppliers</strong>
+                <small>Get a public application link when you open this request. Only suppliers you approve can quote.</small>
+              </span>
+              {openToNewSuppliers && <Check aria-hidden="true" />}
+            </label>
+
           </div>
         </section>
 
         <section className={styles.section}>
-          <div className={styles.sectionNumber}>03</div>
           <div className={styles.sectionBody}>
             <div className={styles.sectionTitle}><div><h2>Delivery and timing</h2><p>These details are shown to every selected supplier.</p></div><MapPin aria-hidden="true" /></div>
             <div className={styles.twoColumns}>
@@ -407,16 +412,16 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
           </div>
         </section>
 
-        <section className={styles.section}>
-          <div className={styles.sectionNumber}>04</div>
-          <div className={styles.sectionBody}>
-            <div className={styles.sectionTitle}><div><h2>Payment and order terms</h2><p>Add only the terms every supplier should see.</p></div><CalendarDays aria-hidden="true" /></div>
-            <label className={styles.field}><span>Terms or notes</span><textarea rows={4} value={commercialTerms} placeholder="Rates should include packing. Payment within 15 days of accepted delivery." onChange={(event) => setCommercialTerms(event.target.value)} /></label>
+        <details className={ui.disclosure} open={optionalDetailsOpen} onToggle={(event) => setOptionalDetailsOpen(event.currentTarget.open)}>
+          <summary>Payment and order terms (optional)</summary>
+          <div className={ui.disclosureBody}>
+            <label className={styles.field}><span>Terms or notes</span><textarea rows={3} value={commercialTerms} placeholder="Rates should include packing. Payment within 15 days of accepted delivery." onChange={(event) => setCommercialTerms(event.target.value)} /></label>
+            {fieldErrors.commercialTerms?.map((message) => <p role="alert" key={message}>{message}</p>)}
           </div>
-        </section>
+        </details>
 
         <footer className={styles.actions}>
-          <span>Nothing is shared yet. You will review the draft before opening it.</span>
+          <span>Nothing is shared yet. Review your draft next.</span>
           <button className={styles.secondaryButton} type="button" onClick={() => router.push('/procurement')}>Cancel</button>
           <button className={styles.primaryButton} type="submit" disabled={!valid || saving}>{saving ? 'Saving…' : 'Save draft'}</button>
         </footer>

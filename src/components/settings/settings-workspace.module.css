@@ -215,3 +215,19 @@
 @media (prefers-reduced-motion: reduce) {
   .loadingHeader span, .loadingGrid span { animation: none; }
 }
+
+.page { --settings-paper: #fff; --settings-line: #dce1db; }
+.pageHeader { margin-bottom: 1.25rem; }
+.currentAccess { border: 0; padding: .5rem 0; background: transparent; }
+.currentAccess em { font-size: .78rem; }
+.sectionLinks { max-width: 62rem; margin: 0 auto 1rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+.sectionLinks a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .55rem .8rem; border: 1px solid #dce1db; border-radius: .4rem; color: #285e4d; background: #fff; text-decoration: none; font-size: .9rem; font-weight: 650; }
+.settingsGrid { max-width: 62rem; grid-template-columns: 1fr; }
+.panel { scroll-margin-top: 5rem; border-radius: .5rem; background: #fff; box-shadow: none; }
+.panelHeader { background: #fff; }
+.panelHeader p { display: none; }
+.field > span { text-transform: none; letter-spacing: 0; font-size: .86rem; }
+.field input { border-radius: .35rem; }
+.primaryButton { border-radius: .4rem; background: #285e4d; border-color: #285e4d; box-shadow: none; }
+.primaryButton:hover { box-shadow: none; transform: none; }
+.personIdentity p, .hint, .formFooter > span { font-size: .8rem; }

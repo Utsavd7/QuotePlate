@@ -4,15 +4,11 @@ import {
   BarChart3,
   BookOpen,
   ClipboardList,
-  ClipboardCheck,
-  History,
   LayoutDashboard,
-  MessageSquare,
   Menu,
   Plus,
   Settings,
   Users,
-  Truck,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -45,17 +41,27 @@ type RestaurantAccount = {
 };
 
 const NAV = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Home' },
-  { href: '/service-planning', icon: ClipboardCheck, label: 'Plan today’s service' },
-  { href: '/procurement', icon: ClipboardList, label: 'Buy ingredients' },
-  { href: '/menus', icon: BookOpen, label: 'Menu and ingredients' },
-  { href: '/suppliers', icon: Users, label: 'Suppliers' },
-  { href: '/supplier-collaboration', icon: MessageSquare, label: 'Supplier collaboration' },
-  { href: '/supplier-performance', icon: Truck, label: 'Supplier performance' },
-  { href: '/insights', icon: BarChart3, label: 'Savings and prices' },
-  { href: '/history', icon: History, label: 'Past purchases' },
-  { href: '/settings', icon: Settings, label: 'Restaurant settings' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Today', paths: ['/dashboard', '/service-planning'], sections: [{ href: '/dashboard', label: 'Overview' }, { href: '/service-planning', label: 'Plan meals' }] },
+  { href: '/procurement', icon: ClipboardList, label: 'Purchases', paths: ['/procurement', '/history'], sections: [{ href: '/procurement', label: 'Current purchases' }, { href: '/history', label: 'Past purchases' }] },
+  { href: '/suppliers', icon: Users, label: 'Suppliers', paths: ['/suppliers', '/supplier-collaboration', '/supplier-performance'], sections: [{ href: '/suppliers', label: 'Your suppliers' }, { href: '/supplier-collaboration', label: 'Orders & messages' }, { href: '/supplier-performance', label: 'Delivery record' }] },
+  { href: '/menus', icon: BookOpen, label: 'Menu', paths: ['/menus'], sections: [] },
+  { href: '/insights', icon: BarChart3, label: 'Reports', paths: ['/insights'], sections: [] },
 ] as const;
+
+function matchesPath(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function SectionNavigation({ pathname }: { pathname: string }) {
+  const group = NAV.find(item => item.paths.some(path => matchesPath(pathname, path)));
+  if (!group?.sections.length) return null;
+  return <nav className={styles.sectionNav} aria-label={`${group.label} sections`}>
+    {group.sections.map(item => <Link key={item.href} href={item.href}
+      aria-current={matchesPath(pathname, item.href) ? 'page' : undefined}>
+      {item.label}
+    </Link>)}
+  </nav>;
+}
 
 function SidebarContent({
   account,
@@ -80,12 +86,12 @@ function SidebarContent({
       </Link>
 
       <Link className={styles.newRequest} href="/procurement/new" onClick={onNav}>
-        <Plus aria-hidden="true" /> Ask suppliers for prices
+        <Plus aria-hidden="true" /> New purchase
       </Link>
 
       <nav className={styles.nav} aria-label="Workspace navigation">
         {NAV.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const active = item.paths.some(path => matchesPath(pathname, path));
           return (
             <Link
               aria-current={active ? 'page' : undefined}
@@ -103,14 +109,13 @@ function SidebarContent({
         })}
       </nav>
 
-      <div
-        aria-label="Restaurant data privacy"
-        className={styles.privacy}
-        role="note"
-      >
-        <strong>Private to your restaurant</strong>
-        <span>Other restaurants cannot see your records. Suppliers see their requests, own orders and delivery checks, and estimates you choose to share. Recipes, menus and other suppliers’ prices stay private.</span>
-      </div>
+      <Link href="/settings" onClick={onNav} className={pathname === '/settings' ? styles.navActive : styles.navLink} aria-current={pathname === '/settings' ? 'page' : undefined}>
+        <Settings aria-hidden="true" /> Settings
+      </Link>
+      <details className={styles.privacy}>
+        <summary>Your information is private</summary>
+        <p>Other restaurants cannot see your records. Suppliers see only their requests, orders, delivery checks and estimates you choose to share. Your recipes and other suppliers’ prices stay private.</p>
+      </details>
 
       <div className={styles.account}>
         <span className={styles.accountInitial}>{account.name.charAt(0).toUpperCase()}</span>
@@ -290,6 +295,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <span>This is a working test account. Changes are saved in this demo only. Do not enter real customer or supplier information.</span>
                 </aside>
               )}
+              <SectionNavigation pathname={pathname} />
               {children}
             </WorkspaceProvider>
           </div>

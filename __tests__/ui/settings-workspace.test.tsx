@@ -49,9 +49,8 @@ describe('settings workspace UI', () => {
   it('renders a professional owner workspace with real restaurant and people controls', () => {
     const html = renderToStaticMarkup(<SettingsWorkspace initialData={ownerSettings} />);
 
-    expect(html).toContain('Your restaurant');
     expect(html).toContain('Restaurant settings');
-    expect(html).toContain('Update restaurant details, team access, and workspace preferences.');
+    expect(html).toContain('Manage your restaurant details and who can use this account.');
     expect(html).toContain('Monsoon Table');
     expect(html).toContain('GSTIN');
     expect(html).toContain('People and access');

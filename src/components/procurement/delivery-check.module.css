@@ -9,3 +9,5 @@
 .help { color: #596455; font-size: .8rem; }
 .summary { border-top: 1px solid #d8ddd5; padding-top: 1rem; font-size: .875rem; }
 @media (max-width: 540px) { .fields { grid-template-columns: 1fr; } }
+
+.item{border:0;border-top:1px solid #dce1db;border-radius:0;padding:.75rem 0}.item legend{padding:0 .4rem 0 0}.details{font-size:.875rem;gap:.75rem}.details input,.details textarea{min-height:44px;border-color:#dce1db;border-radius:4px;background:#ffffff;color:#101817}.details details{margin-top:.75rem;margin-bottom:0}.details details p{padding:.75rem}.summary{gap:.75rem}.help{font-size:.8125rem;color:#626764}

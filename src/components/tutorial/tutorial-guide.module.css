@@ -186,3 +186,10 @@
   .guide,
   .resume { scroll-behavior: auto; }
 }
+
+/* Help belongs in the page flow so it never covers a purchase action. */
+.guide { position: static; z-index: auto; width: auto; max-width: 40rem; max-height: none; margin: 1rem 1.25rem; align-self: flex-start; box-shadow: none; border-radius: .5rem; overflow: visible; }
+.guide .body h2 { font-family: var(--font-ui); font-size: 1.2rem; font-weight: 700; }
+.guide .kicker { display: none; }
+.resume { background: #fff; border-color: #dce1db; border-radius: .5rem; }
+@media(max-width:40rem) { .guide { width: calc(100% - 2rem); margin: 1rem; } }

@@ -23,12 +23,12 @@ describe('visible setup guide', () => {
   it('gives six short, direct actions in the order a restaurant needs them', () => {
     expect(TUTORIAL_STEPS).toHaveLength(TUTORIAL_LAST_STEP + 1);
     expect(TUTORIAL_STEPS.map(({ action, href }) => ({ action, href }))).toEqual([
-      { action: 'Open home', href: '/dashboard' },
-      { action: 'Open menu and ingredients', href: '/menus' },
+      { action: 'Open Today', href: '/dashboard' },
+      { action: 'Open Menu', href: '/menus' },
       { action: 'Open suppliers', href: '/suppliers' },
       { action: 'Ask suppliers for prices', href: '/procurement/new' },
       { action: 'Compare supplier prices', href: '/procurement' },
-      { action: 'Open savings and prices', href: '/insights' },
+      { action: 'Open Reports', href: '/insights' },
     ]);
 
     for (const step of TUTORIAL_STEPS) {
@@ -36,12 +36,12 @@ describe('visible setup guide', () => {
     }
 
     expect(TUTORIAL_STEPS.map(({ instruction }) => instruction)).toEqual([
-      expect.stringContaining('Open Home'),
-      expect.stringContaining('Open Menu and ingredients'),
+      expect.stringContaining('Open Today'),
+      expect.stringContaining('Open Menu'),
       expect.stringContaining('Open Suppliers'),
-      expect.stringContaining('Ask suppliers for prices'),
-      expect.stringContaining('Open Buy ingredients'),
-      expect.stringContaining('Open Savings and prices'),
+      expect.stringContaining('New purchase'),
+      expect.stringContaining('Open Purchases'),
+      expect.stringContaining('Open Reports'),
     ]);
   });
 
@@ -52,7 +52,7 @@ describe('visible setup guide', () => {
 
     expect(html).toContain('Setup guide');
     expect(html).toContain('Step 1 of 6');
-    expect(html).toContain('Open home');
+    expect(html).toContain('Open Today');
     expect(html).toContain('Next');
     expect(html).toContain('Skip for now');
     expect(html).toContain('Six guided steps');

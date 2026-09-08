@@ -40,10 +40,9 @@ describe('overview workspace', () => {
   it('renders real restaurant work, deadlines, and exact awarded totals', () => {
     const html = renderToStaticMarkup(<OverviewWorkspace initialData={overview} />);
 
-    expect(html).toContain('Your restaurant today');
-    expect(html).toContain('What needs your attention today?');
-    expect(html).toContain('See requests, quotes, menus, and supplier work that need attention today.');
-    expect(html).toContain('Ask suppliers for prices');
+    expect(html).toContain('Today');
+    expect(html).toContain('Your next steps, from buying ingredients to checking deliveries.');
+    expect(html).toContain('New purchase');
     expect(html).toContain('Active suppliers');
     expect(html).toContain('Menus ready');
     expect(html).toContain('Waiting for suppliers');
@@ -90,11 +89,11 @@ describe('overview workspace', () => {
       <OverviewWorkspace initialData={{ ...overview, deadlines: [] }} />,
     );
 
-    expect(empty).toContain('Set up your procurement workspace');
+    expect(empty).toContain('Get ready for your first purchase');
     expect(empty).toContain('Add suppliers');
     expect(empty).toContain('Add a menu');
     expect(withoutDeadlines).toContain(
-      '<h3>No requests waiting for quotes</h3><p>Open a checked request when you are ready to ask suppliers for prices.</p><a href="/procurement/new">Ask suppliers for prices',
+      '<h3>No requests waiting for quotes</h3><p>Open a checked request when you are ready to ask suppliers for prices.</p><a href="/procurement/new">New purchase',
     );
     expect(loading).toContain('Loading your procurement overview');
     expect(error).toContain('We could not load your overview.');
@@ -103,7 +102,7 @@ describe('overview workspace', () => {
   });
 
   it('uses the approved page title', () => {
-    expect(metadata.title).toBe('Home');
+    expect(metadata.title).toBe('Today');
   });
 
   it('formats paise exactly without floating-point rounding', () => {

@@ -9,6 +9,7 @@ import { formatIndiaDate as displayDate } from '@/lib/domain/india-date';
 import { formatInr, parseInrToPaise } from '@/lib/domain/money';
 import type { ReceivingSummary } from '@/lib/receiving/receiving-document';
 import { calculateReceivingDetails, validateReceivingDetails, type ReceivingDetails } from '@/lib/receiving/receiving-details';
+import ui from './purchase-ui.module.css';
 import detailStyles from './delivery-check.module.css';
 import styles from './request-detail.module.css';
 
@@ -72,6 +73,15 @@ export function SupplierCheckForm({ awardId, supplier, onSaved }: {
   }
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [billingDetailsOpen, setBillingDetailsOpen] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(rows.map(row => [row.requestItemId, Boolean(row.billedQuantity || row.billedRateInr)])),
+  );
+
+  function showError(message: string) {
+    setError(message);
+    setBillingDetailsOpen(Object.fromEntries(rows.map(row => [row.requestItemId, true])));
+  }
+
 
   function toggleIssue(code: IssueCode) {
     setIssueCodes((current) => current.includes(code)
@@ -88,11 +98,11 @@ export function SupplierCheckForm({ awardId, supplier, onSaved }: {
       if (paise < BigInt(0) || (paise === BigInt(0) && !supplier.items?.length)) throw new RangeError();
       invoiceTotalPaise = paise.toString();
     } catch {
-      setError('Enter the invoice total in rupees.');
+      showError('Enter the invoice total in rupees.');
       return;
     }
     if (outcome === 'ISSUES' && issueCodes.length === 0) {
-      setError('Choose at least one delivery problem.');
+      showError('Choose at least one delivery problem.');
       return;
     }
     let details: ReceivingDetails | undefined;
@@ -100,7 +110,7 @@ export function SupplierCheckForm({ awardId, supplier, onSaved }: {
       details = readDetails();
       if (details) calculateReceivingDetails(supplier.items!, details);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Check item counts and credit amounts.');
+      showError(caught instanceof Error ? caught.message : 'Check item counts and credit amounts.');
       return;
     }
     setSaving(true);
@@ -126,7 +136,7 @@ export function SupplierCheckForm({ awardId, supplier, onSaved }: {
       await onSaved();
       setEditing(false);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'We could not save this delivery check.');
+      showError(caught instanceof Error ? caught.message : 'We could not save this delivery check.');
     } finally {
       setSaving(false);
     }
@@ -150,7 +160,10 @@ export function SupplierCheckForm({ awardId, supplier, onSaved }: {
         </dl>
         {check.details && <div className={detailStyles.summary}>
           <p>{check.deliveryComplete ? 'Delivery complete' : 'Partial delivery · quantities outstanding'} · Actual delivery: {check.details.actualDeliveryDate ? displayDate(check.details.actualDeliveryDate) : 'Not recorded'}</p>
+          <details className={ui.disclosure}>
+            <summary>Saved item quantities & price differences</summary>
           {check.itemDetails?.map(item => <div key={item.requestItemId}><strong>{item.itemName}</strong><p>Ordered {item.orderedQuantity} · received {item.receivedQuantity} (including rejected {item.rejectedQuantity}) · accepted {item.acceptedQuantity} · outstanding {item.pendingQuantity} {item.unit.toLowerCase()}</p><small>Item discrepancy {formatInr(item.discrepancyPaise)}</small></div>)}
+          </details>
           <p>Credit claimed {formatInr(check.details.creditClaimedPaise)} · received {formatInr(check.details.creditReceivedPaise)} · remaining {formatInr(check.creditRemainingPaise ?? '0')}</p>
           {check.details.settlementNote && <blockquote>{check.details.settlementNote}</blockquote>}
         </div>}
@@ -162,33 +175,42 @@ export function SupplierCheckForm({ awardId, supplier, onSaved }: {
   }
 
   return (
-    <form className={styles.deliveryForm} onSubmit={save}>
+    <form className={`${styles.deliveryForm} ${ui.surface}`} onSubmit={save}>
       <header>
         <span><ClipboardCheck aria-hidden="true" /><span><strong>{supplier.supplierName}</strong><small>Expected {formatInr(supplier.expectedTotalPaise)} · delivery {displayDate(supplier.deliveryDate)}</small></span></span>
         {supplier.check && <button type="button" onClick={() => setEditing(false)}>Cancel</button>}
       </header>
       <label className={styles.invoiceField}><span>Invoice total in rupees *</span><span><b>₹</b><input inputMode="decimal" value={invoiceInr} placeholder="1,250.00" onChange={(event) => setInvoiceInr(event.target.value.replace(/,/g, ''))} /></span></label>
       {supplier.items?.length ? <div className={detailStyles.details}>
-        <p>Enter cumulative totals across all deliveries, including rejected units in received counts. Updating replaces the previous totals. Rejected units remain outstanding until accepted replacements arrive.</p>
-        {supplier.check && !supplier.check.details && <p>Upgrade this summary by entering the item counts you have verified. The accepted award stays unchanged.</p>}
+        <p>Enter totals so far, including rejected units in received counts. Each save replaces the previous totals. Rejected units stay outstanding until accepted replacements arrive.</p>
+        {supplier.check && !supplier.check.details && <p>Add the item counts you have checked.</p>}
         {supplier.items.map((item, index) => <fieldset key={item.requestItemId} className={detailStyles.item}>
           <legend>{item.itemName}</legend>
           <p>Ordered: {item.orderedQuantity} {item.unit.toLowerCase()} · accepted rate {formatInr(item.unitRatePaise)} · {item.taxInclusive ? 'including' : 'excluding'} GST</p>
           <div className={detailStyles.fields}>
-            <label>Cumulative received<input required inputMode="decimal" maxLength={24} value={rows[index]?.receivedQuantity ?? ''} onChange={event => changeRow(index, 'receivedQuantity', event.target.value)} /></label>
-            <label>Cumulative rejected<input required inputMode="decimal" maxLength={24} value={rows[index]?.rejectedQuantity ?? ''} onChange={event => changeRow(index, 'rejectedQuantity', event.target.value)} /></label>
+            <label>Received so far<input required inputMode="decimal" maxLength={24} value={rows[index]?.receivedQuantity ?? ''} onChange={event => changeRow(index, 'receivedQuantity', event.target.value)} /></label>
+            <label>Rejected so far<input required inputMode="decimal" maxLength={24} value={rows[index]?.rejectedQuantity ?? ''} onChange={event => changeRow(index, 'rejectedQuantity', event.target.value)} /></label>
+          </div>
+          <details className={ui.disclosure} open={billingDetailsOpen[item.requestItemId]}
+            onToggle={(event) => {
+              const open = event.currentTarget.open;
+              setBillingDetailsOpen(current => ({ ...current, [item.requestItemId]: open }));
+            }}>
+            <summary>Invoice quantity & rate (optional)</summary>
+            <div className={detailStyles.fields}>
             <label>Billed quantity (optional)<input inputMode="decimal" maxLength={24} value={rows[index]?.billedQuantity ?? ''} onChange={event => changeRow(index, 'billedQuantity', event.target.value)} /></label>
             <label>Billed rate in rupees<input inputMode="decimal" maxLength={24} value={rows[index]?.billedRateInr ?? ''} onChange={event => changeRow(index, 'billedRateInr', event.target.value)} /></label>
-          </div>
+            </div>
+          </details>
           {preview && <p>Accepted {preview.itemDetails[index].acceptedQuantity} · outstanding {preview.itemDetails[index].pendingQuantity} · discrepancy {formatInr(preview.itemDetails[index].discrepancyPaise)}</p>}
         </fieldset>)}
-        <p className={detailStyles.help}>Item discrepancy compares billed value with accepted quantity at the awarded rate, using awarded GST. Without billing details it estimates against the full allocated value. Freight is excluded; the invoice difference above compares the whole invoice.</p>
+        <details className={ui.disclosure}><summary>How price differences are calculated</summary><p className={detailStyles.help}>Item discrepancy compares billed value with accepted quantity at the awarded rate, using awarded GST. Without billing details it estimates against the full allocated value. Freight is excluded; the invoice difference above compares the whole invoice.</p></details>
         <div className={detailStyles.fields}>
           <label>Actual delivery date<input type="date" value={actualDate} onChange={event => setActualDate(event.target.value)} /></label>
           <label>Credit claimed in rupees<input inputMode="decimal" maxLength={24} value={creditClaimed} onChange={event => setCreditClaimed(event.target.value)} /></label>
           <label>Credit received in rupees<input inputMode="decimal" maxLength={24} value={creditReceived} onChange={event => setCreditReceived(event.target.value)} /></label>
         </div>
-        <p className={detailStyles.help}>Use the latest arrival date, including replacement shipments. When the delivery is complete, this date is used to measure on-time performance.</p>
+        <p className={detailStyles.help}>Use the latest arrival date, including replacements. Completed deliveries use this date for on-time reports.</p>
         {preview && <p role="status">Item discrepancy {formatInr(preview.discrepancyPaise)} · Credit remaining {formatInr(preview.creditRemainingPaise)}</p>}
         <label>Settlement notes<textarea maxLength={500} rows={2} value={settlementNote} onChange={event => setSettlementNote(event.target.value)} placeholder="Credit note reference, refund or agreed adjustment" /></label>
       </div> : null}
@@ -216,9 +238,9 @@ export function DeliveryCheckPanel({ awardId, requestId, receiving, onSaved }: {
   onSaved: () => Promise<void> | void;
 }) {
   return (
-    <section className={`${styles.panel} ${styles.deliveryPanel}`} aria-labelledby="delivery-check-heading">
-      <header><div><p className={styles.eyebrow}>After delivery</p><h2 id="delivery-check-heading">Check delivery</h2></div><span>{receiving.checkedCount} of {receiving.totalCount} checked</span></header>
-      <p className={styles.deliveryIntro}>Enter the supplier invoice total and record whether the order arrived as agreed.</p>
+    <section className={`${styles.panel} ${styles.deliveryPanel} ${ui.surface}`} aria-labelledby="delivery-check-heading">
+      <header><div><h2 id="delivery-check-heading">Check delivery</h2></div><span>{receiving.checkedCount} of {receiving.totalCount} checked</span></header>
+      <p className={styles.deliveryIntro}>Check quantities and invoice totals. Record any delivery problems.</p>
       <div className={styles.deliveryGrid}>{receiving.suppliers.map((supplier) => (
         <SupplierCheckForm key={`${supplier.supplierId}:${supplier.check?.checkedAt ?? 'new'}`} awardId={awardId} supplier={supplier} onSaved={onSaved} />
       ))}</div>

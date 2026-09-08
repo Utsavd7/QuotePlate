@@ -232,3 +232,42 @@
 }
 .demoBanner { display: grid; gap: 5px; margin: 16px 24px 0; padding: 14px 18px; border: 1px solid #d9bc7d; background: #fff5dc; color: #65441a; border-radius: 8px; font-size: 13px; line-height: 1.6; }
 @media (max-width: 600px) { .demoBanner { margin: 12px 14px 0; padding: 12px; } }
+
+/* One quiet, readable system for the working app. */
+.shell { --font-display: var(--font-ui); --shell-stone: #f6f7f5; --shell-paper: #fff; --shell-line: #dce1db; --shell-muted: #515e56; background: var(--shell-stone); }
+.sidebarContent { padding: 1.25rem .9rem; }
+.desktopSidebar { width: 13.5rem; flex-basis: 13.5rem; }
+.newRequest { min-height: 2.85rem; margin: 1.2rem 0; border-radius: .5rem; box-shadow: none; background: #285e4d; border-color: #285e4d; font-weight: 700; }
+.newRequest:hover, .newRequest:active { transform: none; box-shadow: none; background: #1c483b; }
+.nav { gap: .4rem; }
+.navLink, .navActive { padding: .8rem; font-size: .9rem; border-radius: .5rem; font-weight: 650; }
+.navActive { border-color: transparent; background: #e7f0eb; color: #204b3d; }
+.navActive::after { display: none; }
+.navLink:hover { transform: none; background: #f1f4f0; border-color: transparent; }
+.nav svg, .navActive svg { color: currentColor; width: 1.15rem; height: 1.15rem; }
+.sidebarContent > a > svg { width: 1.15rem; height: 1.15rem; }
+.privacy { border: 0; padding: .7rem .25rem; margin: .75rem .4rem; color: var(--shell-muted); font-size: .75rem; }
+.privacy summary { cursor: pointer; min-height: 2rem; }
+.privacy p { margin: .5rem 0 0; line-height: 1.6; }
+.accountName strong { font-size: .8rem; }
+.accountName small { font-size: .73rem; }
+.sectionNav { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0; padding: .65rem clamp(1rem, 3vw, 2.75rem); border-bottom: 1px solid var(--shell-line); background: #fff; }
+.sectionNav a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .6rem .9rem; color: var(--shell-muted); text-decoration: none; font-size: .86rem; font-weight: 650; border-radius: .4rem; }
+.sectionNav a[aria-current="page"] { background: #e7f0eb; color: #204b3d; }
+.sectionNav a:hover { background: #f0f4f0; }
+.shell .content h1 { font-family: var(--font-ui); font-size: 1.75rem; font-weight: 750; line-height: 1.3; letter-spacing: -.025em; text-wrap: balance; }
+.shell .content main { background: var(--shell-stone); }
+.shell .content h2 { font-family: var(--font-ui); font-size: 1.15rem; font-weight: 750; line-height: 1.4; letter-spacing: -.01em; }
+.shell .content h3 { font-family: var(--font-ui); font-size: 1rem; line-height: 1.4; }
+.shell .content button, .shell .content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .shell .content select { min-height: 2.75rem; }
+.shell .content input, .shell .content textarea, .shell .content select { font-size: 1rem; }
+.shell .content summary { min-height: 2.75rem; cursor: pointer; }
+.footer { font-size: .75rem; text-transform: none; letter-spacing: 0; background: transparent; }
+.demoBanner { display: flex; flex-wrap: wrap; gap: .3rem .8rem; margin: 0; padding: .65rem 1.25rem; border: 0; border-bottom: 1px solid #e1d2ae; border-radius: 0; font-size: .75rem; }
+.mobileHeader { background: #fff; box-shadow: none; backdrop-filter: none; }
+@media (max-width: 40rem) {
+  .shell .content h1 { font-size: 1.5rem; }
+  .sectionNav { padding: .4rem .6rem; gap: 0; }
+  .sectionNav a { padding: .6rem .65rem; font-size: .8rem; }
+  .demoBanner { padding: .55rem 1rem; }
+}

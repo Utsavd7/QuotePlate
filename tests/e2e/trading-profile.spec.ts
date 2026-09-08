@@ -31,22 +31,25 @@ test('supplier confirms trading terms, restaurant sees them after reload, stale 
  try {
   const supplier = await context.newPage();
   await supplier.goto(link);
+  await supplier.locator('summary').filter({hasText:'Your business details (optional)'}).click();
   const form = supplier.getByRole('form', { name: 'Edit trading profile' });
   await expect(form).toBeVisible();
   const initial = await supplier.evaluate(async () => (await fetch('/api/public/supplier-portal')).json()) as SupplierPortalView;
   expect(initial.tradingProfile).toBeNull();
   await form.getByLabel('Wholesale supply').selectOption('yes');
-  await form.getByLabel('Served PINs').fill('411001, 411002');
+  await form.getByLabel('Delivery PIN codes').fill('411001, 411002');
   await form.getByLabel('Minimum order').fill('2500.00');
-  await form.getByLabel('Local order cutoff').fill('16:30');
-  await form.getByLabel('Lead time').fill('1');
+  await form.getByLabel('Order by this time').fill('16:30');
+  await form.getByLabel('Days needed before delivery').fill('1');
   await form.getByLabel('Supplier note').fill('Call before placing a bulk order.');
-  await form.getByRole('button', { name: 'Confirm trading profile' }).click();
+  await form.getByRole('button', { name: 'Save business details' }).click();
   await expect(supplier.getByRole('status')).toContainText('Trading profile confirmed and saved.');
   await supplier.reload();
+  await supplier.locator('summary').filter({hasText:'Your business details (optional)'}).click();
   await expect(form.getByLabel('Minimum order')).toHaveValue('2500.00');
   await page.reload();
   await page.getByRole('combobox', { name: 'Supplier', exact: true }).selectOption(fixture.supplierId);
+  await page.locator('summary').filter({hasText:'Supplier delivery terms'}).click();
   const readView = page.getByRole('region', { name: 'Supplier trading profile' });
   await expect(readView).toContainText('Supplier-declared');
   await expect(readView).toContainText('not verified');
@@ -61,6 +64,7 @@ test('supplier confirms trading terms, restaurant sees them after reload, stale 
   expect(conflict.status).toBe(409);
   expect(conflict.body.detail).toContain('Trading profile changed');
   await supplier.reload();
+  await supplier.locator('summary').filter({hasText:'Your business details (optional)'}).click();
   await expect(form.getByLabel('Wholesale supply')).toHaveValue('yes');
   await expectNoSeriousAxeViolations(supplier);
  } finally { await context.close(); }

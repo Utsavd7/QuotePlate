@@ -158,7 +158,7 @@ export function SupplierApplicationForm({ token }: { token: string }) {
         <p className={styles.eyebrow}>Supplier application</p>
         <h1>Become a supplier.</h1>
         <p>
-          Share what your business supplies. The restaurant will check your details before sending any request.
+          Tell the restaurant what you supply and how to reach you. They will review your details before sending a price request.
         </p>
         <div className={styles.assurance} aria-label="Application facts">
           <span>No account needed</span>
@@ -190,7 +190,7 @@ export function SupplierApplicationForm({ token }: { token: string }) {
             {errors.businessName ? <small>Enter your business name.</small> : null}
           </label>
           <label>
-            <span>Contact person</span>
+            <span>Contact person (optional)</span>
             <input name="contactName" type="text" autoComplete="name" maxLength={120} />
           </label>
           <label>
@@ -203,6 +203,7 @@ export function SupplierApplicationForm({ token }: { token: string }) {
               placeholder="98765 43210"
               aria-invalid={errors.phone || errors.contact || undefined}
             />
+            {errors.phone && <small>Check your phone number, including the country code if needed.</small>}
           </label>
           <label>
             <span>WhatsApp number</span>
@@ -214,6 +215,7 @@ export function SupplierApplicationForm({ token }: { token: string }) {
               placeholder="98765 43210"
               aria-invalid={errors.whatsappNumber || errors.contact || undefined}
             />
+            {errors.whatsappNumber && <small>Check your WhatsApp number, including the country code if needed.</small>}
           </label>
           <label>
             <span>Email address</span>
@@ -226,6 +228,7 @@ export function SupplierApplicationForm({ token }: { token: string }) {
               placeholder="orders@example.com"
               aria-invalid={errors.email || errors.contact || undefined}
             />
+            {errors.email && <small>Enter a complete email address, such as orders@example.com.</small>}
           </label>
         </div>
         <p className={errors.contact ? styles.fieldError : styles.fieldHint}>
@@ -234,13 +237,8 @@ export function SupplierApplicationForm({ token }: { token: string }) {
       </section>
 
       <fieldset className={styles.section} aria-describedby="category-help category-error">
-        <div className={styles.sectionTitle}>
-          <span aria-hidden="true">02</span>
-          <div>
-            <legend>What can you supply?</legend>
-            <p id="category-help">Choose every category your business can supply.</p>
-          </div>
-        </div>
+        <legend className={styles.categoryLegend}>What can you supply?</legend>
+        <p id="category-help" className={styles.fieldHint}>Choose every category your business can supply.</p>
         <div className={styles.categories}>
           {categoryOptions.map(({ key, label }) => (
             <label key={key} className={styles.category}>

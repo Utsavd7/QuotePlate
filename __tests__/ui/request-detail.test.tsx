@@ -1,3 +1,4 @@
+import { parse } from 'node-html-parser';
 import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
@@ -89,28 +90,34 @@ describe('procurement request detail', () => {
     );
 
     expect(html).toContain('Fresh produce · Week 36');
-    expect(html).toContain('Buy ingredients');
-    expect(html).toContain('Buying request');
+    expect(html).toContain('Purchases');
+    expect(html).toContain('Purchase');
     expect(html).toContain('Tomato');
     expect(html).toContain('View food reference');
     expect(html).toContain('https://example.com/tomato-grade-a');
     expect(html).toContain('GreenLeaf Fresh Foods');
     expect(html).toContain('₹83,664.00');
     expect(html).toContain('Viewed');
-    expect(html).toContain('Whole request');
+    expect(html).toContain('One supplier');
     expect(html).toContain('Split by item');
-    expect(html).toContain('full landed total');
+    expect(html).toContain('including GST &amp; freight');
     expect(html).toContain('Refresh quotes');
     expect(html).toContain('Waiting for suppliers');
-    expect(html).toContain('Items you need');
-    expect(html).toContain('Compare supplier prices');
-    expect(html).toContain('Your decision');
-    expect(html).toContain('Record the supplier you choose');
-    expect(html).toContain('QuotePlate shows the prices and terms. Your restaurant makes the final choice.');
+    expect(html).toContain('Requested ingredients');
+    expect(html).toContain('Compare prices');
+    expect(html).toContain('Choose supplier');
+    expect(html).toContain('Your choice is final once saved.');
+    expect(html).toContain('Your choice is final once saved.');
     expect(html).toContain('Download records');
     expect(html).toContain('Request CSV');
     expect(html).toContain('Quote comparison CSV');
     expect(html).not.toContain('Award decision CSV');
+    const document = parse(html);
+    expect(document.querySelector('#purchase-comparison')?.hasAttribute('open')).toBe(true);
+    expect(document.querySelector('#purchase-items')?.hasAttribute('open')).toBe(false);
+    expect(document.querySelector('#request-downloads-heading')?.parentNode?.hasAttribute('open')).toBe(false);
+    expect(html.indexOf('id="purchase-comparison"')).toBeLessThan(html.indexOf('Supplier links &amp; access'));
+    expect(html.indexOf('Supplier links &amp; access')).toBeLessThan(html.indexOf('Download records'));
     expect(html).not.toContain('recommended winner');
     expect(html).not.toContain('>Procurement</button>');
     expect(html).not.toContain('>Procurement request</p>');
@@ -131,7 +138,7 @@ describe('procurement request detail', () => {
       />,
     );
     expect(html).toContain('Edit draft');
-    expect(html).toContain('Open and create links');
+    expect(html).toContain('Create supplier links');
     expect(html).toContain('Not sent');
     expect(html).not.toContain('Private quote link for Shakti Dairy');
   });
@@ -191,6 +198,9 @@ describe('procurement request detail', () => {
     expect(html).toContain('Invoice difference');
     expect(html).toContain('₹36.00 higher');
     expect(html).toContain('Repeat this order');
+    const document = parse(html);
+    expect(document.querySelector('#purchase-comparison')?.hasAttribute('open')).toBe(false);
+    expect(html.indexOf('id="delivery-check-heading"')).toBeLessThan(html.indexOf('Prices &amp; decision history'));
   });
 
   it('offers an accessible QR download only while a fresh supplier link is visible', () => {
@@ -310,7 +320,7 @@ describe('procurement request detail', () => {
         (supplierChoice?.props.onChange as (() => void) | undefined)?.();
         (rationale?.props.onChange as ((event: { target: { value: string } }) => void) | undefined)?.({ target: { value: award.rationale } });
         tree = render();
-        const recordButton = findElement(tree, (element) => element.type === 'button' && textContent(element) === 'Record award');
+        const recordButton = findElement(tree, (element) => element.type === 'button' && textContent(element) === 'Confirm supplier choice');
         expect(recordButton?.props.disabled).toBe(false);
         (recordButton?.props.onClick as (() => void) | undefined)?.();
         await new Promise<void>((resolve) => setImmediate(resolve));
@@ -337,12 +347,12 @@ describe('procurement request detail', () => {
     expect(afterAwardHtml).toContain('Supplier selected');
     expect(afterAwardHtml).toContain('Final decision record');
     expect(finalHtml).toContain('Supplier selected');
-    expect(finalHtml).toContain('Award recorded');
+    expect(finalHtml).toContain('Supplier choice saved');
     expect(finalHtml).toContain('Final decision record');
     expect(finalHtml).toContain('Supplier selection was recorded, but the latest view could not be loaded.');
     expect(finalHtml).not.toContain('Your saved restaurant records are unchanged.');
-    expect(finalHtml).not.toContain('Record the supplier you choose');
-    expect(finalHtml).not.toContain('>Record award</button>');
+    expect(finalHtml).not.toContain('Your choice is final once saved.');
+    expect(finalHtml).not.toContain('>Confirm supplier choice</button>');
     expect(finalHtml).toContain('Award decision CSV');
   });
 });

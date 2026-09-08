@@ -51,3 +51,19 @@
 .workspace table { width: 100%; border-collapse: collapse; font-size: .82rem; text-align: left; }
 .workspace th, .workspace td { padding: 12px 10px; border-bottom: 1px solid #e0e4da; }
 @media (max-width: 600px) { .workspace { padding: 24px 14px 48px; } .panel, .card, .supplierPicker { padding: 18px; } .workspace .ingredient { grid-template-columns: 22px 1fr; } .quantity { grid-column: 2; text-align: left; } .actions button { flex: 1 1 auto; } .cardHeading { flex-direction: column; } }
+
+.workspace { background: transparent; }
+.header { margin-bottom: 1.5rem; }
+.header > p { max-width: 60ch; line-height: 1.6; font-size: .95rem; }
+.supplierPicker { border-radius: .5rem; background: #fff; }
+.panel { background: #fff; border-color: #dce1db; border-radius: .5rem; box-shadow: none; }
+.card { border-color: #dce1db; border-radius: .4rem; box-shadow: none; }
+.secondaryDetails { margin: 1rem 0; border: 1px solid #dce1db; border-radius: .5rem; background: #fff; }
+.secondaryDetails > summary { padding: .8rem 1rem; display: flex; align-items: center; font-weight: 700; color: #285e4d; }
+.secondaryDetails > summary::after { content: '+'; margin-left: auto; }
+.secondaryDetails[open] > summary::after { content: '−'; }
+.secondaryDetails > section { border: 0; margin: 0; }
+.secondaryDetails > :not(summary) { padding: 1rem; }
+.workspace button { font-size: .88rem; border-radius: .4rem; box-shadow: none; }
+.workspace label { text-transform: none; letter-spacing: 0; font-size: .85rem; }
+.hint { font-size: .83rem; line-height: 1.6; }

@@ -4,7 +4,7 @@ import { DeliveryCheckPanel } from '@/components/procurement/DeliveryCheckPanel'
 const supplier = { supplierId: 'a', supplierName: 'Foods', deliveryDate: '2026-09-04', expectedTotalPaise: '1000', check: null, items: [{ requestItemId: 'tomato', itemKey: 'tomato', itemName: 'Tomato', unit: 'KILOGRAM', orderedQuantity: '4', unitRatePaise: '250', gstBasisPoints: 0, taxInclusive: false }] };
 it('renders usable allocated item inputs, cumulative semantics, actual date and settlement fields', () => {
   const html = renderToStaticMarkup(<DeliveryCheckPanel awardId="award" requestId="request" receiving={{ checkedCount: 0, totalCount: 1, complete: false, problemCount: 0, suppliers: [supplier] }} onSaved={() => {}} />);
-  for (const label of ['Cumulative received', 'Cumulative rejected', 'Billed quantity', 'Billed rate', 'Actual delivery date', 'Credit claimed', 'Credit received', 'Settlement notes', 'Tomato', 'Ordered: 4']) expect(html).toContain(label);
+  for (const label of ['Received so far', 'Rejected so far', 'Billed quantity', 'Billed rate', 'Actual delivery date', 'Credit claimed', 'Credit received', 'Settlement notes', 'Tomato', 'Ordered: 4']) expect(html).toContain(label);
   expect(html).toContain('including rejected');
 });
 it('offers an explicit item upgrade for legacy supplier checks', () => {
@@ -46,12 +46,13 @@ it('submits exact cumulative counts and credit amounts and retains invalid edits
   const form = interactiveForm();
   try {
     form.change('Invoice total', '10');
-    form.change('Cumulative received', '3');
-    form.change('Cumulative rejected', '1');
+    form.change('Received so far', '3');
+    form.change('Rejected so far', '1');
     form.change('Credit claimed', '5');
     form.change('Credit received', '6');
     await form.submit();
     expect(workspaceMutationFetch).not.toHaveBeenCalled();
+    expect(elements(form.render()).some(e => e.type === 'details' && e.props.open === true)).toBe(true);
     form.change('Credit received', '2');
     form.change('Actual delivery date', '2026-09-05');
     await form.submit();
@@ -64,7 +65,7 @@ it('keeps entered counts and displays the server conflict on a failed save', asy
   jest.mocked(workspaceMutationFetch).mockReset().mockResolvedValue(new Response(JSON.stringify({ detail: 'Refresh before saving again.' }), { status: 409 }));
   const form = interactiveForm();
   try {
-    form.change('Invoice total', '10'); form.change('Cumulative received', '3');
+    form.change('Invoice total', '10'); form.change('Received so far', '3');
     await form.submit();
     expect(form.onSaved).not.toHaveBeenCalled();
     expect(JSON.stringify(form.render())).toContain('Refresh before saving again.');

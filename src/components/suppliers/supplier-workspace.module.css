@@ -107,11 +107,12 @@
 .row:last-child { border-bottom: 0; }
 .row:hover { background: #fffdf8; }
 .identity { min-width: 0; display: flex; align-items: center; gap: .8rem; }
+.identity > div { min-width: 0; }
 .initial { flex: 0 0 auto; width: 2.55rem; height: 2.55rem; display: grid; place-items: center; color: #713917; background: #efd1bd; font-family: var(--font-display), Georgia, serif; font-size: 1.25rem; }
-.identity h2 { margin: 0; overflow: hidden; color: var(--ink); font-size: .9rem; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.identity h2 { margin: 0; overflow: hidden; color: var(--ink); font-size: .9rem; font-weight: 800; overflow-wrap: anywhere; }
 .identity p, .detail span { margin: .22rem 0 0; color: var(--muted); font-size: .75rem; line-height: 1.35; }
 .detail { min-width: 0; display: grid; gap: .35rem; }
-.detail span { margin: 0; display: flex; align-items: center; gap: .4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.detail span { margin: 0; display: flex; align-items: flex-start; gap: .4rem; overflow-wrap: anywhere; }
 .detail svg { flex: 0 0 auto; width: .8rem; height: .8rem; color: #9f4e27; }
 .activeBadge, .inactiveBadge, .pendingBadge, .rejectedBadge { width: fit-content; display: inline-flex; align-items: center; gap: .35rem; padding: .34rem .52rem; border-radius: 999px; font-size: .7rem; font-weight: 800; }
 .activeBadge { color: #245839; background: #e5f1e8; }
@@ -214,3 +215,27 @@
 .discoveryReview { margin:0 24px 20px; padding:16px; background:#f7f0df; border:1px solid #d7bf8c; border-radius:8px; color:#4c421f; font-size:.875rem; line-height:1.6; }
 .discoveryReview label { display:flex; align-items:flex-start; gap:10px; min-height:44px; cursor:pointer; }
 .discoveryReview input { flex-shrink:0; width:18px; height:18px; margin-top:4px; }
+
+.page { --paper: #fff; --line: #dce1db; padding-top: 1.75rem; }
+.header { margin-bottom: 1.25rem; }
+.header .intro { margin-top: .5rem; font-size: .95rem; }
+.primaryButton { background: #285e4d; border-color: #285e4d; box-shadow: none; border-radius: .45rem; }
+.primaryButton:hover { box-shadow: none; transform: none; }
+.discovery { max-width: 82rem; margin: 0 auto 1.25rem; border: 1px solid var(--line); border-radius: .5rem; background: #fff; }
+.discovery > summary { display: flex; align-items: center; gap: .6rem; padding: .8rem 1rem; min-height: 3.25rem; cursor: pointer; color: #285e4d; font-weight: 700; }
+.discovery > summary::after { content: '+'; margin-left: auto; font-size: 1.2rem; }
+.discovery[open] > summary::after { content: '−'; }
+.discovery > summary svg { width: 1.1rem; height: 1.1rem; }
+.discovery > summary span { color: #515e56; font-size: .8rem; font-weight: 450; }
+.discovery[open] { padding-bottom: 1rem; }
+.discovery > :not(summary) { margin: .75rem 1rem; }
+.toolbar { gap: .65rem; flex-wrap: wrap; }
+.fileTools { position: relative; }
+.fileTools summary { display: flex; align-items: center; padding: .55rem .75rem; min-height: 2.75rem; cursor: pointer; border: 1px solid var(--line); background: #fff; font-size: .85rem; border-radius: .4rem; }
+.fileTools > div { display: flex; flex-wrap: wrap; gap: .5rem; padding: .5rem 0; }
+.listHeader { text-transform: none; letter-spacing: 0; font-size: .8rem; }
+.actions button { width: auto; min-width: 3.5rem; padding: .5rem .75rem; border: 1px solid var(--line); border-radius: .4rem; background: #fff; font-size: .85rem; }
+.privacyDetails { max-width: 82rem; margin: 1rem auto; color: #515e56; font-size: .8rem; }
+.privacyDetails summary { padding: .7rem 0; }
+.privacyDetails p { max-width: 65ch; line-height: 1.6; }
+@media (max-width: 40rem) { .discovery > summary span { display: none; } .toolbar > select { flex: 1; } .fileTools { width: 100%; } }

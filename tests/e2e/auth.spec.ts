@@ -305,7 +305,7 @@ test.describe.serial('local credentials account journey', () => {
     expect(response.status()).toBe(201);
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(
-      page.getByRole('heading', { name: 'What needs your attention today?' }),
+      page.getByRole('heading', { name: 'Today', exact: true }),
     ).toBeVisible();
   });
 

@@ -15,6 +15,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -661,26 +662,34 @@ export function MenuWorkspace({
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Prepare what you need</p>
-          <h1>Menu and ingredients</h1>
+          <h1>Menu</h1>
           <p className={styles.intro}>
-            Add dishes, check their ingredients, and prepare them for a buying request.
+            Add your menu, check ingredients, then approve it for planning.
           </p>
         </div>
-        <button className={styles.primaryButton} type="button" onClick={openCreate}>
-          <Plus aria-hidden="true" /> Add menu
-        </button>
+        <div className={styles.headerActions}>
+          {menus.some((menu) => menu.status === 'APPROVED') && (
+            <Link className={styles.secondaryButton} href="/service-planning">Plan meals &amp; portions</Link>
+          )}
+          <button className={styles.primaryButton} type="button" onClick={openCreate}>
+            <Plus aria-hidden="true" /> Add menu
+          </button>
+        </div>
       </header>
 
       <aside className={styles.explainer}>
-        <span><strong>1</strong> Paste dish names</span>
+        <span><strong>1</strong> Add menu</span>
         <ArrowRight aria-hidden="true" />
-        <span><strong>2</strong> Add ingredients and quantities</span>
+        <span><strong>2</strong> Check ingredients</span>
         <ArrowRight aria-hidden="true" />
-        <span><strong>3</strong> Approve when checked</span>
-        <small className={styles.privacyReassurance}>
-          Your recipes and menus stay private to your restaurant. Other restaurants cannot see your records. Suppliers see requests you send, their own orders and delivery checks, and ingredient estimates you explicitly share. Other suppliers’ prices remain private.
-        </small>
+        <span><strong>3</strong> Approve menu</span>
       </aside>
+      <details className={styles.privacyReassurance}>
+        <summary>Who can see your menu?</summary>
+        <p>
+          Your recipes and menus stay private to your restaurant. Other restaurants cannot see your records. Suppliers see requests you send, their own orders and delivery checks, and ingredient estimates you explicitly share. Other suppliers’ prices remain private.
+        </p>
+      </details>
 
       {error && (
         <div className={styles.error} role="alert">
@@ -697,7 +706,7 @@ export function MenuWorkspace({
           <div className={styles.emptyMark}><BookOpen aria-hidden="true" /></div>
           <p className={styles.eyebrow}>Your first step</p>
           <h2>Add your restaurant menu</h2>
-          <p>Paste one dish per line. Then check every ingredient and quantity before approval.</p>
+          <p>Paste one dish per line, upload photos, or use your phone. Check ingredients before approval.</p>
           <button className={styles.primaryButton} type="button" onClick={openCreate}>
             <Plus aria-hidden="true" /> Add menu
           </button>
@@ -721,7 +730,7 @@ export function MenuWorkspace({
               <strong>{menu.name}</strong>
               <span className={styles.cardMeta}>
                 {menu.status === 'APPROVED'
-                  ? 'Ready to use in a request'
+                  ? 'Approved · ready for meal planning'
                   : 'Open and check the ingredient list'}
               </span>
               <span className={styles.cardBottom}>

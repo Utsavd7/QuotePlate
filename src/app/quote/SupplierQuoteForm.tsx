@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type { PreviousQuotePrices } from '@/lib/quotes/previous-prices';
 import type { ItemSpecificationV1 } from '@/lib/domain/item-specification';
 import { formatInr } from '@/lib/domain/money';
@@ -8,6 +8,7 @@ import type { ProcurementUnit } from '@/lib/domain/quantity';
 import { formatScaledDecimal } from '@/lib/domain/validation';
 
 import styles from './quote-access.module.css';
+import { QuoteReviewError, reviewQuote } from './quote-review';
 
 type PublicQuoteLineDto = {
   requestItemId: string;
@@ -143,10 +144,23 @@ export function SupplierQuoteForm({
   const formRef = useRef<HTMLFormElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [review, setReview] = useState<ReturnType<typeof reviewQuote> | null>(null);
+  const [error, setError] = useState('');
+  const reviewHeading = useRef<HTMLHeadingElement>(null);
+  const errorMessage = useRef<HTMLParagraphElement>(null);
+  useEffect(() => { if (review) reviewHeading.current?.focus(); }, [review]);
+  useEffect(() => {
+    if (error) {
+      formRef.current?.querySelectorAll('details').forEach(details => { details.open = true; });
+      errorMessage.current?.focus();
+    }
+  }, [error]);
 
   function reusePreviousPrices() {
     const form = formRef.current;
     if (!form || request.latestQuote || submitting) return;
+    setReview(null);
+    setError('');
     let filled = 0;
     for (const previous of request.previousPrices?.items ?? []) {
       const rate = form.elements.namedItem(`rate:${previous.requestItemId}`);
@@ -160,15 +174,28 @@ export function SupplierQuoteForm({
       filled += 1;
     }
     setMessage(filled
-      ? `Previous prices filled for ${filled} item${filled === 1 ? '' : 's'}. Review prices, GST, availability and terms before submitting.`
+      ? `Previous prices filled for ${filled} item${filled === 1 ? '' : 's'}. Check prices, GST and availability before sending.`
       : 'No blank eligible price rows to fill. Your entries were kept.');
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting) return;
+    const form = new FormData(event.currentTarget);
+    setError('');
+    if (!review) {
+      try { setReview(reviewQuote(form, request)); setMessage(''); }
+      catch (problem) {
+        setError(problem instanceof Error ? problem.message : 'Check your prices and delivery charge, then try again.');
+        if (problem instanceof QuoteReviewError) {
+          const field = event.currentTarget.elements.namedItem(problem.field);
+          if (field instanceof HTMLElement) field.focus();
+        }
+      }
+      return;
+    }
     setSubmitting(true);
     setMessage('');
-    const form = new FormData(event.currentTarget);
     const items = request.items.map((item) => {
       if (form.get(`noQuote:${item.id}`) === 'on') {
         return { requestItemId: item.id, noQuote: true };
@@ -213,17 +240,19 @@ export function SupplierQuoteForm({
         | null;
       if (response.status === 409) {
         await onRefresh();
-        setMessage('A newer quote was loaded. Check it and submit again.');
+        setReview(null);
+        setError('A newer quote was saved. Your entries are still here. Check the last sent total and review your entries before sending an update.');
         return;
       }
       if (!response.ok || !body || !('revision' in body)) {
-        setMessage(firstProblem(body));
+        setError(firstProblem(body));
         return;
       }
       onSaved(body as PublicQuoteDto);
-      setMessage(`Revision ${body.revision} submitted successfully.`);
+      setReview(null);
+      setMessage(`Quote sent. Version ${body.revision} is saved with the restaurant.`);
     } catch {
-      setMessage('Unable to submit right now. Check your connection and try again.');
+      setError('Unable to send right now. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -233,7 +262,8 @@ export function SupplierQuoteForm({
   const instructions = deliveryInstructions(request.deliveryDetails);
 
   return (
-    <form ref={formRef} className={styles.quoteForm} onSubmit={submit} aria-busy={submitting}>
+    <form ref={formRef} className={styles.quoteForm} onSubmit={submit} onChange={() => { setReview(null); setError(''); }} aria-busy={submitting}>
+      <fieldset className={styles.formFields} disabled={submitting}>
       <section className={styles.requestSummary} aria-labelledby="request-title">
         <div>
           <p className={styles.eyebrow}>Request from {request.restaurantName}</p>
@@ -264,16 +294,22 @@ export function SupplierQuoteForm({
 
       {latest ? (
         <div className={styles.latestBanner}>
-          <span>Last submitted: revision {latest.revision}</span>
+          <span>Last sent: version {latest.revision}</span>
           <strong>{formatInr(BigInt(latest.totalPaise))}</strong>
         </div>
       ) : null}
+
+      <ol className={styles.steps} aria-label="Quote steps">
+        <li aria-current={!review ? 'step' : undefined}>1. Enter prices</li>
+        <li aria-current={review ? 'step' : undefined}>2. Review delivery &amp; total</li>
+        <li>3. Send quote</li>
+      </ol>
 
       <section className={styles.itemsSection} aria-labelledby="items-heading">
         <div className={styles.sectionHeading}>
           <div>
             <p className={styles.sectionNumber}>01</p>
-            <h2 id="items-heading">Items and prices</h2>
+            <h2 id="items-heading">Enter your prices</h2>
           </div>
           <p>Enter the price for the same unit shown in each row.</p>
         </div>
@@ -282,8 +318,7 @@ export function SupplierQuoteForm({
           <div className={styles.latestBanner}>
             <div>
               <p>Previous quote: {dateTime(request.previousPrices.submittedAt)}</p>
-              <p>Reuse matching prices and GST in blank price rows. Confirm today’s availability,
-                delivery, freight and payment terms before submitting.</p>
+              <p>Fill blank prices and GST from your last quote. Check today’s quantities and delivery charge.</p>
             </div>
             <button className={styles.reuseButton} type="button" onClick={reusePreviousPrices} disabled={submitting}>
               Use previous prices
@@ -330,7 +365,7 @@ export function SupplierQuoteForm({
                 </header>
                 <div className={styles.lineFields}>
                   <label>
-                    Available quantity
+                    Quantity you can supply
                     <input
                       name={`quantity:${item.id}`}
                       inputMode="decimal"
@@ -372,8 +407,10 @@ export function SupplierQuoteForm({
                     />
                     GST is included
                   </label>
-                  <label className={styles.substitutionField}>
-                    Substitution or pack note (optional)
+                  <details className={styles.substitutionField} open={latestLine?.substitution ? true : undefined}>
+                    <summary>Different item or pack? Add a note (optional)</summary>
+                  <label>
+                    Item or pack note
                     <input
                       name={`substitution:${item.id}`}
                       maxLength={500}
@@ -381,6 +418,7 @@ export function SupplierQuoteForm({
                       disabled={disabled}
                     />
                   </label>
+                  </details>
                 </div>
               </article>
             );
@@ -392,7 +430,7 @@ export function SupplierQuoteForm({
         <div className={styles.sectionHeading}>
           <div>
             <p className={styles.sectionNumber}>02</p>
-            <h2 id="commercial-heading">Delivery and terms</h2>
+            <h2 id="commercial-heading">Check delivery</h2>
           </div>
         </div>
         <div className={styles.commercialGrid}>
@@ -415,7 +453,7 @@ export function SupplierQuoteForm({
             />
           </label>
           <label>
-            Freight / delivery charge
+            Delivery charge
             <span className={styles.moneyInput}>
               <span aria-hidden="true">₹</span>
               <input
@@ -427,29 +465,55 @@ export function SupplierQuoteForm({
             </span>
           </label>
           <label className={styles.wideField}>
-            Payment and commercial terms
+            Payment terms
             <textarea
               name="commercialTerms"
               maxLength={2_000}
               defaultValue={latest?.commercialTerms ?? request.commercialTerms ?? ''}
             />
           </label>
-          <label className={styles.wideField}>
-            Note to the restaurant (optional)
+          <details className={styles.wideField} open={latest?.notes ? true : undefined}>
+            <summary>Add a note to the restaurant (optional)</summary>
+          <label>
+            Note to the restaurant
             <textarea name="notes" maxLength={4_000} defaultValue={latest?.notes ?? ''} />
           </label>
+          </details>
         </div>
       </section>
 
+      {review && <section className={styles.review} aria-labelledby="review-heading">
+        <h2 id="review-heading" ref={reviewHeading} tabIndex={-1}>Review your quote</h2>
+        <p>Check what you can supply and the total before sending to {request.restaurantName}.</p>
+        <ul className={styles.reviewItems}>{review.items.map((item, index) => <li key={request.items[index].id}>
+          <span><strong>{item.name}</strong><small>{item.quantity ?? 'Cannot supply this item'}</small></span>
+          <strong>{item.quantity ? formatInr(item.total) : 'No quote'}</strong>
+        </li>)}</ul>
+        <dl className={styles.reviewTotals}>
+          <div><dt>Items before GST</dt><dd>{formatInr(review.subtotal)}</dd></div>
+          <div><dt>GST</dt><dd>{formatInr(review.gst)}</dd></div>
+          <div><dt>Delivery charge</dt><dd>{formatInr(review.freight)}</dd></div>
+          <div className={styles.grandTotal}><dt>Total to restaurant</dt><dd>{formatInr(review.total)}</dd></div>
+          <div><dt>Delivery date</dt><dd>{review.deliveryDate}</dd></div>
+          <div><dt>Prices valid until</dt><dd>{review.validUntil}</dd></div>
+        </dl>
+        {review.commercialTerms && <p><strong>Payment terms:</strong> {review.commercialTerms}</p>}
+        {request.latestQuote?.minimumOrder && <p><strong>Minimum order:</strong> {request.latestQuote.minimumOrder}</p>}
+        {review.notes && <p><strong>Note to the restaurant:</strong> {review.notes}</p>}
+        <button type="button" className={styles.reuseButton} onClick={() => {
+          setReview(null);
+          formRef.current?.querySelector<HTMLInputElement>('input:not(:disabled)')?.focus();
+        }}>Edit prices or delivery</button>
+      </section>}
+      {error && <p className={styles.error} role="alert" ref={errorMessage} tabIndex={-1}>{error}</p>}
+      {message && <p className={styles.notice} role="status">{message}</p>}
       <footer className={styles.submitBar}>
-        <div>
-          <p>Quote totals are calculated and checked by QuotePlate.</p>
-          <div role="status" aria-live="polite">{message}</div>
-        </div>
+        <p>{review ? 'Ready? Send this quote to the restaurant.' : 'Review the total before sending your prices.'}</p>
         <button type="submit" disabled={submitting}>
-          {submitting ? 'Submitting…' : latest ? 'Submit new revision' : 'Submit quote'}
+          {submitting ? 'Sending…' : review ? latest ? 'Send updated quote' : 'Send quote' : 'Review delivery & total'}
         </button>
       </footer>
+      </fieldset>
     </form>
   );
 }
