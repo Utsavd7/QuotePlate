@@ -90,9 +90,10 @@ test('scrubs the link, loads the real quote form, and submits a server-calculate
   await page.locator('input[name="gst:paneer"]').fill('5');
   await page.locator('input[name="inclusive:paneer"]').check();
   await page.locator('input[name="freightInr"]').fill('450');
-  await page.getByRole('button', { name: 'Submit quote' }).click();
+  await page.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
+  await page.getByRole('button', { name: /^Send (updated )?quote$/, exact: true }).click();
 
-  await expect(page.getByText('Revision 1 submitted successfully.')).toBeVisible();
+  await expect(page.getByText('Quote sent. Version 1 is saved with the restaurant.')).toBeVisible();
   expect(submitted).toEqual(
     expect.objectContaining({
       expectedLatestRevision: 0,
@@ -153,8 +154,9 @@ test('previous prices require a click, preserve current inputs, and use normal s
   await rate.fill('43');
   await page.getByRole('button', { name: 'Use previous prices' }).click();
   await expect(rate).toHaveValue('43');
-  await page.getByRole('button', { name: 'Submit quote', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Check current availability.');
+  await page.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
+  await page.getByRole('button', { name: /^Send (updated )?quote$/, exact: true }).click();
+  await expect(page.getByRole('alert').filter({hasText: 'Check current availability.'})).toBeVisible();
   expect(posts).toHaveLength(1);
   expect(posts[0]).toMatchObject({ expectedLatestRevision: 0, freightInr: '17', commercialTerms: 'Current payment terms', items: [
     expect.objectContaining({ requestItemId: 'tomato', availableQuantity: '7', unitRateInr: '43', gstPercent: '5', taxInclusive: true }),
@@ -211,14 +213,16 @@ test('real awarded request repeats with private historical prices and saves only
     await supplierPage.locator(`[name="inclusive:${fixture.itemId}"]`).check();
     await supplierPage.locator('[name="freightInr"]').fill('99');
     await supplierPage.locator('[name="commercialTerms"]').fill('Old quote payment terms');
-    await supplierPage.getByRole('button', { name: 'Submit quote', exact: true }).click();
-    await expect(supplierPage.getByText('Revision 1 submitted successfully.')).toBeVisible();
+    await supplierPage.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
+    await supplierPage.getByRole('button', { name: /^Send (updated )?quote$/, exact: true }).click();
+    await expect(supplierPage.getByText('Quote sent. Version 1 is saved with the restaurant.')).toBeVisible();
     await page.getByRole('button', { name: 'Refresh quotes' }).click();
     await page.getByRole('radio', { name: new RegExp(fixture.supplierName) }).check();
     await page.getByLabel(/Reason for this decision/).fill('Confirmed this offer for the repeat quote workflow.');
     page.once('dialog', dialog => dialog.accept());
-    await page.getByRole('button', { name: 'Record award' }).click();
-    await expect(page.getByText('Award decision CSV')).toBeVisible();
+    await page.getByRole('button', { name: 'Confirm supplier choice' }).click();
+    await page.locator('summary').filter({hasText:'Download records & purchase orders'}).click();
+  await expect(page.getByText('Award decision CSV')).toBeVisible();
     const sourceResponse = await page.request.get(`/api/requests/${fixture.requestId}`);
     expect(sourceResponse.status()).toBe(200);
     const source = (await sourceResponse.json()).request;
@@ -267,8 +271,9 @@ test('real awarded request repeats with private historical prices and saves only
     const afterClick = await readCurrentQuote();
     expect(afterClick.status, JSON.stringify(afterClick.body)).toBe(200);
     expect(afterClick.body.latestQuote).toBeNull();
-    await supplierPage.getByRole('button', { name: 'Submit quote', exact: true }).click();
-    await expect(supplierPage.getByText('Revision 1 submitted successfully.')).toBeVisible();
+    await supplierPage.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
+    await supplierPage.getByRole('button', { name: /^Send (updated )?quote$/, exact: true }).click();
+    await expect(supplierPage.getByText('Quote sent. Version 1 is saved with the restaurant.')).toBeVisible();
     await supplierPage.reload();
     await expect(rate).toHaveValue('42.75');
     await expect(supplierPage.getByRole('button', { name: 'Use previous prices' })).toHaveCount(0);

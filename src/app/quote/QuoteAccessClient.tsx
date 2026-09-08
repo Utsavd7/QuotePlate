@@ -100,12 +100,12 @@ export function QuoteAccessClient() {
     <section className={styles.card} aria-labelledby="quote-access-heading">
       <div className={styles.rule} aria-hidden="true" />
       <p className={styles.eyebrow}>Supplier request</p>
-      <h1 id="quote-access-heading">Send your quote securely.</h1>
+      <h1 id="quote-access-heading">Send your prices.</h1>
       <p className={styles.intro}>
-        You do not need an account. Open the restaurant’s request, check the items and submit your prices.
+        No account needed. Enter your prices, check the total, then send your quote.
       </p>
       <p className={styles.intro}>
-        This link opens only this restaurant request. The restaurant can replace or revoke it.
+        This link opens only this restaurant request. The restaurant can replace or close it.
       </p>
       <div className={styles.status} role="status" aria-live="polite">
         <span className={styles.indicator} aria-hidden="true" />

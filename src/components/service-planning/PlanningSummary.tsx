@@ -1,78 +1,57 @@
 import type { computePlan } from '@/lib/service-planning/planning';
+
 export function PlanningSummary({
-  readiness
+  readiness,
 }: {
   readiness: ReturnType<typeof computePlan>;
 }) {
   return <section aria-label="Service readiness">
-    <h2>{readiness.ready ? 'Ready for service' : 'Needs attention'}</h2>
+    <h2>3. Review missing ingredients</h2>
+    <h3>{readiness.ready ? 'Ready for service' : 'Needs attention'}</h3>
+    {readiness.warnings.map((warning, index) => <p role="status" key={index}>{warning}</p>)}
 
-    <p>{readiness.allocationPolicy}</p>
-
-    {readiness.warnings.map((w, i) => <p role="status" key={i}>{w}</p>)}
-
-    <div role="region" aria-label="Shared ingredient requirements" tabIndex={0} style={{
-      overflowX: 'auto'
-    }}>
+    <div role="region" aria-label="Shared ingredient requirements" tabIndex={0} style={{ overflowX: 'auto' }}>
       <table>
-        <caption>Shared ingredient requirements</caption>
-
+        <caption>Ingredients to check before buying</caption>
         <thead>
           <tr>
-            <th>Ingredient</th>
-
-            <th>Required usable</th>
-
-            <th>Usable by service</th>
-
-            <th>Usable shortage</th>
-
-            <th>Purchase required</th>
-
-            <th>Evidence</th>
+            <th scope="col">Ingredient</th>
+            <th scope="col">To buy</th>
+            <th scope="col">Stock &amp; calculation</th>
           </tr>
         </thead>
-
         <tbody>
-          {readiness.ingredients.map((i, n) => <tr key={n}>
-            <th>
-              {i.name}
-
-              {i.blocked ? ' — review required' : ''}
-
-              <small>{i.unit}</small>
+          {readiness.ingredients.map((ingredient, index) => <tr key={index}>
+            <th scope="row">
+              {ingredient.name}
+              {ingredient.blocked ? ' — review required' : ''}
+              <small>{ingredient.unit}</small>
             </th>
-
+            <td>{ingredient.blocked ? 'Review required' : `${ingredient.deficit} ${ingredient.unit}`}</td>
             <td>
-              {i.required}
-            </td>
-
-            <td>
-              {i.available}
-            </td>
-
-            <td>
-              {i.usableDeficit}
-            </td>
-
-            <td>
-              {i.blocked ? 'Review required' : i.deficit}
-            </td>
-
-            <td>
-              {i.evidence.map((e, j) => <p key={j}>{e}</p>)}
+              <details open={ingredient.blocked}>
+                <summary>Details · {ingredient.name}</summary>
+                <p>Required usable: {ingredient.required} {ingredient.unit}</p>
+                <p>Usable by service: {ingredient.available} {ingredient.unit}</p>
+                <p>Usable shortage: {ingredient.usableDeficit} {ingredient.unit}</p>
+                {ingredient.evidence.map((evidence, evidenceIndex) => <p key={evidenceIndex}>{evidence}</p>)}
+              </details>
             </td>
           </tr>)}
         </tbody>
       </table>
     </div>
 
-    <h3>Dish readiness</h3>
-
-    {readiness.dishes.map(d => <details key={d.dishId}>
-      <summary>{d.name} · {d.portions} portions · {d.ready ? 'Ready' : 'Needs attention'}</summary>
-
-      {d.evidence.map((e, i) => <p key={i}>{e}</p>)}
-    </details>)}
+    <details>
+      <summary>How quantities are calculated</summary>
+      <p>{readiness.allocationPolicy}</p>
+    </details>
+    <details>
+      <summary>Dish readiness</summary>
+      {readiness.dishes.map(dish => <details key={dish.dishId}>
+        <summary>{dish.name} · {dish.portions} portions · {dish.ready ? 'Ready' : 'Needs attention'}</summary>
+        {dish.evidence.map((evidence, index) => <p key={index}>{evidence}</p>)}
+      </details>)}
+    </details>
   </section>;
 }

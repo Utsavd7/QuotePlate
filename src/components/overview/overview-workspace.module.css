@@ -211,3 +211,24 @@
   .awardList > a { transition: none; }
   .loadingHeader span, .loadingCards span, .loadingPanels span { animation: none; }
 }
+
+.page { --paper: #fff; --line: #dce1db; --overview-paper: #fff; --overview-line: #dce1db; }
+.header { margin-bottom: 1rem; }
+.primaryAction { background: #285e4d; border-color: #285e4d; border-radius: .45rem; box-shadow: none; }
+.primaryAction:hover { transform: none; box-shadow: none; }
+.secondaryAction { border-radius: .45rem; box-shadow: none; font-size: .85rem; }
+.metricGrid { gap: 0; margin-top: 1.25rem; border: 1px solid var(--line); border-radius: .5rem; overflow: hidden; }
+.metricCard { min-height: 7rem; padding: 1rem; border: 0; border-right: 1px solid var(--line); box-shadow: none; }
+.metricCard:last-child { border-right: 0; }
+.metricCard strong { font-family: var(--font-ui); font-size: 1.65rem; }
+.metricIcon, .cardArrow { display: none; }
+.metricLabel { font-size: .84rem; text-transform: none; letter-spacing: 0; }
+.metricCard small { font-size: .78rem; }
+.workflow { background: transparent; border: 0; padding: 1rem 0; color: var(--overview-ink); }
+.workflow li { border-color: var(--line); }
+.workflow li span { color: var(--overview-muted); font-size: .84rem; }
+.workflow > a { color: #285e4d; font-size: .84rem; }
+.panel { border-radius: .5rem; box-shadow: none; background: #fff; }
+.panel > header { background: #fff; }
+.deliveryAttention { border-radius: .5rem; margin-top: 1.25rem; background: #fff; }
+@media (max-width: 44rem) { .metricGrid { grid-template-columns: repeat(2,minmax(0,1fr)); } .metricCard { min-height: 7rem; border-bottom: 1px solid var(--line); } .metricCard:nth-child(2n) { border-right: 0; } .metricCard:nth-child(n+3) { border-bottom: 0; } }

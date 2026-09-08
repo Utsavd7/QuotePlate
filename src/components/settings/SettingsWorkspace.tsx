@@ -598,15 +598,14 @@ export function SettingsWorkspace({ initialData }: { initialData?: WorkspaceSett
     <main className={styles.page}>
       <header className={styles.pageHeader}>
         <div>
-          <p className={styles.eyebrow}>Your restaurant</p>
           <h1>Restaurant settings</h1>
-          <span>Update restaurant details, team access, and workspace preferences.</span>
+          <span>Manage your restaurant details and who can use this account.</span>
         </div>
         <div className={styles.currentAccess}>
           <ShieldCheck aria-hidden="true" />
           <span>
             <small>Your access</small>
-            <strong>{data.currentUser.role === 'OWNER' ? 'Workspace owner' : 'Workspace member'}</strong>
+            <strong>{data.currentUser.role === 'OWNER' ? 'Owner' : 'Team member'}</strong>
             <em>Your account email belongs to you, not the shared restaurant profile.</em>
           </span>
         </div>
@@ -627,11 +626,12 @@ export function SettingsWorkspace({ initialData }: { initialData?: WorkspaceSett
         />
       )}
 
+      <nav className={styles.sectionLinks} aria-label="Settings sections"><a href="#restaurant-details">Restaurant details</a><a href="#team-access">Team & access</a></nav>
       <div className={styles.settingsGrid}>
-        <section className={styles.panel}>
+        <section className={styles.panel} id="restaurant-details">
           <header className={styles.panelHeader}>
             <span className={styles.panelIcon}><Building2 aria-hidden="true" /></span>
-            <div><p>Restaurant profile</p><h2>Details used on requests and purchase orders</h2></div>
+            <div><p>Restaurant profile</p><h2>Restaurant details</h2></div>
           </header>
           <form onSubmit={save}>
             <div className={styles.formGrid}>
@@ -680,7 +680,7 @@ export function SettingsWorkspace({ initialData }: { initialData?: WorkspaceSett
           </form>
         </section>
 
-        <section className={styles.panel}>
+        <section className={styles.panel} id="team-access">
           <header className={styles.panelHeader}>
             <span className={styles.panelIcon}><Users aria-hidden="true" /></span>
             <div><p>People and access</p><h2>{data.members.length} active {data.members.length === 1 ? 'person' : 'people'}</h2></div>

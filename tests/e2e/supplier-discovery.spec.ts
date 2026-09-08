@@ -28,7 +28,8 @@ test('finds external suppliers only on request and returns to the private suppli
   await page.goto('/suppliers');
   await expect(page.getByRole('heading', { name: 'Suppliers', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Add your first supplier' })).toBeVisible();
-  const panel = page.locator('details').filter({ has: page.locator('summary', { hasText: 'Search other websites' }) });
+  await page.locator('summary').filter({ hasText: 'Find nearby suppliers' }).click();
+  const panel = page.locator('details').filter({ has: page.locator(':scope > summary', { hasText: 'Search other websites' }) });
   await expect(panel).not.toHaveAttribute('open', '');
   const summary = panel.locator('summary');
   await summary.focus();

@@ -89,13 +89,13 @@ describe('reporting workspaces', () => {
       historyGuidance: [{ itemKey: 'tomato', itemName: 'Tomato', unit: 'KILOGRAM', lastOrderedQuantity: '90', lastOrderedAt: '2026-08-20T10:00:00.000Z', lastSupplierNames: ['GreenLeaf'], seasonalNotice: null, unusualQuantityNotice: 'Quantity check: this is more than twice recent orders.' }],
       notes: ['Observed ranges compare submitted quotes; they are not savings claims or automatic recommendations.'],
     }} />);
-    expect(html).toContain('Savings and prices');
-    expect(html).toContain('See supplier response, submitted price differences, and facts from previous buying.');
+    expect(html).toContain('Reports');
+    expect(html).toContain('Compare supplier prices and review your spending.');
     expect(html).toContain('75%');
     expect(html).toContain('₹45,260.00');
     expect(html).toContain('₹42.00');
     expect(html).toContain('range, not savings');
-    expect(html).toContain('Previous buying guidance');
+    expect(html).toContain('Your previous purchases');
     expect(html).toContain('Last ordered 90 kg');
     expect(html).toContain('GreenLeaf');
     expect(html).toContain('Quantity check');
@@ -134,7 +134,7 @@ describe('reporting workspaces', () => {
   });
 
   it('uses the approved reporting page titles', () => {
-    expect(insightsMetadata.title).toBe('Savings and prices');
+    expect(insightsMetadata.title).toBe('Reports');
     expect(historyMetadata.title).toBe('Past purchases');
   });
 

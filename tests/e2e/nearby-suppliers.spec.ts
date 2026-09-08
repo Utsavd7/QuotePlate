@@ -23,6 +23,7 @@ test('nearby lead requires explicit restaurant verification before saving', asyn
   return route.fulfill({json:data.centerId?{center,category:'produce',radius:2,results:[source],limited:false}:{centers:[center]}});
  });
  await page.goto('/suppliers');
+ await page.locator('summary').filter({hasText:'Find nearby suppliers'}).click();
  await expect(page.getByLabel('Restaurant area in India')).toHaveValue(/Pune/);
  expect(externalSearches).toBe(0);
  await page.getByRole('button',{name:'Find my area',exact:true}).click();

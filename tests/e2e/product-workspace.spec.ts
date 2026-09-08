@@ -265,10 +265,10 @@ test('uses the approved QuotePlate product shell and exposes every core workspac
   });
   await expect(workspaceNavigation).toBeVisible();
   await expect(page.getByRole('link', { name: 'QuotePlate home' }).first()).toBeVisible();
-  for (const label of ['Home', 'Buy ingredients', 'Menu and ingredients', 'Suppliers', 'Savings and prices', 'Past purchases', 'Restaurant settings']) {
+  for (const label of ['Today', 'Purchases', 'Suppliers', 'Menu', 'Reports']) {
     await expect(workspaceNavigation.getByRole('link', { name: label })).toBeVisible();
   }
-  await expect(page.getByRole('complementary').getByRole('link', { name: 'Ask suppliers for prices' })).toHaveAttribute(
+  await expect(page.getByRole('complementary').getByRole('link', { name: 'New purchase', exact: true })).toHaveAttribute(
     'href',
     '/procurement/new',
   );
@@ -380,6 +380,10 @@ test('runs the real launch workflow from reviewed menu to recorded award', async
   await page.getByLabel('Tomato quantity').fill('100');
   await page.getByLabel('Tomato unit').selectOption('KILOGRAM');
   await page.getByLabel('Tomato category').selectOption('VEGETABLES');
+  await page.locator('summary').filter({hasText: 'Food photo or product link, optional'}).click();
+  await page.getByLabel('Tomato food reference link').fill('https://example.com/tomato');
+  await page.getByLabel('Tomato food reference link').fill('');
+  await expect(page.getByLabel('Tomato food reference link')).toBeVisible();
   page.once('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', { name: 'Approve menu' }).first().click();
   await expect(page.getByText(/Approved · v\d+/).first()).toBeVisible();
@@ -410,6 +414,10 @@ test('runs the real launch workflow from reviewed menu to recorded award', async
   await page.getByLabel(/Delivery date/).fill('2099-09-10');
   await page.getByLabel(/Quote deadline/).fill('2099-09-09T10:00');
   await page.getByLabel('Delivery instructions').fill('Use the service entrance before 8:00 AM.');
+  await page.locator('summary').filter({hasText:'Payment and order terms (optional)'}).click();
+  await page.getByLabel('Terms or notes').fill('Temporary terms');
+  await page.getByLabel('Terms or notes').fill('');
+  await expect(page.getByLabel('Terms or notes')).toBeVisible();
   await page.getByLabel('Terms or notes').fill('Payment within 15 days of accepted delivery.');
   await page.getByRole('button', { name: 'Save draft' }).click();
   await expect(page).toHaveURL(/\/procurement\/[^/]+$/);
@@ -424,7 +432,7 @@ test('runs the real launch workflow from reviewed menu to recorded award', async
   await expect(page.getByRole('button', { name: 'Edit draft' })).toBeVisible();
 
   page.once('dialog', (dialog) => dialog.accept());
-  await page.getByRole('button', { name: 'Open and create links' }).click();
+  await page.getByRole('button', { name: 'Create supplier links' }).click();
   await expect(page.getByText('Waiting for supplier quotes')).toBeVisible();
   await expectNoSeriousAxeViolations(page);
   const supplierLink = await page.locator('code').filter({ hasText: '/quote#token=' }).textContent();
@@ -441,8 +449,9 @@ test('runs the real launch workflow from reviewed menu to recorded award', async
     await supplierPage.locator('input[name^="gst:"]').fill('5');
     await supplierPage.locator('input[name="freightInr"]').fill('500');
     await supplierPage.locator('textarea[name="commercialTerms"]').fill('Payment in 15 days.');
-    await supplierPage.getByRole('button', { name: 'Submit quote' }).click();
-    await expect(supplierPage.getByText('Revision 1 submitted successfully.')).toBeVisible();
+    await supplierPage.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
+    await supplierPage.getByRole('button', { name: /^Send (updated )?quote$/, exact: true }).click();
+    await expect(supplierPage.getByText('Quote sent. Version 1 is saved with the restaurant.')).toBeVisible();
   } finally {
     await supplierContext.close();
   }
@@ -454,8 +463,9 @@ test('runs the real launch workflow from reviewed menu to recorded award', async
     'Complete order at the best checked landed total with delivery on the requested date.',
   );
   page.once('dialog', (dialog) => dialog.accept());
-  await page.getByRole('button', { name: 'Record award' }).click();
+  await page.getByRole('button', { name: 'Confirm supplier choice' }).click();
   await expect(page.getByText('Award recorded. The request and winning prices are now locked.')).toBeVisible();
+  await page.locator('summary').filter({hasText:'Download records & purchase orders'}).click();
   await expect(page.getByText('Award decision CSV')).toBeVisible();
 });
 
@@ -521,8 +531,9 @@ test('runs the real owner-to-supplier journey and downloads every private record
     await supplierPage.locator(`input[name="gst:${fixture.itemId}"]`).fill('5');
     await supplierPage.locator('input[name="freightInr"]').fill('500');
     await supplierPage.locator('textarea[name="commercialTerms"]').fill('Payment in 15 days.');
-    await supplierPage.getByRole('button', { name: 'Submit quote' }).click();
-    await expect(supplierPage.getByText('Revision 1 submitted successfully.')).toBeVisible();
+    await supplierPage.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
+    await supplierPage.getByRole('button', { name: /^Send (updated )?quote$/, exact: true }).click();
+    await expect(supplierPage.getByText('Quote sent. Version 1 is saved with the restaurant.')).toBeVisible();
   } finally {
     await supplierContext.close();
   }
@@ -530,19 +541,22 @@ test('runs the real owner-to-supplier journey and downloads every private record
   await page.getByRole('button', { name: 'Refresh quotes' }).click();
   await expect(page.getByText(fixture.supplierName).first()).toBeVisible();
 
+  await page.locator('summary').filter({hasText:'Download records & purchase orders'}).click();
   const requestCsv = await downloadedBytes(page, /Request CSV/);
   expect(requestCsv.download.suggestedFilename()).toMatch(/-request\.csv$/);
   expect(requestCsv.bytes.toString('utf8')).toContain(fixture.itemName);
   const quoteCsv = await downloadedBytes(page, /Quote comparison CSV/);
   expect(quoteCsv.download.suggestedFilename()).toMatch(/-quotes\.csv$/);
   expect(quoteCsv.bytes.toString('utf8')).toContain(fixture.supplierName);
+  await page.locator('summary').filter({hasText:'Download records & purchase orders'}).click();
 
   await page.getByRole('radio', { name: new RegExp(fixture.supplierName) }).check();
   await page.getByLabel(/Reason for this decision/).fill(
     'Complete order, on-time delivery, and the best verified landed total.',
   );
   page.once('dialog', (dialog) => dialog.accept());
-  await page.getByRole('button', { name: 'Record award' }).click();
+  await page.getByRole('button', { name: 'Confirm supplier choice' }).click();
+  await page.locator('summary').filter({hasText:'Download records & purchase orders'}).click();
   await expect(page.getByText('Award decision CSV')).toBeVisible();
 
   const awardCsv = await downloadedBytes(page, /Award decision CSV/);

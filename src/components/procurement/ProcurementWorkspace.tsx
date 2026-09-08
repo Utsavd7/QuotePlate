@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { workspaceFetch } from '@/lib/client/workspace-prefetch';
 import { formatIndiaDate as shortDate, formatIndiaDeadline as deadlineText } from '@/lib/domain/india-date';
+import { PurchaseJourney } from './PurchaseJourney';
+import ui from './purchase-ui.module.css';
 import styles from './procurement-workspace.module.css';
 
 type RequestStatus = 'DRAFT' | 'OPEN' | 'AWARDED' | 'CANCELLED';
@@ -89,19 +91,21 @@ export function ProcurementWorkspace({
   const shown = filter === 'ALL' ? requests : requests.filter(({ status }) => status === filter);
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${ui.surface}`}>
       <header className={styles.header}>
         <div>
           <p className={styles.eyebrow}>Restaurant buying</p>
-          <h1>Buy ingredients</h1>
+          <h1>Purchases</h1>
           <p className={styles.intro}>
-            Ask suppliers for prices, compare the final cost, and record who you choose.
+            Choose ingredients, then ask your suppliers for prices.
           </p>
         </div>
         <button className={styles.primaryButton} type="button" onClick={() => router.push('/procurement/new')}>
-          <Plus aria-hidden="true" /> Ask suppliers for prices
+          <Plus aria-hidden="true" /> Choose ingredients
         </button>
       </header>
+
+      <PurchaseJourney />
 
       <section className={styles.summary} aria-label="Request summary">
         <div><ClipboardList aria-hidden="true" /><span><strong>{requests.filter(({ status }) => status === 'DRAFT').length}</strong>Not sent</span></div>
@@ -111,7 +115,7 @@ export function ProcurementWorkspace({
 
       <nav className={styles.filters} aria-label="Filter requests">
         {(['ALL', 'DRAFT', 'OPEN', 'AWARDED', 'CANCELLED'] as const).map((status) => (
-          <button className={filter === status ? styles.selectedFilter : ''} type="button" key={status} onClick={() => setFilter(status)}>
+          <button className={filter === status ? styles.selectedFilter : ''} type="button" key={status} aria-pressed={filter === status} onClick={() => setFilter(status)}>
             {status === 'ALL' ? 'All requests' : statusLabel[status]}
           </button>
         ))}
@@ -130,7 +134,7 @@ export function ProcurementWorkspace({
           <h2>Create your first request</h2>
           <p>Start with an approved menu and at least one supplier. You can review everything before sharing any link.</p>
           <button className={styles.primaryButton} type="button" onClick={() => router.push('/procurement/new')}>
-            <Plus aria-hidden="true" /> Ask suppliers for prices
+            <Plus aria-hidden="true" /> Choose ingredients
           </button>
         </section>
       ) : shown.length === 0 ? (
@@ -138,7 +142,7 @@ export function ProcurementWorkspace({
       ) : (
         <section className={styles.requestList} aria-label="Procurement requests">
           <div className={styles.listHeader}>
-            <span>Request</span><span>Coverage</span><span>Quote deadline</span><span>Delivery</span><span>Status</span><span />
+            <span>Request</span><span>Items & suppliers</span><span>Quote deadline</span><span>Delivery</span><span>Next step</span><span />
           </div>
           {shown.map((request) => (
             <button className={styles.requestRow} type="button" key={request.id} onClick={() => router.push(`/procurement/${encodeURIComponent(request.id)}`)}>
@@ -152,12 +156,21 @@ export function ProcurementWorkspace({
               </span>
               <span className={styles.date}><small className={styles.mobileLabel}>Quote by</small><CalendarDays aria-hidden="true" />{deadlineText(request.quoteDeadline)}</span>
               <span className={styles.date}><small className={styles.mobileLabel}>Delivery</small>{shortDate(request.deliveryDate)}</span>
-              <span><i className={styles[`status${request.status}`]}>{statusLabel[request.status]}</i></span>
+              <span className={styles.nextAction}><i className={styles[`status${request.status}`]}>{statusLabel[request.status]}</i><strong>{request.status === 'DRAFT' ? 'Review draft' : request.status === 'OPEN' ? 'Compare prices' : request.status === 'AWARDED' ? 'Check delivery' : 'View request'}</strong></span>
               <ArrowRight className={styles.arrow} aria-hidden="true" />
             </button>
           ))}
         </section>
       )}
+
+      <details className={ui.disclosure}>
+        <summary>Purchase history & reports</summary>
+        <div className={ui.disclosureBody}>
+          <a href="/history">Past orders & repeat purchases</a>
+          <a href="/insights">Spending reports</a>
+          <a href="/supplier-performance">Delivery reports</a>
+        </div>
+      </details>
 
       {nextCursor && !loading && (
         <button

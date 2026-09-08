@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { MenuDocumentV1 } from '@/lib/menu/menu-document';
 import type { PlanInput, computePlan } from '@/lib/service-planning/planning';
@@ -72,13 +72,17 @@ export function ServicePlanningWorkspace() {
     [deliveryDate, setDeliveryDate] = useState(''),
     [deadline, setDeadline] = useState(''),
     [repeatAt, setRepeatAt] = useState('');
+  const errorMessage = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (error) errorMessage.current?.focus();
+  }, [error]);
   useEffect(() => {
     api<Listing>('').then(setListing).catch(e => setError(e.message));
   }, []);
   const edit = (next: PlanInput) => {
     setDocument(next);
     setDirty(true);
-    setNotice('Unsaved changes — save to recompute readiness.');
+    setNotice('Unsaved changes. Save to update missing ingredients.');
   };
   function selectMenu(id: string) {
     const menu = listing?.menus.find(m => m.id === id);
@@ -103,7 +107,7 @@ export function ServicePlanningWorkspace() {
         incoming: []
       }])).values()]
     });
-    setNotice('Enter how many servings each recipe batch produces. Menu quantities are not assumed to be per portion.');
+    setNotice('Choose portions, then enter how many servings one recipe batch makes.');
   }
   async function load(id: string) {
     setBusy(true);
@@ -146,7 +150,7 @@ export function ServicePlanningWorkspace() {
       setPlan(p);
       setDocument(p.document);
       setDirty(false);
-      setNotice(`Saved version ${p.version}. Readiness recomputed on the server.`);
+      setNotice(`Plan saved · version ${p.version}. Missing ingredients updated.`);
       setListing(await api<Listing>(''));
       await load(p.id);
     } catch (e) {
@@ -194,238 +198,173 @@ export function ServicePlanningWorkspace() {
   }
   return <main className={styles.workspace}>
     <header>
-      <p>Daily operations</p>
-
-      <h1>Service planning</h1>
-
-      <p>Plan portions, check usable stock, and prepare a request for what is missing.</p>
+      <p className={styles.eyebrow}>Today · Daily planning</p>
+      <h1>Plan meals</h1>
+      <p>Choose meals and portions. Check stock. Buy what is missing.</p>
     </header>
 
-    {error && <p role="alert" className={styles.error}>{error}</p>}
+    <nav className={styles.steps} aria-label="Planning steps">
+      <a href="#planning-meals">1 · Meals &amp; portions</a>
+      {document ? <a href="#planning-stock">2 · Stock</a> : <span>2 · Stock</span>}
+      {plan ? <a href="#planning-review">3 · Missing ingredients</a> : <span>3 · Missing ingredients</span>}
+    </nav>
 
-    {notice && <p role="status">{notice}</p>}
+    {error && <p ref={errorMessage} tabIndex={-1} role="alert" className={styles.error}>{error}</p>}
+    {notice && <p role="status" className={styles.notice}>{notice}</p>}
 
     {!listing ? <p>Loading saved plans and approved menus…</p> : <>
-      <section>
-        <h2>Choose a plan</h2>
-
+      <section id="planning-meals" aria-labelledby="planning-meals-title">
+        <h2 id="planning-meals-title">1. Choose meals &amp; portions</h2>
         <div className={styles.grid}>
-          <label>Saved plan
-            <select disabled={busy} value={plan?.id ?? ''} onChange={e => void load(e.target.value)}><option value="" disabled>Select a saved plan</option>{listing.plans.map(p => <option key={p.id} value={p.id}>{p.name} · v{p.version} · {new Date(p.serviceAt).toLocaleDateString()}</option>)}</select>
-          </label>
-
           <label>Start from an approved menu
             <select disabled={busy} value={menuId} onChange={e => selectMenu(e.target.value)}><option value="">Select an approved menu</option>{listing.menus.map(m => <option key={m.id} value={m.id}>{m.name} · v{m.version}</option>)}</select>
           </label>
+          <label>Saved plan
+            <select disabled={busy} value={plan?.id ?? ''} onChange={e => void load(e.target.value)}><option value="" disabled>Select a saved plan</option>{listing.plans.map(p => <option key={p.id} value={p.id}>{p.name} · v{p.version} · {new Date(p.serviceAt).toLocaleDateString()}</option>)}</select>
+          </label>
         </div>
-
-        {listing.menus.length === 0 && <p><Link href="/menus">Approve a menu</Link> before creating a service plan.</p>}
+        {listing.menus.length === 0 && <p><Link href="/menus">Approve a menu</Link> to start a plan.</p>}
       </section>
 
       {document && snapshot && <>
+        {plan?.requestId && <p className={styles.notice}>This plan has a purchase draft. Repeat it below to plan another day.</p>}
         <fieldset disabled={busy || !!plan?.requestId}>
-          <legend>Portions and stock</legend>
-
+          <legend>Meals, portions and stock</legend>
           <div className={styles.grid}>
             <label>Plan name
-              <input value={document.name} onChange={e => edit({
-                ...document,
-                name: e.target.value
-              })} />
+              <input value={document.name} onChange={e => edit({ ...document, name: e.target.value })} />
             </label>
-
-            <label>Service date and time (your local timezone)
+            <label>Service date and time (local time)
               <input type="datetime-local" value={localTime(document.serviceAt)} onChange={e => edit({
                 ...document,
                 serviceAt: e.target.value ? new Date(e.target.value).toISOString() : ''
               })} />
             </label>
           </div>
-
-          <p>Enter explicit recipe batch servings. Recipe quantities describe usable ingredients. Yield converts the remaining usable shortage to purchase quantity; stock and incoming must already be usable. Set portions to zero to omit a dish.</p>
-
-          <div className={styles.scroll}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Dish</th>
-
-                  <th>Recipe batch servings</th>
-
-                  <th>Desired portions</th>
-
-                  <th>Recipe quantities per batch</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {document.dishes.map((d, n) => <tr key={d.dishId}>
-                  <th>
-                    {snapshot.dishes.find(s => s.id === d.dishId)?.name}
-                  </th>
-
-                  <td>
-                    <input aria-label={`Batch servings for ${d.dishId}`} inputMode="decimal" placeholder="Required" value={d.batchServings} onChange={e => edit({
-                      ...document,
-                      dishes: document.dishes.map((r, i) => i === n ? {
-                        ...r,
-                        batchServings: e.target.value
-                      } : r)
-                    })} />
-                  </td>
-
-                  <td>
+          <p>Set portions to 0 to skip a dish. For each selected dish, enter the servings one recipe batch makes.</p>
+          <div className={styles.dishList}>
+            {document.dishes.map((d, n) => {
+              const dish = snapshot.dishes.find(s => s.id === d.dishId);
+              return <article className={styles.dish} key={d.dishId}>
+                <h3>{dish?.name}</h3>
+                <div className={styles.grid}>
+                  <label>Desired portions
                     <input aria-label={`Desired portions for ${d.dishId}`} inputMode="decimal" value={d.portions} onChange={e => edit({
                       ...document,
-                      dishes: document.dishes.map((r, i) => i === n ? {
-                        ...r,
-                        portions: e.target.value
-                      } : r)
+                      dishes: document.dishes.map((r, i) => i === n ? { ...r, portions: e.target.value } : r)
                     })} />
-                  </td>
-
-                  <td>
-                    {snapshot.dishes.find(s => s.id === d.dishId)?.ingredients.map(i => <p key={i.id}>{i.name}: {i.quantity} {i.unit}</p>)}
-                  </td>
-                </tr>)}
-              </tbody>
-            </table>
+                  </label>
+                  <label>Servings per recipe batch
+                    <input aria-label={`Batch servings for ${d.dishId}`} inputMode="decimal" placeholder="Required for selected dishes" value={d.batchServings} onChange={e => edit({
+                      ...document,
+                      dishes: document.dishes.map((r, i) => i === n ? { ...r, batchServings: e.target.value } : r)
+                    })} />
+                  </label>
+                </div>
+                <details>
+                  <summary>Recipe quantities · {dish?.name}</summary>
+                  <p>Usable ingredients for one batch. These are not assumed to be per portion.</p>
+                  {dish?.ingredients.map(i => <p key={i.id}>{i.name}: {i.quantity} {i.unit}</p>)}
+                </details>
+              </article>;
+            })}
           </div>
+          <a className={styles.nextLink} href="#planning-stock">Next: check stock →</a>
 
-          <h3>Usable inventory and confirmed arrivals</h3>
-
-          {document.inventory.map((stock, n) => {
-            const change = (next: typeof stock) => edit({
-              ...document,
-              inventory: document.inventory.map((s, i) => i === n ? next : s)
-            });
-            const name = snapshot.dishes.flatMap(d => d.ingredients).find(i => i.itemKey === stock.itemKey)?.name ?? stock.itemKey;
-            return <section key={stock.itemKey}>
-              <h4>{name}</h4>
-
-              <div className={styles.grid}>
-                <label>Standard unit
-                  <select value={stock.unit} onChange={e => change({
+          <section id="planning-stock" aria-labelledby="planning-stock-title">
+            <h2 id="planning-stock-title">2. Check stock</h2>
+            <p>Enter usable stock, including 0 when empty. Yield is the % usable after preparation. Enter 100 only when there is no preparation loss.</p>
+            {document.inventory.map((stock, n) => {
+              const change = (next: typeof stock) => edit({
+                ...document,
+                inventory: document.inventory.map((s, i) => i === n ? next : s)
+              });
+              const name = snapshot.dishes.flatMap(d => d.ingredients).find(i => i.itemKey === stock.itemKey)?.name ?? stock.itemKey;
+              return <div className={styles.stockRow} key={stock.itemKey} role="group" aria-label={`${name} stock`}>
+                <h3>{name}</h3>
+                <div className={styles.grid}>
+                  <label>Current usable stock
+                    <input inputMode="decimal" value={stock.stock} onChange={e => change({ ...stock, stock: e.target.value })} />
+                  </label>
+                  <label>Unit
+                    <select value={stock.unit} onChange={e => change({ ...stock, unit: e.target.value })}>{['KILOGRAM', 'GRAM', 'LITRE', 'MILLILITRE', 'PIECE', 'PACK', 'CASE', 'CRATE'].map(u => <option key={u}>{u}</option>)}</select>
+                  </label>
+                  <label>Usable yield %
+                    <input inputMode="decimal" value={stock.yieldPercent} onChange={e => change({ ...stock, yieldPercent: e.target.value })} />
+                  </label>
+                </div>
+                {stock.incoming.map((arrival, j) => {
+                  const update = (next: typeof arrival) => change({
                     ...stock,
-                    unit: e.target.value
-                  })}>{['KILOGRAM', 'GRAM', 'LITRE', 'MILLILITRE', 'PIECE', 'PACK', 'CASE', 'CRATE'].map(u => <option key={u}>{u}</option>)}</select>
-                </label>
-
-                <label>Usable yield %
-                  <input inputMode="decimal" value={stock.yieldPercent} onChange={e => change({
-                    ...stock,
-                    yieldPercent: e.target.value
-                  })} />
-                </label>
-
-                <label>Current usable stock
-                  <input inputMode="decimal" value={stock.stock} onChange={e => change({
-                    ...stock,
-                    stock: e.target.value
-                  })} />
-                </label>
-              </div>
-
-              {stock.incoming.map((arrival, j) => {
-                const update = (next: typeof arrival) => change({
+                    incoming: stock.incoming.map((a, k) => k === j ? next : a)
+                  });
+                  return <div key={j} className={styles.arrival}>
+                    <label>Confirmed usable incoming quantity
+                      <input value={arrival.quantity} inputMode="decimal" onChange={e => update({ ...arrival, quantity: e.target.value })} />
+                    </label>
+                    <label>Confirmed arrival time
+                      <input type="datetime-local" value={localTime(arrival.arrivesAt)} onChange={e => update({
+                        ...arrival,
+                        arrivesAt: e.target.value ? new Date(e.target.value).toISOString() : ''
+                      })} />
+                    </label>
+                    <label>Confirmation evidence
+                      <input placeholder="Supplier, reference or call details" value={arrival.evidence} onChange={e => update({ ...arrival, evidence: e.target.value })} />
+                    </label>
+                    <button className={styles.secondaryButton} type="button" onClick={() => change({
+                      ...stock,
+                      incoming: stock.incoming.filter((_, k) => k !== j)
+                    })}>Remove arrival</button>
+                  </div>;
+                })}
+                <button className={styles.secondaryButton} type="button" onClick={() => change({
                   ...stock,
-                  incoming: stock.incoming.map((a, k) => k === j ? next : a)
-                });
-                return <div key={j} className={styles.arrival}>
-                  <label>Confirmed usable incoming quantity
-                    <input value={arrival.quantity} inputMode="decimal" onChange={e => update({
-                      ...arrival,
-                      quantity: e.target.value
-                    })} />
-                  </label>
-
-                  <label>Confirmed arrival time
-                    <input type="datetime-local" value={localTime(arrival.arrivesAt)} onChange={e => update({
-                      ...arrival,
-                      arrivesAt: e.target.value ? new Date(e.target.value).toISOString() : ''
-                    })} />
-                  </label>
-
-                  <label>Confirmation evidence
-                    <input placeholder="Supplier, reference or call details" value={arrival.evidence} onChange={e => update({
-                      ...arrival,
-                      evidence: e.target.value
-                    })} />
-                  </label>
-
-                  <button type="button" onClick={() => change({
-                    ...stock,
-                    incoming: stock.incoming.filter((_, k) => k !== j)
-                  })}>Remove arrival</button>
-                </div>;
-              })}
-
-              <button type="button" onClick={() => change({
-                ...stock,
-                incoming: [...stock.incoming, {
-                  quantity: '',
-                  arrivesAt: '',
-                  confirmed: true,
-                  evidence: ''
-                }]
-              })}>Add explicitly confirmed arrival</button>
-            </section>;
-          })}
-
-          <button type="button" disabled={!dirty} onClick={() => void save()}>{busy ? 'Saving…' : 'Save and calculate readiness'}</button>
+                  incoming: [...stock.incoming, { quantity: '', arrivesAt: '', confirmed: true, evidence: '' }]
+                })}>Add confirmed arrival</button>
+              </div>;
+            })}
+            <p>Only confirmed deliveries arriving by service time count as stock.</p>
+          </section>
+          <button type="button" disabled={!dirty} onClick={() => void save()}>{busy ? 'Saving…' : 'Save and check missing ingredients'}</button>
         </fieldset>
 
-        {plan && <>
-          <p>Saved version {plan.version}{dirty ? ' — results below reflect the last saved version' : ''}</p>
-
+        {plan && <div id="planning-review">
+          <p className={styles.savedVersion}>Saved version {plan.version}{dirty ? ' — save your changes to update these results' : ''}</p>
           <PlanningSummary readiness={plan.readiness} />
-
-          <section>
-            <h2>Repeat for another day</h2>
-
-            <p>Copies the approved recipe snapshot and portion choices into a new saved plan. Stock, incoming deliveries and procurement links are cleared.</p>
-
-            <label>New service date and time
-              <input type="datetime-local" value={repeatAt} onChange={e => setRepeatAt(e.target.value)} />
-            </label>
-
-            <button disabled={busy || dirty || !repeatAt} onClick={() => void repeat()}>Repeat for another day</button>
-          </section>
-
-          <section>
-            <h2>Supplier options to review</h2>
-
-            <p>Saved capabilities are suggestions only. Confirm exact specifications, price, quantity and delivery timing before ordering.</p>
-
-            {plan.supplierOptions?.length ? plan.supplierOptions.map(s => <p key={s.id}><Link href={'/suppliers'}>{s.businessName}</Link> — {s.evidence}</p>) : <p>No matching saved supplier options. Review sourcing in the procurement draft.</p>}
-          </section>
-
-          <section>
-            <h2>Procure missing ingredients</h2>
-
-            {plan.requestId ? <Link href={`/procurement/${plan.requestId}`}>Review procurement draft</Link> : <>
-              <p>Creates a draft for aggregate deficits only. Initial sourcing accepts verified supplier applications; review and choose suppliers before opening the request. Nothing is sent automatically.</p>
-
+          <section aria-labelledby="planning-buy-title">
+            <h2 id="planning-buy-title">Buy missing ingredients</h2>
+            {plan.requestId ? <Link className={styles.nextLink} href={`/procurement/${plan.requestId}`}>Review purchase draft →</Link> : <>
+              <p>Create a draft for shortages. Review suppliers before sending.</p>
+              {dirty && <p className={styles.notice}>Save your changes above before creating a draft.</p>}
+              {plan.readiness.ready && <p className={styles.notice}>You have enough usable stock. No purchase is needed.</p>}
+              {plan.readiness.ingredients.some(i => i.blocked) && <p className={styles.error}>Resolve the stock, yield or recipe issues above before buying.</p>}
               <div className={styles.grid}>
                 <label>Required delivery date
                   <input type="date" value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} />
                 </label>
-
                 <label>Quote deadline (local time)
                   <input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)} />
                 </label>
               </div>
-
-              <p>Delivery to: {listing.deliveryDetails?.addressLine}, {listing.deliveryDetails?.city}, {listing.deliveryDetails?.pin}. <Link href="/settings">Edit workspace delivery address</Link></p>
-
-              <button disabled={busy || dirty || plan.readiness.ready || plan.readiness.ingredients.some(i => i.blocked) || !deadline || !deliveryDate} onClick={() => void procure()}>Create procurement draft</button>
+              <p>Delivery to: {listing.deliveryDetails?.addressLine}, {listing.deliveryDetails?.city}, {listing.deliveryDetails?.pin}. <Link href="/settings">Edit delivery address</Link></p>
+              <button disabled={busy || dirty || plan.readiness.ready || plan.readiness.ingredients.some(i => i.blocked) || !deadline || !deliveryDate} onClick={() => void procure()}>Create purchase draft</button>
             </>}
           </section>
-        </>}
-
+          <details>
+            <summary>Supplier options to review</summary>
+            <p>Suggestions only. Confirm specifications, price, quantity and delivery before ordering.</p>
+            {plan.supplierOptions?.length ? plan.supplierOptions.map(s => <p key={s.id}><Link href="/suppliers">{s.businessName}</Link> — {s.evidence}</p>) : <p>No matching saved suppliers. Review sourcing in the purchase draft.</p>}
+          </details>
+          <section>
+            <h2>Repeat for another day</h2>
+            <p>Copies recipes and portions. Enter fresh stock, yields and arrivals for the new day; purchase links are cleared.</p>
+            <label>New service date and time
+              <input type="datetime-local" value={repeatAt} onChange={e => setRepeatAt(e.target.value)} />
+            </label>
+            <button className={styles.secondaryButton} disabled={busy || dirty || !repeatAt} onClick={() => void repeat()}>Repeat for another day</button>
+          </section>
+        </div>}
       </>}
-
     </>}
-
   </main>;
 }

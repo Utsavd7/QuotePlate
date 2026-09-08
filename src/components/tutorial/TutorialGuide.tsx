@@ -19,17 +19,17 @@ import styles from './tutorial-guide.module.css';
 
 export const TUTORIAL_STEPS = [
   {
-    title: 'Start from home',
+    title: 'Start with Today',
     instruction:
-      'Open Home to see requests, quotes, and the work that needs attention today.',
-    action: 'Open home',
+      'Open Today to see which purchases and deliveries need attention.',
+    action: 'Open Today',
     href: '/dashboard',
   },
   {
     title: 'Add your menu and ingredients',
     instruction:
-      'Open Menu and ingredients. Add a menu, then check each dish and ingredient before you save it.',
-    action: 'Open menu and ingredients',
+      'Open Menu. Add a menu, then check the dishes and ingredients.',
+    action: 'Open Menu',
     href: '/menus',
   },
   {
@@ -42,22 +42,22 @@ export const TUTORIAL_STEPS = [
   {
     title: 'Ask suppliers for prices',
     instruction:
-      'Select Ask suppliers for prices. Choose a menu, ingredients, delivery date, and the suppliers you want to contact.',
+      'Select New purchase. Choose ingredients, a delivery date and suppliers.',
     action: 'Ask suppliers for prices',
     href: '/procurement/new',
   },
   {
     title: 'Compare supplier prices',
     instruction:
-      'Open Buy ingredients. Select a request, compare supplier prices and delivery details, then record your choice.',
+      'Open Purchases. Choose a request, compare prices and delivery dates, then choose a supplier.',
     action: 'Compare supplier prices',
     href: '/procurement',
   },
   {
-    title: 'Review savings and prices',
+    title: 'Review your reports',
     instruction:
-      'Open Savings and prices to review supplier response rates, price ranges, awarded value, and past buying facts.',
-    action: 'Open savings and prices',
+      'Open Reports to compare prices and review your order totals.',
+    action: 'Open Reports',
     href: '/insights',
   },
 ] as const;

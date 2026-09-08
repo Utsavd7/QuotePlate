@@ -10,3 +10,22 @@
 .guidanceGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.guidanceGrid article{min-height:8rem;padding:1rem;display:grid;align-content:start;gap:.35rem;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.guidanceGrid article:nth-child(2n){border-right:0}.guidanceGrid strong{font-size:.85rem}.guidanceGrid p{margin:0;color:var(--muted);font-size:.76rem;line-height:1.5}.guidanceGrid small{color:#713917;font-size:.7rem}.guidanceGrid em{padding:.45rem .55rem;border-left:2px solid var(--copper);background:#f6eee4;color:var(--muted);font-size:.7rem;font-style:normal;line-height:1.4}
 @media(max-width:44rem){.guidanceGrid{grid-template-columns:1fr}.guidanceGrid article{border-right:0}}
 @media(max-width:44rem){.historyPanel{overflow:hidden}.historyHeader{display:none}.historyRow{min-width:0;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;padding:1rem}.historyTitle{grid-column:1/-1}.historyDate,.historyCount,.historyRevisions,.historyValue{padding:.6rem;border:1px solid var(--line);background:#fffdf8}.historyActions{grid-column:1/-1;justify-content:space-between}.historyActions>button{min-height:2.75rem}.historyTitle strong{white-space:normal}}
+
+.page { --paper: #fff; --line: #dce1db; }
+.pageHeader { margin-bottom: 1.25rem; }
+.pageHeader > div > span { margin-top: .5rem; }
+.pageHeader > div > p { display: none; }
+.metrics { border-radius: .5rem; background: #fff; }
+.metrics article { min-height: 6.5rem; padding: 1rem; }
+.metrics article > svg { display: none; }
+.metrics strong { font-family: var(--font-ui); font-size: 1.5rem; }
+.metrics small, .metrics em { text-transform: none; letter-spacing: 0; font-size: .8rem; }
+.panel, .recordPanel, .historyPanel { border-radius: .5rem; background: #fff; box-shadow: none; }
+.panel > header, .recordPanel > header { background: #fff; }
+.panel > header p, .recordPanel > header p { display: none; }
+.method summary { padding: .75rem 0; font-size: .85rem; cursor: pointer; font-weight: 700; color: #285e4d; }
+.rangeHeader, .historyHeader { text-transform: none; letter-spacing: 0; font-size: .8rem; }
+.rangeRow { font-size: .85rem; }
+.rangeRow small, .historyRow small { font-size: .78rem; }
+.guidanceGrid em { border: 0; padding: .5rem; border-radius: .3rem; }
+@media(max-width:44rem) { .metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .metrics article { min-height: 7rem; border-bottom: 1px solid var(--line); } .metrics article:nth-child(n+3) { border-bottom: 0; } }

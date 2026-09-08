@@ -9,7 +9,6 @@ import {
   Mail,
   MapPin,
   MessageCircle,
-  MoreHorizontal,
   Phone,
   Plus,
   Search,
@@ -690,10 +689,9 @@ export function SupplierWorkspace({
     <main className={styles.page}>
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>People you buy from</p>
           <h1>Suppliers</h1>
           <p className={styles.intro}>
-            Keep the suppliers you already use and what each one can supply in one place.
+            Find a supplier, update their details or add someone new.
           </p>
         </div>
         <button className={styles.primaryButton} type="button" onClick={() => openCreate()}>
@@ -701,11 +699,10 @@ export function SupplierWorkspace({
         </button>
       </header>
 
-      <aside aria-label="Restaurant data privacy" className={styles.notice}>
-        <span>Your restaurant data is private from other restaurants. Each supplier can see requests you send them, their own orders and delivery checks, and estimates you explicitly share with them. Your recipes, menus and other suppliers’ prices are not shared.</span>
-      </aside>
-
-      <SupplierDiscovery onAddSupplier={openCreate} />
+      <details className={styles.discovery}>
+        <summary><MapPin aria-hidden="true" /> Find nearby suppliers <span>Search your area</span></summary>
+        <SupplierDiscovery onAddSupplier={openCreate} />
+      </details>
 
       <section className={styles.toolbar} aria-label="Supplier tools">
         <form
@@ -737,6 +734,7 @@ export function SupplierWorkspace({
           <option value="true">Active suppliers</option>
           <option value="false">Inactive suppliers and applications</option>
         </select>
+        <details className={styles.fileTools}><summary>Import or export</summary><div>
         <input
           ref={fileInput}
           className={styles.hiddenInput}
@@ -755,6 +753,7 @@ export function SupplierWorkspace({
         >
           <Download aria-hidden="true" /> {exporting ? 'Exporting…' : 'Export CSV'}
         </button>
+        </div></details>
       </section>
 
       {notice && (
@@ -863,7 +862,7 @@ export function SupplierWorkspace({
                   </span>
                 ) : (
                   <button type="button" aria-label={`Edit ${supplier.businessName}`} onClick={() => openEdit(supplier)}>
-                    <MoreHorizontal aria-hidden="true" />
+                    Edit
                   </button>
                 )}
               </div>
@@ -882,6 +881,11 @@ export function SupplierWorkspace({
           {loadingMore ? 'Loading more…' : 'Load more suppliers'}
         </button>
       )}
+
+      <details className={styles.privacyDetails} aria-label="Restaurant data privacy">
+        <summary>Who can see supplier information?</summary>
+        <p>Other restaurants cannot see your records. Suppliers see only requests, orders, delivery checks and estimates you share with them. Your recipes and other suppliers’ prices stay private.</p>
+      </details>
 
       {editorOpen && (
         <div className={styles.dialogBackdrop} role="presentation" onMouseDown={(event) => {

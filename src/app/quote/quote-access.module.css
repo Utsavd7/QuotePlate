@@ -559,3 +559,57 @@
   .latestBanner { flex-wrap: wrap; }
   .reuseButton { width: 100%; }
 }
+
+/* Vendor work screens use the same quiet, readable UI as the restaurant app. */
+.page { background:var(--stone); font-family:var(--font-ui),sans-serif; overflow:visible; }
+.card { box-shadow:none; border-radius:12px; }
+.rule { display:none; }
+.card h1 { max-width:24ch; font-family:var(--font-ui),sans-serif; font-size:clamp(1.75rem,4vw,3rem); font-weight:700; line-height:1.2; letter-spacing:-.03em; overflow-wrap:anywhere; }
+.sectionHeading h2, .review h2 { font-family:var(--font-ui),sans-serif; font-size:clamp(1.3rem,3vw,1.65rem); font-weight:700; line-height:1.3; letter-spacing:-.02em; }
+.formFields { display:grid; gap:32px; min-width:0; padding:0; margin:0; border:0; }
+.brand { min-height:44px; align-items:center; }
+.steps { display:flex; flex-wrap:wrap; gap:10px 24px; list-style:none; padding:16px 0; margin:0; border-block:1px solid rgb(16 24 23 / 16%); color:var(--ink-label); font-size:.9rem; }
+.steps [aria-current] { color:var(--success,#285e4d); font-weight:800; }
+.lineFields { grid-template-columns:repeat(2,minmax(0,1fr)); padding-left:0; }
+.lineFields label, .commercialGrid label, .noQuote, .lineFields .checkField { font-size:.9rem; letter-spacing:normal; }
+.lineFields input:not([type='checkbox']), .commercialGrid input { min-height:48px; min-width:0; }
+.quoteItem header { gap:16px; }
+.quoteItem header p, .quoteItem header a, .requestFacts dt, .requestFacts dd, .sectionHeading > p, .latestBanner, .submitBar p { font-size:.9rem; line-height:1.6; }
+.quoteItem header a { display:inline-flex; align-items:center; min-height:44px; }
+.substitutionField summary, .wideField summary { display:list-item; min-height:44px; padding:12px 0; color:var(--ink-label); font-size:.9rem; cursor:pointer; }
+.quoteForm :focus-visible { outline:3px solid var(--copper-text); outline-offset:4px; }
+.review { border-top:2px solid var(--success,#285e4d); padding-top:24px; min-width:0; scroll-margin-top:24px; }
+.review > p { color:var(--ink-label); line-height:1.6; }
+.reviewItems { list-style:none; margin:24px 0; padding:0; }
+.reviewItems li { display:flex; justify-content:space-between; gap:16px; padding:16px 0; border-bottom:1px solid rgb(16 24 23 / 14%); overflow-wrap:anywhere; }
+.reviewItems small { display:block; margin-top:6px; color:var(--ink-label); font-size:.9rem; }
+.reviewItems li > strong { flex-shrink:0; }
+.reviewTotals { display:grid; gap:14px; max-width:600px; margin:24px 0; }
+.reviewTotals div { display:flex; justify-content:space-between; gap:16px; }
+.reviewTotals dd { margin:0; font-weight:700; text-align:right; overflow-wrap:anywhere; }
+.grandTotal { padding:16px 0; border-block:1px solid rgb(16 24 23 / 20%); font-size:1.15rem; font-weight:800; }
+.error, .notice { padding:16px; margin:0; border-radius:6px; line-height:1.6; overflow-wrap:anywhere; }
+.error { color:#843614; background:#fff0e9; border:1px solid #d6a586; }
+.notice { color:#294133; background:#eaf0e4; border:1px solid #b4c5a7; }
+.submitBar { position:static; box-shadow:none; background:transparent; border:0; border-top:1px solid rgb(16 24 23 / 18%); border-radius:0; padding:20px 0 0; backdrop-filter:none; }
+.submitBar button { min-height:48px; font:700 1rem/1.4 var(--font-ui); background:var(--success,#285e4d); border-color:var(--success,#285e4d); }
+@media(max-width:600px) {
+  .formCard { padding:24px 16px; }
+  .commercialGrid, .lineFields { grid-template-columns:minmax(0,1fr); }
+  .wideField { grid-column:1 / -1; }
+  .quoteItem header { grid-template-columns:24px minmax(0,1fr); }
+  .noQuote { grid-column:1 / -1; }
+  .requestSummary { grid-template-columns:minmax(0,1fr); }
+  .requestFacts div { grid-template-columns:85px minmax(0,1fr); }
+  .requestFacts dd { overflow-wrap:anywhere; }
+  .submitBar { align-items:stretch; flex-direction:column; }
+  .steps { gap:12px; flex-direction:column; }
+}
+
+.page { background:#f6f7f5; }
+.card { background:#fff; border-color:#dce1db; }
+.card h1, .formCard .requestSummary h1 { max-width:24ch; font-size:28px; }
+.sectionHeading h2, .review h2 { font-size:18.4px; }
+.quoteItem { border-color:#dce1db; }
+.lineFields input:not([type='checkbox']), .commercialGrid input, .commercialGrid textarea, .moneyInput { background:#fff; border-color:#dce1db; }
+.review > p { overflow-wrap:anywhere; white-space:pre-wrap; }

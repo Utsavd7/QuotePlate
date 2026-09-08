@@ -23,16 +23,15 @@ describe('mobile navigation accessibility contract', () => {
       'utf8',
     );
 
-    expect(source).toContain("{ href: '/dashboard', icon: LayoutDashboard, label: 'Home' }");
-    expect(source).toContain("{ href: '/procurement', icon: ClipboardList, label: 'Buy ingredients' }");
-    expect(source).toContain("{ href: '/menus', icon: BookOpen, label: 'Menu and ingredients' }");
-    expect(source).toContain("{ href: '/suppliers', icon: Users, label: 'Suppliers' }");
-    expect(source).toContain("{ href: '/insights', icon: BarChart3, label: 'Savings and prices' }");
-    expect(source).toContain("{ href: '/history', icon: History, label: 'Past purchases' }");
-    expect(source).toContain("{ href: '/settings', icon: Settings, label: 'Restaurant settings' }");
-    expect(source).toContain(
-      '<Plus aria-hidden="true" /> Ask suppliers for prices',
-    );
+    for (const route of ['/dashboard', '/procurement', '/menus', '/suppliers', '/insights', '/history', '/service-planning', '/supplier-collaboration', '/supplier-performance']) {
+      expect(source).toContain(`href: '${route}'`);
+    }
+    for (const label of ['Today', 'Purchases', 'Menu', 'Suppliers', 'Reports']) {
+      expect(source).toContain(`label: '${label}'`);
+    }
+    expect(source).toContain('href="/settings"');
+    expect(source).toContain('<Plus aria-hidden="true" /> New purchase');
+
   });
 
   it('reassures restaurants about privacy immediately before their account', () => {
@@ -40,13 +39,13 @@ describe('mobile navigation accessibility contract', () => {
       join(process.cwd(), 'src', 'app', '(app)', 'layout.tsx'),
       'utf8',
     );
-    const privacy = source.indexOf('aria-label="Restaurant data privacy"');
+    const privacy = source.indexOf('<details className={styles.privacy}>');
     const account = source.indexOf('<div className={styles.account}>', privacy);
 
     expect(privacy).toBeGreaterThan(-1);
-    expect(source).toContain('Private to your restaurant');
+    expect(source).toContain('Your information is private');
     expect(source).toContain(
-      'Other restaurants cannot see your records. Suppliers see their requests, own orders and delivery checks, and estimates you choose to share. Recipes, menus and other suppliers’ prices stay private.',
+      'Other restaurants cannot see your records. Suppliers see only their requests, orders, delivery checks and estimates you choose to share. Your recipes and other suppliers’ prices stay private.',
     );
     expect(account).toBeGreaterThan(privacy);
     expect(source.slice(privacy, account)).not.toContain('<nav');

@@ -31,8 +31,8 @@ describe('menu workspace', () => {
     );
 
     expect(html).toContain('Prepare what you need');
-    expect(html).toContain('Menu and ingredients');
-    expect(html).toContain('Add dishes, check their ingredients, and prepare them for a buying request.');
+    expect(html).toContain('<h1>Menu</h1>');
+    expect(html).toContain('Add your menu, check ingredients, then approve it for planning.');
     expect(html).toContain('Dinner menu');
     expect(html).toContain('Open and check the ingredient list');
     expect(html).toContain('Needs review');
@@ -64,7 +64,7 @@ describe('menu workspace', () => {
       'utf8',
     );
 
-    expect(html).toContain('<small class="privacyReassurance">');
+    expect(html).toContain('<details class="privacyReassurance">');
     expect(css).toContain('.privacyReassurance');
     expect(css).not.toMatch(/[^{}]*\.privacyReassurance[^{}]*\{[^}]*display\s*:\s*none/);
     expect(css).not.toMatch(/[^{}]*\.explainer\s+small[^{}]*\{[^}]*display\s*:\s*none/);
@@ -76,7 +76,7 @@ describe('menu workspace', () => {
       'utf8',
     );
 
-    expect(page).toContain("metadata = { title: 'Menu and ingredients' };");
+    expect(page).toContain("metadata = { title: 'Menu' };");
     expect(page).not.toContain('Menu and ingredients · QuotePlate');
   });
 

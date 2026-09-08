@@ -1,3 +1,4 @@
+import { parse } from 'node-html-parser';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { NewRequestForm } from '@/components/procurement/NewRequestForm';
@@ -24,8 +25,8 @@ describe('new procurement request', () => {
       />,
     );
 
-    expect(html).toContain('New supplier price request');
-    expect(html).toContain('Buy ingredients');
+    expect(html).toContain('Choose ingredients');
+    expect(html).toContain('Purchases');
     expect(html).toContain('Not sent');
     expect(html).toContain('Dinner menu');
     expect(html).toContain('GreenLeaf Fresh Foods');
@@ -40,6 +41,13 @@ describe('new procurement request', () => {
     expect(html).toContain('Regular supplier');
     expect(html).toContain('New supplier');
     expect(html).toContain('Payment and order terms');
+    const document = parse(html);
+    const terms = document.querySelector('details');
+    expect(terms?.getAttribute('open')).toBeUndefined();
+    expect(terms?.querySelector('summary')?.textContent).toBe('Payment and order terms (optional)');
+    expect(terms?.querySelectorAll('input,select')).toHaveLength(0);
+    expect(html.indexOf('GreenLeaf Fresh Foods')).toBeLessThan(html.indexOf('Also invite new verified suppliers'));
+    expect(html.indexOf('New Market Foods')).toBeLessThan(html.indexOf('Load more suppliers'));
     expect(html).not.toContain('Commercial terms');
     expect(html).not.toContain('> Procurement</button>');
     expect(html).not.toContain('>Draft</p>');

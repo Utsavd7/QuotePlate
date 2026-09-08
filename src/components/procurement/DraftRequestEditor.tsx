@@ -11,6 +11,7 @@ import {
   type RequestSourcingV1,
 } from '@/lib/procurement/request-document';
 
+import ui from './purchase-ui.module.css';
 import styles from './draft-request-editor.module.css';
 
 type DraftSupplierGrant = {
@@ -144,6 +145,7 @@ export function DraftRequestEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<DraftEditorError>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [optionalDetailsOpen, setOptionalDetailsOpen] = useState(Boolean(request.deliveryDetails.instructions || request.commercialTerms));
 
   useEffect(() => {
     const controller = new AbortController();
@@ -299,6 +301,7 @@ export function DraftRequestEditor({
       if (!result.request) throw new Error('The updated draft was not returned.');
       onSaved(result.request);
     } catch (caught) {
+      setOptionalDetailsOpen(true);
       setError({
         message: caught instanceof Error ? caught.message : 'We could not save the draft.',
         kind: 'operation',
@@ -308,17 +311,17 @@ export function DraftRequestEditor({
   }
 
   return (
-    <form className={styles.editor} onSubmit={save} aria-label="Edit procurement draft">
+    <form className={`${styles.editor} ${ui.surface}`} onSubmit={save} aria-label="Edit procurement draft">
       <header>
         <div>
-          <p>Edit before sharing</p>
-          <h2>Review the draft</h2>
+          <h2>Edit draft</h2>
         </div>
         <button type="button" className={styles.close} onClick={onCancel} aria-label="Close draft editor">
           <X aria-hidden="true" />
         </button>
       </header>
       {error && <div className={styles.error} role="alert">{error.message}{error.kind === 'load' && <> Your saved restaurant records are unchanged.</>}</div>}
+      {Object.keys(fieldErrors).length > 0 && <ul className={styles.error} role="alert">{Object.entries(fieldErrors).flatMap(([field, messages]) => messages.map((message) => <li key={`${field}:${message}`}>{message}</li>))}</ul>}
       <div className={styles.grid}>
         <label className={styles.full}>
           <span>Request title *</span>
@@ -334,11 +337,27 @@ export function DraftRequestEditor({
         <label><span>PIN code *</span><input inputMode="numeric" maxLength={6} value={pin} onChange={(event) => setPin(event.target.value.replace(/\D/g, ''))} /></label>
         <label><span>Delivery date *</span><input type="date" value={deliveryDate} onChange={(event) => setDeliveryDate(event.target.value)} /></label>
         <label className={styles.full}><span>Quote deadline (India time) *</span><input type="datetime-local" value={quoteDeadline} onChange={(event) => setQuoteDeadline(event.target.value)} /></label>
+      </div>
+      <details className={ui.disclosure} open={optionalDetailsOpen} onToggle={(event) => setOptionalDetailsOpen(event.currentTarget.open)}>
+        <summary>Delivery instructions & payment terms</summary>
+        <div className={styles.grid}>
         <label className={styles.full}><span>Delivery instructions</span><textarea rows={2} value={instructions} onChange={(event) => setInstructions(event.target.value)} /></label>
         <label className={styles.full}><span>Payment and order terms</span><textarea rows={3} value={commercialTerms} onChange={(event) => setCommercialTerms(event.target.value)} /></label>
-      </div>
+        </div>
+      </details>
       <fieldset>
         <legend>Suppliers *</legend>
+        {loadingSuppliers ? <p className={styles.help}>Loading suppliers…</p> : currentSuppliers.length === 0 ? <p className={styles.help}>Choose a saved supplier or invite new suppliers below.</p> : (
+          <div className={styles.suppliers}>
+            {currentSuppliers.map((supplier) => (
+              <label className={supplierIds.includes(supplier.id) ? styles.selectedSupplier : styles.supplier} key={supplier.id}>
+                <input type="checkbox" checked={supplierIds.includes(supplier.id)} onChange={() => toggleSupplier(supplier.id)} />
+                <span><strong>{supplier.businessName}</strong><small>{supplier.contactName || supplier.city || supplier.phone || 'Active supplier'}</small></span>
+                {supplierIds.includes(supplier.id) && <Check aria-hidden="true" />}
+              </label>
+            ))}
+          </div>
+        )}
         <label className={openToNewSuppliers ? styles.selectedSupplier : styles.supplier}>
           <input
             type="checkbox"
@@ -351,22 +370,11 @@ export function DraftRequestEditor({
           </span>
           {openToNewSuppliers && <Check aria-hidden="true" />}
         </label>
-        {loadingSuppliers ? <p className={styles.help}>Loading suppliers…</p> : currentSuppliers.length === 0 ? <p className={styles.help}>Add an active supplier before opening this request.</p> : (
-          <div className={styles.suppliers}>
-            {currentSuppliers.map((supplier) => (
-              <label className={supplierIds.includes(supplier.id) ? styles.selectedSupplier : styles.supplier} key={supplier.id}>
-                <input type="checkbox" checked={supplierIds.includes(supplier.id)} onChange={() => toggleSupplier(supplier.id)} />
-                <span><strong>{supplier.businessName}</strong><small>{supplier.contactName || supplier.city || supplier.phone || 'Active supplier'}</small></span>
-                {supplierIds.includes(supplier.id) && <Check aria-hidden="true" />}
-              </label>
-            ))}
-          </div>
-        )}
         {(fieldErrors.sourcing?.[0] || fieldErrors.items?.[0]) && <small className={styles.fieldError}>{fieldErrors.sourcing?.[0] || fieldErrors.items?.[0]}</small>}
       </fieldset>
       <fieldset className={styles.itemPreferences}>
         <legend>Specific item suppliers (optional)</legend>
-        <p className={styles.sectionHelp}>Choose this only when an item should go to different suppliers than the rest of the request.</p>
+        <p className={styles.sectionHelp}>Use different suppliers for individual ingredients.</p>
         <div className={styles.itemPreferenceList}>
           {request.items.items.map((item) => {
             const choice = itemSourcing[item.id] ?? {

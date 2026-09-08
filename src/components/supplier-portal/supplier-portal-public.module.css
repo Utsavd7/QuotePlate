@@ -41,3 +41,40 @@
 @media(max-width:540px) { .credits { grid-template-columns:1fr; gap:4px; } .credits div { display:flex; align-items:center; justify-content:space-between; gap:12px; } .order button { width:100%; } .page { padding:20px 14px; } }
 
 @media(max-width:540px) { .order input,.order select,.order textarea { font-size:1rem; } }
+
+.page { font-family:var(--font-ui),"Manrope Variable",sans-serif; background:var(--stone,#f5f1e8); color:var(--ink,#101817); }
+.brand { min-height:44px; align-items:center; margin-bottom:16px; }
+.intro { padding:16px 0 24px; }
+.intro h1 { font-family:var(--font-ui),"Manrope Variable",sans-serif; font-size:clamp(1.8rem,4vw,3rem); font-weight:700; line-height:1.2; }
+.shell h2, .shell h3 { font-family:var(--font-ui),"Manrope Variable",sans-serif; line-height:1.4; }
+.help, .items li, .order label, .tableWrap table { font-size:1rem; }
+.order input,.order select,.order textarea { min-height:48px; font-size:1rem; }
+.badge, .credits dt, .items small, .tableWrap small, .footer { font-size:.875rem; }
+.secondary { margin-top:28px; padding:12px 0; border-top:1px solid #cbd2c7; }
+.secondary > summary, .historyOrder > summary, .optional > summary { min-height:48px; padding:12px 0; cursor:pointer; font-weight:650; line-height:1.5; }
+.historyOrder { border-bottom:1px solid #d7dbd2; padding:8px 0; }
+.historyOrder > summary span { margin-right:16px; overflow-wrap:anywhere; }
+.historyOrder > summary span + span { font-size:.875rem; color:#526156; font-weight:500; }
+.secondary summary:focus-visible { outline:3px solid #a7602b; outline-offset:3px; }
+.secondary .forecasts { margin-top:20px; }
+.nextAction { padding:12px 0; color:#294133; font-weight:650; line-height:1.6; border-bottom:1px solid #d7dbd2; }
+.order button[type='button'] { background:transparent; color:#233b2e; }
+@media(max-width:600px) {
+ .tableWrap table { min-width:0; }
+ .tableWrap thead { position:absolute; width:1px; height:1px; clip-path:inset(50%); overflow:hidden; }
+ .tableWrap tbody, .tableWrap tr { display:block; }
+ .tableWrap tr { padding:12px 0; border-bottom:1px solid #a7b3a5; }
+ .tableWrap tbody th { display:block; padding:12px 0; }
+ .tableWrap td { display:flex; justify-content:space-between; gap:16px; padding:10px 0; }
+ .tableWrap td::before { content:attr(data-label); color:#526156; }
+ .historyOrder > summary span { display:block; }
+}
+
+.page { background:#f6f7f5; }
+.intro h1 { font-size:28px; }
+.shell h2 { font-size:18.4px; }
+.order { background:#fff; border-color:#dce1db; }
+.order input,.order select,.order textarea { border-color:#dce1db; }
+.order button, .refresh { background:#285e4d; border-color:#285e4d; }
+.currentOrders { margin-top:32px; }
+.currentOrders summary:focus-visible, .shell [tabindex='-1']:focus-visible { outline:3px solid #a7602b; outline-offset:3px; }

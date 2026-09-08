@@ -5,11 +5,11 @@ import {
   CheckCircle2,
   ChevronDown,
   Plus,
-  Save,
   Trash2,
 } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { workspaceMutationFetch } from '@/lib/client/workspace-prefetch';
 import {
@@ -199,6 +199,19 @@ export async function deleteMenuAndNavigate(
   }
 }
 
+function MenuReferenceDisclosure({ hasReference, children }: {
+  hasReference: boolean;
+  children: ReactNode;
+}) {
+  // Saved data sets the initial state; subsequent edits must not close the field.
+  const [open, setOpen] = useState(hasReference);
+  return <details className={styles.referenceField} open={open}
+    onToggle={(event) => setOpen(event.currentTarget.open)}>
+    <summary>Food photo or product link, optional</summary>
+    {children}
+  </details>;
+}
+
 export function MenuEditor({
   menuId,
   initialMenu,
@@ -219,6 +232,12 @@ export function MenuEditor({
   const [notice, setNotice] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const initialLoadStarted = useRef(false);
+  const editorRoot = useRef<HTMLElement>(null);
+  const errorMessage = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) errorMessage.current?.focus();
+  }, [error]);
 
   const loadMenu = useCallback(async () => {
     setLoading(true);
@@ -367,6 +386,8 @@ export function MenuEditor({
       });
       if (!response.ok) {
         const problem = await problemMessage(response, 'We could not save this menu.');
+        // A rejected optional value must be reachable without finding a closed panel.
+        editorRoot.current?.querySelectorAll('details').forEach((details) => { details.open = true; });
         setFieldErrors(problem.fields);
         throw new Error(problem.message);
       }
@@ -447,13 +468,13 @@ export function MenuEditor({
   }
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} ref={editorRoot}>
       <header className={styles.header}>
         <div className={styles.titleBlock}>
           <button className={styles.back} type="button" onClick={() => router.push('/menus')}>
             <ArrowLeft aria-hidden="true" /> Menus
           </button>
-          <p className={styles.eyebrow}>Review menu</p>
+          <h1>Review menu</h1>
           <input aria-label="Menu name" value={name} maxLength={160} disabled={deleting} onChange={(event) => setName(event.target.value)} />
           <p>Check every dish, ingredient, quantity and unit before approval.</p>
         </div>
@@ -462,12 +483,6 @@ export function MenuEditor({
             {menu.status === 'APPROVED' ? <CheckCircle2 aria-hidden="true" /> : null}
             {menu.status === 'APPROVED' ? 'Approved' : 'Draft'} · v{menu.version}
           </span>
-          <button className={styles.secondaryButton} type="button" disabled={!complete || saving || approving || deleting} onClick={() => void saveDraft()}>
-            <Save aria-hidden="true" /> {saving ? 'Saving…' : 'Save draft'}
-          </button>
-          <button className={styles.primaryButton} type="button" disabled={!complete || saving || approving || deleting} onClick={() => void approve()}>
-            <CheckCircle2 aria-hidden="true" /> {approving ? 'Approving…' : 'Approve menu'}
-          </button>
           <button className={styles.deleteButton} type="button" disabled={deleting || saving || approving} onClick={() => void deleteMenu()}>
             <Trash2 aria-hidden="true" /> {deleting ? 'Deleting…' : 'Delete menu'}
           </button>
@@ -475,20 +490,26 @@ export function MenuEditor({
       </header>
 
       {menu.status === 'APPROVED' && (
-        <div className={styles.warning}>Editing an approved menu and saving it will return it to draft for another review.</div>
+        <div className={styles.warning}>
+          Saving changes returns this menu to draft for review.
+          <Link href="/service-planning">Next: plan meals &amp; portions →</Link>
+        </div>
       )}
+      {!complete && <p className={styles.warning}>Before saving: name the menu and each dish, then add at least one ingredient with a quantity per dish.</p>}
       {notice && <div className={styles.notice} role="status">{notice}</div>}
-      {error && <div className={styles.error} role="alert">{error}</div>}
+      {error && <div ref={errorMessage} tabIndex={-1} className={styles.error} role="alert">{error}</div>}
       {Object.keys(fieldErrors).length > 0 && (
-        <div className={styles.error} role="alert">Check the highlighted menu details and try again.</div>
+        <div className={styles.error} role="alert">
+          <strong>Check these menu details:</strong>
+          <ul>{Object.entries(fieldErrors).map(([field, messages]) => (
+            <li key={field}>{field}: {messages.join(' ')}</li>
+          ))}</ul>
+        </div>
       )}
 
       {(menu.cleanupProposals?.length ?? 0) > 0 && (
-        <section className={styles.cleanupPanel} aria-label="Suggested menu cleanup">
-          <header>
-            <div><p className={styles.eyebrow}>Suggested cleanup</p><h2>Small changes to review</h2></div>
-            <span>{menu.cleanupProposals!.length} found</span>
-          </header>
+        <details className={styles.cleanupPanel} aria-label="Suggested menu cleanup">
+          <summary>Suggested cleanup · {menu.cleanupProposals!.length} changes to review</summary>
           <div>
             {menu.cleanupProposals!.map((proposal) => (
               <article key={proposal.id}>
@@ -497,7 +518,7 @@ export function MenuEditor({
               </article>
             ))}
           </div>
-        </section>
+        </details>
       )}
 
       <section className={styles.dishes} aria-label="Menu dishes">
@@ -597,23 +618,25 @@ export function MenuEditor({
                     </select>
                     <ChevronDown aria-hidden="true" />
                   </label>
-                  <label className={styles.referenceField}>
-                    <span>Food photo or product link, optional</span>
-                    <input
-                      aria-label={`${ingredient.name || 'Ingredient'} food reference link`}
-                      type="url"
-                      inputMode="url"
-                      placeholder="https://example.com/item"
-                      value={ingredient.specification.referenceUrl ?? ''}
-                      disabled={deleting}
-                      onChange={(event) => changeIngredient(dishIndex, ingredientIndex, {
-                        specification: {
-                          ...ingredient.specification,
-                          referenceUrl: event.target.value || null,
-                        },
-                      })}
-                    />
-                  </label>
+                  <MenuReferenceDisclosure hasReference={Boolean(ingredient.specification.referenceUrl)}>
+                    <label>
+                      <span>Reference link</span>
+                      <input
+                        aria-label={`${ingredient.name || 'Ingredient'} food reference link`}
+                        type="url"
+                        inputMode="url"
+                        placeholder="https://example.com/item"
+                        value={ingredient.specification.referenceUrl ?? ''}
+                        disabled={deleting}
+                        onChange={(event) => changeIngredient(dishIndex, ingredientIndex, {
+                          specification: {
+                            ...ingredient.specification,
+                            referenceUrl: event.target.value || null,
+                          },
+                        })}
+                      />
+                    </label>
+                  </MenuReferenceDisclosure>
                   <button type="button" disabled={deleting} aria-label={`Remove ${ingredient.name || 'ingredient'}`} onClick={() => removeIngredient(dishIndex, ingredientIndex)}>
                     <Trash2 aria-hidden="true" />
                   </button>

@@ -112,7 +112,7 @@ function EmptyWorkspace() {
     <section className={styles.emptyWorkspace}>
       <span className={styles.emptyMark}><ClipboardList aria-hidden="true" /></span>
       <p className={styles.eyebrow}>Start here</p>
-      <h2>Set up your procurement workspace</h2>
+      <h2>Get ready for your first purchase</h2>
       <p>Add the suppliers you already buy from, then review a menu before sending your first request.</p>
       <div className={styles.emptyActions}>
         <Link className={styles.primaryAction} href="/suppliers">Add suppliers <ArrowRight aria-hidden="true" /></Link>
@@ -186,18 +186,18 @@ export function OverviewWorkspace({
     <main className={styles.page}>
       <header className={styles.header}>
         <div>
-          <p className={styles.eyebrow}>Your restaurant today</p>
-          <h1>What needs your attention today?</h1>
-          <p className={styles.intro}>See requests, quotes, menus, and supplier work that need attention today.</p>
+
+          <h1>Today</h1>
+          <p className={styles.intro}>Your next steps, from buying ingredients to checking deliveries.</p>
         </div>
         <Link className={styles.primaryAction} href="/procurement/new">
-          Ask suppliers for prices <ArrowRight aria-hidden="true" />
+          New purchase <ArrowRight aria-hidden="true" />
         </Link>
       </header>
 
       <div className={styles.emptyActions}>
-        <Link className={styles.secondaryAction} href="/service-planning">Plan today’s service <ArrowRight aria-hidden="true" /></Link>
-        <Link className={styles.secondaryAction} href="/supplier-performance">Review delivery performance and credits <ArrowRight aria-hidden="true" /></Link>
+        <Link className={styles.secondaryAction} href="/service-planning">Plan meals <ArrowRight aria-hidden="true" /></Link>
+        <Link className={styles.secondaryAction} href="/supplier-performance">Check deliveries & credits <ArrowRight aria-hidden="true" /></Link>
       </div>
 
       {error && (
@@ -209,6 +209,21 @@ export function OverviewWorkspace({
 
       {empty ? <EmptyWorkspace /> : (
         <>
+          <Link className={styles.deliveryAttention} href="/procurement">
+            <span className={styles.deliveryAttentionIcon}><PackageCheck aria-hidden="true" /></span>
+            <span>
+              <strong>Deliveries to check</strong>
+              <small>Confirm what arrived and compare the invoice with the accepted total.</small>
+            </span>
+            <span className={styles.deliveryAttentionCounts}>
+              <b>{data.deliveryAttention.waiting} waiting</b>
+              {data.deliveryAttention.problems > 0 && (
+                <b className={styles.deliveryProblem}><TriangleAlert aria-hidden="true" />{data.deliveryAttention.problems} {data.deliveryAttention.problems === 1 ? 'problem' : 'problems'}</b>
+              )}
+            </span>
+            <ArrowRight aria-hidden="true" />
+          </Link>
+
           <section className={styles.metricGrid} aria-label="Current procurement totals">
             <Link className={styles.metricCard} href="/suppliers">
               <span className={styles.metricIcon}><Building2 aria-hidden="true" /></span>
@@ -240,24 +255,10 @@ export function OverviewWorkspace({
             </Link>
           </section>
 
-          <Link className={styles.deliveryAttention} href="/procurement">
-            <span className={styles.deliveryAttentionIcon}><PackageCheck aria-hidden="true" /></span>
-            <span>
-              <strong>Deliveries to check</strong>
-              <small>Confirm what arrived and compare the invoice with the accepted total.</small>
-            </span>
-            <span className={styles.deliveryAttentionCounts}>
-              <b>{data.deliveryAttention.waiting} waiting</b>
-              {data.deliveryAttention.problems > 0 && (
-                <b className={styles.deliveryProblem}><TriangleAlert aria-hidden="true" />{data.deliveryAttention.problems} {data.deliveryAttention.problems === 1 ? 'problem' : 'problems'}</b>
-              )}
-            </span>
-            <ArrowRight aria-hidden="true" />
-          </Link>
 
           <section className={styles.workflow} aria-labelledby="workflow-title">
             <div>
-              <p className={styles.eyebrow}>Request record</p>
+
               <h2 id="workflow-title">Current work</h2>
             </div>
             <ol>
@@ -272,7 +273,7 @@ export function OverviewWorkspace({
             <section className={styles.panel} aria-labelledby="deadlines-title">
               <header>
                 <div>
-                  <p className={styles.eyebrow}>Waiting for suppliers</p>
+
                   <h2 id="deadlines-title">Nearest quote deadlines</h2>
                 </div>
                 <Clock3 aria-hidden="true" />
@@ -298,7 +299,7 @@ export function OverviewWorkspace({
                   <Send aria-hidden="true" />
                   <h3>No requests waiting for quotes</h3>
                   <p>Open a checked request when you are ready to ask suppliers for prices.</p>
-                  <Link href="/procurement/new">Ask suppliers for prices <ArrowRight aria-hidden="true" /></Link>
+                  <Link href="/procurement/new">New purchase <ArrowRight aria-hidden="true" /></Link>
                 </div>
               )}
             </section>
@@ -306,8 +307,8 @@ export function OverviewWorkspace({
             <section className={styles.panel} aria-labelledby="awards-title">
               <header>
                 <div>
-                  <p className={styles.eyebrow}>Committed record</p>
-                  <h2 id="awards-title">Recently awarded</h2>
+
+                  <h2 id="awards-title">Recent orders</h2>
                 </div>
                 <CheckCircle2 aria-hidden="true" />
               </header>
@@ -317,7 +318,7 @@ export function OverviewWorkspace({
                     <Link href={`/procurement/${encodeURIComponent(award.requestId)}`} key={award.awardId}>
                       <span>
                         <strong>{award.title}</strong>
-                        <small>Awarded {formatAwardDate(award.awardedAt)}</small>
+                        <small>Ordered {formatAwardDate(award.awardedAt)}</small>
                       </span>
                       <span className={styles.awardAmount}>{formatInrFromPaise(award.totalPaise)}</span>
                       <ArrowRight aria-hidden="true" />
@@ -327,8 +328,8 @@ export function OverviewWorkspace({
               ) : (
                 <div className={styles.sectionEmpty}>
                   <CheckCircle2 aria-hidden="true" />
-                  <h3>No awards yet</h3>
-                  <p>Reviewed award totals will appear here after a quote decision is confirmed.</p>
+                  <h3>No orders yet</h3>
+                  <p>Orders appear here after you choose a supplier.</p>
                   <Link href="/procurement">Review requests <ArrowRight aria-hidden="true" /></Link>
                 </div>
               )}

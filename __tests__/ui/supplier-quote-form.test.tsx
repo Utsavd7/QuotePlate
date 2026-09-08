@@ -57,7 +57,9 @@ test('supplier quote form is understandable, complete, and account-free', () => 
   expect(html).toContain('GST %');
   expect(html).toContain('GST is included');
   expect(html).toContain('Cannot supply this item');
-  expect(html).toContain('Freight / delivery charge');
-  expect(html).toContain('Submit quote');
+  expect(html).toContain('Delivery charge');
+  expect(html).toContain('Review delivery &amp; total');
+  expect(html).toContain('Quote steps');
+  expect(html).not.toContain('>Send quote</button>');
   expect(html).not.toContain('Create account');
 });

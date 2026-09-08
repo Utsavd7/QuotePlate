@@ -49,15 +49,18 @@ describe('procurement workspace', () => {
       />,
     );
 
-    expect(html).toContain('Buy ingredients');
-    expect(html).toContain('Ask suppliers for prices, compare the final cost, and record who you choose.');
+    expect(html).toContain('Purchases');
+    expect(html).toContain('Choose ingredients, then ask your suppliers for prices.');
     expect(html).toContain('Fresh produce · Week 36');
     expect(html).toContain('14 items');
     expect(html).toContain('4 suppliers');
     expect(html).toContain('Waiting for suppliers');
     expect(html).toContain('Quote by');
     expect(html).toContain('Delivery');
-    expect(html).toContain('Ask suppliers for prices');
+    expect(html).toContain('Choose ingredients');
+    expect(html).toContain('aria-label="Purchase steps"');
+    expect(html).toContain('aria-pressed="true"');
+    expect(html).toContain('Purchase history &amp; reports');
     expect(html).not.toContain('savings');
     expect(html).not.toContain('AI');
   });
@@ -79,7 +82,7 @@ describe('procurement workspace', () => {
 
     expect(html).toContain('Create your first request');
     expect(html).toContain('approved menu');
-    expect(html).toContain('Ask suppliers for prices');
+    expect(html).toContain('Choose ingredients');
   });
 
   it('translates every stored request status for restaurant users', () => {
@@ -112,7 +115,7 @@ describe('procurement workspace', () => {
   });
 
   it('uses the approved page title', () => {
-    expect(metadata.title).toBe('Buy ingredients');
+    expect(metadata.title).toBe('Purchases');
   });
 
   it('offers the next real API page when a cursor is available', () => {

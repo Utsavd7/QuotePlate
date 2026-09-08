@@ -158,8 +158,9 @@ async function awardSplit(page: Page, browser: Browser, info: TestInfo, fixture:
         await supplier.locator(`input[name="gst:${itemId}"]`).fill('0');
       }
       await supplier.locator('input[name="freightInr"]').fill('0');
-      await supplier.getByRole('button', { name: 'Submit quote', exact: true }).click();
-      await expect(supplier.getByText('Revision 1 submitted successfully.')).toBeVisible();
+      await supplier.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
+      await supplier.getByRole('button', { name: /^Send (updated )?quote$/, exact: true }).click();
+      await expect(supplier.getByText('Quote sent. Version 1 is saved with the restaurant.')).toBeVisible();
     } finally { await context.close(); }
   }
   const current = await json<{ request: { version: number } }>(await page.request.get(`/api/requests/${fixture.requestId}`), 200);
@@ -191,6 +192,7 @@ async function deliveryResponse(page: Page, decision: 'agree' | 'dispute', refer
   // accessible name rather than an exact match against that full label text.
   await form.getByRole('combobox', { name: 'Decision', exact: true }).selectOption(decision);
   await form.getByLabel(/^Explanation/).fill(decision === 'dispute' ? 'Our delivery note records the full shipment.' : 'Replacement and credit recorded correctly.');
+  await form.locator('summary').filter({hasText:'Add an invoice or delivery reference'}).click();
   await form.getByLabel('Evidence reference (optional)', { exact: true }).fill(reference);
   await form.getByRole('button', { name: 'Save delivery response' }).click();
   await expect(page.getByText(decision === 'dispute' ? 'You disputed this record' : 'You agreed with this record', { exact: true })).toBeVisible();
@@ -203,7 +205,7 @@ async function blocked(page: Page, link: string) {
   await expect(page.getByRole('main').getByRole('alert').filter({
     hasText: 'This supplier portal is invalid or no longer available.',
   })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Your orders', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Needs your response', exact: true })).toHaveCount(0);
 }
 
 test('supplier sees only own split award, confirms and disputes receiving; corrections stale feedback and rotated/revoked links stop access', async ({ page, browser }, info) => {
@@ -316,7 +318,7 @@ async function refreshPublicDenied(page: Page) {
   await expect(page.getByRole('main').getByRole('alert').filter({
     hasText: 'This supplier portal is invalid or no longer available.',
   })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Your orders', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Needs your response', exact: true })).toHaveCount(0);
 }
 
 type SavedPlan = {
@@ -361,7 +363,7 @@ async function saveDemandPlan(page: Page) {
     await inventory.getByLabel('Current usable stock', { exact: true }).fill(stock);
   }
   const saved = page.waitForResponse(r => r.url().endsWith('/api/service-planning') && r.request().method() === 'POST');
-  await page.getByRole('button', { name: 'Save and calculate readiness', exact: true }).click();
+  await page.getByRole('button', { name: 'Save and check missing ingredients', exact: true }).click();
   const response = await saved;
   expect(response.status(), await response.text()).toBe(201);
   const plan = await response.json() as SavedPlan;
@@ -385,6 +387,7 @@ test('owner reviews and shares only chosen purchase shortages; supplier sees pri
     const supplier = await context.newPage();
     await openPortal(supplier, link);
     expect((await publicView(supplier)).forecasts).toEqual([]);
+    await page.locator('summary').filter({ hasText: 'Plan ahead: share ingredient needs' }).click();
     const savedPlans = page.getByRole('combobox', { name: 'Saved service plan', exact: true });
     await expect(savedPlans.getByRole('option', { name: /^Private staffing plan · v/ })).toHaveCount(1);
     await savedPlans.selectOption(plan.id);
@@ -417,6 +420,7 @@ test('owner reviews and shares only chosen purchase shortages; supplier sees pri
     const payload = JSON.stringify(view);
     for (const secret of ['Private staffing plan', 'Private recipe collection', 'Private kitchen curry', 'Carrot', carrot.itemKey]) expect(payload).not.toContain(secret);
     expect(payload).not.toMatch(/"(?:menuSnapshot|dishes|inventory|stock|yieldPercent|portions|batchServings|prices)":/);
+    await supplier.locator('summary').filter({hasText:/^Upcoming ingredient estimates \(/}).click();
     const estimates = supplier.getByRole('region', { name: 'Upcoming ingredient estimates' });
     await expect(estimates.getByText('7.5 kilogram', { exact: true })).toBeVisible();
     await expect(estimates).toContainText('Estimate only — these are not confirmed orders or instructions to deliver.');
@@ -440,6 +444,7 @@ test('owner reviews and shares only chosen purchase shortages; supplier sees pri
     await expect(estimates.getByText('7.5 kilogram', { exact: true })).toHaveCount(0);
     await expect(estimates).toContainText('The restaurant has not shared upcoming demand with you.');
     await supplier.reload();
+    await supplier.locator('summary').filter({hasText:/^Upcoming ingredient estimates \(/}).click();
     await expect(estimates).toContainText('The restaurant has not shared upcoming demand with you.');
   } finally { await context.close(); }
 });
