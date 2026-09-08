@@ -1,99 +1,365 @@
 {
   "durationSeconds": 164,
   "resolution": "1920x1080",
-  "narration": "Local Kokoro af_heart; synthetic American English; new feature sections use local Kokoro ONNX af_heart at 1.10×; final brand line reused from the existing film",
-  "sources": "Existing app recordings and fresh isolated app recordings; real Photon/VK Maps listings captured in Andheri East; fictional restaurant records labelled on screen. Existing opening footage and licensed music reused. The next 18 seconds use actual application panels showing supplier trading terms, price reuse, billed costs and credit follow-ups, with internal account banners and identifiers excluded. The last five seconds reuse the branded kitchen closing.",
+  "fps": 30,
+  "narration": "Local Kokoro ONNX af_heart, American English; measured phrase cues; approved intro, nearby and closing audio reused.",
+  "sources": "All application visuals are fresh redesigned application captures with fictional restaurant records and authentic public nearby listings captured during the refresh. Only the approved kitchen opening/closing visuals and intro, nearby and closing audio are reused. Public listings do not prove supplier suitability, current stock or delivery capability. No real-time execution-speed claim.",
   "scenes": [
     {
       "id": "intro",
       "title": "Every purchase, clearer",
-      "at": 0,
       "duration": 5,
-      "text": "QuotePlate connects your kitchen, purchasing decisions and suppliers."
+      "phrases": [
+        "QuotePlate connects your kitchen, purchasing decisions and suppliers."
+      ],
+      "text": "QuotePlate connects your kitchen, purchasing decisions and suppliers.",
+      "sourceStart": 0,
+      "at": 0,
+      "sourceCues": [
+        {
+          "start": 0.4,
+          "end": 3.776,
+          "text": "QuotePlate connects your kitchen, purchasing decisions and suppliers."
+        }
+      ]
+    },
+    {
+      "id": "orientation",
+      "title": "Five sections. One clear workflow.",
+      "duration": 6,
+      "phrases": [
+        "Five sections organise your work:",
+        "Today, Purchases, Suppliers, Menu, and Reports."
+      ],
+      "text": "Five sections organise your work: Today, Purchases, Suppliers, Menu, and Reports.",
+      "shots": [
+        {
+          "file": "today.png",
+          "duration": 6
+        }
+      ],
+      "at": 5
     },
     {
       "id": "menu",
-      "title": "Start with your menu",
-      "at": 5,
-      "duration": 16,
-      "text": "Start with a menu photo, typed dishes, or a website you can import. Review the extracted text, ingredient quantities and units, then approve the menu. Your team stays in control."
+      "title": "Menu / Review before approving",
+      "duration": 12,
+      "phrases": [
+        "Start with a menu photo, typed dishes, or a permitted website import.",
+        "Review the ingredients, quantities and units, then approve your menu."
+      ],
+      "text": "Start with a menu photo, typed dishes, or a permitted website import. Review the ingredients, quantities and units, then approve your menu.",
+      "shots": [
+        {
+          "file": "menu-input.png",
+          "duration": 5
+        },
+        {
+          "file": "menu-review.png",
+          "duration": 7
+        }
+      ],
+      "at": 11,
+      "phraseStarts": [
+        0.2,
+        5.2
+      ]
     },
     {
       "id": "nearby",
-      "title": "Find nearby suppliers — free",
-      "at": 21,
+      "title": "Suppliers / Find nearby businesses",
       "duration": 20,
-      "text": "Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier."
+      "phrases": [
+        "Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier."
+      ],
+      "text": "Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier.",
+      "at": 23,
+      "sourceCues": [
+        {
+          "start": 0.4,
+          "end": 3.34,
+          "text": "Find nearby food businesses inside QuotePlate."
+        },
+        {
+          "start": 3.9,
+          "end": 6.06,
+          "text": "Choose your area, category and distance."
+        },
+        {
+          "start": 6.84,
+          "end": 10.88,
+          "text": "These are real public map listings with contact details when available."
+        },
+        {
+          "start": 11.9,
+          "end": 12.22,
+          "text": "Coverage varies."
+        },
+        {
+          "start": 13.12,
+          "end": 16.04,
+          "text": "Check products and delivery capability before adding a supplier."
+        }
+      ],
+      "audioSourceStart": 21,
+      "shots": [
+        {
+          "file": "nearby-search.png",
+          "duration": 6
+        },
+        {
+          "file": "nearby-results.png",
+          "duration": 14
+        }
+      ]
     },
     {
       "id": "quotes",
-      "title": "One request. Private replies.",
-      "at": 41,
+      "title": "Purchases / Prepare a draft. Suppliers review replies.",
       "duration": 16,
-      "text": "Create one request with quantities, delivery timing and a reply deadline. Invite trusted suppliers, or review new applications. Suppliers send their prices through a private link, without creating an account."
+      "phrases": [
+        "Set ingredients, quantities, delivery timing and reply deadline.",
+        "Choose suppliers and review your draft.",
+        "Suppliers enter prices through a private link,",
+        "review delivery and total, then send their quote."
+      ],
+      "text": "Set ingredients, quantities, delivery timing and reply deadline. Choose suppliers and review your draft. Suppliers enter prices through a private link, review delivery and total, then send their quote.",
+      "shots": [
+        {
+          "file": "new-purchase.png",
+          "duration": 6
+        },
+        {
+          "file": "vendor-quote.png",
+          "duration": 5
+        },
+        {
+          "file": "vendor-review.png",
+          "duration": 5
+        }
+      ],
+      "at": 43,
+      "phraseStarts": [
+        0.2,
+        0,
+        6.2,
+        11.2
+      ]
     },
     {
       "id": "award",
-      "title": "Compare the complete cost",
-      "at": 57,
+      "title": "Purchases / Compare before choosing",
       "duration": 13,
-      "text": "Compare quantities, taxes, freight and delivery terms together. Choose one supplier, or split the purchase by item. Save your reason and the accepted decision."
+      "phrases": [
+        "Review each supplier’s offer: quantities, taxes, freight and delivery terms.",
+        "Choose one supplier or split the purchase by item.",
+        "Save your reason and the accepted decision."
+      ],
+      "text": "Review each supplier’s offer: quantities, taxes, freight and delivery terms. Choose one supplier or split the purchase by item. Save your reason and the accepted decision.",
+      "shots": [
+        {
+          "file": "comparison.png",
+          "duration": 7
+        },
+        {
+          "file": "award.png",
+          "duration": 6
+        }
+      ],
+      "at": 59,
+      "phraseStarts": [
+        0.2,
+        7.2,
+        0
+      ]
     },
     {
       "id": "receiving",
-      "title": "Record what actually arrived",
-      "at": 70,
+      "title": "Purchases / Check the delivery",
       "duration": 17,
-      "text": "Check received and rejected quantities against the purchase. Record billed rates, missing items and the credit claimed. Track credit received and settlement references. Supplier performance uses this delivery evidence, including outstanding balances."
+      "phrases": [
+        "Record what arrived, including received and rejected quantities.",
+        "Check billed quantities and rates against the order.",
+        "Track credits claimed, credits received and settlement references.",
+        "Delivery evidence feeds the supplier’s performance record."
+      ],
+      "text": "Record what arrived, including received and rejected quantities. Check billed quantities and rates against the order. Track credits claimed, credits received and settlement references. Delivery evidence feeds the supplier’s performance record.",
+      "shots": [
+        {
+          "file": "receiving.png",
+          "duration": 9
+        },
+        {
+          "file": "credits.png",
+          "duration": 8
+        }
+      ],
+      "at": 72,
+      "phraseStarts": [
+        0.2,
+        0,
+        9.2,
+        0
+      ]
     },
     {
       "id": "portal",
-      "title": "Keep suppliers in the loop",
-      "at": 87,
-      "duration": 20,
-      "text": "Give each supplier a separate private workspace link. They see their own orders, confirm quantities, and agree or dispute a delivery record with a document reference. If the restaurant corrects the record, earlier confirmation becomes outdated."
+      "title": "Suppliers / Orders and delivery responses",
+      "duration": 18,
+      "phrases": [
+        "Each supplier has a separate private workspace for their own orders.",
+        "They can confirm quantities, or agree or dispute delivery records with a reference.",
+        "If the restaurant corrects a record, earlier confirmation becomes outdated."
+      ],
+      "text": "Each supplier has a separate private workspace for their own orders. They can confirm quantities, or agree or dispute delivery records with a reference. If the restaurant corrects a record, earlier confirmation becomes outdated.",
+      "shots": [
+        {
+          "file": "supplier-orders.png",
+          "duration": 8
+        },
+        {
+          "file": "supplier-delivery-record.png",
+          "duration": 5
+        },
+        {
+          "file": "supplier-response.png",
+          "duration": 5
+        }
+      ],
+      "at": 89,
+      "phraseStarts": [
+        0.2,
+        8.2,
+        0
+      ]
     },
     {
       "id": "plan",
-      "title": "Buy only the shortage",
-      "at": 107,
+      "title": "Today / Plan meals, buy the shortage",
       "duration": 18,
-      "text": "Plan the next service using portions, usable stock and expected yield. Here, ten kilos needed and four already usable leave six kilos. At eighty percent yield, that becomes a seven point five kilo purchase."
+      "phrases": [
+        "In Today, open Plan meals and set your portions.",
+        "Review usable stock, expected yield and confirmed arrivals.",
+        "Review the ingredient shortages and purchase quantities, then create a draft."
+      ],
+      "text": "In Today, open Plan meals and set your portions. Review usable stock, expected yield and confirmed arrivals. Review the ingredient shortages and purchase quantities, then create a draft.",
+      "shots": [
+        {
+          "file": "plan-input.png",
+          "duration": 6
+        },
+        {
+          "file": "plan-stock.png",
+          "duration": 6
+        },
+        {
+          "file": "plan-shortage.png",
+          "duration": 6
+        }
+      ],
+      "at": 107,
+      "phraseStarts": [
+        0.2,
+        6.2,
+        12.2
+      ]
     },
     {
       "id": "demand",
-      "title": "Share estimates, keep recipes private",
-      "at": 125,
+      "title": "Suppliers / Share selected estimates",
       "duration": 16,
-      "text": "Choose the missing ingredients you want a supplier to prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. Estimates are not orders, and your team can withdraw them."
+      "phrases": [
+        "Choose the missing ingredients a supplier should prepare for.",
+        "Share only those estimated quantities.",
+        "Recipes, portions and stock stay private.",
+        "These estimates are not orders, and your team can withdraw them."
+      ],
+      "text": "Choose the missing ingredients a supplier should prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. These estimates are not orders, and your team can withdraw them.",
+      "shots": [
+        {
+          "file": "demand-select.png",
+          "duration": 8
+        },
+        {
+          "file": "demand-shared.png",
+          "duration": 8
+        }
+      ],
+      "at": 125
     },
     {
       "id": "trading",
-      "title": "Know supplier trading terms",
-      "at": 141,
+      "title": "Suppliers / Check trading terms",
       "duration": 6,
-      "text": "Suppliers can confirm wholesale terms, service PIN codes and delivery lead times."
+      "phrases": [
+        "Check wholesale terms, served PIN codes and delivery lead times."
+      ],
+      "text": "Check wholesale terms, served PIN codes and delivery lead times.",
+      "shots": [
+        {
+          "file": "trading.png",
+          "duration": 6
+        }
+      ],
+      "at": 141
     },
     {
       "id": "reuse",
-      "title": "Reuse prices after review",
-      "at": 147,
+      "title": "Purchases / Reuse prices after review",
       "duration": 6,
-      "text": "Reuse matching past prices, then confirm today’s quantities and terms."
+      "phrases": [
+        "Reuse matching past prices, then confirm today’s quantities and terms."
+      ],
+      "text": "Reuse matching past prices, then confirm today’s quantities and terms.",
+      "shots": [
+        {
+          "file": "reuse-before.png",
+          "duration": 3
+        },
+        {
+          "file": "reuse-after.png",
+          "duration": 3
+        }
+      ],
+      "at": 147
     },
     {
       "id": "accountability",
-      "title": "Follow up on deliveries and credits",
-      "at": 153,
+      "title": "Supplier delivery record / Follow through",
       "duration": 6,
-      "text": "Track billed cost per accepted unit, incomplete deliveries and outstanding credits."
+      "phrases": [
+        "Review delivery records, outstanding credits, and billed cost per accepted unit."
+      ],
+      "text": "Review delivery records, outstanding credits, and billed cost per accepted unit.",
+      "shots": [
+        {
+          "file": "delivery-record.png",
+          "duration": 3
+        },
+        {
+          "file": "delivery-cost.png",
+          "duration": 3
+        }
+      ],
+      "at": 153
     },
     {
       "id": "end",
       "title": "Every quote, accountable",
-      "at": 159,
       "duration": 5,
-      "text": "QuotePlate. Every quote, accountable."
+      "phrases": [
+        "QuotePlate. Every quote, accountable."
+      ],
+      "text": "QuotePlate. Every quote, accountable.",
+      "sourceStart": 159,
+      "at": 159,
+      "sourceCues": [
+        {
+          "start": 0.94,
+          "end": 2.82,
+          "text": "QuotePlate. Every quote, accountable."
+        }
+      ]
     }
   ]
 }

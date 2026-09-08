@@ -1,28 +1,31 @@
-QuotePlate — 2:29 product film
-Actual app recordings, condensed. Fictional restaurant records; nearby search shows real public map listings captured for this demonstration, not current stock or prices. Synthetic American-English narration.
+QuotePlate — 2:44 product film
+
+Actual application captures with fictional restaurant records. Actions are condensed. Nearby search shows authentic public listings, not a guarantee of current availability. Synthetic American-English narration.
 
 QuotePlate connects your kitchen, purchasing decisions and suppliers.
 
-Start with a menu photo, typed dishes, or a website you can import. Review the extracted text, ingredient quantities and units, then approve the menu. Your team stays in control.
+Five sections organise your work: Today, Purchases, Suppliers, Menu, and Reports.
+
+Start with a menu photo, typed dishes, or a permitted website import. Review the ingredients, quantities and units, then approve your menu.
 
 Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier.
 
-Create one request with quantities, delivery timing and a reply deadline. Invite trusted suppliers, or review new applications. Suppliers send their prices through a private link, without creating an account.
+Set ingredients, quantities, delivery timing and reply deadline. Choose suppliers and review your draft. Suppliers enter prices through a private link, review delivery and total, then send their quote.
 
-Compare quantities, taxes, freight and delivery terms together. Choose one supplier, or split the purchase by item. Save your reason and the accepted decision.
+Review each supplier’s offer: quantities, taxes, freight and delivery terms. Choose one supplier or split the purchase by item. Save your reason and the accepted decision.
 
-Check received and rejected quantities against the purchase. Record billed rates, missing items and the credit claimed. Track credit received and settlement references. Supplier performance uses this delivery evidence, including outstanding balances.
+Record what arrived, including received and rejected quantities. Check billed quantities and rates against the order. Track credits claimed, credits received and settlement references. Delivery evidence feeds the supplier’s performance record.
 
-Give each supplier a separate private workspace link. They see their own orders, confirm quantities, and agree or dispute a delivery record with a document reference. If the restaurant corrects the record, earlier confirmation becomes outdated.
+Each supplier has a separate private workspace for their own orders. They can confirm quantities, or agree or dispute delivery records with a reference. If the restaurant corrects a record, earlier confirmation becomes outdated.
 
-Plan the next service using portions, usable stock and expected yield. Here, ten kilos needed and four already usable leave six kilos. At eighty percent yield, that becomes a seven point five kilo purchase.
+In Today, open Plan meals and set your portions. Review usable stock, expected yield and confirmed arrivals. Review the ingredient shortages and purchase quantities, then create a draft.
 
-Choose the missing ingredients you want a supplier to prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. Estimates are not orders, and your team can withdraw them.
+Choose the missing ingredients a supplier should prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. These estimates are not orders, and your team can withdraw them.
 
-Suppliers can confirm wholesale terms, service PIN codes and delivery lead times.
+Check wholesale terms, served PIN codes and delivery lead times.
 
 Reuse matching past prices, then confirm today’s quantities and terms.
 
-Track billed cost per accepted unit, incomplete deliveries and outstanding credits.
+Review delivery records, outstanding credits, and billed cost per accepted unit.
 
 QuotePlate. Every quote, accountable.
