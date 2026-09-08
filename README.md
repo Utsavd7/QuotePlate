@@ -10,7 +10,7 @@ Built by [Utsav Doshi](https://github.com/Utsavd7).
 
 [![Watch the QuotePlate product demo — 2 minutes 29 seconds](public/media/quoteplate-product-film.jpg)](https://quoteplate.netlify.app/#watch-demo)
 
-[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 2:29 · 1920 × 1080 Full HD
+[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 2:44 · 1920 × 1080 Full HD
 
 Follow a fictional restaurant in Pune from a menu photo through supplier discovery, private quotes, cost comparison and a purchase decision. Updated application footage demonstrates item-level receiving, partial deliveries, credits claimed and received, supplier performance, portion and yield planning, and a shortage-only purchase draft. Routine actions are condensed; the narration explains the inputs and review steps.
 
@@ -124,7 +124,7 @@ Automatic nearby discovery uses public OpenStreetMap data through [Photon](https
 
 ## Procurement improvements — September 2026
 
-Supplier trading declarations, matching historical quote rates and delivery-cost evidence address three practical purchasing gaps. The existing 2:29 film demonstrates the underlying buying workflow; these additions are explained in the product itself.
+Supplier trading declarations, matching historical quote rates and delivery-cost evidence address three practical purchasing gaps. The updated 2:44 film demonstrates the buying workflow, these additions and the editable internal demo using clearly labelled fictional restaurant records.
 
 - **Supplier trading declarations:** invited suppliers can state wholesale status, served PIN codes, minimum order, order cutoff in IST and lead time. The workspace shows the declaration date and flags information older than 30 days. Declarations are not independently verified or live inventory, and each order still needs confirmation.
 - **Matching historical rates:** suppliers can explicitly review and reuse prices from their own matching earlier quote. Historical prices are not live market prices. Current quantities, availability, delivery and commercial terms still require review and normal submission.

@@ -19,4 +19,10 @@ Plan the next service using portions, usable stock and expected yield. Here, ten
 
 Choose the missing ingredients you want a supplier to prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. Estimates are not orders, and your team can withdraw them.
 
-Find suppliers, compare quotes and keep delivery conversations clear. QuotePlate. Every quote, accountable.
+Suppliers can confirm wholesale terms, service PIN codes and delivery lead times.
+
+Reuse matching past prices, then confirm today’s quantities and terms.
+
+Track billed cost per accepted unit, incomplete deliveries and outstanding credits.
+
+Explore the working restaurant demo. QuotePlate. Every quote, accountable.

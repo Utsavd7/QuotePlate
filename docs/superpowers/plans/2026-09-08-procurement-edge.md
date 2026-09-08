@@ -22,8 +22,8 @@
 - [x] Verify rounding, compatible units, missing invoice input, zero accepted quantities and correction deduplication.
 
 ## Integration and delivery
-- [x] Update product copy and README to match completed features, preserving the 2:29 video.
-- [ ] Run type/lint, unit and relevant database/browser checks; review diff and address failures.
+- [x] Update product copy and README to match completed features, with the user-requested refreshed film capped at 2:45.
+- [x] Run type/lint, unit and relevant database/browser checks; review diff and address failures.
 - [x] Create a reviewable PR.
 - [ ] Publish only after required release checks and migrations succeed.
 
@@ -32,3 +32,5 @@
 - [x] Populate actual menus, suppliers, quotes, orders, delivery checks, credits and service plans with coherent fictional records.
 - [x] Identify the fixed demo workspace with a persistent sample-data banner inside the actual app. Normal tenant authorization applies; no demo bypass.
 - [x] Validate seeded records through actual workflows and verify no changes to other tenants. Repeat seeding preserves demo edits and fails on identity mismatch.
+
+Final local verification: 1,080 unit/API tests, 49 core database tests and 5 demo database tests passed. Targeted desktop/mobile checks cover supplier terms, previous-price reuse, editable demo login, pre-hydration credential protection and the updated video player. The refreshed film is exactly 164 seconds, 1920×1080 H.264/AAC, with 38 in-range caption cues and a clean full decode. Production publish and actual demo setup follow the release gates above.
