@@ -8,34 +8,463 @@
   "videoCodec": "h264",
   "audioCodec": "aac",
   "fullDecode": "passed",
-  "storyboardSha256": "02f989ff4c9cbcc9236b05ecc0243ee0c4f14428c306fc57b3475a6fc8fdbf49",
+  "storyboardSha256": "87503c5abc3760566757626be67d095b90f13d2de793ab41b077db4371d9a8c6",
   "sourceSha256": "c28fb8def63cd078d1bf3c5800a8830ad4efb9b5aab89553ce7190e4d6aeb1a3",
-  "outputSha256": "223725481f47740c7a9ef5c7558b808a568df26a46bd6bd152d3933f94926267",
+  "outputSha256": "230fe98bb6baa3bbf3963a61c664bf826bce6d72b7133f9fefd4c935495c12e7",
   "freshCaptures": {
-    "today.png": "9d725566772311adaebd5a970a9a7d1a90622d20a416192a1b57496c981c1629",
-    "menu-input.png": "787e6e45fca180fb91782f8654be6799d0500b545d1edc8b100ab81d255b44d2",
-    "menu-review.png": "23a74a9ae40f6357247690212e6cc6b360418a8d6edc1aaaf49a3fc7b259be5e",
-    "nearby-search.png": "d02f885f2ff959747a15cf7fcd418e0e5c577c300e5aca2828e22659d85b5132",
-    "nearby-results.png": "c3d4f25ab6d22ead8db57552d665d4ec2a241375aec91ebb07b936264d4f16d9",
-    "new-purchase.png": "a1044db975cd25398cf8d5d564f4c3cc5f0acadf0c3afd3454e32103287dcacf",
-    "vendor-quote.png": "8ddcbb361b6d08804f950532e27a94c973225b42399e965be6241c3e77a6ea66",
-    "vendor-review.png": "424030bfd0cb669332ffe425edf3b12a7aab7b7f8b184c166d30a12a373a3d17",
-    "comparison.png": "89f2d8e8e590b623178ccdc9f0ea06b67c7fa7040fb36327c1e347dcf994d1a2",
-    "award.png": "b72c0e790cb3dc0880b2c93c1592af2938ea234af0cdd152b121d80f40245bf0",
-    "receiving.png": "bb9056d07e0491c4476fa8e89de865a3c02035f26e3992f5744b0ffd37856988",
-    "credits.png": "1ceb3344c136fc4c4b9997b994fdf08a354da6a598c843d3451978beab0d87d7",
-    "supplier-orders.png": "2d5190109a9dfc902597498c2bb5bef3899f992ac96079bc415ffea01e927ce3",
-    "supplier-delivery-record.png": "d91b9de32905fbcc5c0c94bbb293f58a507a7dfbe5481e7d77c3de75e96e0dd5",
-    "supplier-response.png": "2a71e7faaa71137c80a0a8d451866fee6bc1925d112119e5841eb4cc6d79d58a",
-    "plan-input.png": "7cf2ae544d340351ce056cc6fce5d22c6d7f7519a3a92b5dfdcd0c2bdce56708",
-    "plan-stock.png": "bef47a455a46a9bb06b2e3b4da82e613dbe8feb1168a7ae2cf7139082680640d",
-    "plan-shortage.png": "e3f146e91315634b33ace1c4993acf8b59e655dd6b09544f42381e012ea651ae",
-    "demand-select.png": "52d1fbec9774376df6f3bf280a84a4ba21cdb2d29611a2654d8fe977cca0e802",
-    "demand-shared.png": "9c65264f7dbeb3280c9e3cbbca68e60db4554afd14e19a0f952ede404c2999ed",
-    "trading.png": "6ce8dfd7eeb18e5ad12a8c3240578eb318c24e772f2ed6d30285a63d7e4ef210",
-    "reuse-before.png": "0cd087466f055353737281d8c06ad854c1b36ed2bec423ce9d146c34a73b8f5d",
-    "reuse-after.png": "564f6ba7e422e43eb596d1b573c7dec89141616b97ce9b16654a80c83bd099b1",
-    "delivery-record.png": "6f76193dba6f07f87c9f7428ac59e0575cc98949a01993353b8d704be90841fa",
-    "delivery-cost.png": "b252304c59b01b1b20de7a790f0cc1a93ea33fa0141fed46bf8488069e34f19f"
+    "today.mp4": "e5f1c71b7bf528dcaf7bee86dda027e0ffad9c39578d1262b7d4f69e4372a051",
+    "menu-input.mp4": "b6a4d7b734a009c3507fb05377537873399306b491c8ee205d1b8d605602e025",
+    "menu-review.mp4": "0f2aa185f9227cf69156170874ed55e0e3f6ad75cb2a8e93dba15a67357bc1ca",
+    "nearby-search.mp4": "f16f73cd74c5fef3835efab112c45f44097f69118b36757cb832b987c3790658",
+    "nearby-results.mp4": "a01ea6291bd8e48994fbb8deda1b31481199b1104cf3c74562243672ccfb9da5",
+    "new-purchase.mp4": "3d601669b1052dd2a0b50d8d64f6b568ebfc51a20198dbd7a9c925770a873a1b",
+    "vendor-quote.mp4": "a8de4b9e2498891a7e8e3065c4a2e72c7728cd617e25faea6661bb387d2955d3",
+    "vendor-review.mp4": "7dd260574f94a5677d8fc0cff924317b058253b38f7c4a0908b9375b3191a3b4",
+    "comparison.mp4": "6fc86be33a34d786cb1700877236025d0f4e1ed097d154a7980b958cf3dc3503",
+    "award.mp4": "31382bcadd03a2dde8be97659cea2d8a709376beabb47a343769ed4837527e7c",
+    "receiving.mp4": "1f6b391d983e8b7025f457fb0a33bce0f3540a826ad4cd71a7bf276ca7eb47aa",
+    "credits.mp4": "a17a7db91070ce03573616c39c287b0331d9644a9c4db2645c91db515f01fd32",
+    "supplier-orders.mp4": "4e1c22ccf6083443c09f5dc38c2c308ed53c20a33b8a783ee0e816e1a9e45501",
+    "supplier-delivery-record.mp4": "d0544a2db819166561738d4c34cf23f6ed732233bbaa3fdc58a453dcbb17d6d1",
+    "supplier-response.mp4": "94ff24384bf43993a6843ebd51568017f3504154703279f88ac81581dab9337a",
+    "plan-input.mp4": "99e68ea69ff47ea9da0e92d156abc992cbe35cf170a3f2f625fe0c72cbafc16f",
+    "plan-stock.mp4": "57d25eedbdd75648af64bcb0fa32d1441e8a6959c3dcc8394333320c5601cacb",
+    "plan-shortage.mp4": "41553294a28751e6a0169a4015b0adbc900f97e98472d1f4575f90c479cda96e",
+    "demand-select.mp4": "e9765e80381065803f858597a0c3ba7131892a154cf9e6beb66aa5c192034eae",
+    "demand-shared.mp4": "df9bb2d940038e61bd3703752ce950212ab74b32f7d09ca066390fa8be17a2d5",
+    "trading.mp4": "a1019bfc85a06990f1c2514349b51619ca697db2e3b115bf56afc0f0cb74f856",
+    "reuse-before.mp4": "e0dc6246c2f45993aabe846add10a7c96727afc7a55d8f696ece609798c5825c",
+    "reuse-after.mp4": "29c2cd1830761cba6dd883fdf1c88893fdbde32c93679d825416ed4961f8ded5",
+    "delivery-record.mp4": "1b0f499784035e062d2521076b1e293d02412354a3389a213dd9c560010a0be7",
+    "delivery-cost.mp4": "fc6d2cc26ee0b72ac70bc5e0ec4fa5c89c48b5d0117eed144740445fd8f69421"
+  },
+  "videoShots": [
+    {
+      "file": "today.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "menu-input.mp4",
+      "duration": 5,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "menu-review.mp4",
+      "duration": 7,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "nearby-search.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "nearby-results.mp4",
+      "duration": 14,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "new-purchase.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "vendor-quote.mp4",
+      "duration": 5,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "vendor-review.mp4",
+      "duration": 5,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "comparison.mp4",
+      "duration": 7,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "award.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "receiving.mp4",
+      "duration": 9,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "credits.mp4",
+      "duration": 8,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "supplier-orders.mp4",
+      "duration": 8,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "supplier-delivery-record.mp4",
+      "duration": 5,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "supplier-response.mp4",
+      "duration": 5,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "plan-input.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "plan-stock.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "plan-shortage.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "demand-select.mp4",
+      "duration": 8,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "demand-shared.mp4",
+      "duration": 8,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "trading.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "reuse-before.mp4",
+      "duration": 3,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "reuse-after.mp4",
+      "duration": 3,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "delivery-record.mp4",
+      "duration": 3,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "delivery-cost.mp4",
+      "duration": 3,
+      "sourceStart": 0,
+      "playbackRate": 1
+    }
+  ],
+  "captureDetails": [
+    {
+      "file": "award.mp4",
+      "sha256": "31382bcadd03a2dde8be97659cea2d8a709376beabb47a343769ed4837527e7c",
+      "width": 1440,
+      "height": 900,
+      "duration": "6.000000",
+      "frames": "180",
+      "sampleCount": 6,
+      "uniqueSampleFrames": 6
+    },
+    {
+      "file": "comparison.mp4",
+      "sha256": "6fc86be33a34d786cb1700877236025d0f4e1ed097d154a7980b958cf3dc3503",
+      "width": 1440,
+      "height": 900,
+      "duration": "7.000000",
+      "frames": "210",
+      "sampleCount": 7,
+      "uniqueSampleFrames": 7
+    },
+    {
+      "file": "credits.mp4",
+      "sha256": "a17a7db91070ce03573616c39c287b0331d9644a9c4db2645c91db515f01fd32",
+      "width": 1440,
+      "height": 900,
+      "duration": "8.000000",
+      "frames": "240",
+      "sampleCount": 8,
+      "uniqueSampleFrames": 8
+    },
+    {
+      "file": "delivery-cost.mp4",
+      "sha256": "fc6d2cc26ee0b72ac70bc5e0ec4fa5c89c48b5d0117eed144740445fd8f69421",
+      "width": 1440,
+      "height": 900,
+      "duration": "3.000000",
+      "frames": "90",
+      "sampleCount": 3,
+      "uniqueSampleFrames": 3
+    },
+    {
+      "file": "delivery-record.mp4",
+      "sha256": "1b0f499784035e062d2521076b1e293d02412354a3389a213dd9c560010a0be7",
+      "width": 1440,
+      "height": 900,
+      "duration": "3.000000",
+      "frames": "90",
+      "sampleCount": 3,
+      "uniqueSampleFrames": 3
+    },
+    {
+      "file": "demand-select.mp4",
+      "sha256": "e9765e80381065803f858597a0c3ba7131892a154cf9e6beb66aa5c192034eae",
+      "width": 1440,
+      "height": 900,
+      "duration": "8.000000",
+      "frames": "240",
+      "sampleCount": 8,
+      "uniqueSampleFrames": 8
+    },
+    {
+      "file": "demand-shared.mp4",
+      "sha256": "df9bb2d940038e61bd3703752ce950212ab74b32f7d09ca066390fa8be17a2d5",
+      "width": 1440,
+      "height": 900,
+      "duration": "8.000000",
+      "frames": "240",
+      "sampleCount": 8,
+      "uniqueSampleFrames": 8
+    },
+    {
+      "file": "menu-input.mp4",
+      "sha256": "b6a4d7b734a009c3507fb05377537873399306b491c8ee205d1b8d605602e025",
+      "width": 1440,
+      "height": 900,
+      "duration": "5.000000",
+      "frames": "150",
+      "sampleCount": 5,
+      "uniqueSampleFrames": 5
+    },
+    {
+      "file": "menu-review.mp4",
+      "sha256": "0f2aa185f9227cf69156170874ed55e0e3f6ad75cb2a8e93dba15a67357bc1ca",
+      "width": 1440,
+      "height": 900,
+      "duration": "7.000000",
+      "frames": "210",
+      "sampleCount": 7,
+      "uniqueSampleFrames": 7
+    },
+    {
+      "file": "nearby-results.mp4",
+      "sha256": "a01ea6291bd8e48994fbb8deda1b31481199b1104cf3c74562243672ccfb9da5",
+      "width": 1440,
+      "height": 900,
+      "duration": "14.000000",
+      "frames": "420",
+      "sampleCount": 14,
+      "uniqueSampleFrames": 14
+    },
+    {
+      "file": "nearby-search.mp4",
+      "sha256": "f16f73cd74c5fef3835efab112c45f44097f69118b36757cb832b987c3790658",
+      "width": 1440,
+      "height": 900,
+      "duration": "6.000000",
+      "frames": "180",
+      "sampleCount": 6,
+      "uniqueSampleFrames": 6
+    },
+    {
+      "file": "new-purchase.mp4",
+      "sha256": "3d601669b1052dd2a0b50d8d64f6b568ebfc51a20198dbd7a9c925770a873a1b",
+      "width": 1440,
+      "height": 900,
+      "duration": "6.000000",
+      "frames": "180",
+      "sampleCount": 6,
+      "uniqueSampleFrames": 6
+    },
+    {
+      "file": "plan-input.mp4",
+      "sha256": "99e68ea69ff47ea9da0e92d156abc992cbe35cf170a3f2f625fe0c72cbafc16f",
+      "width": 1440,
+      "height": 900,
+      "duration": "6.000000",
+      "frames": "180",
+      "sampleCount": 6,
+      "uniqueSampleFrames": 6
+    },
+    {
+      "file": "plan-shortage.mp4",
+      "sha256": "41553294a28751e6a0169a4015b0adbc900f97e98472d1f4575f90c479cda96e",
+      "width": 1440,
+      "height": 900,
+      "duration": "6.000000",
+      "frames": "180",
+      "sampleCount": 6,
+      "uniqueSampleFrames": 6
+    },
+    {
+      "file": "plan-stock.mp4",
+      "sha256": "57d25eedbdd75648af64bcb0fa32d1441e8a6959c3dcc8394333320c5601cacb",
+      "width": 1440,
+      "height": 900,
+      "duration": "6.000000",
+      "frames": "180",
+      "sampleCount": 6,
+      "uniqueSampleFrames": 6
+    },
+    {
+      "file": "receiving.mp4",
+      "sha256": "1f6b391d983e8b7025f457fb0a33bce0f3540a826ad4cd71a7bf276ca7eb47aa",
+      "width": 1440,
+      "height": 900,
+      "duration": "9.000000",
+      "frames": "270",
+      "sampleCount": 9,
+      "uniqueSampleFrames": 9
+    },
+    {
+      "file": "reuse-after.mp4",
+      "sha256": "29c2cd1830761cba6dd883fdf1c88893fdbde32c93679d825416ed4961f8ded5",
+      "width": 1440,
+      "height": 900,
+      "duration": "3.000000",
+      "frames": "90",
+      "sampleCount": 3,
+      "uniqueSampleFrames": 3
+    },
+    {
+      "file": "reuse-before.mp4",
+      "sha256": "e0dc6246c2f45993aabe846add10a7c96727afc7a55d8f696ece609798c5825c",
+      "width": 1440,
+      "height": 900,
+      "duration": "3.000000",
+      "frames": "90",
+      "sampleCount": 3,
+      "uniqueSampleFrames": 3
+    },
+    {
+      "file": "supplier-delivery-record.mp4",
+      "sha256": "d0544a2db819166561738d4c34cf23f6ed732233bbaa3fdc58a453dcbb17d6d1",
+      "width": 1440,
+      "height": 900,
+      "duration": "5.000000",
+      "frames": "150",
+      "sampleCount": 5,
+      "uniqueSampleFrames": 5
+    },
+    {
+      "file": "supplier-orders.mp4",
+      "sha256": "4e1c22ccf6083443c09f5dc38c2c308ed53c20a33b8a783ee0e816e1a9e45501",
+      "width": 1440,
+      "height": 900,
+      "duration": "8.000000",
+      "frames": "240",
+      "sampleCount": 8,
+      "uniqueSampleFrames": 8
+    },
+    {
+      "file": "supplier-response.mp4",
+      "sha256": "94ff24384bf43993a6843ebd51568017f3504154703279f88ac81581dab9337a",
+      "width": 1440,
+      "height": 900,
+      "duration": "5.000000",
+      "frames": "150",
+      "sampleCount": 5,
+      "uniqueSampleFrames": 5
+    },
+    {
+      "file": "today.mp4",
+      "sha256": "e5f1c71b7bf528dcaf7bee86dda027e0ffad9c39578d1262b7d4f69e4372a051",
+      "width": 1440,
+      "height": 900,
+      "duration": "6.000000",
+      "frames": "180",
+      "sampleCount": 6,
+      "uniqueSampleFrames": 6
+    },
+    {
+      "file": "trading.mp4",
+      "sha256": "a1019bfc85a06990f1c2514349b51619ca697db2e3b115bf56afc0f0cb74f856",
+      "width": 1440,
+      "height": 900,
+      "duration": "6.000000",
+      "frames": "180",
+      "sampleCount": 6,
+      "uniqueSampleFrames": 6
+    },
+    {
+      "file": "vendor-quote.mp4",
+      "sha256": "a8de4b9e2498891a7e8e3065c4a2e72c7728cd617e25faea6661bb387d2955d3",
+      "width": 1440,
+      "height": 900,
+      "duration": "5.000000",
+      "frames": "150",
+      "sampleCount": 5,
+      "uniqueSampleFrames": 5
+    },
+    {
+      "file": "vendor-review.mp4",
+      "sha256": "7dd260574f94a5677d8fc0cff924317b058253b38f7c4a0908b9375b3191a3b4",
+      "width": 1440,
+      "height": 900,
+      "duration": "5.000000",
+      "frames": "150",
+      "sampleCount": 5,
+      "uniqueSampleFrames": 5
+    }
+  ],
+  "audioPacketHash": "SHA256=fe65538868e52f6db55f50d80900ce9c8a557fdd389485fbc20105e43fadd1d7",
+  "audioIdenticalToPreviousPublic": true,
+  "captionSha256": "d4f371327a7670d4e06879f522fb86d41dee4b9ece7badca5f75b207f4075235",
+  "transcriptSha256": "eca510177b240516db98cd19058e21cd38e060fe001b4b935f4a944298367767",
+  "captionsAndTranscriptUnchanged": true,
+  "posterSha256": "727cf25538fb40632d976df72a7586e116869ebf5a70f165fd66dad7bc53c90b",
+  "creditsSha256": "cb069edb19a50fae6ca14d12fa1617a38fc6cc5c12e5282b4577c70c6c886425",
+  "volume": {
+    "input_i": "-17.44",
+    "input_tp": "-3.96",
+    "input_lra": "5.00",
+    "input_thresh": "-28.82",
+    "output_i": "-17.18",
+    "output_tp": "-2.57",
+    "output_lra": "4.90",
+    "output_thresh": "-28.57",
+    "normalization_type": "dynamic",
+    "target_offset": "0.18"
+  },
+  "fastStart": true,
+  "captureMotionCheck": "All 25 clips have differing one-second samples; temporal and boundary review performed.",
+  "palette": {
+    "canvas": "#f6f7f5",
+    "bar": "#172521"
   }
 }

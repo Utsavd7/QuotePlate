@@ -3,7 +3,7 @@
   "resolution": "1920x1080",
   "fps": 30,
   "narration": "Local Kokoro ONNX af_heart, American English; measured phrase cues; approved intro, nearby and closing audio reused.",
-  "sources": "All application visuals are fresh redesigned application captures with fictional restaurant records and authentic public nearby listings captured during the refresh. Only the approved kitchen opening/closing visuals and intro, nearby and closing audio are reused. Public listings do not prove supplier suitability, current stock or delivery capability. No real-time execution-speed claim.",
+  "sources": "Application visuals are real redesigned-app screen recordings of clicks, typing, navigation and result review, with fictional restaurant records and authentic public nearby listings. Only approved kitchen opening/closing visuals and intro, nearby and closing audio are reused. Clips play at recorded speed by default; any explicitly condensed footage is bounded to 1.5x. Public listings do not guarantee stock, supplier suitability or delivery capability.",
   "scenes": [
     {
       "id": "intro",
@@ -34,8 +34,10 @@
       "text": "Five sections organise your work: Today, Purchases, Suppliers, Menu, and Reports.",
       "shots": [
         {
-          "file": "today.png",
-          "duration": 6
+          "file": "today.mp4",
+          "duration": 6,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 5
@@ -51,12 +53,16 @@
       "text": "Start with a menu photo, typed dishes, or a permitted website import. Review the ingredients, quantities and units, then approve your menu.",
       "shots": [
         {
-          "file": "menu-input.png",
-          "duration": 5
+          "file": "menu-input.mp4",
+          "duration": 5,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "menu-review.png",
-          "duration": 7
+          "file": "menu-review.mp4",
+          "duration": 7,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 11,
@@ -104,12 +110,16 @@
       "audioSourceStart": 21,
       "shots": [
         {
-          "file": "nearby-search.png",
-          "duration": 6
+          "file": "nearby-search.mp4",
+          "duration": 6,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "nearby-results.png",
-          "duration": 14
+          "file": "nearby-results.mp4",
+          "duration": 14,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ]
     },
@@ -126,16 +136,22 @@
       "text": "Set ingredients, quantities, delivery timing and reply deadline. Choose suppliers and review your draft. Suppliers enter prices through a private link, review delivery and total, then send their quote.",
       "shots": [
         {
-          "file": "new-purchase.png",
-          "duration": 6
+          "file": "new-purchase.mp4",
+          "duration": 6,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "vendor-quote.png",
-          "duration": 5
+          "file": "vendor-quote.mp4",
+          "duration": 5,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "vendor-review.png",
-          "duration": 5
+          "file": "vendor-review.mp4",
+          "duration": 5,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 43,
@@ -158,12 +174,16 @@
       "text": "Review each supplier’s offer: quantities, taxes, freight and delivery terms. Choose one supplier or split the purchase by item. Save your reason and the accepted decision.",
       "shots": [
         {
-          "file": "comparison.png",
-          "duration": 7
+          "file": "comparison.mp4",
+          "duration": 7,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "award.png",
-          "duration": 6
+          "file": "award.mp4",
+          "duration": 6,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 59,
@@ -186,12 +206,16 @@
       "text": "Record what arrived, including received and rejected quantities. Check billed quantities and rates against the order. Track credits claimed, credits received and settlement references. Delivery evidence feeds the supplier’s performance record.",
       "shots": [
         {
-          "file": "receiving.png",
-          "duration": 9
+          "file": "receiving.mp4",
+          "duration": 9,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "credits.png",
-          "duration": 8
+          "file": "credits.mp4",
+          "duration": 8,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 72,
@@ -214,16 +238,22 @@
       "text": "Each supplier has a separate private workspace for their own orders. They can confirm quantities, or agree or dispute delivery records with a reference. If the restaurant corrects a record, earlier confirmation becomes outdated.",
       "shots": [
         {
-          "file": "supplier-orders.png",
-          "duration": 8
+          "file": "supplier-orders.mp4",
+          "duration": 8,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "supplier-delivery-record.png",
-          "duration": 5
+          "file": "supplier-delivery-record.mp4",
+          "duration": 5,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "supplier-response.png",
-          "duration": 5
+          "file": "supplier-response.mp4",
+          "duration": 5,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 89,
@@ -245,16 +275,22 @@
       "text": "In Today, open Plan meals and set your portions. Review usable stock, expected yield and confirmed arrivals. Review the ingredient shortages and purchase quantities, then create a draft.",
       "shots": [
         {
-          "file": "plan-input.png",
-          "duration": 6
+          "file": "plan-input.mp4",
+          "duration": 6,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "plan-stock.png",
-          "duration": 6
+          "file": "plan-stock.mp4",
+          "duration": 6,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "plan-shortage.png",
-          "duration": 6
+          "file": "plan-shortage.mp4",
+          "duration": 6,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 107,
@@ -277,12 +313,16 @@
       "text": "Choose the missing ingredients a supplier should prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. These estimates are not orders, and your team can withdraw them.",
       "shots": [
         {
-          "file": "demand-select.png",
-          "duration": 8
+          "file": "demand-select.mp4",
+          "duration": 8,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "demand-shared.png",
-          "duration": 8
+          "file": "demand-shared.mp4",
+          "duration": 8,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 125
@@ -297,8 +337,10 @@
       "text": "Check wholesale terms, served PIN codes and delivery lead times.",
       "shots": [
         {
-          "file": "trading.png",
-          "duration": 6
+          "file": "trading.mp4",
+          "duration": 6,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 141
@@ -313,12 +355,16 @@
       "text": "Reuse matching past prices, then confirm today’s quantities and terms.",
       "shots": [
         {
-          "file": "reuse-before.png",
-          "duration": 3
+          "file": "reuse-before.mp4",
+          "duration": 3,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "reuse-after.png",
-          "duration": 3
+          "file": "reuse-after.mp4",
+          "duration": 3,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 147
@@ -333,12 +379,16 @@
       "text": "Review delivery records, outstanding credits, and billed cost per accepted unit.",
       "shots": [
         {
-          "file": "delivery-record.png",
-          "duration": 3
+          "file": "delivery-record.mp4",
+          "duration": 3,
+          "sourceStart": 0,
+          "playbackRate": 1
         },
         {
-          "file": "delivery-cost.png",
-          "duration": 3
+          "file": "delivery-cost.mp4",
+          "duration": 3,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
       "at": 153

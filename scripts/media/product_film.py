@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
+import shutil
 import subprocess
 import textwrap
 from pathlib import Path
@@ -46,6 +48,59 @@ def audio_source_start(scene):
     return scene.get('audioSourceStart', scene.get('sourceStart'))
 
 
+def audio_fingerprint(story):
+    """Visual-only edits must not invalidate or regenerate approved speech."""
+    scenes = [{key: scene.get(key) for key in ('id', 'at', 'duration', 'phrases', 'text', 'phraseStarts', 'sourceCues')}
+              | {'audioSourceStart': audio_source_start(scene)} for scene in story['scenes']]
+    return hashlib.sha256(json.dumps(scenes, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def finite_number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def validate_shot(shot):
+    filename = shot.get('file', '')
+    if not isinstance(filename, str) or Path(filename).name != filename or '\\' in filename or Path(filename).suffix.lower() not in ('.webm', '.mp4'):
+        raise ValueError('Application shots require plain .webm or .mp4 filenames; still images are not accepted.')
+    duration, start, rate = shot.get('duration'), shot.get('sourceStart'), shot.get('playbackRate', 1)
+    if not finite_number(duration) or duration <= 0 or not math.isclose(duration * FPS, round(duration * FPS), abs_tol=1e-7):
+        raise ValueError(f'{filename}: duration must be positive and contain a whole number of output frames.')
+    if not finite_number(start) or start < 0:
+        raise ValueError(f'{filename}: sourceStart must be a finite, non-negative number.')
+    if not finite_number(rate) or not 1 <= rate <= 1.5:
+        raise ValueError(f'{filename}: playbackRate must be between 1 and 1.5; prefer 1.')
+
+
+def validate_clip(path, shot, info=None):
+    """Reject short footage before encoding. Encoded frame counts are checked too."""
+    validate_shot(shot)
+    info = info if info is not None else probe(required(path))
+    video = next((s for s in info['streams'] if s['codec_type'] == 'video'), None)
+    formats = set(info['format'].get('format_name', '').split(','))
+    if not video or video.get('codec_name') not in ('h264', 'hevc', 'vp8', 'vp9', 'av1') or not formats.intersection({'mov', 'mp4', 'matroska', 'webm'}):
+        raise ValueError(f'{path.name}: expected a real MP4/WebM video stream, not an image or audio file.')
+    if video.get('nb_frames') not in (None, 'N/A') and int(video['nb_frames']) < 2:
+        raise ValueError(f'{path.name}: a one-frame clip is not an application recording.')
+    raw_duration = video.get('duration')
+    if raw_duration in (None, 'N/A'):
+        # WebM frequently stores duration as a stream tag, not stream.duration.
+        tag = next((v for k, v in video.get('tags', {}).items() if k.upper() == 'DURATION'), None)
+        if tag:
+            h, m, s = tag.split(':')
+            raw_duration = int(h) * 3600 + int(m) * 60 + float(s)
+        else:
+            raw_duration = info['format'].get('duration')
+    try:
+        available = float(raw_duration)
+    except (ValueError, TypeError):
+        raise ValueError(f'{path.name}: a measurable video duration is required.') from None
+    needed = shot['sourceStart'] + shot['duration'] * shot.get('playbackRate', 1)
+    if not math.isfinite(available) or available + .001 < needed:
+        raise ValueError(f'{path.name}: needs {needed:.3f}s of source footage but only {available:.3f}s is available. Recapture; no still/freeze fallback.')
+    return {'durationSeconds': available, 'requiredThroughSeconds': needed, 'codec': video['codec_name']}
+
+
 def load_story(path):
     story = json.loads(path.read_text())
     at = 0
@@ -56,11 +111,10 @@ def load_story(path):
         ids.add(scene['id'])
         at += scene['duration']
         if 'sourceStart' not in scene:
-            if sum(shot['duration'] for shot in scene['shots']) != scene['duration']:
-                raise ValueError(f"Capture durations do not match: {scene['id']}")
             for shot in scene['shots']:
-                if Path(shot['file']).name != shot['file'] or not shot['file'].endswith('.png'):
-                    raise ValueError('Capture names must be plain PNG filenames.')
+                validate_shot(shot)
+            if not math.isclose(sum(shot['duration'] for shot in scene['shots']), scene['duration'], abs_tol=1e-7):
+                raise ValueError(f"Capture durations do not match: {scene['id']}")
         if audio_source_start(scene) is not None and not scene.get('sourceCues'):
             raise ValueError('Reused scenes require measured source caption cues.')
     if at != story['durationSeconds'] or at > 165 or at != 164:
@@ -161,9 +215,42 @@ def generate_audio(args, story):
             row = {'key': key, 'kind': 'local Kokoro', 'duration': duration, 'speechWithPauses': round(occupied, 3), 'speed': speed, 'cues': cues}
         row['wavSha256'] = digest(output)
         timing[name] = row
-        write_json(previous_path, {'storyboardSha256': storyboard_hash, 'sourceSha256': source_hash, **signature, 'scenes': timing})
+        write_json(previous_path, {'storyboardSha256': storyboard_hash, 'audioFingerprint': audio_fingerprint(story), 'sourceSha256': source_hash, **signature, 'scenes': timing})
         print(f'Audio ready: {name}, {duration}s', flush=True)
     export_text(story, timing, args.work)
+
+
+def reuse_audio(args, story):
+    """Copy hash-verified speech, without TTS, from an approved prior storyboard."""
+    previous_story = json.loads(required(args.previous_storyboard).read_text())
+    old_timing = json.loads(required(args.audio_from / 'audio/timing.json').read_text())
+    if old_timing['storyboardSha256'] != digest(args.previous_storyboard) and old_timing.get('audioFingerprint') != audio_fingerprint(previous_story):
+        raise ValueError('Previous storyboard does not match the approved audio cache.')
+    if audio_fingerprint(previous_story) != audio_fingerprint(story):
+        raise ValueError('Narration/timing changed. Audio reuse is limited to visual-only edits.')
+    if old_timing['sourceSha256'] != digest(required(args.source_film)):
+        raise ValueError('Approved source film does not match the prior audio cache.')
+    for scene in story['scenes']:
+        name = scene['id']
+        source = required(args.audio_from / 'audio' / f'{name}.wav')
+        if digest(source) != old_timing['scenes'][name]['wavSha256']:
+            raise ValueError(f'Prior narration cache was modified: {name}')
+    destination = args.work / 'audio'
+    destination.mkdir(parents=True, exist_ok=True)
+    for scene in story['scenes']:
+        name = scene['id']
+        target = destination / f'{name}.wav'
+        if target.exists() and digest(target) != old_timing['scenes'][name]['wavSha256']:
+            raise ValueError(f'Refusing to overwrite different narration: {target}')
+        if not target.exists():
+            shutil.copyfile(args.audio_from / 'audio' / target.name, target)
+    old_timing.update(storyboardSha256=digest(args.storyboard), audioFingerprint=audio_fingerprint(story))
+    write_json(destination / 'timing.json', old_timing)
+    export_text(story, old_timing['scenes'], args.work)
+    for filename in ('quoteplate-product-film.vtt', 'quoteplate-product-film.txt'):
+        if digest(args.audio_from / filename) != digest(args.work / filename):
+            raise ValueError(f'Approved text unexpectedly changed: {filename}')
+    print('Approved audio and captions copied unchanged; no TTS or video rendering performed.')
 
 
 def validate_inputs(args, story):
@@ -173,13 +260,20 @@ def validate_inputs(args, story):
     if float(source['format']['duration']) < max(source_ends):
         raise ValueError('Source film is too short; use the approved 164-second film.')
     timing = json.loads(required(args.work / 'audio/timing.json').read_text())
-    if timing['storyboardSha256'] != digest(args.storyboard):
+    if timing['storyboardSha256'] != digest(args.storyboard) and timing.get('audioFingerprint') != audio_fingerprint(story):
         raise ValueError('Storyboard changed: regenerate narration and captions first.')
     if timing['sourceSha256'] != digest(args.source_film):
         raise ValueError('Approved source changed: regenerate reused audio first.')
     missing = [shot['file'] for s in story['scenes'] for shot in s.get('shots', []) if not (args.captures / shot['file']).is_file()]
     if missing:
         raise ValueError('Missing fresh captures: ' + ', '.join(missing))
+    media_info = {}
+    for scene in story['scenes']:
+        for shot in scene.get('shots', []):
+            path = args.captures / shot['file']
+            if shot['file'] not in media_info:
+                media_info[shot['file']] = probe(required(path))
+            validate_clip(path, shot, media_info[shot['file']])
     for scene in story['scenes']:
         path = required(args.work / 'audio' / f"{scene['id']}.wav")
         if timing['scenes'][scene['id']]['wavSha256'] != digest(path):
@@ -189,6 +283,18 @@ def validate_inputs(args, story):
 
 def video_options():
     return ['-an', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-threads', '2', '-pix_fmt', 'yuv420p', '-r', FPS]
+
+
+def render_video_shot(source, shot, frame_filter, output):
+    validate_shot(shot)
+    rate = shot.get('playbackRate', 1)
+    vf = (f"trim=duration={shot['duration'] * rate},setpts=(PTS-STARTPTS)/{rate},"
+          f'{frame_filter},fps={FPS}')
+    ffmpeg('-ss', shot['sourceStart'], '-i', source, '-vf', vf,
+           '-frames:v', round(shot['duration'] * FPS), *video_options(), output)
+    encoded = next(s for s in probe(output)['streams'] if s['codec_type'] == 'video')
+    if int(encoded.get('nb_frames', 0)) != round(shot['duration'] * FPS):
+        raise ValueError(f"{shot['file']}: decoded footage is too short. No repeat, still, or freeze-frame padding is allowed.")
 
 
 def render(args, story):
@@ -225,8 +331,7 @@ def render(args, story):
                     f"drawtext=fontfile='{filter_path(font)}':textfile='{filter_path(title)}':expansion=none:fontsize=27:fontcolor=0xf8faf8:x=32:y=23,"
                     f"drawtext=fontfile='{filter_path(font)}':text='Actual app / fictional restaurant records':fontsize=18:fontcolor=0xd7e4dc:x=w-tw-32:y=28"
                 )
-                ffmpeg('-loop', '1', '-framerate', FPS, '-i', args.captures / shot['file'], '-vf', vf,
-                       '-frames:v', round(shot['duration'] * FPS), *video_options(), output)
+                render_video_shot(args.captures / shot['file'], shot, vf, output)
                 chunks.append(output)
         voice = args.work / 'audio' / f'{name}.wav'
         track = edit / f'{name}-mix.wav'
@@ -284,13 +389,14 @@ def render(args, story):
         'videoCodec': video['codec_name'], 'audioCodec': audio['codec_name'], 'fullDecode': 'passed',
         'storyboardSha256': digest(args.storyboard), 'sourceSha256': digest(args.source_film),
         'outputSha256': digest(output), 'freshCaptures': capture_hashes,
+        'videoShots': [shot for scene in story['scenes'] for shot in scene.get('shots', [])],
     })
     print(f'Film ready: {output} ({seconds:.3f}s)', flush=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['audio', 'check', 'render'])
+    parser.add_argument('action', choices=['audio', 'reuse-audio', 'check', 'render'])
     parser.add_argument('--work', type=Path, required=True)
     parser.add_argument('--source-film', type=Path, required=True)
     parser.add_argument('--storyboard', type=Path, default=ROOT / 'docs/media/quoteplate-product-film-164.json')
@@ -299,6 +405,8 @@ def main():
     parser.add_argument('--voices', type=Path)
     parser.add_argument('--music', type=Path)
     parser.add_argument('--font', type=Path)
+    parser.add_argument('--audio-from', type=Path)
+    parser.add_argument('--previous-storyboard', type=Path)
     args = parser.parse_args()
     args.work = args.work.resolve()
     args.captures = args.captures or args.work / 'captures'
@@ -306,6 +414,10 @@ def main():
     if args.action == 'audio':
         args.work.mkdir(parents=True, exist_ok=True)
         generate_audio(args, story)
+    elif args.action == 'reuse-audio':
+        if not args.audio_from or not args.previous_storyboard:
+            parser.error('reuse-audio requires --audio-from and --previous-storyboard')
+        reuse_audio(args, story)
     elif args.action == 'check':
         validate_inputs(args, story)
         print('All capture and narration inputs are ready; no rendering performed.')

@@ -1,106 +1,169 @@
-# QuotePlate product film (164 seconds)
+# QuotePlate motion product film (164 seconds)
 
-The checked-in storyboard is `docs/media/quoteplate-product-film-164.json`.
-`product_film.py` generates local Kokoro narration, measured captions, a transcript,
-and a 1920×1080 / 30fps H.264/AAC film. It never calls a paid service or downloads
-models. Inputs and outputs are explicit; it does not read application credentials,
-browser profiles, deployment settings, or databases, or overwrite public media.
+`docs/media/quoteplate-product-film-164.json` is the edit contract.
+`product_film.py` accepts **real application video recordings only** for application
+shots. No image-loop, repeated-clip or freeze-frame fallback exists. Every clip is
+probed before rendering and its encoded frame count is checked afterwards.
 
-## Capture handoff
+## Capture contract
 
-Place these clean PNG captures in `/tmp/quoteplate-tour-refresh/captures`.
-1440×900 or 1920×1080 is preferred. Capture the actual redesigned application with
-fictional records, no browser chrome, loading states, menus covering the subject,
-passwords, private invitation URLs, or internal-account banners/identifiers.
-Use a separate fictional capture workspace. Do not change application authorization
-or remove a production banner for filming. Retain meaningful page headings and
-the current five-section navigation, especially in the orientation.
+Place finalized clips in `/tmp/quoteplate-motion-tour/captures`:
 
-| Filename | Required visible state |
-| --- | --- |
-| today.png | Today overview; Today, Purchases, Suppliers, Menu, Reports all visible |
-| menu-input.png | Menu input choices: photo, manual text, permitted website import |
-| menu-review.png | Extracted ingredients, quantities, units and approval/review controls |
-| new-purchase.png | Single-page purchase draft: ingredients, quantities and delivery/reply timing |
-| nearby-search.png | Authentic Andheri East area/category/distance search in the redesigned UI |
-| nearby-results.png | Actual public supplier listing results from that search |
-| vendor-review.png | Supplier reviews delivery and total before sending their quote |
-| vendor-quote.png | Supplier's private quote reply; no invitation URL/token |
-| comparison.png | Multiple offers and complete costs |
-| award.png | Item-level supplier choice and rationale |
-| receiving.png | Received/rejected and billed quantities/rates |
-| credits.png | Claimed/received credits and settlement fields |
-| delivery-record.png | Supplier delivery evidence, incomplete deliveries and outstanding credits |
-| supplier-orders.png | Supplier's own orders |
-| supplier-delivery-record.png | Landscape crop: delivery record quantities and credit fields |
-| supplier-response.png | Landscape crop: response form including reference and Save action |
-| plan-input.png | Plan meals: dishes and portions |
-| plan-stock.png | Usable stock, yield and confirmed arrivals |
-| plan-shortage.png | Calculated shortage and purchase-draft action; no specific numbers required |
-| demand-select.png | Selected ingredient estimates and share action; no private supplier URL |
-| demand-shared.png | Saved estimate and withdrawal context |
-| trading.png | Wholesale terms, served PIN codes and lead-time declaration |
-| reuse-before.png | Matching historical prices offered for review |
-| reuse-after.png | Reused prices and editable current quantities/terms |
-| delivery-cost.png | Delivery record ingredient costs: billed cost per accepted unit |
-
-`reports.png` is optional and is not required by the render. Reports is named in
-the opening navigation orientation. Purchase creation is a single-page draft
-within a guided overall process, not a separate multi-step review wizard.
-
-The storyboard specifies the exact hold duration for each capture. Only intro
-(0–5s) and closing (old 159–164s) retain visuals from the approved **164-second**
-source. Nearby discovery uses fresh search/results captures and retains only the
-old 21–41s audio and measured cues. `sourceStart` selects retained picture/audio;
-`audioSourceStart` selects retained audio independently of fresh `shots`. Public
-listings are authentic captures, not a guarantee of current stock or suitability.
-All application scenes use the new captures. Missing captures fail instead of
-falling back to old UI.
-
-## Local invocation
-
-Existing local runtime and models (outside the repository):
-
-- Python: `/tmp/quoteplate-video-update/venv/bin/python`
-- Model: `/tmp/quoteplate-video-update/audio/kokoro-v1.0.int8.onnx`
-- Voices: `/tmp/quoteplate-video-update/audio/voices-v1.0.bin`
-- Approved 164s source: `/tmp/quoteplate-video-update/final.mp4`
-- Licensed music: `/Users/utsavdoshi/.codex/visualizations/2026/09/05/01a0700f-d89a-7b82-80a7-506642259419/video-landing-two-minute/assets/relax-beat-arulo.mp3`
-
-From the repository root, generate narration (no captures needed):
-
-```sh
-/tmp/quoteplate-video-update/venv/bin/python scripts/media/product_film.py audio \
-  --work /tmp/quoteplate-tour-refresh \
-  --source-film /tmp/quoteplate-video-update/final.mp4 \
-  --model /tmp/quoteplate-video-update/audio/kokoro-v1.0.int8.onnx \
-  --voices /tmp/quoteplate-video-update/audio/voices-v1.0.bin
+```json
+{"file":"today.mp4","duration":6,"sourceStart":0,"playbackRate":1}
 ```
 
-Once the capture handoff is complete:
+- `file`: plain `.mp4` or `.webm` filename. The storyboard must name the actual
+  extension; there is no automatic filename substitution.
+- `duration`: final on-screen seconds, in whole 1/30-second frames.
+- `sourceStart`: seek offset into this clip, in seconds, at least zero.
+- `playbackRate`: optional, defaults to **1**, bounded to **1–1.5**. Already condensed
+  clips should specify 1. The capture helper must also keep any condensation at or
+  below 1.5x; do not accelerate an already accelerated clip again. Capture editing
+  may uniformly slow genuine recorded motion down to 0.85x to remove a contaminated
+  ending and retain the requested duration. The exported storyboard rate stays 1.
+  This capture-editing range is separate from renderer `playbackRate` validation.
+- Required source coverage: `sourceStart + duration * playbackRate`. An exact 6s
+  clip is valid for a 6s slot at 1x. Record a small tail when practical. Short input
+  or short decoding fails; the renderer does not manufacture a hold to fill it.
+- The capture itself should contain meaningful real clicks, typing, navigation,
+  scrolling and time to read the resulting state. Recorded result holds are fine.
+  Merely wrapping a screenshot in an MP4 is not an interactive demonstration;
+  codec and duration checks do not replace human motion review.
+
+Use 1440×900 / 30fps where possible; the renderer fits without cropping inside a
+1920×1080 frame. The canvas is `#f6f7f5`, bars `#172521`. Browser audio is discarded;
+only approved narration/music are used. Capture a separate fictional workspace.
+No browser chrome, login/password entry, private invitation URLs, credentials or
+internal-account notices should appear in the selected source interval. Preparation
+frames must be outside it. Do not alter production authorization for filming.
+
+The current timeline expects these **25 named application clips** (154s), plus the
+retained 5s kitchen opening and 5s closing. Extra captured files are ignored.
+
+| Filename | Output duration | Real action to record |
+| --- | --- | --- |
+| today.mp4 | 6s | Navigate Today and point out the five primary sections. |
+| menu-input.mp4 | 5s | Click Add menu and explore the photo/text/website choices. |
+| menu-review.mp4 | 7s | Review ingredient rows/units and the approval control. |
+| nearby-search.mp4 | 6s | Enter the real area, select category/distance and run search. |
+| nearby-results.mp4 | 14s | Scroll genuine returned listings and inspect a result. |
+| new-purchase.mp4 | 6s | Type the purchase draft name, select ingredients and quantities. |
+| vendor-quote.mp4 | 5s | Enter supplier quantities, prices and delivery terms. |
+| vendor-review.mp4 | 5s | Review delivery and total, then click Send quote. |
+| comparison.mp4 | 7s | Inspect competing offers and complete costs. |
+| award.mp4 | 6s | Select supplier allocations, enter rationale and confirm the decision. |
+| receiving.mp4 | 9s | Enter received/rejected and billed quantities/rates. |
+| credits.mp4 | 8s | Enter claimed/received credit and a settlement reference. |
+| supplier-orders.mp4 | 8s | Open the supplier’s own order and inspect its contents. |
+| supplier-delivery-record.mp4 | 5s | Scroll/read delivery quantities and credit fields. |
+| supplier-response.mp4 | 5s | Choose a response, type a reference, then save it. |
+| plan-input.mp4 | 6s | Select dishes and enter portions. |
+| plan-stock.mp4 | 6s | Enter usable stock, yield and confirmed arrivals. |
+| plan-shortage.mp4 | 6s | Review calculated shortages and the purchase-draft action. |
+| demand-select.mp4 | 8s | Choose specific ingredients and share their estimates. |
+| demand-shared.mp4 | 8s | Inspect the saved estimate and its withdrawal control. |
+| trading.mp4 | 6s | Edit/inspect wholesale terms, served PINs and lead time. |
+| reuse-before.mp4 | 3s | Inspect matching historical rates and choose reuse. |
+| reuse-after.mp4 | 3s | Review populated prices and editable current terms. |
+| delivery-record.mp4 | 3s | Navigate recorded deliveries and outstanding credits. |
+| delivery-cost.mp4 | 3s | Expand ingredient costs and inspect billed/accepted unit. |
+
+Purchase creation is a single-page draft within a guided overall process, not a
+separate review wizard. Vendor review must show the total/delivery and Send quote.
+Supplier response must show reference and Save controls at a readable scale.
+
+Scene-level `sourceStart` retains approved kitchen picture/audio. Shot-level
+`sourceStart` seeks within a fresh recording. `audioSourceStart` independently
+retains approved nearby narration/cues while replacing its visuals with a real
+search recording. These fields have different scopes. Only intro/closing retain
+old pictures. The fresh nearby search must use authentic results; public listings
+do not guarantee stock, supplier suitability or delivery coverage.
+
+## Preserve approved audio without generating new speech
+
+The motion work directory has a verified copy of the previous 14 audio WAVs and
+unchanged VTT/transcript. Visual-only changes to clip paths, offsets, rates and shot
+cuts preserve the audio fingerprint. Changing narration, scene timing, or retained
+audio sources invalidates it. The old work directory is not modified.
+
+To repeat the verified copy in another work directory, retain the prior storyboard
+whose hash matches that approved cache and run:
 
 ```sh
-/tmp/quoteplate-video-update/venv/bin/python scripts/media/product_film.py render \
-  --work /tmp/quoteplate-tour-refresh \
+/tmp/quoteplate-video-update/venv/bin/python scripts/media/product_film.py reuse-audio \
+  --work /tmp/quoteplate-motion-tour \
+  --source-film /tmp/quoteplate-video-update/final.mp4 \
+  --audio-from /tmp/quoteplate-tour-refresh \
+  --previous-storyboard /tmp/quoteplate-motion-tour/previous-storyboard.json
+```
+
+This does not invoke TTS or encode video. It checks the prior storyboard, source
+film and every audio hash, compares audio content/timing between storyboards, and
+refuses to overwrite different narration. New narration can still be explicitly
+created with `audio --model PATH --voices PATH`, using the existing local Kokoro
+ONNX runtime. That is unnecessary for this motion refresh.
+
+## Check, then render after the capture handoff
+
+```sh
+/tmp/quoteplate-video-update/venv/bin/python scripts/media/product_film.py check \
+  --work /tmp/quoteplate-motion-tour \
   --source-film /tmp/quoteplate-video-update/final.mp4 \
   --music /Users/utsavdoshi/.codex/visualizations/2026/09/05/01a0700f-d89a-7b82-80a7-506642259419/video-landing-two-minute/assets/relax-beat-arulo.mp3
 ```
 
-Use `check` instead of `render` with the same arguments to validate inputs without
-encoding. `--captures`, `--storyboard` and `--font` can override their defaults.
-Requires local FFmpeg/FFprobe, numpy, soundfile and kokoro-onnx. The existing venv
-contains the Python dependencies. Model/voice files must already exist.
+After the parent confirms that recordings are complete, use `render` with the same
+arguments. No paid service, model download, application login, database or browser
+profile is accessed. Python 3.11+, FFmpeg and FFprobe are required for rendering;
+the local venv also contains the optional Kokoro dependencies. `--captures`,
+`--storyboard` and `--font` override the defaults.
 
-Outputs are in the work directory: `quoteplate-product-film.mp4`, `.jpg`, `.txt`,
-`.vtt`, `credits.txt`, `contact-sheet.jpg`, `audio/timing.json`, and `verification.json`. Sentence/phrase cues are
-measured from separately generated speech, not estimated by word count. A scene
-that cannot fit at up to 1.15× speed fails for an editorial rewrite; speech is never
-silently truncated. Audio caches bind to narration, model and voice-file hashes.
-The final film is frame-bounded at 164s; AAC container duration may include a small
-encoder tail, but must remain at or below 165s. Rendering performs a full decode.
+Output is **164 seconds / 4,920 frames**, H.264/AAC, 1920×1080, 30fps with fast-start.
+Captures changing during encoding fail verification. The final export is fully
+decoded and frame-count checked. `verification.json` records input hashes, shot
+intervals and playback rates. A contact sheet samples every shot, but a human must
+also watch motion and action timing; a contact sheet cannot verify interactivity.
 
-Review frames and listen before publishing. Parent owns release and copying the
-matching MP4, poster, transcript, captions and credits into `public/media` together.
-Do not rerun the older `audio/generate.py`: its unused fourth clip contains an
-obsolete demo invitation. This storyboard has no such invitation. Do not use the
-old `render-public.py` for this refresh: it retains 141 seconds of old visuals.
+Outputs remain in the work directory: film, poster, VTT, transcript, credits,
+contact sheet and verification. Public files are not overwritten by the renderer.
+Parent coordinates review and copying a matching bundle into `public/media`.
+
+Run contract regressions without rendering or starting an application:
+
+```sh
+python3 -B scripts/media/test_product_film.py
+```
+
+Source recordings and narration are external assets. Preserve the motion work
+folder when archiving the production sources; the checked-in script and storyboard
+alone do not contain those recordings. `scripts/media/motion_capture.mjs` preserves the parent's generic Playwright
+recorder helper. It records a visible pointer, clicks and typing, trims preparation
+frames, and exports bounded-speed MP4s to this motion work directory. Its callers
+supply the application actions; no session cookies, tokens or login scripts are
+archived with the helper.
+
+Capture timing uses one monotonic `performance.now()` origin immediately after
+`context.newPage()`. Trim each raw recording at its recorded `shot.start`, with
+offset zero. `rawDuration - ended` is a recorder tail diagnostic, **not** a leading
+offset; adding it drops initial actions and leaks the next scene into the ending.
+Verify the raw opening frames against the first shot when changing recorder/browser
+versions. Existing manifests created with the old tail-derived offset need retrimming
+from their raw recordings, including planning/demand captures made with that helper.
+
+Before render, inspect opening, middle and final frames for actual interaction and
+scene boundaries. Sample hashes can flag wholly repeated frames but cannot prove
+meaningful clicks or readable results. Check every exported clip has exactly
+`duration * 30` frames and sufficient video duration; a 179-frame export fails a
+six-second slot. Correct the source trim/export rather than freezing, padding or
+weakening renderer validation. Keep the full supplier review total and Send action
+readable before submission. Render only after the corrected capture handoff.
+
+After each measured clip ends, the helper waits 0.5s with the result untouched
+before returning control to the caller. This guard is outside `shot.elapsed` and
+is not an encoded freeze: it prevents next-scene preparation from leaking through
+browser capture latency. Apply the same guard to vendor and planning recorders.
+For existing contaminated clips, remove the contaminated trailing interval from
+the actual recording and uniformly retime the remaining motion to the exact slot
+(at least 0.85x). Verify the resulting first/last frames and exact frame count; do
+not generate padding or repeat a still to fill the slot.
