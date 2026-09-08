@@ -18,7 +18,7 @@ import { checkRuntimeDatabase } from '@/lib/health/readiness';
 import { withMigratedPostgres, withPostgres } from './setup/postgres';
 
 const applicationTables =
-  'AuditEvent Award Menu ProcurementRequest RateLimitBucket ServicePlan ServicePlanRevision Supplier SupplierRequest Tenant User'.split(
+  'AuditEvent Award Menu ProcurementRequest RateLimitBucket ServicePlan ServicePlanRevision Supplier SupplierCollaboration SupplierDemandShare SupplierPortal SupplierRequest Tenant User'.split(
     ' ',
   );
 const expectedColumns: Record<string, string> = {
@@ -30,12 +30,15 @@ const expectedColumns: Record<string, string> = {
   ServicePlan: 'id tenantId name version serviceAt menuId menuVersion menuSnapshot document requestId createdByUserId createdAt updatedAt',
   ServicePlanRevision: 'id tenantId planId version document createdAt',
   Supplier: 'id tenantId businessName contactName phone whatsappNumber email addressLine city state pin gstin notes isActive createdAt updatedAt relationshipType verificationStatus applicationRequestId capabilities verifiedAt verifiedByUserId',
+  SupplierPortal: 'id tenantId supplierId tokenDigest expiresAt revokedAt createdAt updatedAt',
+  SupplierCollaboration: 'id tenantId supplierId requestId version revisions createdAt updatedAt',
+  SupplierDemandShare: 'id tenantId supplierId planId planVersion serviceAt items withdrawnAt sharedAt',
   SupplierRequest: 'id tenantId requestId supplierId tokenDigest expiresAt revokedAt viewedAt createdAt quoteRevision quoteRevisions updatedAt',
   Tenant: 'id name addressLine city state pin phone timezone gstin isActive createdAt updatedAt',
   User: 'id tenantId name email passwordHash role isActive lastLoginAt createdAt updatedAt googleSubject accountState invitationTokenDigest invitationExpiresAt invitationAcceptedAt invitationRevokedAt invitedByUserId tutorialVersion tutorialStep tutorialSkippedAt tutorialCompletedAt',
 };
 const requiredFunctions =
-  'autorfp_auth_credentials_by_email autorfp_auth_identity_by_email autorfp_auth_identity_by_google_subject autorfp_invitation_tenant_by_digest autorfp_supplier_application_grant_by_digest autorfp_supplier_grant_by_digest autorfp_user_email_exists'.split(
+  'autorfp_auth_credentials_by_email autorfp_auth_identity_by_email autorfp_auth_identity_by_google_subject autorfp_invitation_tenant_by_digest autorfp_supplier_application_grant_by_digest autorfp_supplier_grant_by_digest autorfp_supplier_portal_by_digest autorfp_user_email_exists'.split(
   ' ',
   );
 const jsonConstraints = [
@@ -52,6 +55,8 @@ const jsonConstraints = [
   ['ServicePlan_menuSnapshot_size_check', 'ServicePlan', 'menuSnapshot', '1048576'],
   ['ServicePlanRevision_document_size_check', 'ServicePlanRevision', 'document', '524288'],
   ['Supplier_capabilities_size_check', 'Supplier', 'capabilities', '65536'],
+  ['SupplierCollaboration_revisions_size_check', 'SupplierCollaboration', 'revisions', '131072'],
+  ['SupplierDemandShare_items_size_check', 'SupplierDemandShare', 'items', '131072'],
   ['SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152'],
 ] as const;
 const tenantPolicies = [
@@ -62,6 +67,9 @@ const tenantPolicies = [
   ['ServicePlanRevision', 'tenantId'],
   ['Supplier', 'tenantId'],
   ['ProcurementRequest', 'tenantId'],
+  ['SupplierCollaboration', 'tenantId'],
+  ['SupplierDemandShare', 'tenantId'],
+  ['SupplierPortal', 'tenantId'],
   ['SupplierRequest', 'tenantId'],
   ['Award', 'tenantId'],
   ['AuditEvent', 'tenantId'],
@@ -133,7 +141,7 @@ function deployMigrations(databaseUrl: string) {
   });
 }
 
-test('service planning catalog keeps eleven bounded tables and fixed digest grants', async () => {
+test('supplier collaboration catalog keeps fourteen bounded tables and fixed digest grants', async () => {
   await withMigratedPostgres(async (databaseUrl) => {
     const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
     try {
@@ -169,7 +177,7 @@ test('service planning catalog keeps eleven bounded tables and fixed digest gran
         columns.map((row) => [`${row.table_name}.${row.column_name}`, row]),
       );
       for (const key of [
-        'ServicePlan.document', 'ServicePlan.menuSnapshot', 'ServicePlanRevision.document',
+        'SupplierCollaboration.revisions', 'SupplierDemandShare.items', 'ServicePlan.document', 'ServicePlan.menuSnapshot', 'ServicePlanRevision.document',
         'Menu.document', 'Supplier.capabilities', 'ProcurementRequest.items',
         'ProcurementRequest.sourcing', 'ProcurementRequest.deliveryDetails',
         'SupplierRequest.quoteRevisions', 'Award.allocationLines',
@@ -179,6 +187,7 @@ test('service planning catalog keeps eleven bounded tables and fixed digest gran
         ['User.invitationTokenDigest', 'YES'],
         ['ProcurementRequest.applicationTokenDigest', 'YES'],
         ['SupplierRequest.tokenDigest', 'NO'],
+        ['SupplierPortal.tokenDigest', 'NO'],
         ['RateLimitBucket.keyDigest', 'NO'],
       ]) {
         expect(byColumn.get(key)).toEqual(expect.objectContaining({
@@ -251,6 +260,11 @@ test('service planning catalog keeps eleven bounded tables and fixed digest gran
       `;
       const fkPaths = foreignKeys.map(({ path }) => path);
       for (const path of [
+        'SupplierPortal|tenantId,supplierId|Supplier|tenantId,id',
+        'SupplierCollaboration|tenantId,supplierId|Supplier|tenantId,id',
+        'SupplierCollaboration|tenantId,requestId|ProcurementRequest|tenantId,id',
+        'SupplierDemandShare|tenantId,supplierId|Supplier|tenantId,id',
+        'SupplierDemandShare|tenantId,planId|ServicePlan|tenantId,id',
         'ServicePlan|tenantId,menuId|Menu|tenantId,id',
         'ServicePlan|tenantId,createdByUserId|User|tenantId,id',
         'ServicePlan|tenantId,requestId|ProcurementRequest|tenantId,id',
@@ -863,7 +877,7 @@ test('readiness rejects service planning catalog security drift', async () => {
       await expect(checkReadinessAsApp(prisma)).resolves.toBeUndefined();
 
       for (const [name, table, column, cap] of jsonConstraints.filter(
-        ([name]) => name.startsWith('ServicePlan') || name === 'Award_receiving_size_check',
+        ([name]) => name.startsWith('ServicePlan') || name.startsWith('SupplierCollaboration') || name.startsWith('SupplierDemandShare') || name === 'Award_receiving_size_check',
       )) {
         const drop = `ALTER TABLE public."${table}" DROP CONSTRAINT "${name}"`;
         const add = `ALTER TABLE public."${table}" ADD CONSTRAINT "${name}"`;
@@ -877,7 +891,7 @@ test('readiness rejects service planning catalog security drift', async () => {
         await prisma.$executeRawUnsafe(`ALTER TABLE public."${table}" VALIDATE CONSTRAINT "${name}"`);
         await expect(checkReadinessAsApp(prisma)).resolves.toBeUndefined();
       }
-      for (const table of ['ServicePlan', 'ServicePlanRevision']) {
+      for (const table of ['ServicePlan', 'ServicePlanRevision', 'SupplierPortal', 'SupplierCollaboration', 'SupplierDemandShare']) {
         await prisma.$executeRawUnsafe(`ALTER TABLE public."${table}" NO FORCE ROW LEVEL SECURITY`);
         await expect(checkReadinessAsApp(prisma)).rejects.toThrow('required database migration');
         await prisma.$executeRawUnsafe(`ALTER TABLE public."${table}" FORCE ROW LEVEL SECURITY`);

@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 
 export type TokenPurpose =
+  | 'supplier-portal'
   | 'member-invitation'
   | 'supplier-request'
   | 'supplier-application';

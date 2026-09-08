@@ -1,42 +1,22 @@
-QuotePlate — 225-second product film
-Actual app recordings, condensed for the film. Fictional restaurant data. Synthetic American-English narration.
+QuotePlate — 2:29 product film
+Actual app recordings, condensed. Fictional restaurant records; nearby search shows real public map listings captured for this demonstration, not current stock or prices. Synthetic American-English narration.
 
-Your next service starts long before the first plate.
+QuotePlate connects your kitchen, purchasing decisions and suppliers.
 
-Start with your menu. Type or paste dishes, upload photos, or use a website link you have permission to import.
+Start with a menu photo, typed dishes, or a website you can import. Review the extracted text, ingredient quantities and units, then approve the menu. Your team stays in control.
 
-Using your phone? Scan the code to send menu photos straight to your workspace.
+Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier.
 
-Here, we'll read a photo. Check the extracted text, review ingredient quantities and units, then approve your menu.
+Create one request with quantities, delivery timing and a reply deadline. Invite trusted suppliers, or review new applications. Suppliers send their prices through a private link, without creating an account.
 
-Need another supplier? Choose an ingredient and area, then search external websites. Review the listing before adding their details.
+Compare quantities, taxes, freight and delivery terms together. Choose one supplier, or split the purchase by item. Save your reason and the accepted decision.
 
-Already have trusted contacts? Add them directly. Your restaurant's supplier records stay private.
+Check received and rejected quantities against the purchase. Record billed rates, missing items and the credit claimed. Track credit received and settlement references. Supplier performance uses this delivery evidence, including outstanding balances.
 
-Create one price request, with quantities, delivery timing and a deadline for replies.
+Give each supplier a separate private workspace link. They see their own orders, confirm quantities, and agree or dispute a delivery record with a document reference. If the restaurant corrects the record, earlier confirmation becomes outdated.
 
-New suppliers can apply. Your team reviews each application and decides who can quote.
+Plan the next service using portions, usable stock and expected yield. Here, ten kilos needed and four already usable leave six kilos. At eighty percent yield, that becomes a seven point five kilo purchase.
 
-They send their prices through a private link.
+Choose the missing ingredients you want a supplier to prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. Estimates are not orders, and your team can withdraw them.
 
-Compare the full cost. Here, a lower price per kilo costs more after delivery.
-
-Choose one supplier for the whole request, or split the purchase by item.
-
-For this order, choose one supplier and save the purchasing decision.
-
-Check each delivery against the quantities you awarded. Record everything received, separate rejected items, and enter billed quantities and rates. Partial deliveries stay visible until the remaining quantities arrive.
-
-Keep money owed in view. Record the credit claimed, how much has been received, and the settlement reference. Update these recorded amounts when the supplier settles the balance.
-
-Supplier performance brings accepted quantities, rejection rates, delivery dates and outstanding credits together. Missing checks never count as successful deliveries. Limited history is clearly labelled.
-
-Before the next service, choose an approved menu. Enter the servings each recipe batch makes, your planned portions, usable stock and expected yield. Add incoming supplies only when their arrival is confirmed.
-
-Here, the kitchen needs ten kilos, with four kilos already usable. At eighty percent yield, the remaining six kilos require a seven point five kilo purchase. Shared stock is counted once.
-
-Create a purchase draft for the missing ingredients. Review suppliers and delivery terms before sending. Repeat the daily plan for another service, with fresh stock counts.
-
-Next time, open your history. Repeat the purchase as a new draft. Update the dates and review it before sending.
-
-QuotePlate. Keep every purchase clear.
+Find suppliers, compare quotes and keep delivery conversations clear. QuotePlate. Every quote, accountable.

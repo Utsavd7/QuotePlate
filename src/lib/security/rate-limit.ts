@@ -6,6 +6,8 @@ import { assertRuntimeDatabaseRole } from '@/lib/db/runtime-role';
 import { prisma } from '@/lib/prisma';
 
 export type RateLimitScope =
+  | 'supplier-portal-grant'
+  | 'supplier-portal-client'
   | 'auth-credentials-client'
   | 'auth-credentials-email'
   | 'auth-workspace-create-client'

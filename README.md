@@ -10,7 +10,7 @@ Built by [Utsav Doshi](https://github.com/Utsavd7).
 
 [![Watch the QuotePlate product demo — 3 minutes 45 seconds](public/media/quoteplate-product-film.jpg)](https://quoteplate.netlify.app/#watch-demo)
 
-[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 3:45 · 2560 × 1440 QHD
+[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 2:29 · 1920 × 1080 Full HD
 
 Follow a fictional restaurant in Pune from a menu photo through supplier discovery, private quotes, cost comparison and a purchase decision. Updated application footage demonstrates item-level receiving, partial deliveries, credits claimed and received, supplier performance, portion and yield planning, and a shortage-only purchase draft. Routine actions are condensed; the narration explains the inputs and review steps.
 
@@ -23,9 +23,13 @@ The current release supports:
 - create a menu by typing dish names, uploading up to ten photos from the current device, scanning a QR code to send up to ten original phone photos at a time, or importing a menu page you have permission to use;
 - scan menu photos in the browser, review the detected text, remove unwanted dishes together, delete unused menus, and approve the final dishes and ingredients;
 - organise ingredients using categories familiar to Indian restaurants;
-- find potential suppliers by ingredient and area using external Google Maps, Google, Justdial, IndiaMART, TradeIndia, ExportersIndia, Kompass and go4WorldBusiness searches, then review and add them manually without a search API or billing account;
+- find nearby food businesses inside the workspace using free Photon area lookup and Overpass open-map results, then review public listings and explicitly confirm restaurant verification before adding a supplier; public coverage, contact details and wholesale capability are not guaranteed;
+- widen supplier searches by ingredient and area using external Google Maps, Google, Justdial, IndiaMART, TradeIndia, ExportersIndia, Kompass and go4WorldBusiness searches, then review and add them manually without a search API or billing account;
 - keep existing suppliers, choose more than one sourcing route, or accept applications from new suppliers and then approve or reject them;
 - send each supplier a private quote link with no supplier account required;
+- issue a separate expiring supplier workspace link for own-order status, acknowledgement and delivery feedback;
+- preserve supplier agreement/dispute responses with evidence references; changed restaurant checks require renewed confirmation;
+- share explicitly selected ingredient-shortage estimates from a saved plan with a chosen supplier, and withdraw them later; recipes, portions and stock counts are excluded;
 - collect quantities, rates, GST, freight, availability, delivery, substitutions, and payment terms;
 - compare complete and incomplete quotes while keeping the final decision with the restaurant;
 - award the full request to one supplier or split items across suppliers;
@@ -40,7 +44,7 @@ The current release supports:
 - manage restaurant details, roles, invitations, Google sign in, sign out, and an optional six step setup guide;
 - use the public site and product workspace on phones, tablets, and laptops.
 
-The landing page includes a three-minute-forty-five-second product film with captions and a transcript. It uses condensed recordings of the actual app with fictional restaurant data in an isolated environment. Media is served from `public/media` and the video loads only when played; no external video service is required. The buying journey uses compact, manually selected stages on desktop and phones, with one step counter and no automatic movement. Old `/product` bookmarks redirect to this journey on the homepage.
+The landing page includes a two-minute-twenty-nine-second product film with captions and a transcript. It uses condensed recordings of the actual app with fictional restaurant records in an isolated environment, and real public nearby listings captured for the demonstration. It includes nearby discovery, supplier delivery responses and selected demand sharing. Media is served from `public/media` and the video starts muted with captions when at least half is visible, shows an explicit Unmute video button, pauses offscreen, and respects manual pauses and reduced-motion preferences; no external video service is required. The buying journey uses compact, manually selected stages on desktop and phones, with one step counter and no automatic movement. Old `/product` bookmarks redirect to this journey on the homepage.
 
 The product does not introduce suppliers and then disappear from the workflow. Its value is the reusable request, quote, decision, purchase order, and price history for every buying cycle.
 
@@ -56,8 +60,8 @@ These features add no dependencies, subscriptions or metered AI services. Existi
 
 ## Safety and privacy
 
-- Your recipes, menus, supplier prices, and purchase records stay private to your restaurant. Other restaurants cannot see them.
-- Each supplier link has a unique secret key. The key itself is not stored, works for only one request, expires, and can be replaced or revoked.
+- Your recipes, menus, supplier prices, and purchase records stay private to your restaurant. Other restaurants cannot see them. A supplier workspace exposes only that supplier’s own records and ingredient estimates your owner explicitly shares.
+- Each quote link has a unique secret key. The key itself is not stored, works for only one request, expires, and can be replaced or revoked. Supplier workspace links use a separate secret scoped to that supplier.
 - Award records preserve the accepted prices, quantities, supplier facts, and delivery terms used for the decision.
 - Owner only actions protect restaurant settings, team access, supplier verification, and awards.
 - The production service refuses to start when required security settings are missing.
@@ -109,3 +113,11 @@ The checks cover access control, workspace isolation, authentication, menu intak
 - [India restaurant procurement review](docs/research/india-restaurant-procurement-competitive-review.md)
 
 Repository: [github.com/Utsavd7/QuotePlate](https://github.com/Utsavd7/QuotePlate)
+
+## Supplier workspace and nearby discovery
+
+Owners open **Supplier collaboration**, select a supplier and create a private workspace link. Links last 30 days and can be replaced or revoked. Copy and share the link yourself; QuotePlate does not send messages automatically. Suppliers can acknowledge their awarded orders and agree or dispute restaurant delivery checks with textual document references. These responses preserve restaurant records; corrections happen in the existing delivery check. Changed checks invalidate earlier confirmation. No file attachments or bank-verified settlements are provided.
+
+For demand sharing, select a saved service plan, review the purchasable shortage rows and choose which ones to expose. A share is an estimate, not an order or incoming-stock confirmation. Changed plans make old snapshots outdated; withdraw shares when no longer applicable.
+
+Automatic nearby discovery uses public OpenStreetMap data through [Photon](https://github.com/komoot/photon) and the [VK Maps public Overpass instance](https://maps.mail.ru/osm/tools/overpass/), with [OpenStreetMap attribution](https://www.openstreetmap.org/copyright). The selected search coordinates, category and radius are sent to VK Maps’ service in Russia. The main overpass-api.de instance is not used. Searches are user-triggered, bounded and rate-limited; cached public results reduce repeat traffic. No paid API key or additional dependency is required. The free providers do not guarantee availability or complete Indian supplier coverage. Listings may be retailers rather than wholesalers; verify capacity, delivery area, prices and contact details before procurement. The review form requires explicit confirmation before saving a map lead as restaurant-verified; the data provider does not verify it. Existing external website searches remain available. Existing hosting/database usage costs still apply.

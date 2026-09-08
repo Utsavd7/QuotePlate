@@ -157,7 +157,7 @@ describe('supplier workspace', () => {
     expect(html).toContain('People you buy from');
     expect(html).toContain('Suppliers');
     expect(html).toContain('Keep the suppliers you already use and what each one can supply in one place.');
-    expect(html).toContain('Your recipes, menus, supplier prices, and purchase records stay private to your restaurant. Other restaurants cannot see them, and suppliers see only the request you send to them.');
+    expect(html).toContain('Your restaurant data is private from other restaurants. Each supplier can see requests you send them, their own orders and delivery checks, and estimates you explicitly share with them. Your recipes, menus and other suppliers’ prices are not shared.');
     expect(html).toContain('aria-label="Restaurant data privacy"');
     expect(html).toContain('GreenLeaf Fresh Foods');
     expect(html).toContain('Navi Mumbai');

@@ -1,6 +1,11 @@
 import type { Prisma } from '@prisma/client';
 
 const auditRules = {
+  'portal.rotated': { entityType: 'SupplierPortal', metadata: ['supplierId'] },
+  'portal.revoked': { entityType: 'SupplierPortal', metadata: ['supplierId'] },
+  'portal.responded': { entityType: 'SupplierCollaboration', metadata: ['supplierId', 'requestId', 'version', 'action'] },
+  'portal.demand-shared': { entityType: 'SupplierDemandShare', metadata: ['supplierId', 'planId', 'version', 'itemCount'] },
+  'portal.demand-withdrawn': { entityType: 'SupplierDemandShare', metadata: ['supplierId'] },
   'service_plan.created': { entityType: 'ServicePlan', metadata: ['version', 'menuId'] },
   'service_plan.updated': { entityType: 'ServicePlan', metadata: ['version', 'menuId'] },
   'service_plan.procurement_drafted': { entityType: 'ServicePlan', metadata: ['version', 'requestId'] },

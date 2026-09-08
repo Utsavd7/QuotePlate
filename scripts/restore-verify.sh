@@ -149,7 +149,7 @@ BEGIN
       ON namespace.oid = procedure.pronamespace
     WHERE namespace.nspname = 'autorfp_private';
 
-    IF function_count <> 7
+    IF function_count <> 8
        OR COALESCE(functions_have_restore_owner, false) = false
     THEN
       RAISE EXCEPTION 'restored security functions must be owned by the restore connection role';
@@ -420,7 +420,7 @@ verification_result=$(psql \
     ORDER BY tablename
   ) = ARRAY[
     'AuditEvent', 'Award', 'Menu', 'ProcurementRequest', 'RateLimitBucket',
-    'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
+    'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierCollaboration', 'SupplierDemandShare', 'SupplierPortal', 'SupplierRequest', 'Tenant', 'User'
   ]::TEXT[]
   AND NOT (
     SELECT COUNT(*) = 17
@@ -444,7 +444,7 @@ verification_result=$(psql \
   AND EXISTS (
     SELECT 1
     FROM public.\"_prisma_migrations\"
-    WHERE migration_name = '20260907000100_service_planning'
+    WHERE migration_name = '20260907000200_supplier_collaboration'
       AND finished_at IS NOT NULL
       AND rolled_back_at IS NULL
   )
@@ -476,7 +476,9 @@ verification_result=$(psql \
       ('ServicePlan_menuSnapshot_size_check', 'ServicePlan', 'menuSnapshot', '1048576'),
       ('ServicePlanRevision_document_size_check', 'ServicePlanRevision', 'document', '524288'),
       ('Supplier_capabilities_size_check', 'Supplier', 'capabilities', '65536'),
-      ('SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152')
+      ('SupplierCollaboration_revisions_size_check', 'SupplierCollaboration', 'revisions', '131072'),
+              ('SupplierDemandShare_items_size_check', 'SupplierDemandShare', 'items', '131072'),
+              ('SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152')
     ) AS expected(constraint_name, table_name, column_name, byte_cap)
     WHERE NOT EXISTS (
       SELECT 1
@@ -515,7 +517,7 @@ verification_result=$(psql \
     )
   )
   AND (
-    SELECT COUNT(*) = 7
+    SELECT COUNT(*) = 8
     FROM pg_catalog.pg_proc AS procedure
     JOIN pg_catalog.pg_namespace AS namespace
       ON namespace.oid = procedure.pronamespace
@@ -530,6 +532,7 @@ verification_result=$(psql \
       ('autorfp_invitation_tenant_by_digest', 'text'),
       ('autorfp_supplier_application_grant_by_digest', 'text'),
       ('autorfp_supplier_grant_by_digest', 'text'),
+      ('autorfp_supplier_portal_by_digest', 'text'),
       ('autorfp_user_email_exists', 'text')
     ) AS expected(function_name, argument_signature)
     WHERE NOT EXISTS (
@@ -634,7 +637,7 @@ verification_result=$(psql \
     ORDER BY 1
   ) = ARRAY['public:r:autorfp_backup:SELECT']::TEXT[]
   AND (
-    SELECT COUNT(*) = 10
+    SELECT COUNT(*) = 13
       AND bool_and(table_catalog.relrowsecurity)
       AND bool_and(table_catalog.relforcerowsecurity)
     FROM pg_catalog.pg_class AS table_catalog
@@ -643,7 +646,7 @@ verification_result=$(psql \
     WHERE namespace.nspname = 'public'
       AND table_catalog.relname = ANY(ARRAY[
         'AuditEvent', 'Award', 'Menu', 'ProcurementRequest',
-        'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
+        'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierCollaboration', 'SupplierDemandShare', 'SupplierPortal', 'SupplierRequest', 'Tenant', 'User'
       ])
   )
   AND NOT (
@@ -652,7 +655,7 @@ verification_result=$(psql \
     WHERE table_catalog.oid = to_regclass('public.\"RateLimitBucket\"')
   )
   AND (
-    SELECT COUNT(*) = 10
+    SELECT COUNT(*) = 13
     FROM pg_catalog.pg_policy AS policy_catalog
     JOIN pg_catalog.pg_class AS table_catalog
       ON table_catalog.oid = policy_catalog.polrelid
@@ -671,7 +674,10 @@ verification_result=$(psql \
       ('ServicePlanRevision', 'tenantId'),
       ('Supplier', 'tenantId'),
       ('ProcurementRequest', 'tenantId'),
-      ('SupplierRequest', 'tenantId'),
+      ('SupplierCollaboration', 'tenantId'),
+              ('SupplierDemandShare', 'tenantId'),
+              ('SupplierPortal', 'tenantId'),
+              ('SupplierRequest', 'tenantId'),
       ('Award', 'tenantId'),
       ('AuditEvent', 'tenantId')
     ) AS expected(table_name, tenant_column)
@@ -739,7 +745,7 @@ verification_result=$(psql \
     )
   )
 THEN 1 ELSE 0 END;")
-[ "$verification_result" = '1' ] || fail 'restored database did not contain the service planning schema contract'
+[ "$verification_result" = '1' ] || fail 'restored database did not contain the supplier collaboration schema contract'
 
 runtime_verification_result=$(psql \
   --set=ON_ERROR_STOP=1 \

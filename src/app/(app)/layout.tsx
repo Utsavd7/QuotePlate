@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   History,
   LayoutDashboard,
+  MessageSquare,
   Menu,
   Plus,
   Settings,
@@ -48,6 +49,7 @@ const NAV = [
   { href: '/procurement', icon: ClipboardList, label: 'Buy ingredients' },
   { href: '/menus', icon: BookOpen, label: 'Menu and ingredients' },
   { href: '/suppliers', icon: Users, label: 'Suppliers' },
+  { href: '/supplier-collaboration', icon: MessageSquare, label: 'Supplier collaboration' },
   { href: '/supplier-performance', icon: Truck, label: 'Supplier performance' },
   { href: '/insights', icon: BarChart3, label: 'Savings and prices' },
   { href: '/history', icon: History, label: 'Past purchases' },
@@ -106,7 +108,7 @@ function SidebarContent({
         role="note"
       >
         <strong>Private to your restaurant</strong>
-        <span>Recipes, menus, supplier prices, and purchase records stay private. Other restaurants cannot see them. Suppliers see only requests you send.</span>
+        <span>Other restaurants cannot see your records. Suppliers see their requests, own orders and delivery checks, and estimates you choose to share. Recipes, menus and other suppliers’ prices stay private.</span>
       </div>
 
       <div className={styles.account}>

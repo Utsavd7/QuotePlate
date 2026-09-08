@@ -13,12 +13,14 @@ export type PublicClientRateLimit = (input: {
 }) => Promise<PublicClientLimitResult>;
 
 export type PublicClientOperation =
+  | 'supplier-portal'
   | 'invitation-accept'
   | 'quote-access'
   | 'quote-submit'
   | 'supplier-application';
 
 const limits = {
+  'supplier-portal': { scope: 'supplier-portal-client', limit: 120 },
   'invitation-accept': {
     scope: 'member-invitation-accept-client',
     limit: 30,

@@ -45,6 +45,12 @@ const nextConfig: NextConfig = {
                     { key: 'Content-Security-Policy', value: quoteContentSecurityPolicy },
                 ],
             },
+            {
+                source: '/supplier-portal/:path*',
+                headers: [
+                    { key: 'Content-Security-Policy', value: quoteContentSecurityPolicy },
+                ],
+            },
         ];
     },
 };

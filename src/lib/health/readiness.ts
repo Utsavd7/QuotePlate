@@ -51,7 +51,7 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
             AND tablename <> pg_catalog.concat('_prisma', '_migrations')
         ) = ARRAY[
           'AuditEvent', 'Award', 'Menu', 'ProcurementRequest',
-          'RateLimitBucket', 'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
+          'RateLimitBucket', 'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierCollaboration', 'SupplierDemandShare', 'SupplierPortal', 'SupplierRequest', 'Tenant', 'User'
         ]::TEXT[]
         AND EXISTS (
           SELECT 1
@@ -112,6 +112,8 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
               ('ServicePlan_menuSnapshot_size_check', 'ServicePlan', 'menuSnapshot', '1048576'),
               ('ServicePlanRevision_document_size_check', 'ServicePlanRevision', 'document', '524288'),
               ('Supplier_capabilities_size_check', 'Supplier', 'capabilities', '65536'),
+              ('SupplierCollaboration_revisions_size_check', 'SupplierCollaboration', 'revisions', '131072'),
+              ('SupplierDemandShare_items_size_check', 'SupplierDemandShare', 'items', '131072'),
               ('SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152')
           ) AS expected(constraint_name, table_name, column_name, byte_cap)
           WHERE NOT EXISTS (
@@ -147,7 +149,7 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
           )
         )
         AND (
-          SELECT COUNT(*) = 7
+          SELECT COUNT(*) = 8
             AND pg_catalog.bool_and(procedure.prosecdef)
             AND pg_catalog.bool_and(
               procedure.proconfig = ARRAY['search_path=pg_catalog']::TEXT[]
@@ -225,6 +227,7 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
             'autorfp_invitation_tenant_by_digest',
             'autorfp_supplier_application_grant_by_digest',
             'autorfp_supplier_grant_by_digest',
+            'autorfp_supplier_portal_by_digest',
             'autorfp_user_email_exists'
           ]::TEXT[]) AS expected(function_name)
           WHERE to_regprocedure(
@@ -232,7 +235,7 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
           ) IS NULL
         )
         AND (
-          SELECT COUNT(*) = 10
+          SELECT COUNT(*) = 13
             AND pg_catalog.bool_and(table_catalog.relrowsecurity)
             AND pg_catalog.bool_and(table_catalog.relforcerowsecurity)
           FROM pg_catalog.pg_class AS table_catalog
@@ -241,11 +244,11 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
           WHERE namespace.nspname = 'public'
             AND table_catalog.relname = ANY(ARRAY[
               'AuditEvent', 'Award', 'Menu', 'ProcurementRequest',
-              'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierRequest', 'Tenant', 'User'
+              'ServicePlan', 'ServicePlanRevision', 'Supplier', 'SupplierCollaboration', 'SupplierDemandShare', 'SupplierPortal', 'SupplierRequest', 'Tenant', 'User'
             ]::TEXT[])
         )
         AND (
-          SELECT COUNT(*) = 10
+          SELECT COUNT(*) = 13
           FROM pg_catalog.pg_policy AS policy_catalog
           JOIN pg_catalog.pg_class AS table_catalog
             ON table_catalog.oid = policy_catalog.polrelid
@@ -265,6 +268,9 @@ export async function checkRuntimeDatabase(client: ReadinessDatabaseClient) {
               ('ServicePlanRevision', 'tenantId'),
               ('Supplier', 'tenantId'),
               ('ProcurementRequest', 'tenantId'),
+              ('SupplierCollaboration', 'tenantId'),
+              ('SupplierDemandShare', 'tenantId'),
+              ('SupplierPortal', 'tenantId'),
               ('SupplierRequest', 'tenantId'),
               ('Award', 'tenantId'),
               ('AuditEvent', 'tenantId')

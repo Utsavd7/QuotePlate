@@ -1,11 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-test('demo loads on demand, plays with captions, and fits the viewport', async ({ page }, testInfo) => {
+test('demo waits offscreen then autoplays muted with captions and fits the viewport', async ({ page }, testInfo) => {
   const mediaRequests: string[] = [];
   page.on('request', (request) => {
     if (request.url().endsWith('.mp4')) mediaRequests.push(request.url());
   });
   await page.goto('/');
+  expect(mediaRequests).toEqual([]);
+  await expect(page.getByRole('button', { name: 'Unmute video', exact: true })).toHaveCount(0);
   await page.getByRole('link', { name: 'Watch the demo' }).click();
   const section = page.locator('#watch-demo');
   const video = section.locator('video');
@@ -17,13 +19,23 @@ test('demo loads on demand, plays with captions, and fits the viewport', async (
   }).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('demo-player.png'), animations: 'disabled' });
   await expect(video).toHaveAttribute('preload', 'none');
-  expect(mediaRequests).toEqual([]);
-  expect(await video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(true);
-
-  await video.evaluate((el: HTMLVideoElement) => el.play());
+  expect(await video.evaluate((el: HTMLVideoElement) => el.muted)).toBe(true);
+  const unmute = section.getByRole('button', { name: 'Unmute video', exact: true });
+  await expect(unmute).toBeVisible();
+  await unmute.click();
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.muted)).toBe(false);
+  await expect(unmute).toHaveCount(0);
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(true);
+  await video.scrollIntoViewIfNeeded();
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(false);
+  expect(await video.evaluate((el: HTMLVideoElement) => el.muted)).toBe(false);
+  await video.evaluate((el: HTMLVideoElement) => { el.muted = true; });
+  await expect(unmute).toBeVisible();
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBeGreaterThan(0);
-  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeCloseTo(225, 0);
-  await video.evaluate((el: HTMLVideoElement) => { el.textTracks[0].mode = 'showing'; });
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeLessThanOrEqual(150);
+  expect(await video.evaluate((el: HTMLVideoElement) => el.duration)).toBeGreaterThan(145);
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].mode)).toBe('showing');
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].cues?.length ?? 0)).toBeGreaterThan(0);
 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -44,5 +56,44 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toContain('QuotePlate');
   expect(text).toContain('credit claimed');
   expect(text).toContain('Supplier performance');
+  expect(text).toContain('real public map listings');
+  expect(text).toContain('private workspace link');
+  expect(text).toContain('Estimates are not orders');
   expect(text).toContain('seven point five kilo purchase');
+});
+
+
+test('natural scrolling pauses and resumes the film but respects a manual pause', async ({ page }) => {
+  await page.goto('/');
+  const video = page.locator('#watch-demo video');
+  await video.scrollIntoViewIfNeeded();
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBeGreaterThan(0);
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(true);
+  await video.scrollIntoViewIfNeeded();
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(false);
+  await video.evaluate((el: HTMLVideoElement) => new Promise<void>(resolve => {
+    el.addEventListener('pause', () => resolve(), { once: true });
+    el.pause();
+  }));
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await page.waitForTimeout(200);
+  await video.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  expect(await video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(true);
+  // A user can still resume playback explicitly after choosing to pause.
+  await video.evaluate((el: HTMLVideoElement) => el.play());
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(false);
+});
+
+test('reduced motion leaves the film paused until the user plays it', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/#watch-demo');
+  const video = page.locator('#watch-demo video');
+  await video.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  expect(await video.evaluate((el: HTMLVideoElement) => el.paused)).toBe(true);
+  expect(await video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBe(0);
+  await video.evaluate((el: HTMLVideoElement) => el.play());
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBeGreaterThan(0);
 });

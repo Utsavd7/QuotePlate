@@ -128,6 +128,19 @@ export function PublicLandingPage() {
           </div>
         </section>
 
+        <section className="supplier-benefits public-container" id="for-suppliers" aria-labelledby="supplier-benefits-title">
+          <header>
+            <p className="public-eyebrow">A clearer relationship, on both sides</p>
+            <h2 id="supplier-benefits-title">Good for your kitchen. Useful for your suppliers.</h2>
+            <p>Find nearby food businesses inside your workspace, review their details and invite suitable suppliers. Open-map listings are free to search; coverage and delivery availability need checking.</p>
+          </header>
+          <ol className="supplier-benefits__steps">
+            <li><span aria-hidden="true">01</span><div><h3>Know where the order stands</h3><p>Suppliers use a private link to see their request status, confirm awarded quantities or ask for a change. No supplier account required.</p></div></li>
+            <li><span aria-hidden="true">02</span><div><h3>Agree on what arrived</h3><p>Share delivery checks and recorded credits. Suppliers can agree or dispute the record with a delivery-note or invoice reference; changed checks need a fresh response.</p></div></li>
+            <li><span aria-hidden="true">03</span><div><h3>Give suppliers time to prepare</h3><p>Choose which upcoming ingredient quantities to share. Suppliers see estimates, while your recipes, portions and stock counts stay private. You still confirm the order separately.</p></div></li>
+          </ol>
+        </section>
+
         <section className="privacy-story" id="security" aria-labelledby="privacy-story-title">
           <div className="public-container privacy-story__grid">
             <header>
@@ -136,8 +149,8 @@ export function PublicLandingPage() {
               <h2 id="privacy-story-title">Your recipes stay private with your restaurant.</h2>
               <p>
                 Your recipes, menus, supplier prices, and purchase records stay private to your
-                restaurant. Other restaurants cannot see them, and suppliers see only the request
-                you send to them.
+                restaurant. Other restaurants cannot see them. Suppliers see their own requests and
+                orders, delivery records and the ingredient estimates you choose to share.
               </p>
             </header>
             <div>
@@ -148,7 +161,7 @@ export function PublicLandingPage() {
                 </div>
                 <div>
                   <dt>Each supplier</dt>
-                  <dd>Only the request sent to them</dd>
+                  <dd>Their requests, awarded items, delivery checks and explicitly shared ingredient estimates</dd>
                 </div>
                 <div>
                   <dt>Other restaurants</dt>

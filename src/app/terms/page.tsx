@@ -15,7 +15,7 @@ export default function TermsPage() {
     >
       <section>
         <h2>The service</h2>
-        <p>The pilot helps restaurant teams prepare procurement requests, collect supplier quote submissions, compare commercial facts, record award decisions, plan service quantities, check deliveries and track entered credit settlements. Features may change as the product is tested. We may limit, suspend, or end pilot access with reasonable notice, or sooner where security or misuse requires it.</p>
+        <p>The pilot helps restaurant teams prepare procurement requests, collect supplier quote submissions, compare commercial facts, record award decisions, plan service quantities, check deliveries and track entered credit settlements. Suppliers can acknowledge orders and respond to delivery records through a separate private workspace. Restaurants may explicitly share upcoming ingredient estimates. Features may change as the product is tested. We may limit, suspend, or end pilot access with reasonable notice, or sooner where security or misuse requires it.</p>
       </section>
       <section>
         <h2>Accounts and access</h2>
@@ -23,7 +23,7 @@ export default function TermsPage() {
       </section>
       <section>
         <h2>Procurement decisions</h2>
-        <p>Planning results depend on the recipe, stock, yield and arrival information entered by your team. Credit settlements are recorded entries, not verified bank payments. The service organises information; it does not make purchasing decisions or guarantee price, quality, availability, delivery, tax treatment, or supplier performance. Your restaurant and its suppliers remain responsible for checking every request, supplier quote, award, purchase order, invoice, and applicable tax obligation.</p>
+        <p>Shared demand is an estimate, not an order, reservation or promise to purchase. Supplier responses do not alter accepted awards or transfer money. Nearby search results come from public open-map data, may be incomplete or outdated, and do not establish wholesale capability or verification. Free public search services have usage limits and may be unavailable. Planning results depend on the recipe, stock, yield and arrival information entered by your team. Credit settlements are recorded entries, not verified bank payments. The service organises information; it does not make purchasing decisions or guarantee price, quality, availability, delivery, tax treatment, or supplier performance. Your restaurant and its suppliers remain responsible for checking every request, supplier quote, award, purchase order, invoice, and applicable tax obligation.</p>
       </section>
       <section>
         <h2>Your information</h2>
