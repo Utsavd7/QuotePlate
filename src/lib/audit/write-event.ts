@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client';
 
 const auditRules = {
+  'portal.trading-profile-updated': { entityType: 'Supplier', metadata: ['revision'] },
   'portal.rotated': { entityType: 'SupplierPortal', metadata: ['supplierId'] },
   'portal.revoked': { entityType: 'SupplierPortal', metadata: ['supplierId'] },
   'portal.responded': { entityType: 'SupplierCollaboration', metadata: ['supplierId', 'requestId', 'version', 'action'] },

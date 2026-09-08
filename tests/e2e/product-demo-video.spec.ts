@@ -33,8 +33,8 @@ test('demo waits offscreen then autoplays muted with captions and fits the viewp
   await video.evaluate((el: HTMLVideoElement) => { el.muted = true; });
   await expect(unmute).toBeVisible();
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.currentTime)).toBeGreaterThan(0);
-  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeLessThanOrEqual(150);
-  expect(await video.evaluate((el: HTMLVideoElement) => el.duration)).toBeGreaterThan(145);
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.duration)).toBeLessThanOrEqual(165);
+  expect(await video.evaluate((el: HTMLVideoElement) => el.duration)).toBeGreaterThan(160);
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].mode)).toBe('showing');
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].cues?.length ?? 0)).toBeGreaterThan(0);
 
@@ -60,6 +60,10 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toContain('private workspace link');
   expect(text).toContain('Estimates are not orders');
   expect(text).toContain('seven point five kilo purchase');
+  expect(text).toContain('wholesale terms');
+  expect(text).toContain('matching past prices');
+  expect(text).toContain('billed cost per accepted unit');
+  expect(text).toContain('working restaurant demo');
 });
 
 

@@ -154,6 +154,11 @@ test('deploys every migration to an empty PostgreSQL database without schema dri
           finished_at: expect.any(Date),
           rolled_back_at: null,
         }),
+        expect.objectContaining({
+          migration_name: '20260908000100_supplier_trading_profile',
+          finished_at: expect.any(Date),
+          rolled_back_at: null,
+        }),
       ]);
     } finally {
       await prisma.$disconnect();

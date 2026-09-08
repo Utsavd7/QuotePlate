@@ -539,3 +539,23 @@
     animation: none;
   }
 }
+
+.reuseButton {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: .65rem 1rem;
+  border: 1px solid currentColor;
+  border-radius: .4rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.reuseButton:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.reuseButton:disabled { opacity: .5; cursor: wait; }
+
+@media (max-width: 600px) {
+  .latestBanner { flex-wrap: wrap; }
+  .reuseButton { width: 100%; }
+}

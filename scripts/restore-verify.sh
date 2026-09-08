@@ -444,7 +444,7 @@ verification_result=$(psql \
   AND EXISTS (
     SELECT 1
     FROM public.\"_prisma_migrations\"
-    WHERE migration_name = '20260907000200_supplier_collaboration'
+    WHERE migration_name = '20260908000100_supplier_trading_profile'
       AND finished_at IS NOT NULL
       AND rolled_back_at IS NULL
   )
@@ -476,6 +476,7 @@ verification_result=$(psql \
       ('ServicePlan_menuSnapshot_size_check', 'ServicePlan', 'menuSnapshot', '1048576'),
       ('ServicePlanRevision_document_size_check', 'ServicePlanRevision', 'document', '524288'),
       ('Supplier_capabilities_size_check', 'Supplier', 'capabilities', '65536'),
+      ('Supplier_tradingProfile_size_check', 'Supplier', 'tradingProfile', '8192'),
       ('SupplierCollaboration_revisions_size_check', 'SupplierCollaboration', 'revisions', '131072'),
               ('SupplierDemandShare_items_size_check', 'SupplierDemandShare', 'items', '131072'),
               ('SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152')

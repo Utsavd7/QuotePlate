@@ -69,10 +69,10 @@ export function ProductDemoVideo() {
     <section id="watch-demo" className={`${styles.section} public-container`} aria-labelledby="demo-title">
       <header className={styles.header}>
         <div>
-          <p className="public-eyebrow">The buying journey · 2:29</p>
+          <p className="public-eyebrow">The buying journey · 2:44</p>
           <h2 id="demo-title">From your kitchen to a clearer purchase.</h2>
         </div>
-        <p>Follow Monsoon Table, our fictional restaurant in Pune, through menu intake, nearby supplier discovery, quotes and delivery checks. See private supplier responses and selected demand sharing, with real public map listings captured for the demo. Supplier stock and prices still need confirmation.</p>
+        <p>Follow Monsoon Table, our fictional restaurant in Pune, through menu intake, nearby supplier discovery, quotes and delivery checks. See supplier trading terms, previous-price reuse, delivery-cost follow-ups and the working internal demo, alongside private supplier responses and selected demand sharing. Real public map listings were captured for the film. Supplier stock and prices still need confirmation.</p>
       </header>
       <div className={styles.player}>
         <video ref={videoRef} controls playsInline muted preload="none" width={1920} height={1080}

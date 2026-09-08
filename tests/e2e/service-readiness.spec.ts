@@ -94,6 +94,11 @@ test('persists partial item receiving, replacement quantities and credits in sup
   await expect(itemRow.getByRole('cell').nth(1)).toHaveText('100');
   await expect(itemRow.getByRole('cell').nth(2)).toHaveText('50');
   await expect(itemRow.getByRole('cell').nth(3)).toHaveText('50%');
+  await expect(itemRow.getByRole('cell').nth(5)).toContainText('₹200.00 / kg');
+  await expect(itemRow.getByRole('cell').nth(5)).toContainText('partial; provisional');
+  const followUps = page.getByRole('region', { name: 'Purchases needing follow-up' });
+  await expect(followUps).toContainText('₹3,000.00 owed');
+  await expect(followUps.getByRole('link', { name: /Review purchase/ })).toHaveAttribute('href', `/procurement/${fixture.requestId}`);
   await expect(page.getByText('1 checked; 0 unchecked; 1 partial')).toBeVisible();
 
   await page.goto(`/procurement/${fixture.requestId}`);
@@ -113,6 +118,8 @@ test('persists partial item receiving, replacement quantities and credits in sup
   expect(complete.suppliers).toEqual(before.suppliers);
   await page.goto('/supplier-performance');
   await expect(metrics.locator('article').filter({ hasText: 'Still owed' })).toContainText('₹0.00');
+  await expect(followUps).toContainText('No unchecked deliveries, missing quantity records, remaining quantities or outstanding credits');
+  await expect(itemRow.getByRole('cell').nth(5)).toContainText('₹100.00 / kg');
   await expect(metrics.locator('article').filter({ hasText: 'Credits received' })).toContainText('₹5,000.00');
   await expect(itemRow.getByRole('cell').nth(2)).toHaveText('100');
   await expect(itemRow.getByRole('cell').nth(3)).toHaveText('100%');

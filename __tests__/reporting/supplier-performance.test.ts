@@ -59,3 +59,41 @@ describe('supplier performance from measured outcomes', () => {
     expect(() => buildSupplierPerformance([observation({ lines: [{ itemKey: 'tomato', itemName: 'Tomato', unit: 'KILOGRAM', orderedQuantity: '10', receivedQuantity: '2', rejectedQuantity: '3' }] })])).toThrow();
   });
 });
+
+describe('actionable buying evidence', () => {
+  const billed = { billedQuantity: '10', billedUnitRatePaise: '4000', gstBasisPoints: 0, taxInclusive: false };
+  it('keeps missing billed inputs out of the cost denominator and credits separate', () => {
+    const [result] = buildSupplierPerformance([
+      observation({ lines: [{ ...observation().lines[0], ...billed, receivedQuantity: '9' }], creditClaimedPaise: '4000', creditReceivedPaise: '2000', complete: false }),
+      observation({ awardId: 'b' }),
+    ]);
+    expect(result.items[0]).toMatchObject({ acceptedQuantity: '19', costAcceptedQuantity: '9', billedCostPerAcceptedUnitPaise: '4444', costedChecks: 1, partialCostChecks: 1 });
+    expect(result.followUps).toEqual([expect.objectContaining({ awardId: 'award-a', creditOutstandingPaise: '2000', reasons: ['Items still outstanding', 'Credit still owed'] })]);
+  });
+  it('normalizes cost denominators without mixing units or specifications', () => {
+    const [result] = buildSupplierPerformance([
+      observation({ lines: [{ ...observation().lines[0], ...billed }] }),
+      observation({ awardId: 'b', lines: [{ ...observation().lines[0], ...billed, unit: 'GRAM', orderedQuantity: '1000', receivedQuantity: '1000', billedQuantity: '1000', billedUnitRatePaise: '4' }] }),
+      observation({ awardId: 'c', lines: [{ ...observation().lines[0], ...billed, specificationKey: 'organic', billedUnitRatePaise: '5000' }] }),
+    ]);
+    expect(result.items).toEqual(expect.arrayContaining([
+      expect.objectContaining({ specificationKey: '', costAcceptedQuantity: '11', billedCostPerAcceptedUnitPaise: '4000', costedChecks: 2 }),
+      expect.objectContaining({ specificationKey: 'organic', billedCostPerAcceptedUnitPaise: '5000', costedChecks: 1 }),
+    ]));
+  });
+  it('does not remove unchecked orders or count superseded credit balances', () => {
+    const [result] = buildSupplierPerformance([
+      observation({ awardId: 'unchecked', checkedAt: null, lines: [] }),
+      observation({ creditClaimedPaise: '500', creditReceivedPaise: '0' }),
+      observation({ checkedAt: '2026-09-08T12:00:00.000Z', creditClaimedPaise: '500', creditReceivedPaise: '500' }),
+    ]);
+    expect(result.creditOutstandingPaise).toBe('0');
+    expect(result.followUps).toEqual([expect.objectContaining({ awardId: 'unchecked', reasons: ['Delivery not checked'] })]);
+  });
+});
+
+it('keeps invoice-only legacy checks visible until delivery quantities are recorded', () => {
+  const [result] = buildSupplierPerformance([observation({ lines: [], complete: true })]);
+  expect(result.followUps).toEqual([expect.objectContaining({ reasons: ['Delivery quantities not recorded'] })]);
+  expect(result.items).toEqual([]);
+});

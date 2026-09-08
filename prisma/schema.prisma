@@ -154,6 +154,7 @@ model Supplier {
   verificationStatus   SupplierVerificationStatus @default(UNVERIFIED)
   applicationRequestId String?
   capabilities         Json
+  tradingProfile       Json?
   verifiedAt           DateTime?
   verifiedByUserId     String?
   isActive             Boolean                    @default(true)

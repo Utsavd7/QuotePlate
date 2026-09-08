@@ -20,3 +20,16 @@ describe('supplier performance workspace', () => {
     expect(html).toContain('href="/procurement"');
   });
 });
+
+it('shows actionable credit evidence and discloses the billed-cost basis', () => {
+  const html = renderToStaticMarkup(<SupplierPerformanceWorkspace initialData={{
+    generatedAt: '2026-09-08T12:00:00Z', capped: false, awardSampleSize: 1, notes: [],
+    suppliers: buildSupplierPerformance([{ awardId: 'a', requestId: 'purchase-a', supplierId: 's', supplierName: 'Local supplier', promisedDate: '2026-09-07', actualDeliveryDate: '2026-09-07', checkedAt: '2026-09-08T12:00:00Z', complete: false, issueCodes: ['QUALITY'], invoiceDifferencePaise: '0', creditClaimedPaise: '500', creditReceivedPaise: '0', lines: [{ itemKey: 'tomato', itemName: 'Tomato', unit: 'KILOGRAM', orderedQuantity: '10', receivedQuantity: '9', rejectedQuantity: '0', billedQuantity: '10', billedUnitRatePaise: '4000', gstBasisPoints: 0, taxInclusive: false }] }]),
+  }} />);
+  expect(html).toContain('Purchases needing follow-up');
+  expect(html).toContain('₹5.00 owed');
+  expect(html).toContain('href="/procurement/purchase-a"');
+  expect(html).toContain('₹44.44 / kg');
+  expect(html).toContain('provisional');
+  expect(html).toContain('Freight and order-level credits are excluded');
+});

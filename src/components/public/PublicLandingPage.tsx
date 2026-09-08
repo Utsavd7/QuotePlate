@@ -20,12 +20,12 @@ const restaurantBenefits = [
   {
     icon: 'history' as const,
     title: 'Reuse each buying cycle',
-    detail: 'Repeat a saved daily plan with fresh stock counts, or turn a completed purchase into a new draft for fresh supplier prices.',
+    detail: 'Repeat a saved daily plan with fresh stock counts, or turn a completed purchase into a new draft. Suppliers can review matching historical rates before submitting a fresh quote.',
   },
   {
     icon: 'receipt' as const,
     title: 'Check the complete cost',
-    detail: 'Compare item prices, GST, freight, delivery and missing items. Check the entered invoice total against the accepted supplier total.',
+    detail: 'Compare item prices, GST, freight and delivery. After receiving, see billed cost per accepted unit where billed inputs are recorded, with tax assumptions and exclusions shown.',
   },
   {
     icon: 'approve' as const,
@@ -40,7 +40,7 @@ const restaurantBenefits = [
   {
     icon: 'price' as const,
     title: 'Keep credits from getting lost',
-    detail: 'See delivery and billing discrepancies alongside credits claimed, received and still owed. Update each settlement as it happens.',
+    detail: 'Open one follow-up list for unchecked deliveries, remaining items and credits still owed. Go straight to the purchase and update the record when it is resolved.',
   },
   {
     icon: 'suppliers' as const,
@@ -132,12 +132,13 @@ export function PublicLandingPage() {
           <header>
             <p className="public-eyebrow">A clearer relationship, on both sides</p>
             <h2 id="supplier-benefits-title">Good for your kitchen. Useful for your suppliers.</h2>
-            <p>Find nearby food businesses inside your workspace, review their details and invite suitable suppliers. Open-map listings are free to search; coverage and delivery availability need checking.</p>
+            <p>Find nearby food businesses inside your workspace, review their details and invite suitable suppliers. Open-map listings are free to search. Invite a supplier to declare service PIN codes, wholesale status, minimum order and ordering times; the confirmation date stays visible.</p>
           </header>
           <ol className="supplier-benefits__steps">
             <li><span aria-hidden="true">01</span><div><h3>Know where the order stands</h3><p>Suppliers use a private link to see their request status, confirm awarded quantities or ask for a change. No supplier account required.</p></div></li>
             <li><span aria-hidden="true">02</span><div><h3>Agree on what arrived</h3><p>Share delivery checks and recorded credits. Suppliers can agree or dispute the record with a delivery-note or invoice reference; changed checks need a fresh response.</p></div></li>
             <li><span aria-hidden="true">03</span><div><h3>Give suppliers time to prepare</h3><p>Choose which upcoming ingredient quantities to share. Suppliers see estimates, while your recipes, portions and stock counts stay private. You still confirm the order separately.</p></div></li>
+            <li><span aria-hidden="true">04</span><div><h3>Make your delivery terms clear</h3><p>Suppliers update their service areas and ordering terms through their private workspace. These are supplier declarations, not independent verification or a guarantee of stock.</p></div></li>
           </ol>
         </section>
 

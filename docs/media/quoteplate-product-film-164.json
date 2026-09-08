@@ -1,0 +1,99 @@
+{
+  "durationSeconds": 164,
+  "resolution": "1920x1080",
+  "narration": "Local Kokoro af_heart; synthetic American English; new closing sections use local Kokoro ONNX af_heart at 1.10×",
+  "sources": "Existing app recordings and fresh isolated app recordings; real Photon/VK Maps listings captured in Andheri East; fictional restaurant records labelled on screen. Existing opening footage and licensed music reused. The final 23 seconds use fresh actual application screen captures of supplier trading terms, price reuse, billed costs, credit follow-ups and the isolated internal demo.",
+  "scenes": [
+    {
+      "id": "intro",
+      "title": "Every purchase, clearer",
+      "at": 0,
+      "duration": 5,
+      "text": "QuotePlate connects your kitchen, purchasing decisions and suppliers."
+    },
+    {
+      "id": "menu",
+      "title": "Start with your menu",
+      "at": 5,
+      "duration": 16,
+      "text": "Start with a menu photo, typed dishes, or a website you can import. Review the extracted text, ingredient quantities and units, then approve the menu. Your team stays in control."
+    },
+    {
+      "id": "nearby",
+      "title": "Find nearby suppliers — free",
+      "at": 21,
+      "duration": 20,
+      "text": "Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier."
+    },
+    {
+      "id": "quotes",
+      "title": "One request. Private replies.",
+      "at": 41,
+      "duration": 16,
+      "text": "Create one request with quantities, delivery timing and a reply deadline. Invite trusted suppliers, or review new applications. Suppliers send their prices through a private link, without creating an account."
+    },
+    {
+      "id": "award",
+      "title": "Compare the complete cost",
+      "at": 57,
+      "duration": 13,
+      "text": "Compare quantities, taxes, freight and delivery terms together. Choose one supplier, or split the purchase by item. Save your reason and the accepted decision."
+    },
+    {
+      "id": "receiving",
+      "title": "Record what actually arrived",
+      "at": 70,
+      "duration": 17,
+      "text": "Check received and rejected quantities against the purchase. Record billed rates, missing items and the credit claimed. Track credit received and settlement references. Supplier performance uses this delivery evidence, including outstanding balances."
+    },
+    {
+      "id": "portal",
+      "title": "Keep suppliers in the loop",
+      "at": 87,
+      "duration": 20,
+      "text": "Give each supplier a separate private workspace link. They see their own orders, confirm quantities, and agree or dispute a delivery record with a document reference. If the restaurant corrects the record, earlier confirmation becomes outdated."
+    },
+    {
+      "id": "plan",
+      "title": "Buy only the shortage",
+      "at": 107,
+      "duration": 18,
+      "text": "Plan the next service using portions, usable stock and expected yield. Here, ten kilos needed and four already usable leave six kilos. At eighty percent yield, that becomes a seven point five kilo purchase."
+    },
+    {
+      "id": "demand",
+      "title": "Share estimates, keep recipes private",
+      "at": 125,
+      "duration": 16,
+      "text": "Choose the missing ingredients you want a supplier to prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. Estimates are not orders, and your team can withdraw them."
+    },
+    {
+      "id": "trading",
+      "title": "Know supplier trading terms",
+      "at": 141,
+      "duration": 6,
+      "text": "Suppliers can confirm wholesale terms, service PIN codes and delivery lead times."
+    },
+    {
+      "id": "reuse",
+      "title": "Reuse prices after review",
+      "at": 147,
+      "duration": 6,
+      "text": "Reuse matching past prices, then confirm today’s quantities and terms."
+    },
+    {
+      "id": "accountability",
+      "title": "Follow up on deliveries and credits",
+      "at": 153,
+      "duration": 6,
+      "text": "Track billed cost per accepted unit, incomplete deliveries and outstanding credits."
+    },
+    {
+      "id": "internal-demo",
+      "title": "Explore the working demo",
+      "at": 159,
+      "duration": 5,
+      "text": "Explore the working restaurant demo. QuotePlate. Every quote, accountable."
+    }
+  ]
+}

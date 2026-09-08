@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
+import { DEMO_TENANT_ID } from '@/lib/demo/identity';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { SignOutButton } from '@/components/auth/SignOutButton';
 import { PageSkeleton } from '@/components/Skeleton';
@@ -282,7 +283,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <ErrorBoundary>
           <div className={styles.content}>
-            <WorkspaceProvider workspaceId={workspaceId}>{children}</WorkspaceProvider>
+            <WorkspaceProvider workspaceId={workspaceId}>
+              {workspaceId === DEMO_TENANT_ID && (
+                <aside className={styles.demoBanner} aria-label="Demo workspace notice">
+                  <strong>Internal demo · fictional restaurant records</strong>
+                  <span>This is a working test account. Changes are saved in this demo only. Do not enter real customer or supplier information.</span>
+                </aside>
+              )}
+              {children}
+            </WorkspaceProvider>
           </div>
         </ErrorBoundary>
 

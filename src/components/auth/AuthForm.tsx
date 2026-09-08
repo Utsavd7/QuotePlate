@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, useRef, useState, useSyncExternalStore } from 'react';
 
 import { authErrorMessage } from '@/lib/auth/client-errors';
 import {
@@ -22,6 +22,10 @@ type AuthFormProps = {
 };
 
 type PendingAction = 'email' | 'google' | null;
+
+const subscribeHydration = () => () => {};
+const clientReady = () => true;
+const serverReady = () => false;
 
 function GoogleGlyph() {
   return (
@@ -72,6 +76,7 @@ export function AuthForm({
   initialError = null,
 }: AuthFormProps) {
   const router = useRouter();
+  const ready = useSyncExternalStore(subscribeHydration, clientReady, serverReady);
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, setPending] = useState<PendingAction>(null);
   const [error, setError] = useState<string | null>(initialError);
@@ -92,7 +97,7 @@ export function AuthForm({
 
   async function handleEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if (!ready || pending) return;
     const form = event.currentTarget;
     if (!form.reportValidity()) return;
 
@@ -127,7 +132,7 @@ export function AuthForm({
   }
 
   async function handleGoogle() {
-    if (!googleAvailable || pending || !formRef.current) return;
+    if (!ready || !googleAvailable || pending || !formRef.current) return;
     const form = formRef.current;
     const password = form.elements.namedItem('password');
     const passwordInput = password instanceof HTMLInputElement ? password : null;
@@ -170,7 +175,7 @@ export function AuthForm({
         : '';
 
   return (
-    <form className={styles.form} onSubmit={handleEmail} ref={formRef}>
+    <form className={styles.form} method="post" onSubmit={handleEmail} ref={formRef}>
       <div className={styles.formIntro}>
         <div>
           <p className={styles.formKicker}>{mode === 'signin' ? 'Welcome back' : 'Controlled pilot'}</p>
@@ -184,7 +189,7 @@ export function AuthForm({
       </div>
 
       {mode === 'start' && (
-        <fieldset className={styles.fieldset}>
+        <fieldset className={styles.fieldset} disabled={!ready || pending !== null}>
           <legend>Restaurant</legend>
           <div className={styles.fieldGrid}>
             <label>
@@ -226,7 +231,7 @@ export function AuthForm({
         </fieldset>
       )}
 
-      <fieldset className={styles.fieldset}>
+      <fieldset className={styles.fieldset} disabled={!ready || pending !== null}>
         <legend>{mode === 'signin' ? 'Account' : 'Owner account'}</legend>
         <div className={styles.fieldGrid}>
           {mode === 'start' && (
@@ -260,10 +265,11 @@ export function AuthForm({
       {error && <p className={styles.error} role="alert">{error}</p>}
       <p className={styles.progress} aria-live="polite">{busyMessage}</p>
 
+      {!ready && <p role="status">Preparing secure sign-in… JavaScript is required.</p>}
       <div className={styles.actions}>
         {(mode === 'signin' || emailOwnerSignupAvailable) && (
           <>
-            <button className={styles.primaryButton} disabled={pending !== null} type="submit">
+            <button className={styles.primaryButton} disabled={!ready || pending !== null} type="submit">
               {pending === 'email'
                 ? busyMessage
                 : mode === 'signin'
@@ -276,7 +282,7 @@ export function AuthForm({
 
         <button
           className={styles.googleButton}
-          disabled={!googleAvailable || pending !== null}
+          disabled={!ready || !googleAvailable || pending !== null}
           onClick={handleGoogle}
           type="button"
         >
