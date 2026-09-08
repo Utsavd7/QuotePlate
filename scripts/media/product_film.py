@@ -220,8 +220,8 @@ def render(args, story):
                 output = edit / f'{name}-{index}.mp4'
                 vf = (
                     'scale=1760:900:force_original_aspect_ratio=decrease:force_divisible_by=2,'
-                    'pad=1920:992:(ow-iw)/2:(oh-ih)/2:color=0xf3f0e6,'
-                    'pad=1920:1080:0:88:color=0x10231c,setsar=1,'
+                    'pad=1920:992:(ow-iw)/2:(oh-ih)/2:color=0xf6f7f5,'
+                    'pad=1920:1080:0:88:color=0x172521,setsar=1,'
                     f"drawtext=fontfile='{filter_path(font)}':textfile='{filter_path(title)}':expansion=none:fontsize=27:fontcolor=0xf8faf8:x=32:y=23,"
                     f"drawtext=fontfile='{filter_path(font)}':text='Actual app / fictional restaurant records':fontsize=18:fontcolor=0xd7e4dc:x=w-tw-32:y=28"
                 )
@@ -270,14 +270,14 @@ def render(args, story):
         for shot in shots:
             label = sheet_frames / f'{frame_index:02}.txt'
             label.write_text(f"{stamp(at)} / {scene['id']}")
-            vf = (f"scale=480:270,pad=480:300:0:0:color=0x10231c,drawtext=fontfile='{filter_path(font)}':"
+            vf = (f"scale=480:270,pad=480:300:0:0:color=0x172521,drawtext=fontfile='{filter_path(font)}':"
                   f"textfile='{filter_path(label)}':expansion=none:fontsize=15:fontcolor=white:x=10:y=277")
             ffmpeg('-ss', at + shot['duration'] / 2, '-i', output, '-vf', vf,
                    '-frames:v', '1', '-q:v', '3', sheet_frames / f'frame-{frame_index:02}.jpg')
             frame_index += 1
             at += shot['duration']
     ffmpeg('-framerate', '1', '-i', sheet_frames / 'frame-%02d.jpg',
-           '-vf', f'tile=4x{(frame_index + 3) // 4}:nb_frames={frame_index}:padding=8:margin=8:color=0xf3f0e6',
+           '-vf', f'tile=4x{(frame_index + 3) // 4}:nb_frames={frame_index}:padding=8:margin=8:color=0xf6f7f5',
            '-frames:v', '1', '-q:v', '3', args.work / 'contact-sheet.jpg')
     write_json(args.work / 'verification.json', {
         'durationSeconds': seconds, 'frames': int(video['nb_frames']), 'resolution': [WIDTH, HEIGHT],

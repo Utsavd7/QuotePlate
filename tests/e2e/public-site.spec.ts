@@ -97,6 +97,26 @@ async function renderedContrast(
 }
 
 test.describe('public landing responsive contract', () => {
+  test('uses workspace greens and neutrals while preserving the copper brand', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.public-site')).toHaveCSS('background-color', 'rgb(246, 247, 245)');
+    await expect(page.locator('.public-header')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(page.locator('.public-hero h1 em')).toHaveCSS('color', 'rgb(40, 94, 77)');
+    await expect(page.locator('.public-header .brand-mark__request')).toHaveCSS('color', 'rgb(216, 131, 79)');
+    const primary = page.locator('.public-hero .public-button');
+    await expect(primary).toHaveCSS('background-color', 'rgb(40, 94, 77)');
+    await expect(primary).toHaveCSS('box-shadow', 'none');
+    expect(await renderedContrast(primary, '.public-button')).toBeGreaterThanOrEqual(4.5);
+    expect(await renderedContrast(page.locator('.public-hero h1 em'), '.public-site')).toBeGreaterThanOrEqual(4.5);
+    const steps = page.getByRole('navigation', { name: 'Buying journey steps' });
+    await expect(steps).toBeVisible();
+    expect(await renderedContrast(steps.getByRole('button').first(), 'button')).toBeGreaterThanOrEqual(4.5);
+    expect(await renderedContrast(page.locator('.landing-story__intro > p:last-child'), '.landing-story')).toBeGreaterThanOrEqual(4.5);
+    await steps.getByRole('button').nth(3).click();
+    await expect(page.locator('.decision-preview__window')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(page.locator('.restaurant-benefit').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  });
+
   test('keeps the shared account-page header pinned on laptop and tablet', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop-chromium', 'One project covers the viewport matrix');
 

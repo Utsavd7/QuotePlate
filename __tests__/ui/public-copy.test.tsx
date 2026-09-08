@@ -408,7 +408,7 @@ describe('public website contract', () => {
     const layout = source('src/app/layout.tsx');
     const packageJson = source('package.json');
 
-    for (const color of ['#101817', '#172521', '#F5F1E8', '#EBE5D9', '#D8834F', '#285E4D']) {
+    for (const color of ['#101817', '#172521', '#F5F1E8', '#EBE5D9', '#D8834F', '#285E4D', '#f6f7f5', '#ffffff', '#dce1db', '#515e56', '#285e4d', '#1c483b', '#e7f0eb']) {
       expect(css).toContain(color);
     }
     expect(packageJson).toContain('@fontsource-variable/manrope');
@@ -475,7 +475,37 @@ describe('public website contract', () => {
     expect(contrastRatio(mutedLabel!, '#F5F1E8')).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(mutedLabel!, '#EBE5D9')).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(mutedLabel!, '#FBF8F1')).toBeGreaterThanOrEqual(4.5);
-    expect(css).toMatch(/\.public-hero h1 em[\s\S]*?color: var\(--copper-text\)/);
+    expect(css).toMatch(/\.public-hero h1 em[\s\S]*?color: var\(--workspace-accent\)/);
+    const token = (name: string) => {
+      const value = css.match(new RegExp(`--workspace-${name}:\\s*(#[\\da-f]{6})`, 'i'))?.[1];
+      expect(value).toBeDefined();
+      return value!;
+    };
+    for (const surface of ['canvas', 'surface', 'selected']) {
+      expect(contrastRatio(token('accent'), token(surface))).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(token('muted'), token(surface))).toBeGreaterThanOrEqual(4.5);
+    }
+    for (const surface of ['accent', 'accent-hover']) {
+      expect(contrastRatio(token('surface'), token(surface))).toBeGreaterThanOrEqual(4.5);
+    }
+    for (const surface of ['forest', 'raised-forest', 'selected-forest']) {
+      for (const text of ['on-dark', 'muted-on-dark', 'accent-on-dark']) {
+        expect(contrastRatio(token(text), token(surface))).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+    const publicScope = css.match(/\.public-site \{([^}]+)\}/)?.[1] ?? '';
+    expect(publicScope).toContain('--stone: var(--workspace-canvas)');
+    expect(publicScope).not.toMatch(/--copper(?:-text)?:/);
+    expect(css).toContain('.brand-mark--duotone .brand-mark__request { color: var(--copper); }');
+    expect(css).toMatch(/\.public-button \{[^}]*background: var\(--workspace-accent\);[^}]*box-shadow: none;/);
+    expect(css).toMatch(/\.public-header \{[^}]*background: var\(--workspace-surface\);/);
+    const appShell = source('src/app/(app)/app-shell.module.css');
+    expect(appShell).toContain('--shell-stone: var(--workspace-canvas)');
+    expect(appShell).toContain('--shell-paper: var(--workspace-surface)');
+    expect(appShell).toContain('background: var(--workspace-accent)');
+    const journey = source('src/components/public/journey-stage.module.css');
+    expect(journey).toContain('color: var(--workspace-muted-on-dark)');
+    expect(journey).toContain('outline: 2px solid var(--workspace-accent-on-dark)');
     expect(css).toMatch(/\.sample-label[\s\S]*?color: var\(--ink-label\)/);
     expect(css).toMatch(/\.decision-preview__summary > span \{[\s\S]*?color: var\(--ink-label\)/);
     expect(css).toMatch(/\.decision-preview__footer > span \{[\s\S]*?color: var\(--success\)/);
