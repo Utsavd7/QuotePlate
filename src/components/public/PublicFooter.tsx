@@ -24,7 +24,7 @@ export function PublicFooter() {
       </div>
       <div className="public-container public-footer__legal">
         <span>© {new Date().getFullYear()} {brand.companyName}</span>
-        <span>Built for accountable restaurant procurement in India.</span>
+        <span>Built for clearer restaurant buying in India.</span>
       </div>
     </footer>
   );

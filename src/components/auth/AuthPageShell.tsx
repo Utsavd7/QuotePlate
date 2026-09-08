@@ -18,7 +18,7 @@ const content = {
     eyebrow: 'Restaurant workspace',
     title: 'Return to the decisions that need you.',
     description:
-      'Open current requests, compare supplier terms, and keep every award tied to the quote that earned it.',
+      'Open your purchases, compare prices and check deliveries.',
     document: 'Account access',
     note: 'Restaurant records remain on the server; your browser stores only the session needed to keep you signed in.',
   },
@@ -26,7 +26,7 @@ const content = {
     eyebrow: 'India pilot',
     title: 'Set up the workspace behind your next purchase.',
     description:
-      'Create one secure restaurant workspace for your team, suppliers, requests, and award history.',
+      'Keep your team, suppliers, purchases and order history in one restaurant workspace.',
     document: 'Owner registration',
     note: 'Starting the pilot does not activate a paid plan or automatic billing.',
   },
@@ -35,7 +35,7 @@ const content = {
 const assurances = [
   { icon: 'privacy', label: 'Restaurant privacy', text: 'One workspace, isolated from every other restaurant.' },
   { icon: 'link', label: 'Sign-in security', text: 'Google stores identity only; QuotePlate stores no Google access tokens.' },
-  { icon: 'approve', label: 'Purchasing decisions', text: 'A human reviews and records every supplier award.' },
+  { icon: 'approve', label: 'Purchasing decisions', text: 'Your restaurant chooses the supplier and confirms each order.' },
 ] as const;
 
 export function AuthPageShell(props: AuthPageShellProps) {

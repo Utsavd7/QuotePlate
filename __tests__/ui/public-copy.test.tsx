@@ -85,14 +85,14 @@ describe('public website contract', () => {
     expect(markup).toContain('Send one list.');
     expect(markup).toContain('Compare every supplier.');
     expect(markup).toContain('Choose the best deal.');
-    expect(markup).toContain('Quote comparison');
-    expect(markup).toContain('Human decision required');
+    expect(markup).toContain('Compare prices');
+    expect(markup).toContain('You choose the supplier');
     expect(markup).toContain('No card required');
     expect(markup).toContain(`${restaurantSampleQuotes.length} supplier replies`);
     expect(markup).toContain(`${restaurantSampleRequest.items.length} items requested`);
-    expect(markup).toContain('Labelled sample replies, not customer activity.');
-    expect(markup).toContain(`Requested in sample ${restaurantSampleRequest.id}; coverage stays visible supplier by supplier.`);
-    expect(markup).toContain('One sample decision is waiting; the product never chooses automatically.');
+    expect(markup).toContain('Sample replies, not customer activity.');
+    expect(markup).toContain(`Sample ${restaurantSampleRequest.id}; see which items each supplier quoted.`);
+    expect(markup).toContain('Sample choice pending. Your restaurant decides.');
     expect(landing).toContain('<LandingJourney');
     expect(landing).not.toMatch(/['"]use client['"]/);
   });
@@ -115,7 +115,7 @@ describe('public website contract', () => {
 
     const heroMarkup = markup.slice(heroStart, proofStart);
     const heroRouteMarkup = markup.slice(heroRouteStart, proofStart);
-    const routeLabels = ['Menu', 'Request', 'Supplier prices', 'Your choice'];
+    const routeLabels = ['Choose ingredients', 'Compare prices', 'Choose supplier', 'Check delivery'];
     let previousRouteLabel = -1;
 
     expect(heroRouteMarkup).toContain('aria-label="QuotePlate buying journey"');
@@ -130,8 +130,8 @@ describe('public website contract', () => {
     expect(heroMarkup.match(/href="\/start">Start free pilot /g)).toHaveLength(1);
 
     const journeyMarkup = markup.slice(journeyStart, privacyStart);
-    expect(journeyMarkup).toContain('Tell us what your kitchen needs');
-    expect(journeyMarkup).toContain('Choose and save the decision');
+    expect(journeyMarkup).toContain('Choose ingredients');
+    expect(journeyMarkup).toContain('Choose supplier');
 
     const privacyMarkup = markup.slice(privacyStart, closingStart);
     expect(privacyMarkup).toContain('<dl class="privacy-map">');
@@ -155,12 +155,12 @@ describe('public website contract', () => {
     expect(benefitsStart).toBeGreaterThanOrEqual(0);
     expect(benefits).toContain('Useful for every purchase, not just the first one.');
     for (const benefit of [
-      'Reuse each buying cycle',
-      'Check the complete cost',
-      'Keep delivery history',
-      'Know what service still needs',
-      'Keep credits from getting lost',
-      'Choose with delivery evidence',
+      'Repeat a purchase',
+      'See the full cost',
+      'Keep delivery records',
+      'Plan meals and stock',
+      'Follow up credits',
+      'Review supplier deliveries',
     ]) expect(benefits).toContain(benefit);
     expect(benefits.match(/class="restaurant-benefit"/g)).toHaveLength(6);
     expect(benefits).not.toMatch(/guaranteed|save \d+%|recommended supplier/i);
@@ -169,31 +169,40 @@ describe('public website contract', () => {
   test('presents the restaurant procurement story in the approved order', () => {
     const markup = renderToStaticMarkup(<LandingJourney />);
     const orderedStory = [
-      'Tell us what your kitchen needs',
-      'Choose who should send prices',
-      'Send one clear request',
-      'Compare the complete cost',
-      'Choose and save the decision',
+      'Choose ingredients',
+      'Invite your suppliers',
+      'Ask for prices',
+      'Compare prices',
+      'Choose supplier',
+      'Check delivery',
     ];
     let previousIndex = -1;
 
     for (const statement of orderedStory) {
       expect(markup).toContain(statement);
-      const statementIndex = markup.indexOf(statement);
+      const statementIndex = markup.indexOf(`<h3>${statement}</h3>`);
       expect(statementIndex).toBeGreaterThan(previousIndex);
       previousIndex = statementIndex;
     }
 
     expect(markup).toContain('Take menu photos');
-    expect(markup).toContain('turns the dishes into an ingredient list for your team to check');
-    expect(markup).toContain('Use your existing suppliers');
+    expect(markup).toContain('permitted website link');
+    expect(markup).toContain('In Plan meals, choose meals and portions, check stock, then review missing ingredients.');
+    expect(markup).toContain('Enter batch servings, usable stock, yield and confirmed arrivals explicitly.');
+    expect(markup).toContain('Suppliers enter prices, review delivery and the total');
+    expect(markup).toContain('then send their quote.');
+    expect(markup).toContain('Check dish names, add ingredients and quantities, then approve the menu.');
+    expect(markup).toContain('Enter dish names only.');
+    expect(markup).toContain('Purchases require an approved menu.');
+    expect(markup).not.toContain('enter ingredients directly');
+    expect(markup).toContain('Use your saved suppliers');
     expect(markup).toContain('allow new suppliers to apply, then approve them yourself');
     expect(markup).not.toContain('verified new suppliers');
     expect(markup).toContain('No supplier account needed');
-    expect(markup).toContain('only the items and quantities assigned to them through a private link');
-    expect(markup).toContain('relevant delivery requirements and terms');
-    expect(markup).toContain('Prices, GST, freight, delivery and missing items');
-    expect(markup).toContain('See the full request total and the price of every item');
+    expect(markup).toContain('Share a private link with each supplier for only their assigned items');
+    expect(markup).toContain('delivery requirements and terms');
+    expect(markup).toContain('Compare item prices, GST, delivery charges and dates');
+    expect(markup).toContain('Check the full total');
     expect(markup).toContain('choose one supplier or split items between suppliers');
     expect(markup).toContain('Your restaurant makes the final choice.');
     expect(markup).toContain('<ol class="landing-story__track" role="list">');
@@ -223,8 +232,8 @@ describe('public website contract', () => {
     const defaultMarkup = renderToStaticMarkup(<ProductDecisionPreview />);
     const nestedMarkup = renderToStaticMarkup(<ProductDecisionPreview headingLevel={4} />);
 
-    expect(defaultMarkup).toContain('<h2 id="decision-preview-title">Quote comparison</h2>');
-    expect(nestedMarkup).toContain('<h4 id="decision-preview-title">Quote comparison</h4>');
+    expect(defaultMarkup).toContain('<h2 id="decision-preview-title">Compare prices</h2>');
+    expect(nestedMarkup).toContain('<h4 id="decision-preview-title">Compare prices</h4>');
   });
 
   test('uses consistent local icons for the landing journey diagram', () => {
@@ -281,6 +290,8 @@ describe('public website contract', () => {
       />,
     );
 
+    expect(markup).toContain('Keep your team, suppliers, purchases and order history in one restaurant workspace.');
+    expect(markup).toContain('Your restaurant chooses the supplier and confirms each order.');
     expect(markup).toContain('aria-label="Controlled pilot terms"');
     expect(markup).toContain('Up to twenty approved restaurant workspaces');
     expect(markup).toContain('Use the Google account approved for your workspace');
@@ -314,6 +325,8 @@ describe('public website contract', () => {
       />,
     );
 
+    expect(markup).toContain('Open your purchases, compare prices and check deliveries.');
+    expect(markup).toContain('Your restaurant chooses the supplier and confirms each order.');
     expect(markup).not.toContain('Controlled pilot terms');
     expect(markup).toContain('class="public-header public-header--sticky"');
     expect(markup).not.toContain('href="/product"');
@@ -327,8 +340,8 @@ describe('public website contract', () => {
     const markup = renderToStaticMarkup(<ProductDecisionPreview />);
 
     expect(markup).toContain('Sample data');
-    expect(markup).toContain('Sample request');
-    expect(markup).toContain('Human decision required');
+    expect(markup).toContain('Sample purchase');
+    expect(markup).toContain('You choose the supplier');
     expect(markup).toContain('href="#watch-demo"');
     expect(markup).toContain('Watch demo');
     expect(markup).toContain('Illustrative prices · not live market data');
@@ -344,6 +357,12 @@ describe('public website contract', () => {
       );
     }
 
+    const sidebar = markup.split('class="decision-preview__sidebar"')[1]?.split('</div>')[0] ?? '';
+    for (const label of ['Today', 'Purchases', 'Suppliers', 'Menu', 'Reports']) {
+      expect(sidebar).toContain(`<span>${label}</span>`);
+    }
+    expect(markup).toContain('Total with GST &amp; delivery');
+    expect(markup).toContain('Items quoted');
     expect(markup).toContain('Scroll to compare suppliers');
     expect(markup).not.toMatch(/guaranteed|recommended supplier|customer count|production telemetry/i);
   });
@@ -355,18 +374,18 @@ describe('public website contract', () => {
     expect(markup).toContain('₹');
     expect(markup).toMatch(/GST/);
     expect(markup).toMatch(/no supplier account/i);
-    expect(markup).toMatch(/human (?:decision|approval)/i);
+    expect(markup).toContain('Your approval required');
     expect(markup).toContain('Your recipes stay private with your restaurant.');
     expect(markup).toContain('Your restaurant team');
-    expect(markup).toContain('Their requests, awarded items, delivery checks and explicitly shared ingredient estimates');
+    expect(markup).toContain('Their requests, ordered items, delivery checks and explicitly shared ingredient estimates');
     expect(markup).toContain('No supplier account required.');
     expect(markup).toContain('Open-map listings are free to search');
     expect(markup).toContain('Other restaurants');
     expect(markup).toContain('Cannot see your information');
     expect(markup).toContain('Private supplier links expire');
     expect(markup).toContain('Quote changes and decisions stay recorded');
-    expect(markup).toMatch(/run the request again/i);
-    expect(markup).toMatch(/saved history/i);
+    expect(markup).toContain('Repeat it later from Past purchases.');
+    expect(markup).toContain('Save the order with its approval and price');
     expect(allPublicSource).not.toMatch(/SOC\s?2|ISO\s?27001|certified|compliant with/i);
   });
 
@@ -389,7 +408,7 @@ describe('public website contract', () => {
     const layout = source('src/app/layout.tsx');
     const packageJson = source('package.json');
 
-    for (const color of ['#101817', '#172521', '#F5F1E8', '#EBE5D9', '#D8834F', '#285E4D']) {
+    for (const color of ['#101817', '#172521', '#F5F1E8', '#EBE5D9', '#D8834F', '#285E4D', '#f6f7f5', '#ffffff', '#dce1db', '#515e56', '#285e4d', '#1c483b', '#e7f0eb']) {
       expect(css).toContain(color);
     }
     expect(packageJson).toContain('@fontsource-variable/manrope');
@@ -456,7 +475,37 @@ describe('public website contract', () => {
     expect(contrastRatio(mutedLabel!, '#F5F1E8')).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(mutedLabel!, '#EBE5D9')).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(mutedLabel!, '#FBF8F1')).toBeGreaterThanOrEqual(4.5);
-    expect(css).toMatch(/\.public-hero h1 em[\s\S]*?color: var\(--copper-text\)/);
+    expect(css).toMatch(/\.public-hero h1 em[\s\S]*?color: var\(--workspace-accent\)/);
+    const token = (name: string) => {
+      const value = css.match(new RegExp(`--workspace-${name}:\\s*(#[\\da-f]{6})`, 'i'))?.[1];
+      expect(value).toBeDefined();
+      return value!;
+    };
+    for (const surface of ['canvas', 'surface', 'selected']) {
+      expect(contrastRatio(token('accent'), token(surface))).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(token('muted'), token(surface))).toBeGreaterThanOrEqual(4.5);
+    }
+    for (const surface of ['accent', 'accent-hover']) {
+      expect(contrastRatio(token('surface'), token(surface))).toBeGreaterThanOrEqual(4.5);
+    }
+    for (const surface of ['forest', 'raised-forest', 'selected-forest']) {
+      for (const text of ['on-dark', 'muted-on-dark', 'accent-on-dark']) {
+        expect(contrastRatio(token(text), token(surface))).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+    const publicScope = css.match(/\.public-site \{([^}]+)\}/)?.[1] ?? '';
+    expect(publicScope).toContain('--stone: var(--workspace-canvas)');
+    expect(publicScope).not.toMatch(/--copper(?:-text)?:/);
+    expect(css).toContain('.brand-mark--duotone .brand-mark__request { color: var(--copper); }');
+    expect(css).toMatch(/\.public-button \{[^}]*background: var\(--workspace-accent\);[^}]*box-shadow: none;/);
+    expect(css).toMatch(/\.public-header \{[^}]*background: var\(--workspace-surface\);/);
+    const appShell = source('src/app/(app)/app-shell.module.css');
+    expect(appShell).toContain('--shell-stone: var(--workspace-canvas)');
+    expect(appShell).toContain('--shell-paper: var(--workspace-surface)');
+    expect(appShell).toContain('background: var(--workspace-accent)');
+    const journey = source('src/components/public/journey-stage.module.css');
+    expect(journey).toContain('color: var(--workspace-muted-on-dark)');
+    expect(journey).toContain('outline: 2px solid var(--workspace-accent-on-dark)');
     expect(css).toMatch(/\.sample-label[\s\S]*?color: var\(--ink-label\)/);
     expect(css).toMatch(/\.decision-preview__summary > span \{[\s\S]*?color: var\(--ink-label\)/);
     expect(css).toMatch(/\.decision-preview__footer > span \{[\s\S]*?color: var\(--success\)/);

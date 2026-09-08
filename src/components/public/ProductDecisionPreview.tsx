@@ -27,25 +27,27 @@ export function ProductDecisionPreview({ headingLevel = 2 }: ProductDecisionPrev
               <i />
               <i />
             </span>
-            <Heading id="decision-preview-title">Quote comparison</Heading>
+            <Heading id="decision-preview-title">Compare prices</Heading>
             <span className="sample-label">Sample data</span>
           </header>
 
           <div className="decision-preview__body">
             <div className="decision-preview__sidebar" aria-hidden="true">
-              <strong>Kitchen procurement</strong>
-              <span>Requests</span>
+              <strong>Your restaurant</strong>
+              <span>Today</span>
+              <span>Purchases</span>
               <span>Suppliers</span>
-              <span>History</span>
+              <span>Menu</span>
+              <span>Reports</span>
             </div>
 
-            <section className="decision-preview__main" aria-label="Quote decision">
+            <section className="decision-preview__main" aria-label="Choose supplier">
               <div className="decision-preview__summary">
                 <div>
-                  <span>Sample request · {restaurantSampleRequest.id}</span>
+                  <span>Sample purchase · {restaurantSampleRequest.id}</span>
                   <strong>{restaurantSampleRequest.cadence}</strong>
                 </div>
-                <span>{restaurantSampleQuotes.length} quotes ready</span>
+                <span>{restaurantSampleQuotes.length} quotes to compare</span>
               </div>
 
               <p>
@@ -63,8 +65,8 @@ export function ProductDecisionPreview({ headingLevel = 2 }: ProductDecisionPrev
                   <thead>
                     <tr>
                       <th scope="col">Supplier</th>
-                      <th scope="col">Landed total</th>
-                      <th scope="col">Coverage</th>
+                      <th scope="col">Total with GST &amp; delivery</th>
+                      <th scope="col">Items quoted</th>
                       <th scope="col">Terms</th>
                     </tr>
                   </thead>
@@ -84,7 +86,7 @@ export function ProductDecisionPreview({ headingLevel = 2 }: ProductDecisionPrev
               </div>
 
               <footer className="decision-preview__footer">
-                <span>Human decision required</span>
+                <span>You choose the supplier</span>
                 <a href="#watch-demo">Watch demo</a>
               </footer>
             </section>

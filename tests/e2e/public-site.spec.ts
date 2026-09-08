@@ -17,12 +17,12 @@ const firstFoldSizes = [
 ] as const;
 
 const publicJourneyHeadings = [
-  'Tell us what your kitchen needs',
-  'Choose who should send prices',
-  'Send one clear request',
-  'Compare the complete cost',
-  'Choose and save the decision',
-  'Check deliveries and follow every credit',
+  'Choose ingredients',
+  'Invite your suppliers',
+  'Ask for prices',
+  'Compare prices',
+  'Choose supplier',
+  'Check delivery',
 ] as const;
 
 const landingMotionSelectors = [
@@ -97,6 +97,26 @@ async function renderedContrast(
 }
 
 test.describe('public landing responsive contract', () => {
+  test('uses workspace greens and neutrals while preserving the copper brand', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.public-site')).toHaveCSS('background-color', 'rgb(246, 247, 245)');
+    await expect(page.locator('.public-header')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(page.locator('.public-hero h1 em')).toHaveCSS('color', 'rgb(40, 94, 77)');
+    await expect(page.locator('.public-header .brand-mark__request')).toHaveCSS('color', 'rgb(216, 131, 79)');
+    const primary = page.locator('.public-hero .public-button');
+    await expect(primary).toHaveCSS('background-color', 'rgb(40, 94, 77)');
+    await expect(primary).toHaveCSS('box-shadow', 'none');
+    expect(await renderedContrast(primary, '.public-button')).toBeGreaterThanOrEqual(4.5);
+    expect(await renderedContrast(page.locator('.public-hero h1 em'), '.public-site')).toBeGreaterThanOrEqual(4.5);
+    const steps = page.getByRole('navigation', { name: 'Buying journey steps' });
+    await expect(steps).toBeVisible();
+    expect(await renderedContrast(steps.getByRole('button').first(), 'button')).toBeGreaterThanOrEqual(4.5);
+    expect(await renderedContrast(page.locator('.landing-story__intro > p:last-child'), '.landing-story')).toBeGreaterThanOrEqual(4.5);
+    await steps.getByRole('button').nth(3).click();
+    await expect(page.locator('.decision-preview__window')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(page.locator('.restaurant-benefit').first()).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  });
+
   test('keeps the shared account-page header pinned on laptop and tablet', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop-chromium', 'One project covers the viewport matrix');
 
@@ -290,8 +310,8 @@ test.describe('public landing responsive contract', () => {
           await expect(page.getByRole('heading', { level: 3, name: heading })).toBeVisible();
         }
         await page.getByRole('navigation', { name: 'Buying journey steps' }).getByRole('button').nth(3).click();
-        await expect(page.getByRole('heading', { level: 4, name: 'Quote comparison' })).toBeVisible();
-        await expect(page.getByText('Human decision required', { exact: true })).toBeVisible();
+        await expect(page.getByRole('heading', { level: 4, name: 'Compare prices' })).toBeVisible();
+        await expect(page.locator('.decision-preview').getByText('You choose the supplier', { exact: true })).toBeVisible();
         await expect(page.getByLabel('Sample decision facts')).toBeVisible();
         await expect(page.getByRole('heading', {
           level: 2,
@@ -405,7 +425,7 @@ test.describe('public landing responsive contract', () => {
 
     const checks = [
       {
-        locator: page.getByRole('heading', { level: 4, name: 'Quote comparison' }),
+        locator: page.getByRole('heading', { level: 4, name: 'Compare prices' }),
         surface: '.decision-preview__bar',
       },
       {
@@ -429,7 +449,7 @@ test.describe('public landing responsive contract', () => {
     await page.goto('/');
     await page.getByRole('navigation', { name: 'Buying journey steps' }).getByRole('button').nth(3).click();
 
-    const heading = page.getByRole('heading', { level: 4, name: 'Quote comparison' });
+    const heading = page.getByRole('heading', { level: 4, name: 'Compare prices' });
     await expect(heading).toBeVisible();
     const geometry = await heading.evaluate((element) => ({
       clientWidth: element.clientWidth,
@@ -438,7 +458,7 @@ test.describe('public landing responsive contract', () => {
       textOverflow: getComputedStyle(element).textOverflow,
       whiteSpace: getComputedStyle(element).whiteSpace,
     }));
-    expect(geometry.text).toBe('Quote comparison');
+    expect(geometry.text).toBe('Compare prices');
     expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth + 1);
     expect(geometry.textOverflow).not.toBe('ellipsis');
     expect(geometry.whiteSpace).not.toBe('nowrap');
@@ -466,6 +486,9 @@ test.describe('public landing responsive contract', () => {
     const route = page.getByRole('group', { name: 'QuotePlate buying journey' });
     const connector = route.locator('.hero-route__connector').first();
     const routeNodes = route.locator(':scope > div');
+    await expect(routeNodes).toHaveText([
+      'Choose ingredients', 'Compare prices', 'Choose supplier', 'Check delivery',
+    ]);
     await expect(routeNodes).toHaveCount(4);
     for (const node of await routeNodes.all()) await expect(node).toBeVisible();
     expect(await connector.evaluate((element) => (
@@ -566,7 +589,7 @@ test.describe('public landing responsive contract', () => {
     ));
     expect(sampleCaptionFontSize).toBeGreaterThanOrEqual(10);
 
-    await expect(page.getByText('Human decision required', { exact: true })).toBeVisible();
+    await expect(page.locator('.decision-preview').getByText('You choose the supplier', { exact: true })).toBeVisible();
     await expect(page.getByLabel('Sample decision facts')).toBeVisible();
   });
 });

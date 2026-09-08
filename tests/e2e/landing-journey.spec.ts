@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-const names = ['Menu', 'Suppliers', 'Request', 'Compare', 'Decision', 'Delivery'];
+const names = ['Ingredients', 'Suppliers', 'Request', 'Compare prices', 'Choose supplier', 'Check delivery'];
 
 test('old product bookmarks lead to the homepage journey', async ({ page }) => {
   await page.goto('/product');

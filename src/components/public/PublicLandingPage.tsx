@@ -10,42 +10,42 @@ import { LandingJourney } from './LandingJourney';
 import { ProductDemoVideo } from './ProductDemoVideo';
 
 const proofPoints = [
-  [`${restaurantSampleQuotes.length} supplier replies`, 'Labelled sample replies, not customer activity.'],
-  [`${restaurantSampleRequest.items.length} items requested`, `Requested in sample ${restaurantSampleRequest.id}; coverage stays visible supplier by supplier.`],
-  ['1 decision waiting', 'One sample decision is waiting; the product never chooses automatically.'],
-  ['Human approval required', 'Product rule: the restaurant records the final choice.'],
+  [`${restaurantSampleQuotes.length} supplier replies`, 'Sample replies, not customer activity.'],
+  [`${restaurantSampleRequest.items.length} items requested`, `Sample ${restaurantSampleRequest.id}; see which items each supplier quoted.`],
+  ['1 decision waiting', 'Sample choice pending. Your restaurant decides.'],
+  ['Your approval required', 'You check the prices and confirm the order.'],
 ];
 
 const restaurantBenefits = [
   {
     icon: 'history' as const,
-    title: 'Reuse each buying cycle',
-    detail: 'Repeat a saved daily plan with fresh stock counts, or turn a completed purchase into a new draft. Suppliers can review matching historical rates before submitting a fresh quote.',
+    title: 'Repeat a purchase',
+    detail: 'Repeat a meal plan with fresh stock counts, or start a new draft from a past purchase. Suppliers can check previous rates before quoting again.',
   },
   {
     icon: 'receipt' as const,
-    title: 'Check the complete cost',
-    detail: 'Compare item prices, GST, freight and delivery. After receiving, see billed cost per accepted unit where billed inputs are recorded, with tax assumptions and exclusions shown.',
+    title: 'See the full cost',
+    detail: 'Compare prices, GST, delivery charges and dates. Recorded billed quantities and rates show cost per accepted unit, with tax assumptions and exclusions.',
   },
   {
     icon: 'approve' as const,
-    title: 'Keep delivery history',
-    detail: 'Record received, rejected and billed quantities for each awarded item. Keep partial deliveries and replacement quantities visible.',
+    title: 'Keep delivery records',
+    detail: 'Record received, rejected and billed quantities against the order. Keep missing items and replacements visible.',
   },
   {
     icon: 'list' as const,
-    title: 'Know what service still needs',
-    detail: 'Set portions and recipe batch servings. Check usable stock and confirmed arrivals, account for yield, and create a purchase draft for the shortage.',
+    title: 'Plan meals and stock',
+    detail: 'Choose meals and portions, then check stock and missing ingredients. Enter recipe batch servings, usable stock, yields and confirmed arrivals before creating a purchase draft.',
   },
   {
     icon: 'price' as const,
-    title: 'Keep credits from getting lost',
-    detail: 'Open one follow-up list for unchecked deliveries, remaining items and credits still owed. Go straight to the purchase and update the record when it is resolved.',
+    title: 'Follow up credits',
+    detail: 'See deliveries to check, missing items and credits still owed. Open the purchase to update the record.',
   },
   {
     icon: 'suppliers' as const,
-    title: 'Choose with delivery evidence',
-    detail: 'Review actual fulfilment, rejection and on-time delivery records. Established delivery evidence helps rank suppliers with equal capability matches.',
+    title: 'Review supplier deliveries',
+    detail: 'Check on-time deliveries, accepted quantities and rejected items. Use your saved delivery record to inform the next purchase.',
   },
 ];
 
@@ -64,8 +64,8 @@ export function PublicLandingPage() {
               <em>Choose the best deal.</em>
             </h1>
             <p className="public-hero__lede">
-              Plan what today’s service needs, compare supplier quotes, and check what actually
-              arrives. Keep ingredient shortages, delivery problems and outstanding credits in one workspace.
+              Plan meals, buy missing ingredients and track deliveries and credits.
+              Find each next step in one clear workspace.
             </p>
             <div className="public-hero__actions">
               <a className="public-button" href="#watch-demo">Watch the demo <span aria-hidden="true">↓</span></a>
@@ -76,22 +76,22 @@ export function PublicLandingPage() {
           <div className="hero-route" role="group" aria-label="QuotePlate buying journey">
             <div>
               <JourneyIcon name="receipt" />
-              <span>Menu</span>
+              <span>Choose ingredients</span>
             </div>
             <span className="hero-route__connector" aria-hidden="true">→</span>
             <div>
               <JourneyIcon name="list" />
-              <span>Request</span>
+              <span>Compare prices</span>
             </div>
             <span className="hero-route__connector" aria-hidden="true">→</span>
             <div>
               <JourneyIcon name="price" />
-              <span>Supplier prices</span>
+              <span>Choose supplier</span>
             </div>
             <span className="hero-route__connector" aria-hidden="true">→</span>
             <div>
               <JourneyIcon name="approve" />
-              <span>Your choice</span>
+              <span>Check delivery</span>
             </div>
           </div>
         </section>
@@ -111,9 +111,9 @@ export function PublicLandingPage() {
         <section className="restaurant-benefits" id="benefits" aria-labelledby="restaurant-benefits-title">
           <div className="public-container">
             <header className="restaurant-benefits__header">
-              <p className="public-eyebrow">Why restaurants keep using it</p>
+              <p className="public-eyebrow">For everyday restaurant work</p>
               <h2 id="restaurant-benefits-title">Useful for every purchase, not just the first one.</h2>
-              <p>Connect planned portions to purchases, accepted deliveries and the money still owed.</p>
+              <p>From planned portions to checked deliveries and credits still owed.</p>
             </header>
             <div className="restaurant-benefits__grid">
               {restaurantBenefits.map((benefit) => (
@@ -124,7 +124,7 @@ export function PublicLandingPage() {
                 </article>
               ))}
             </div>
-            <p className="public-hero__note">Planning example: 10 kg usable ingredients needed − 4 kg usable stock = 6 kg short. At 80% yield, prepare a request for 7.5 kg. Your team confirms the inputs and reviews the draft.</p>
+            <p className="public-hero__note">Planning example: 10 kg usable ingredients needed − 4 kg usable stock = 6 kg short. At 80% yield, prepare a purchase draft for 7.5 kg. Your team confirms the inputs and reviews the draft.</p>
           </div>
         </section>
 
@@ -132,13 +132,13 @@ export function PublicLandingPage() {
           <header>
             <p className="public-eyebrow">A clearer relationship, on both sides</p>
             <h2 id="supplier-benefits-title">Good for your kitchen. Useful for your suppliers.</h2>
-            <p>Find nearby food businesses inside your workspace, review their details and invite suitable suppliers. Open-map listings are free to search. Invite a supplier to declare service PIN codes, wholesale status, minimum order and ordering times; the confirmation date stays visible.</p>
+            <p>Keep your saved suppliers together. Find nearby businesses when needed and review them before inviting them. Open-map listings are free to search.</p>
           </header>
           <ol className="supplier-benefits__steps">
-            <li><span aria-hidden="true">01</span><div><h3>Know where the order stands</h3><p>Suppliers use a private link to see their request status, confirm awarded quantities or ask for a change. No supplier account required.</p></div></li>
-            <li><span aria-hidden="true">02</span><div><h3>Agree on what arrived</h3><p>Share delivery checks and recorded credits. Suppliers can agree or dispute the record with a delivery-note or invoice reference; changed checks need a fresh response.</p></div></li>
-            <li><span aria-hidden="true">03</span><div><h3>Give suppliers time to prepare</h3><p>Choose which upcoming ingredient quantities to share. Suppliers see estimates, while your recipes, portions and stock counts stay private. You still confirm the order separately.</p></div></li>
-            <li><span aria-hidden="true">04</span><div><h3>Make your delivery terms clear</h3><p>Suppliers update their service areas and ordering terms through their private workspace. These are supplier declarations, not independent verification or a guarantee of stock.</p></div></li>
+            <li><span aria-hidden="true">01</span><div><h3>Enter prices, review, then send</h3><p>Suppliers enter prices, review delivery and the total, then send their quote through a private link. They can confirm orders or ask for a change. No supplier account required.</p></div></li>
+            <li><span aria-hidden="true">02</span><div><h3>Agree on what arrived</h3><p>Suppliers can agree or dispute delivery checks and recorded credits, with an invoice or delivery-note reference. Changed checks need a fresh response.</p></div></li>
+            <li><span aria-hidden="true">03</span><div><h3>Share upcoming needs</h3><p>Share selected ingredient estimates so suppliers can prepare. Recipes, portions and stock stay private. Confirm orders separately.</p></div></li>
+            <li><span aria-hidden="true">04</span><div><h3>Make your delivery terms clear</h3><p>Suppliers enter service PIN codes, minimum orders and ordering times, with their confirmation date shown. These are supplier declarations, not verified stock or delivery guarantees.</p></div></li>
           </ol>
         </section>
 
@@ -162,7 +162,7 @@ export function PublicLandingPage() {
                 </div>
                 <div>
                   <dt>Each supplier</dt>
-                  <dd>Their requests, awarded items, delivery checks and explicitly shared ingredient estimates</dd>
+                  <dd>Their requests, ordered items, delivery checks and explicitly shared ingredient estimates</dd>
                 </div>
                 <div>
                   <dt>Other restaurants</dt>
@@ -184,8 +184,8 @@ export function PublicLandingPage() {
           </div>
           <div>
             <p>
-              Start with an approved recipe and today’s portions, or one ingredient request and
-              your current suppliers. Follow through to delivery and credits. No payment card needed.
+              Start with an approved menu and your portions. Choose your suppliers,
+              compare prices and check delivery. No payment card needed.
             </p>
             <div className="public-hero__actions">
               <Link className="public-button" href="/start">Start free pilot <span aria-hidden="true">→</span></Link>
