@@ -74,3 +74,13 @@ Use the ink mark on stone or white. On ink backgrounds, reverse the complete mar
 - Do not introduce gradients, glows, extra colours, or decorative symbols.
 - Do not use a chef hat, plate illustration, speech bubble, or unrelated procurement icon in place of the mark.
 - Do not treat the provisional name as legally cleared until formal checks are complete.
+
+## Regenerating the sharing card
+
+Run `node scripts/media/render-social-card.mjs` from the repository. The renderer
+uses the installed `sharp` and `fontkit` packages, bundled open-source fonts, and
+Python 3 with `fontTools`/WOFF2 support to outline variable-font lettering. It
+reads the workspace palette and canonical SVG marks, then writes
+`docs/brand/social-card.svg` and the static 1200×630 PNG. No external font or image
+service is used. The committed SVG can also be rasterized directly without font
+files because all lettering is outlined.

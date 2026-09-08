@@ -84,3 +84,17 @@ Local evidence directory: `/tmp/quoteplate-speed-review/`.
 Temporary evidence is not committed or a permanent artifact archive. This report
 preserves the measured results for release review. No claim of instant live loading
 or complete app-wide button verification follows from these measurements.
+
+## Live follow-up
+
+A normal internal-demo sign-in and read-only Today → Settings navigation on the
+existing live deployment measured 6,344 ms to the settings form. The settings API
+itself took 6,212 ms; a second navigation used the existing workspace memory cache
+and rendered in 43 ms. This locates that sample's delay in the first server request,
+not CSS or rendering. It does not identify whether cold startup, connection setup,
+or database work caused the server delay. Production readiness returned `ready`.
+
+Settings and secondary navigation now start the same existing, workspace-scoped
+prefetch on pointer entry or keyboard focus as the five main navigation links.
+This gives requested data a head start; it adds no new cache policy or automatic
+background fetch of every page. It cannot guarantee instant first server responses.

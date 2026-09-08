@@ -250,7 +250,9 @@ test('short mobile drawer keeps the fallback in its accessible scroll flow', asy
   test.skip(info.project.name !== 'mobile-chromium', 'Mobile drawer regression.');
   await openTour(page);
   await openMobileNavigation(page);
-  await page.setViewportSize({ width: 320, height: 200 });
+  // At 200px, a control near the bottom can still fit a valid callout above.
+  // This extreme zoom/keyboard fixture leaves less than 128px on either side.
+  await page.setViewportSize({ width: 320, height: 120 });
   const dialog = page.getByRole('dialog', { name: 'Workspace navigation', exact: true });
   const fallback = dialog.locator('aside[data-tour-fallback="true"]');
   await expect(fallback).toBeVisible();
