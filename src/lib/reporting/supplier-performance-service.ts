@@ -33,6 +33,8 @@ export function observationsFromAwards(awards: AwardEvidence[]): SupplierObserva
           itemKey: line.itemKey, itemName: line.itemName, unit: line.unit as ProcurementUnit,
           specificationKey: JSON.stringify(snapshot?.requestedSpecification ?? null),
           orderedQuantity: line.orderedQuantity, receivedQuantity: line.receivedQuantity, rejectedQuantity: line.rejectedQuantity,
+          billedQuantity: line.billedQuantity, billedUnitRatePaise: line.billedUnitRatePaise,
+          gstBasisPoints: line.gstBasisPoints, taxInclusive: line.taxInclusive,
         };
       }),
     }));
@@ -69,6 +71,8 @@ export function createSupplierPerformanceOperations(dependencies: Dependencies =
             'Evidence comes from saved restaurant delivery checks. Missing checks are not successful deliveries.',
             'On-time performance uses completed deliveries with an explicitly recorded arrival date; three dated deliveries are required for established evidence.',
             'Item fulfilment is accepted quantity divided by ordered quantity. Rejection is rejected quantity divided by received quantity. Different specifications and incompatible units stay separate.',
+            'Billed cost per accepted unit uses only checks with entered billed quantity and rate. GST follows the accepted order tax terms; freight and order-level credits are excluded. This is not cash paid. Partial receipts are provisional; missing billed inputs are not counted as zero.',
+            'Follow-ups list unchecked deliveries, outstanding quantities and unsettled credits within this report sample. The promised date is not a credit payment due date.',
             'Credits received are recorded settlements, not bank-verified payments or savings. Invoice overages compare entered totals with the accepted order total.',
           ],
         };

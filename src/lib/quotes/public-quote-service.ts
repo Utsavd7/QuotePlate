@@ -25,6 +25,7 @@ import {
   type QuoteRequestItem,
   validateQuoteRevisionsDocument,
 } from '@/lib/quotes/quote-revisions';
+import { matchingPreviousPrices, type PreviousQuotePrices } from '@/lib/quotes/previous-prices';
 import { createPrismaPublicSupplierGrantRepository } from '@/lib/security/public-grant';
 import { consumeDigestRateLimit } from '@/lib/security/rate-limit';
 import { digestOpaqueToken } from '@/lib/security/tokens';
@@ -323,6 +324,58 @@ function publicRequestDto(
   };
 }
 
+// This lookup is reached only after resolving and checking the live private grant.
+// Bound the work; a missed older match simply means entering prices manually.
+async function previousPrices(
+  transaction: Prisma.TransactionClient,
+  resolved: ResolvedGrant,
+  row: LiveGrantRow,
+  currentItems: QuoteRequestItem[],
+): Promise<PreviousQuotePrices | null> {
+  if (row.quoteRevision !== 0) return null;
+  const candidates = await transaction.supplierRequest.findMany({
+    where: {
+      tenantId: resolved.tenantId,
+      supplierId: row.supplierId,
+      requestId: { not: row.requestId },
+      quoteRevision: { gt: 0 },
+      request: { tenantId: resolved.tenantId },
+      // Awards revoke old links automatically. Only the current grant grants access.
+      OR: [
+        { request: { status: 'AWARDED' } },
+        { revokedAt: null, request: { status: 'OPEN' } },
+      ],
+    },
+    orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+    take: 20,
+    select: {
+      quoteRevision: true,
+      quoteRevisions: true,
+      request: { select: { id: true, items: true, sourcing: true } },
+    },
+  });
+  let result: PreviousQuotePrices | null = null;
+  for (const candidate of candidates) {
+    try {
+      const documents = validateRequestDocuments(candidate.request.items, candidate.request.sourcing);
+      const historicalItems = eligibleQuoteRequestItems({
+        requestId: candidate.request.id,
+        ...documents,
+        supplier: { id: row.supplierId, applicationRequestId: row.applicationRequestId },
+      });
+      const prices = matchingPreviousPrices(currentItems, historicalItems,
+        candidate.quoteRevisions, candidate.quoteRevision);
+      if (prices && new Date(prices.submittedAt) < validDate(row.databaseNow) &&
+        (!result || prices.submittedAt > result.submittedAt)) result = prices;
+    } catch (error) {
+      // Invalid legacy history must neither leak data nor prevent a fresh quote.
+      if (!(error instanceof RequestDocumentValidationError) &&
+        !(error instanceof PublicQuoteStorageCorruptionError)) throw error;
+    }
+  }
+  return result;
+}
+
 const QUOTE_ENVELOPE_KEYS = new Set([
   'expectedLatestRevision',
   'deliveryDate',
@@ -394,11 +447,10 @@ export async function getPublicQuoteRequest(
     async (transaction) => {
       const row = await liveGrantRow(transaction, resolved);
       const documents = liveDocuments(row);
-      return publicRequestDto(
-        row,
-        documents.items,
-        latestQuoteRevision(documents.quoteRevisions),
-      );
+      return {
+        ...publicRequestDto(row, documents.items, latestQuoteRevision(documents.quoteRevisions)),
+        previousPrices: await previousPrices(transaction, resolved, row, documents.items),
+      };
     },
     client,
   );

@@ -7,6 +7,7 @@ import { Link2, MessageSquare, Sprout } from 'lucide-react';
 import type { RestaurantPortalView, PortalOrder } from '@/lib/supplier-portal/types';
 import type { computePlan } from '@/lib/service-planning/planning';
 import styles from './restaurant-supplier-portal.module.css';
+import { TradingProfileReadView } from './TradingProfile';
 
 type Ingredient = Pick<ReturnType<typeof computePlan>['ingredients'][number], 'itemKey' | 'name' | 'deficit' | 'usableDeficit' | 'unit' | 'specification' | 'blocked'>;
 export type SavedDemandPlan = {
@@ -238,6 +239,7 @@ export function RestaurantSupplierPortal() {
     {view && <>
       <h2 className={styles.supplierName}>{view.supplierName}</h2>
       <PortalControls canManage={view.canManage} access={view.access} freshLink={freshLink} busy={busy} onCreate={() => void mutate('create')} onRevoke={() => void mutate('revoke')} onCopy={() => void copyLink()} onDismiss={() => setFreshLink(null)} />
+      <TradingProfileReadView profile={view.tradingProfile} />
       <SupplierOrders orders={view.orders} />
       <section className={styles.panel} aria-labelledby="demand-title"><div className={styles.sectionHeading}><Sprout aria-hidden="true" /><h2 id="demand-title">Upcoming demand estimates</h2></div>
         <p>Share only the ingredients you choose, their purchase quantities, specifications and service date. Plan names, recipes, portions, stock and prices stay private.</p>

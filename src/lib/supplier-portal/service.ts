@@ -1,3 +1,4 @@
+import { parseTradingProfileSubmission, readTradingProfile } from '@/lib/trading-profile/domain';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { withTenant } from '@/lib/db/tenant-transaction';
@@ -26,7 +27,7 @@ const unavailable = () => new PortalError('This supplier portal is invalid or no
 async function lockScope(tx: Tx, tenantId: string, supplierId: string) {
   await tx.$queryRaw`SELECT "id" FROM "Tenant" WHERE "id" = ${tenantId} FOR SHARE`;
   await tx.$queryRaw`SELECT "id" FROM "Supplier" WHERE "tenantId" = ${tenantId} AND "id" = ${supplierId} FOR UPDATE`;
-  const supplier = await tx.supplier.findFirst({ where: { tenantId, id: supplierId, isActive: true, tenant: { isActive: true } }, select: { id: true, businessName: true, tenant: { select: { name: true } } } });
+  const supplier = await tx.supplier.findFirst({ where: { tenantId, id: supplierId, isActive: true, tenant: { isActive: true } }, select: { id: true, businessName: true, tradingProfile: true, tenant: { select: { name: true } } } });
   if (!supplier) throw new PortalError('Active supplier not found.', 404);
   return supplier;
 }
@@ -143,14 +144,14 @@ export function createPortalOperations(client: PrismaClient = prisma) {
     }, client);
   }
   async function snapshot(tx: Tx, grant: Grant, supplierId: string, expiresAt: Date, now: Date): Promise<SupplierPortalView> {
-    const supplier = await tx.supplier.findUniqueOrThrow({ where: { id: supplierId }, select: { businessName: true, tenant: { select: { name: true } } } });
-    return { portalId: grant.portalId, restaurantName: supplier.tenant.name, supplierName: supplier.businessName, expiresAt: expiresAt.toISOString(), orders: await orders(tx, grant.tenantId, supplierId, now), forecasts: await forecasts(tx, grant.tenantId, supplierId) };
+    const supplier = await tx.supplier.findUniqueOrThrow({ where: { id: supplierId }, select: { businessName: true, tradingProfile: true, tenant: { select: { name: true } } } });
+    return { tradingProfile: readTradingProfile(supplier.tradingProfile), portalId: grant.portalId, restaurantName: supplier.tenant.name, supplierName: supplier.businessName, expiresAt: expiresAt.toISOString(), orders: await orders(tx, grant.tenantId, supplierId, now), forecasts: await forecasts(tx, grant.tenantId, supplierId) };
   }
   return {
     async restaurantView(actor: Actor, supplierId: string): Promise<RestaurantPortalView> {
       return restaurant(actor, supplierId, false, async (tx, supplier, canManage) => {
         const portal = await tx.supplierPortal.findUnique({ where: { tenantId_supplierId: { tenantId: actor.tenantId, supplierId } } });
-        return { supplierName: supplier.businessName, canManage, access: portal ? { expiresAt: portal.expiresAt.toISOString(), revokedAt: portal.revokedAt?.toISOString() ?? null } : null, orders: await orders(tx, actor.tenantId, supplierId, await databaseNow(tx)), forecasts: await forecasts(tx, actor.tenantId, supplierId) };
+        return { tradingProfile: readTradingProfile(supplier.tradingProfile), supplierName: supplier.businessName, canManage, access: portal ? { expiresAt: portal.expiresAt.toISOString(), revokedAt: portal.revokedAt?.toISOString() ?? null } : null, orders: await orders(tx, actor.tenantId, supplierId, await databaseNow(tx)), forecasts: await forecasts(tx, actor.tenantId, supplierId) };
       });
     },
     async rotate(actor: Actor, supplierId: string, origin: string) {
@@ -175,6 +176,20 @@ export function createPortalOperations(client: PrismaClient = prisma) {
     exchange(raw: unknown) { return access(raw, async (_tx, _grant, _supplier, expiresAt) => ({ expiresAt: expiresAt.toISOString() })); },
     publicView(raw: unknown) { return access(raw, snapshot); },
     async act(raw: unknown, value: unknown) {
+      if ((value as { action?: unknown } | null)?.action === 'trading-profile') {
+        const input = parseTradingProfileSubmission(value);
+        return access(raw, async (tx, grant, supplierId, expiresAt, now) => {
+          if (input.portalId !== grant.portalId) throw new PortalError('Supplier workspace changed. Reload before responding.', 409);
+          const supplier = await tx.supplier.findUniqueOrThrow({ where: { id: supplierId }, select: { tradingProfile: true } });
+          const current = readTradingProfile(supplier.tradingProfile);
+          if ((current?.revision ?? 0) !== input.expectedRevision) throw new PortalError('Trading profile changed. Reload before saving.', 409);
+          const profile = { ...input.profile, revision: input.expectedRevision + 1, updatedAt: now.toISOString() };
+          bounded(profile, 8192);
+          await tx.supplier.update({ where: { id: supplierId }, data: { tradingProfile: json(profile) } });
+          await writeAuditEvent(tx, { tenantId: grant.tenantId, action: 'portal.trading-profile-updated', entityId: supplierId, metadata: { revision: profile.revision } });
+          return snapshot(tx, grant, supplierId, expiresAt, now);
+        });
+      }
       const { portalId, ...action } = parseSubmission(value);
       return access(raw, async (tx, grant, supplierId, expiresAt) => {
         // Cookies are shared across tabs. Bind the displayed form to the locked grant

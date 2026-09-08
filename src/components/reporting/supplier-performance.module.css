@@ -32,3 +32,10 @@
 .error { border: 1px solid #e2aaa0; color: #8d3025; background: #fff4ef; padding: 16px; border-radius: 8px; }
 .page :focus-visible { outline: 3px solid #729f76; outline-offset: 3px; }
 @media (max-width: 700px) { .page { padding: 20px 14px; gap: 18px; } .header { align-items: flex-start; } .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .metrics article, .card { padding: 16px; } .supplierHeader { align-items: flex-start; flex-direction: column; gap: 10px; } .facts { grid-template-columns: 1fr; gap: 18px; } }
+.followUps { list-style: none; padding: 0; margin: 16px 0 0; max-height: 480px; overflow: auto; }
+.followUps li { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #e9ece5; padding: 14px 0; font-size: 14px; overflow-wrap: anywhere; }
+.followUps li > div { display: grid; gap: 5px; min-width: 0; }
+.followUps li > div:last-child { justify-items: end; text-align: right; }
+.followUps a { display: inline-flex; align-items: center; min-height: 44px; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@media (max-width: 500px) { .followUps li { flex-direction: column; } .followUps li > div:last-child { justify-items: start; text-align: left; } }

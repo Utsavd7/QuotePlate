@@ -29,7 +29,7 @@ const expectedColumns: Record<string, string> = {
   RateLimitBucket: 'keyDigest count resetAt',
   ServicePlan: 'id tenantId name version serviceAt menuId menuVersion menuSnapshot document requestId createdByUserId createdAt updatedAt',
   ServicePlanRevision: 'id tenantId planId version document createdAt',
-  Supplier: 'id tenantId businessName contactName phone whatsappNumber email addressLine city state pin gstin notes isActive createdAt updatedAt relationshipType verificationStatus applicationRequestId capabilities verifiedAt verifiedByUserId',
+  Supplier: 'id tenantId businessName contactName phone whatsappNumber email addressLine city state pin gstin notes isActive createdAt updatedAt relationshipType verificationStatus applicationRequestId capabilities verifiedAt verifiedByUserId tradingProfile',
   SupplierPortal: 'id tenantId supplierId tokenDigest expiresAt revokedAt createdAt updatedAt',
   SupplierCollaboration: 'id tenantId supplierId requestId version revisions createdAt updatedAt',
   SupplierDemandShare: 'id tenantId supplierId planId planVersion serviceAt items withdrawnAt sharedAt',
@@ -55,6 +55,7 @@ const jsonConstraints = [
   ['ServicePlan_menuSnapshot_size_check', 'ServicePlan', 'menuSnapshot', '1048576'],
   ['ServicePlanRevision_document_size_check', 'ServicePlanRevision', 'document', '524288'],
   ['Supplier_capabilities_size_check', 'Supplier', 'capabilities', '65536'],
+  ['Supplier_tradingProfile_size_check', 'Supplier', 'tradingProfile', '8192'],
   ['SupplierCollaboration_revisions_size_check', 'SupplierCollaboration', 'revisions', '131072'],
   ['SupplierDemandShare_items_size_check', 'SupplierDemandShare', 'items', '131072'],
   ['SupplierRequest_quoteRevisions_size_check', 'SupplierRequest', 'quoteRevisions', '2097152'],
@@ -178,7 +179,7 @@ test('supplier collaboration catalog keeps fourteen bounded tables and fixed dig
       );
       for (const key of [
         'SupplierCollaboration.revisions', 'SupplierDemandShare.items', 'ServicePlan.document', 'ServicePlan.menuSnapshot', 'ServicePlanRevision.document',
-        'Menu.document', 'Supplier.capabilities', 'ProcurementRequest.items',
+        'Menu.document', 'Supplier.capabilities', 'Supplier.tradingProfile', 'ProcurementRequest.items',
         'ProcurementRequest.sourcing', 'ProcurementRequest.deliveryDetails',
         'SupplierRequest.quoteRevisions', 'Award.allocationLines',
         'Award.supplierSnapshots', 'Award.deliverySnapshot', 'Award.receiving', 'AuditEvent.metadata',
@@ -195,6 +196,7 @@ test('supplier collaboration catalog keeps fourteen bounded tables and fixed dig
           character_maximum_length: 64,
         }));
       }
+      expect(byColumn.get('Supplier.tradingProfile')).toEqual(expect.objectContaining({ udt_name: 'jsonb', is_nullable: 'YES' }));
       expect(byColumn.get('User.email')).toEqual(expect.objectContaining({
         udt_name: 'varchar', character_maximum_length: 320,
       }));

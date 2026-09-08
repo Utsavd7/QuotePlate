@@ -1,3 +1,4 @@
+import { billedCostPerAcceptedUnit, recordedBilledGross, type BilledCostInput } from './billed-cost';
 import type { ProcurementUnit } from '@/lib/domain/quantity';
 import { formatScaledDecimal, MAX_DECIMAL_18_3_SCALED, MAX_SIGNED_BIGINT, parseUnsignedFixed } from '@/lib/domain/validation';
 
@@ -6,7 +7,7 @@ export type SupplierObservation = {
   promisedDate: string; checkedAt: string | null; actualDeliveryDate: string | null;
   complete: boolean; issueCodes: string[]; invoiceDifferencePaise: string;
   creditClaimedPaise: string; creditReceivedPaise: string;
-  lines: Array<{
+  lines: Array<BilledCostInput & {
     itemKey: string; itemName: string; unit: ProcurementUnit; specificationKey?: string;
     orderedQuantity: string; receivedQuantity: string; rejectedQuantity: string;
   }>;
@@ -30,6 +31,7 @@ function validDate(value: string | null): value is string {
 type ItemAccumulator = {
   itemKey: string; itemName: string; unit: ProcurementUnit; specificationKey: string;
   ordered: bigint; received: bigint; rejected: bigint; observations: number;
+  billed: bigint; costAccepted: bigint; costChecks: number; partialCostChecks: number;
 };
 
 export function buildSupplierPerformance(observations: SupplierObservation[]) {
@@ -76,11 +78,18 @@ export function buildSupplierPerformance(observations: SupplierObservation[]) {
         if (ordered <= BigInt(0) || rejected > received) throw new RangeError('Invalid receiving quantities.');
         const specificationKey = line.specificationKey ?? '';
         const key = `${line.itemKey}\u0000${unit}\u0000${specificationKey}`;
-        const item = items.get(key) ?? { itemKey: line.itemKey, itemName: line.itemName, unit, specificationKey, ordered: BigInt(0), received: BigInt(0), rejected: BigInt(0), observations: 0 };
+        const item = items.get(key) ?? { itemKey: line.itemKey, itemName: line.itemName, unit, specificationKey, ordered: BigInt(0), received: BigInt(0), rejected: BigInt(0), observations: 0, billed: BigInt(0), costAccepted: BigInt(0), costChecks: 0, partialCostChecks: 0 };
         item.ordered += ordered;
         item.received += received;
         item.rejected += rejected;
         item.observations++;
+        const billedGross = recordedBilledGross(line);
+        if (billedGross !== null) {
+          item.billed += billedGross;
+          item.costAccepted += received - rejected;
+          item.costChecks++;
+          if (!row.complete) item.partialCostChecks++;
+        }
         items.set(key, item);
       }
     }
@@ -100,7 +109,21 @@ export function buildSupplierPerformance(observations: SupplierObservation[]) {
         acceptedQuantity: formatScaledDecimal(item.received - item.rejected, 6),
         fulfillmentPercent: percent(item.received - item.rejected > item.ordered ? item.ordered : item.received - item.rejected, item.ordered),
         rejectionPercent: percent(item.rejected, item.received), observations: item.observations,
+        billedCostPerAcceptedUnitPaise: item.costChecks > 0 ? billedCostPerAcceptedUnit(item.billed, item.costAccepted) : null,
+        costedChecks: item.costChecks, partialCostChecks: item.partialCostChecks,
+        costAcceptedQuantity: formatScaledDecimal(item.costAccepted, 6),
       })).sort((a, b) => a.itemName.localeCompare(b.itemName, 'en-IN') || a.unit.localeCompare(b.unit) || a.specificationKey.localeCompare(b.specificationKey)),
+      followUps: rows.flatMap((row) => {
+        const creditOutstanding = row.checkedAt ? money(row.creditClaimedPaise) - money(row.creditReceivedPaise) : BigInt(0);
+        const reasons: string[] = [];
+        if (!row.checkedAt) reasons.push('Delivery not checked');
+        else {
+          if (!row.lines.length) reasons.push('Delivery quantities not recorded');
+          else if (!row.complete) reasons.push('Items still outstanding');
+          if (creditOutstanding > BigInt(0)) reasons.push('Credit still owed');
+        }
+        return reasons.length ? [{ awardId: row.awardId, requestId: row.requestId, promisedDate: row.promisedDate, checkedAt: row.checkedAt, creditOutstandingPaise: creditOutstanding.toString(), reasons }] : [];
+      }),
       recentDeliveries: rows.filter((row) => row.checkedAt).slice(0, 10).map((row) => ({
         awardId: row.awardId, requestId: row.requestId, checkedAt: row.checkedAt,
         promisedDate: row.promisedDate, actualDeliveryDate: row.actualDeliveryDate,

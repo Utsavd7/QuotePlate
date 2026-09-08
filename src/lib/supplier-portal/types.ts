@@ -1,3 +1,4 @@
+import type { TradingProfile } from '@/lib/trading-profile/types';
 export type PortalItem = { itemId: string; name: string; quantity: string; unit: string; unitPricePaise?: string };
 export type PortalDelivery = {
   fingerprint: string; checkedAt: string; status: string;
@@ -19,8 +20,8 @@ export type PortalForecast = {
   id: string; planId: string; planVersion: number; serviceAt: string; sharedAt: string; stale: boolean;
   items: { itemKey: string; name: string; quantity: string; unit: string; specification: string }[];
 };
-export type SupplierPortalView = { portalId: string; restaurantName: string; supplierName: string; expiresAt: string; orders: PortalOrder[]; forecasts: PortalForecast[] };
-export type RestaurantPortalView = { supplierName: string; access: { expiresAt: string; revokedAt: string | null } | null; orders: PortalOrder[]; forecasts: PortalForecast[]; canManage: boolean };
+export type SupplierPortalView = { tradingProfile?: TradingProfile | null; portalId: string; restaurantName: string; supplierName: string; expiresAt: string; orders: PortalOrder[]; forecasts: PortalForecast[] };
+export type RestaurantPortalView = { tradingProfile?: TradingProfile | null; supplierName: string; access: { expiresAt: string; revokedAt: string | null } | null; orders: PortalOrder[]; forecasts: PortalForecast[]; canManage: boolean };
 export type PortalAction =
  | { action: 'acknowledge'; requestId: string; expectedVersion: number; status: 'confirmed' | 'needs_change'; note: string }
  | { action: 'delivery-response'; requestId: string; expectedVersion: number; fingerprint: string; decision: 'agree' | 'dispute'; note: string; evidenceReference: string };

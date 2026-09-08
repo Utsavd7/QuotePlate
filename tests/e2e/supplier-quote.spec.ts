@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { resetSignupClientRateLimit } from './helpers/signup';
 
 const token = 'Q'.repeat(43);
 const request = {
@@ -114,4 +115,146 @@ test('scrubs the link, loads the real quote form, and submits a server-calculate
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
   ).toBe(true);
+});
+
+test('previous prices require a click, preserve current inputs, and use normal submission validation', async ({ page }) => {
+  const posts: unknown[] = [];
+  await page.route('**/api/public/quote/access', (route) => route.fulfill({ status: 201, json: { ok: true } }));
+  await page.route('**/api/public/quote', async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({ json: { ...request, previousPrices: { submittedAt: '2026-08-31T00:00:00.000Z', items: [
+        { requestItemId: 'tomato', unitRatePaise: '4275', gstBasisPoints: 500, taxInclusive: true },
+        { requestItemId: 'paneer', unitRatePaise: '32000', gstBasisPoints: 500, taxInclusive: false },
+      ] } } });
+    } else {
+      posts.push(route.request().postDataJSON());
+      await route.fulfill({ status: 422, json: { detail: 'Check current availability.' } });
+    }
+  });
+  await page.goto(`/quote#token=${token}`);
+  await expect(page.getByText(/Previous quote:.*31 Aug 2026/)).toBeVisible();
+  const rate = page.locator('[name="rate:tomato"]');
+  await expect(rate).toHaveValue('');
+  await page.locator('[name="rate:paneer"]').fill('333');
+  await page.locator('[name="quantity:tomato"]').fill('7');
+  await page.locator('[name="freightInr"]').fill('17');
+  await page.locator('[name="commercialTerms"]').fill('Current payment terms');
+  expect(posts).toHaveLength(0);
+  await page.getByRole('button', { name: 'Use previous prices' }).click();
+  await expect(rate).toHaveValue('42.75');
+  await expect(page.locator('[name="gst:tomato"]')).toHaveValue('5');
+  await expect(page.locator('[name="inclusive:tomato"]')).toBeChecked();
+  await expect(page.locator('[name="rate:paneer"]')).toHaveValue('333');
+  await expect(page.locator('[name="quantity:tomato"]')).toHaveValue('7');
+  await expect(page.locator('[name="freightInr"]')).toHaveValue('17');
+  await expect(page.locator('[name="commercialTerms"]')).toHaveValue('Current payment terms');
+  await expect(page.locator('[name="deliveryDate"]')).toHaveValue(request.deliveryDate);
+  expect(posts).toHaveLength(0);
+  await rate.fill('43');
+  await page.getByRole('button', { name: 'Use previous prices' }).click();
+  await expect(rate).toHaveValue('43');
+  await page.getByRole('button', { name: 'Submit quote', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('Check current availability.');
+  expect(posts).toHaveLength(1);
+  expect(posts[0]).toMatchObject({ expectedLatestRevision: 0, freightInr: '17', commercialTerms: 'Current payment terms', items: [
+    expect.objectContaining({ requestItemId: 'tomato', availableQuantity: '7', unitRateInr: '43', gstPercent: '5', taxInclusive: true }),
+    expect.objectContaining({ requestItemId: 'paneer', unitRateInr: '333' }),
+  ] });
+});
+
+test('existing revisions cannot be replaced by historical prices', async ({ page }) => {
+  await page.route('**/api/public/quote/access', (route) => route.fulfill({ status: 201, json: { ok: true } }));
+  await page.route('**/api/public/quote', (route) => route.fulfill({ json: {
+    ...request,
+    latestQuote: { revision: 1, totalPaise: '4400', freightPaise: '0', deliveryDate: request.deliveryDate, validUntil: '2099-09-01', items: [{ requestItemId: 'tomato', unitRatePaise: '4400' }] },
+    previousPrices: { submittedAt: '2026-08-31T00:00:00.000Z', items: [{ requestItemId: 'tomato', unitRatePaise: '4275', gstBasisPoints: 500, taxInclusive: true }] },
+  } }));
+  await page.goto(`/quote#token=${token}`);
+  await expect(page.locator('[name="rate:tomato"]')).toHaveValue('44');
+  await expect(page.getByRole('button', { name: 'Use previous prices' })).toHaveCount(0);
+});
+
+
+test('real awarded request repeats with private historical prices and saves only after review', async ({ page, browser }, testInfo) => {
+  test.setTimeout(180_000);
+  await resetSignupClientRateLimit(page.request);
+  const email = `repeat-quote-${testInfo.project.name}-${Date.now()}@example.com`;
+  const password = 'Local-only repeat quote password 42!';
+  const created = await page.request.post('/api/auth/start', { data: {
+    method: 'email', restaurantName: 'Repeat Quote Kitchen', ownerName: 'Asha Rao', email, password,
+    addressLine: '18 Koregaon Park Road', city: 'Pune', state: 'Maharashtra', pin: '411001',
+    phone: '+91 98765 43210', timezone: 'Asia/Kolkata', gstin: '27ABCDE1234F1Z5',
+  } });
+  expect(created.status(), await created.text()).toBe(201);
+  await page.goto('/signin');
+  await page.getByLabel('Work email').fill(email);
+  await page.getByLabel('Password').fill(password);
+  await page.getByRole('button', { name: 'Sign in with email' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  const skip = page.getByRole('button', { name: 'Skip for now' });
+  if (await skip.isVisible()) await skip.click();
+  const seeded = await page.request.post('http://127.0.0.1:52562/__test/database/procurement-export-journey', { data: { email } });
+  expect(seeded.status(), await seeded.text()).toBe(201);
+  const fixture = await seeded.json() as { requestId: string; itemId: string; supplierName: string };
+  await page.goto(`/procurement/${fixture.requestId}`);
+  await page.getByRole('button', { name: 'New link' }).click();
+  const link = await page.locator('code').filter({ hasText: '/quote#token=' }).textContent();
+  expect(link).toBeTruthy();
+  const { viewport, userAgent, isMobile, hasTouch, deviceScaleFactor } = testInfo.project.use;
+  const supplierContext = await browser.newContext({ viewport, userAgent, isMobile, hasTouch, deviceScaleFactor });
+  try {
+    const supplierPage = await supplierContext.newPage();
+    await supplierPage.goto(link!);
+    await expect(supplierPage.getByText('No matching previous prices available. Enter current prices below.')).toBeVisible();
+    await supplierPage.locator(`[name="rate:${fixture.itemId}"]`).fill('42.75');
+    await supplierPage.locator(`[name="gst:${fixture.itemId}"]`).fill('5');
+    await supplierPage.locator(`[name="inclusive:${fixture.itemId}"]`).check();
+    await supplierPage.locator('[name="freightInr"]').fill('99');
+    await supplierPage.locator('[name="commercialTerms"]').fill('Old quote payment terms');
+    await supplierPage.getByRole('button', { name: 'Submit quote', exact: true }).click();
+    await expect(supplierPage.getByText('Revision 1 submitted successfully.')).toBeVisible();
+    await page.getByRole('button', { name: 'Refresh quotes' }).click();
+    await page.getByRole('radio', { name: new RegExp(fixture.supplierName) }).check();
+    await page.getByLabel(/Reason for this decision/).fill('Confirmed this offer for the repeat quote workflow.');
+    page.once('dialog', dialog => dialog.accept());
+    await page.getByRole('button', { name: 'Record award' }).click();
+    await expect(page.getByText('Award decision CSV')).toBeVisible();
+    const sourceResponse = await page.request.get(`/api/requests/${fixture.requestId}`);
+    expect(sourceResponse.status()).toBe(200);
+    const source = (await sourceResponse.json()).request;
+    const headers = { origin: new URL(page.url()).origin, 'sec-fetch-site': 'same-origin' };
+    const repeatedResponse = await page.request.post(`/api/requests/${fixture.requestId}/repeat`, { headers, data: {
+      expectedSourceVersion: source.version, title: 'Repeat tomatoes', deliveryDate: '2099-09-10', quoteDeadline: '2099-09-09T10:00:00.000Z',
+    } });
+    expect(repeatedResponse.status(), await repeatedResponse.text()).toBe(201);
+    const repeated = (await repeatedResponse.json()).request;
+    const openedResponse = await page.request.post(`/api/requests/${repeated.id}/open`, { headers, data: { expectedVersion: repeated.version } });
+    expect(openedResponse.status(), await openedResponse.text()).toBe(200);
+    const opened = await openedResponse.json();
+    expect(opened.links[0].url).not.toBe(link);
+    await supplierPage.goto(opened.links[0].url);
+    await expect(supplierPage.getByRole('heading', { name: 'Repeat tomatoes', exact: true })).toBeVisible();
+    const rate = supplierPage.locator(`[name="rate:${fixture.itemId}"]`);
+    await expect(supplierPage.getByText(/Previous quote:/)).toBeVisible();
+    await expect(rate).toHaveValue('');
+    await expect(supplierPage.locator(`[name="gst:${fixture.itemId}"]`)).toHaveValue('0');
+    await expect(supplierPage.locator(`[name="inclusive:${fixture.itemId}"]`)).not.toBeChecked();
+    await expect(supplierPage.locator('[name="freightInr"]')).toHaveValue('0');
+    await expect(supplierPage.locator('[name="commercialTerms"]')).toHaveValue('Payment in 15 days.');
+    const before = await supplierPage.request.get(new URL('/api/public/quote', supplierPage.url()).toString());
+    expect(before.headers()['cache-control']).toBe('private, no-store');
+    expect((await before.json()).latestQuote).toBeNull();
+    await supplierPage.getByRole('button', { name: 'Use previous prices' }).click();
+    await expect(rate).toHaveValue('42.75');
+    await expect(supplierPage.locator(`[name="gst:${fixture.itemId}"]`)).toHaveValue('5');
+    await expect(supplierPage.locator(`[name="inclusive:${fixture.itemId}"]`)).toBeChecked();
+    await expect(supplierPage.locator('[name="deliveryDate"]')).toHaveValue('2099-09-10');
+    const afterClick = await supplierPage.request.get(new URL('/api/public/quote', supplierPage.url()).toString());
+    expect((await afterClick.json()).latestQuote).toBeNull();
+    await supplierPage.getByRole('button', { name: 'Submit quote', exact: true }).click();
+    await expect(supplierPage.getByText('Revision 1 submitted successfully.')).toBeVisible();
+    await supplierPage.reload();
+    await expect(rate).toHaveValue('42.75');
+    await expect(supplierPage.getByRole('button', { name: 'Use previous prices' })).toHaveCount(0);
+  } finally { await supplierContext.close(); }
 });

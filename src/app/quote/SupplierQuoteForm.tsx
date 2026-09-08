@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useRef, useState, type FormEvent } from 'react';
+import type { PreviousQuotePrices } from '@/lib/quotes/previous-prices';
 import type { ItemSpecificationV1 } from '@/lib/domain/item-specification';
 import { formatInr } from '@/lib/domain/money';
 import type { ProcurementUnit } from '@/lib/domain/quantity';
@@ -57,6 +58,7 @@ export type PublicQuoteRequestDto = {
     specification: ItemSpecificationV1;
   }>;
   latestQuote: PublicQuoteDto | null;
+  previousPrices?: PreviousQuotePrices | null;
 };
 
 const unitLabels: Record<ProcurementUnit, string> = {
@@ -138,8 +140,29 @@ export function SupplierQuoteForm({
       request.items.map((item) => [item.id, latestByItem.get(item.id)?.noQuote ?? false]),
     ),
   );
+  const formRef = useRef<HTMLFormElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+
+  function reusePreviousPrices() {
+    const form = formRef.current;
+    if (!form || request.latestQuote || submitting) return;
+    let filled = 0;
+    for (const previous of request.previousPrices?.items ?? []) {
+      const rate = form.elements.namedItem(`rate:${previous.requestItemId}`);
+      const gst = form.elements.namedItem(`gst:${previous.requestItemId}`);
+      const inclusive = form.elements.namedItem(`inclusive:${previous.requestItemId}`);
+      if (!(rate instanceof HTMLInputElement) || !(gst instanceof HTMLInputElement) ||
+        !(inclusive instanceof HTMLInputElement) || rate.disabled || rate.value.trim()) continue;
+      rate.value = inrInput(previous.unitRatePaise);
+      gst.value = gstInput(previous.gstBasisPoints);
+      inclusive.checked = previous.taxInclusive;
+      filled += 1;
+    }
+    setMessage(filled
+      ? `Previous prices filled for ${filled} item${filled === 1 ? '' : 's'}. Review prices, GST, availability and terms before submitting.`
+      : 'No blank eligible price rows to fill. Your entries were kept.');
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -210,7 +233,7 @@ export function SupplierQuoteForm({
   const instructions = deliveryInstructions(request.deliveryDetails);
 
   return (
-    <form className={styles.quoteForm} onSubmit={submit} aria-busy={submitting}>
+    <form ref={formRef} className={styles.quoteForm} onSubmit={submit} aria-busy={submitting}>
       <section className={styles.requestSummary} aria-labelledby="request-title">
         <div>
           <p className={styles.eyebrow}>Request from {request.restaurantName}</p>
@@ -254,6 +277,19 @@ export function SupplierQuoteForm({
           </div>
           <p>Enter the price for the same unit shown in each row.</p>
         </div>
+
+        {!latest && request.previousPrices ? (
+          <div className={styles.latestBanner}>
+            <div>
+              <p>Previous quote: {dateTime(request.previousPrices.submittedAt)}</p>
+              <p>Reuse matching prices and GST in blank price rows. Confirm today’s availability,
+                delivery, freight and payment terms before submitting.</p>
+            </div>
+            <button className={styles.reuseButton} type="button" onClick={reusePreviousPrices} disabled={submitting}>
+              Use previous prices
+            </button>
+          </div>
+        ) : !latest ? <p>No matching previous prices available. Enter current prices below.</p> : null}
 
         <div className={styles.quoteItems}>
           {request.items.map((item, index) => {

@@ -36,6 +36,7 @@ const migrationOrder = [
   '20260904000100_award_receiving',
   '20260907000100_service_planning',
   '20260907000200_supplier_collaboration',
+  '20260908000100_supplier_trading_profile',
 ] as const;
 
 export type PostgresHarness = {

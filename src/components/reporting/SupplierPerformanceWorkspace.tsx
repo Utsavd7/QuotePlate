@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { formatInr } from '@/lib/domain/money';
+import { DeliveryFollowUps } from './DeliveryFollowUps';
 import type { SupplierPerformanceReport } from '@/lib/reporting/supplier-performance-service';
 import styles from './supplier-performance.module.css';
 
@@ -47,6 +48,7 @@ export function SupplierPerformanceWorkspace({ initialData }: { initialData?: Su
         <article><span>Still owed</span><strong>{formatInr(totals.outstanding.toString())}</strong></article>
       </section>
       <p className={styles.scope}>{data.capped ? 'Latest 100 purchase awards' : `${data.awardSampleSize} purchase awards`} · Your restaurant’s recorded evidence. Credits received are recorded settlements, not verified bank payments.</p>
+      <DeliveryFollowUps suppliers={data.suppliers} />
       {data.suppliers.length === 0 ? <section className={styles.card}><h2>Record your first delivery</h2><p>Check an awarded purchase to start building a supplier record.</p><Link href="/procurement">Open purchases</Link></section> : data.suppliers.map((supplier) => <section key={supplier.supplierId} className={styles.card}>
         <div className={styles.supplierHeader}><h2>{supplier.supplierName}</h2><span>{supplier.evidence === 'ESTABLISHED' ? `${supplier.datedDeliveries} dated deliveries` : 'Not enough dated deliveries'}</span></div>
         <dl className={styles.facts}>
@@ -55,10 +57,11 @@ export function SupplierPerformanceWorkspace({ initialData }: { initialData?: Su
           <div><dt>Credits still owed</dt><dd>{formatInr(supplier.creditOutstandingPaise)}<small>{formatInr(supplier.creditReceivedPaise)} received of {formatInr(supplier.creditClaimedPaise)} claimed</small></dd></div>
         </dl>
         {supplier.items.length === 0 ? <p>No item quantities recorded. Open a purchase and add item-level receiving details.</p> : <div className={styles.tableWrap} role="region" aria-label={`${supplier.supplierName} ingredient performance`} tabIndex={0}>
-          <table><thead><tr><th>Ingredient</th><th>Ordered</th><th>Accepted</th><th>Fulfilment</th><th>Rejected</th><th>Checks</th></tr></thead>
-            <tbody>{supplier.items.map((item) => <tr key={`${item.itemKey}:${item.unit}:${item.specificationKey}`}><td>{item.itemName}<small>{unitNames[item.unit] ?? item.unit}</small></td><td>{item.orderedQuantity}</td><td>{item.acceptedQuantity}</td><td>{item.fulfillmentPercent ?? '—'}{item.fulfillmentPercent !== null ? '%' : ''}</td><td>{item.rejectionPercent ?? '—'}{item.rejectionPercent !== null ? '%' : ''}</td><td>{item.observations}</td></tr>)}</tbody>
+          <table><thead><tr><th>Ingredient</th><th>Ordered</th><th>Accepted</th><th>Fulfilment</th><th>Rejected</th><th>Billed / accepted unit</th><th>Checks</th></tr></thead>
+            <tbody>{supplier.items.map((item) => <tr key={`${item.itemKey}:${item.unit}:${item.specificationKey}`}><td>{item.itemName}<small>{unitNames[item.unit] ?? item.unit}</small></td><td>{item.orderedQuantity}</td><td>{item.acceptedQuantity}</td><td>{item.fulfillmentPercent ?? '—'}{item.fulfillmentPercent !== null ? '%' : ''}</td><td>{item.rejectionPercent ?? '—'}{item.rejectionPercent !== null ? '%' : ''}</td><td>{item.billedCostPerAcceptedUnitPaise === null ? 'Not enough data' : `${formatInr(item.billedCostPerAcceptedUnitPaise)} / ${unitNames[item.unit] ?? item.unit}`}<small>{item.costedChecks} of {item.observations} checks with billed inputs{item.partialCostChecks > 0 ? ` · ${item.partialCostChecks} partial; provisional` : ''}</small></td><td>{item.observations}</td></tr>)}</tbody>
           </table>
         </div>}
+        {supplier.items.length > 0 && <p>Billed cost uses the accepted quantity from checks with billed inputs, including GST at the order’s tax terms. Freight and order-level credits are excluded. It does not show cash paid.</p>}
         <details><summary>Recent delivery evidence</summary>{supplier.recentDeliveries.length ? <ul>{supplier.recentDeliveries.map((delivery) => <li key={delivery.awardId}><Link href={`/procurement/${encodeURIComponent(delivery.requestId)}`}>Review purchase</Link><span>Promised {delivery.promisedDate} · {delivery.actualDeliveryDate ? `Arrived ${delivery.actualDeliveryDate}` : 'Arrival date not recorded'} · {delivery.complete ? 'Complete' : 'Partial'}</span></li>)}</ul> : <p>No delivery checks recorded yet.</p>}</details>
       </section>)}
       <aside className={styles.method}><h2>How to read these numbers</h2>{data.notes.map((note) => <p key={note}>{note}</p>)}</aside>

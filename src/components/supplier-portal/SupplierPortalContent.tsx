@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { formatInr } from '@/lib/domain/money';
 import type { PortalAction, PortalOrder, SupplierPortalView } from '@/lib/supplier-portal/types';
 import styles from './supplier-portal-public.module.css';
+import { TradingProfileEditor } from './TradingProfile';
 
 const statuses = { awaiting_quote: 'Awaiting your quote', pending: 'Decision pending', selected: 'Selected for purchase', closed: 'Closed' };
 const date = (value: string) => new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeZone: 'Asia/Kolkata' }).format(new Date(value));
@@ -63,6 +64,7 @@ function Order({ order, busy, onSubmit }: { order: PortalOrder; busy: boolean; o
 export function SupplierPortalContent({view,busy,onSubmit}: {view:SupplierPortalView;busy:boolean;onSubmit:(action:PortalAction)=>Promise<void>}) {
  return <>
   <header className={styles.intro}><p className={styles.eyebrow}>Your restaurant connection</p><h1>{view.restaurantName}</h1><p>Orders and delivery records for <strong>{view.supplierName}</strong>.</p><p className={styles.help}>This private link expires {date(view.expiresAt)}. Keep it with your team.</p></header>
+  <TradingProfileEditor key={`${view.portalId}-${view.tradingProfile?.revision ?? 0}`} initialProfile={view.tradingProfile} portalId={view.portalId} disabled={busy} />
   <section aria-labelledby="supplier-orders-title"><h2 id="supplier-orders-title">Your orders</h2><p className={styles.help}>See your latest 30 requests and respond to awarded orders. Other suppliers’ quotes and orders stay private.</p>{view.orders.length ? view.orders.map(order=><Order key={`${order.requestId}-${order.version}-${order.delivery?.fingerprint ?? ''}`} order={order} busy={busy} onSubmit={onSubmit} />) : <p className={styles.empty}>No requests have been shared with you yet.</p>}</section>
   <section className={styles.forecasts} aria-labelledby="supplier-forecast-title"><h2 id="supplier-forecast-title">Upcoming ingredient estimates</h2><p className={styles.help}>Estimate only — these are not confirmed orders or instructions to deliver. The restaurant chose these quantities to help you plan availability.</p>{view.forecasts.length ? view.forecasts.map(forecast=><article key={forecast.id} className={styles.order}><header className={styles.orderHeader}><h3>Service {date(forecast.serviceAt)}</h3><span className={styles.badge}>{forecast.stale ? 'Outdated — ask for an update' : 'Estimate only'}</span></header><ul className={styles.items}>{forecast.items.map(item=><li key={item.itemKey}><div><strong>{item.name}</strong>{item.specification && <small>{item.specification}</small>}</div><span>{item.quantity} {unit(item.unit)}</span></li>)}</ul><p className={styles.help}>Shared {date(forecast.sharedAt)}. Confirm quantities with the restaurant before reserving stock.</p></article>) : <p className={styles.empty}>The restaurant has not shared upcoming demand with you.</p>}</section>
  </>;

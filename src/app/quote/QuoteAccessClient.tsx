@@ -33,6 +33,15 @@ export function QuoteAccessClient() {
   }, []);
 
   useEffect(() => {
+    // A new supplier link can be opened in the same tab without a document
+    // navigation: only its fragment differs. Reload to discard the old form
+    // and run the normal private-grant exchange for the new token.
+    function openChangedLink() {
+      if (new URLSearchParams(window.location.hash.slice(1)).has('token')) {
+        window.location.reload();
+      }
+    }
+    window.addEventListener('hashchange', openChangedLink);
     const params = new URLSearchParams(window.location.hash.slice(1));
     const token = params.get('token') ?? '';
     window.history.replaceState(null, '', '/quote');
@@ -58,7 +67,10 @@ export function QuoteAccessClient() {
         }
       });
 
-    return () => controller.abort();
+    return () => {
+      window.removeEventListener('hashchange', openChangedLink);
+      controller.abort();
+    };
   }, [loadRequest]);
 
   async function refresh() {
