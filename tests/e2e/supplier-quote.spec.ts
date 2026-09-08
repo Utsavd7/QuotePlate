@@ -241,16 +241,32 @@ test('real awarded request repeats with private historical prices and saves only
     await expect(supplierPage.locator(`[name="inclusive:${fixture.itemId}"]`)).not.toBeChecked();
     await expect(supplierPage.locator('[name="freightInr"]')).toHaveValue('0');
     await expect(supplierPage.locator('[name="commercialTerms"]')).toHaveValue('Payment in 15 days.');
-    const before = await supplierPage.request.get(new URL('/api/public/quote', supplierPage.url()).toString());
-    expect(before.headers()['cache-control']).toBe('private, no-store');
-    expect((await before.json()).latestQuote).toBeNull();
+    // Use browser fetch: the local HTTP harness uses Secure cookies, which
+    // Chromium sends on loopback but APIRequestContext does not.
+    async function readCurrentQuote() {
+      return supplierPage.evaluate(async () => {
+        const response = await fetch('/api/public/quote', {
+          credentials: 'same-origin', cache: 'no-store',
+        });
+        return {
+          status: response.status,
+          cacheControl: response.headers.get('cache-control'),
+          body: await response.json(),
+        };
+      });
+    }
+    const before = await readCurrentQuote();
+    expect(before.status, JSON.stringify(before.body)).toBe(200);
+    expect(before.cacheControl).toBe('private, no-store');
+    expect(before.body.latestQuote).toBeNull();
     await supplierPage.getByRole('button', { name: 'Use previous prices' }).click();
     await expect(rate).toHaveValue('42.75');
     await expect(supplierPage.locator(`[name="gst:${fixture.itemId}"]`)).toHaveValue('5');
     await expect(supplierPage.locator(`[name="inclusive:${fixture.itemId}"]`)).toBeChecked();
     await expect(supplierPage.locator('[name="deliveryDate"]')).toHaveValue('2099-09-10');
-    const afterClick = await supplierPage.request.get(new URL('/api/public/quote', supplierPage.url()).toString());
-    expect((await afterClick.json()).latestQuote).toBeNull();
+    const afterClick = await readCurrentQuote();
+    expect(afterClick.status, JSON.stringify(afterClick.body)).toBe(200);
+    expect(afterClick.body.latestQuote).toBeNull();
     await supplierPage.getByRole('button', { name: 'Submit quote', exact: true }).click();
     await expect(supplierPage.getByText('Revision 1 submitted successfully.')).toBeVisible();
     await supplierPage.reload();

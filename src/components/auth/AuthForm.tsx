@@ -265,7 +265,7 @@ export function AuthForm({
       {error && <p className={styles.error} role="alert">{error}</p>}
       <p className={styles.progress} aria-live="polite">{busyMessage}</p>
 
-      <noscript><p>Enable JavaScript to sign in securely.</p></noscript>
+      {!ready && <p role="status">Preparing secure sign-in… JavaScript is required.</p>}
       <div className={styles.actions}>
         {(mode === 'signin' || emailOwnerSignupAvailable) && (
           <>
