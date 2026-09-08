@@ -1,7 +1,7 @@
 QuotePlate product film — final media credits
 164 seconds · 1920 × 1080 · 30 fps
 
-Working-application footage: QuotePlate, recorded in an isolated local environment with fictional Monsoon Table restaurant, supplier and purchasing data. Routine actions are condensed and selectively accelerated; the film makes no execution-speed claim. Existing recordings are retained in the first 141 seconds. The final 23 seconds show fresh native 1920 × 992 application screen captures inside the branded Full HD frame. New sections cover supplier trading terms, matching previous prices, billed costs, follow-ups and the editable internal demo. Screen holds and before/after cuts aid readability; no production records are shown. No production records or real supplier messages were used.
+Working-application footage: QuotePlate, recorded in an isolated local environment with fictional Monsoon Table restaurant, supplier and purchasing data. Routine actions are condensed and selectively accelerated; the film makes no execution-speed claim. Existing recordings are retained in the first 141 seconds. The next 18 seconds show fresh native application panel captures inside the branded Full HD frame; the final five seconds return to the branded closing. New sections cover supplier trading terms, matching previous prices, billed costs and follow-ups. Internal account banners and identifiers are excluded from the feature panels. The closing uses the existing branded kitchen footage. Screen holds and before/after cuts aid readability; no production records are shown. No production records or real supplier messages were used.
 
 Opening and closing footage: the approved kitchen footage is retained, with one extra second of moving tomato-cutting footage and a gentle dissolve into the application. Chef working in a large kitchen (Mixkit 43048) and Splitting cherry tomatoes for a salad (Mixkit 43908), under the Stock Video Free License. Original 4K sources were reduced for the Full HD export. The people shown do not represent QuotePlate customers or endorsements. No kitchen cutaways interrupt the application sequence.
 https://mixkit.co/free-stock-video/chef-working-in-a-large-kitchen-43048/
@@ -12,7 +12,7 @@ Music: Relax Beat, Arulo (Mixkit 292), Stock Music Free License.
 https://mixkit.co/free-stock-music/ambient/
 https://mixkit.co/license/#musicFree
 
-Voice: Kokoro af_heart stock synthetic American-English narration at natural speed, using the previously approved voice with locally generated explanations of the available workflow choices. The opening narration is reused. The closing is updated using local Kokoro ONNX af_heart at 1.10×. The September 2026 update adds locally generated narration and real application recordings for item-level receiving, credits, supplier performance and daily service planning. No human voice clone.
+Voice: Kokoro af_heart stock synthetic American-English narration at natural speed, using the previously approved voice with locally generated explanations of the available workflow choices. The opening narration and closing brand line are reused. New feature sections use local Kokoro ONNX af_heart at 1.10×. The September 2026 update adds locally generated narration and real application recordings for item-level receiving, credits, supplier performance and daily service planning. No human voice clone.
 https://github.com/hexgrad/kokoro
 
 Original quiet click effects follow recorded clicks.

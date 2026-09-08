@@ -53,7 +53,11 @@ async function ownerFixture(page: Page, info: TestInfo, competitor = false) {
   await page.getByRole('button', { name: 'Sign in with email' }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   const skip = page.getByRole('button', { name: 'Skip for now' });
-  if (await skip.isVisible()) await skip.click();
+  // Fresh accounts load the guide asynchronously; an immediate visibility
+  // check can miss it and leave the overlay covering later mobile actions.
+  await expect(skip).toBeVisible();
+  await skip.click();
+  await expect(skip).toBeHidden();
   return json<Fixture>(await page.request.post(`${fixtureOrigin}/__test/database/procurement-export-journey`, {
     data: { email, vendorCollaboration: competitor },
   }), 201);

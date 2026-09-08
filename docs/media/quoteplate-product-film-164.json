@@ -1,8 +1,8 @@
 {
   "durationSeconds": 164,
   "resolution": "1920x1080",
-  "narration": "Local Kokoro af_heart; synthetic American English; new closing sections use local Kokoro ONNX af_heart at 1.10×",
-  "sources": "Existing app recordings and fresh isolated app recordings; real Photon/VK Maps listings captured in Andheri East; fictional restaurant records labelled on screen. Existing opening footage and licensed music reused. The final 23 seconds use fresh actual application screen captures of supplier trading terms, price reuse, billed costs, credit follow-ups and the isolated internal demo.",
+  "narration": "Local Kokoro af_heart; synthetic American English; new feature sections use local Kokoro ONNX af_heart at 1.10×; final brand line reused from the existing film",
+  "sources": "Existing app recordings and fresh isolated app recordings; real Photon/VK Maps listings captured in Andheri East; fictional restaurant records labelled on screen. Existing opening footage and licensed music reused. The next 18 seconds use actual application panels showing supplier trading terms, price reuse, billed costs and credit follow-ups, with internal account banners and identifiers excluded. The last five seconds reuse the branded kitchen closing.",
   "scenes": [
     {
       "id": "intro",
@@ -89,11 +89,11 @@
       "text": "Track billed cost per accepted unit, incomplete deliveries and outstanding credits."
     },
     {
-      "id": "internal-demo",
-      "title": "Explore the working demo",
+      "id": "end",
+      "title": "Every quote, accountable",
       "at": 159,
       "duration": 5,
-      "text": "Explore the working restaurant demo. QuotePlate. Every quote, accountable."
+      "text": "QuotePlate. Every quote, accountable."
     }
   ]
 }
