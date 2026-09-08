@@ -1,0 +1,41 @@
+{
+  "durationSeconds": 164.0,
+  "frames": 4920,
+  "resolution": [
+    1920,
+    1080
+  ],
+  "videoCodec": "h264",
+  "audioCodec": "aac",
+  "fullDecode": "passed",
+  "storyboardSha256": "02f989ff4c9cbcc9236b05ecc0243ee0c4f14428c306fc57b3475a6fc8fdbf49",
+  "sourceSha256": "c28fb8def63cd078d1bf3c5800a8830ad4efb9b5aab89553ce7190e4d6aeb1a3",
+  "outputSha256": "3a2887d2284c06984b004352a468b5b67588e49a0810f8279f2a4b34b5f26d93",
+  "freshCaptures": {
+    "today.png": "9d725566772311adaebd5a970a9a7d1a90622d20a416192a1b57496c981c1629",
+    "menu-input.png": "787e6e45fca180fb91782f8654be6799d0500b545d1edc8b100ab81d255b44d2",
+    "menu-review.png": "23a74a9ae40f6357247690212e6cc6b360418a8d6edc1aaaf49a3fc7b259be5e",
+    "nearby-search.png": "d02f885f2ff959747a15cf7fcd418e0e5c577c300e5aca2828e22659d85b5132",
+    "nearby-results.png": "c3d4f25ab6d22ead8db57552d665d4ec2a241375aec91ebb07b936264d4f16d9",
+    "new-purchase.png": "a1044db975cd25398cf8d5d564f4c3cc5f0acadf0c3afd3454e32103287dcacf",
+    "vendor-quote.png": "8ddcbb361b6d08804f950532e27a94c973225b42399e965be6241c3e77a6ea66",
+    "vendor-review.png": "424030bfd0cb669332ffe425edf3b12a7aab7b7f8b184c166d30a12a373a3d17",
+    "comparison.png": "89f2d8e8e590b623178ccdc9f0ea06b67c7fa7040fb36327c1e347dcf994d1a2",
+    "award.png": "b72c0e790cb3dc0880b2c93c1592af2938ea234af0cdd152b121d80f40245bf0",
+    "receiving.png": "bb9056d07e0491c4476fa8e89de865a3c02035f26e3992f5744b0ffd37856988",
+    "credits.png": "1ceb3344c136fc4c4b9997b994fdf08a354da6a598c843d3451978beab0d87d7",
+    "supplier-orders.png": "2d5190109a9dfc902597498c2bb5bef3899f992ac96079bc415ffea01e927ce3",
+    "supplier-delivery-record.png": "d91b9de32905fbcc5c0c94bbb293f58a507a7dfbe5481e7d77c3de75e96e0dd5",
+    "supplier-response.png": "2a71e7faaa71137c80a0a8d451866fee6bc1925d112119e5841eb4cc6d79d58a",
+    "plan-input.png": "7cf2ae544d340351ce056cc6fce5d22c6d7f7519a3a92b5dfdcd0c2bdce56708",
+    "plan-stock.png": "bef47a455a46a9bb06b2e3b4da82e613dbe8feb1168a7ae2cf7139082680640d",
+    "plan-shortage.png": "e3f146e91315634b33ace1c4993acf8b59e655dd6b09544f42381e012ea651ae",
+    "demand-select.png": "52d1fbec9774376df6f3bf280a84a4ba21cdb2d29611a2654d8fe977cca0e802",
+    "demand-shared.png": "9c65264f7dbeb3280c9e3cbbca68e60db4554afd14e19a0f952ede404c2999ed",
+    "trading.png": "6ce8dfd7eeb18e5ad12a8c3240578eb318c24e772f2ed6d30285a63d7e4ef210",
+    "reuse-before.png": "0cd087466f055353737281d8c06ad854c1b36ed2bec423ce9d146c34a73b8f5d",
+    "reuse-after.png": "564f6ba7e422e43eb596d1b573c7dec89141616b97ce9b16654a80c83bd099b1",
+    "delivery-record.png": "6f76193dba6f07f87c9f7428ac59e0575cc98949a01993353b8d704be90841fa",
+    "delivery-cost.png": "b252304c59b01b1b20de7a790f0cc1a93ea33fa0141fed46bf8488069e34f19f"
+  }
+}
