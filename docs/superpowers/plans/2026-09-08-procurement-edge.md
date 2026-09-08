@@ -33,4 +33,6 @@
 - [x] Identify the fixed demo workspace with a persistent sample-data banner inside the actual app. Normal tenant authorization applies; no demo bypass.
 - [x] Validate seeded records through actual workflows and verify no changes to other tenants. Repeat seeding preserves demo edits and fails on identity mismatch.
 
-Final local verification: 1,080 unit/API tests, 49 core database tests and 5 demo database tests passed. Targeted desktop/mobile checks cover supplier terms, previous-price reuse, editable demo login, pre-hydration credential protection and the updated video player. The refreshed film is exactly 164 seconds, 1920×1080 H.264/AAC, with 38 in-range caption cues and a clean full decode. Production publish and actual demo setup follow the release gates above.
+Final local verification: 1,080 unit/API tests, 49 core database tests and 5 demo database tests passed. Targeted desktop/mobile checks cover supplier terms, previous-price reuse, editable demo login, pre-hydration credential protection and the updated video player. The refreshed film is exactly 164 seconds, 1920×1080 H.264/AAC, with 37 in-range caption cues and a clean full decode. Production publish and actual demo setup follow the release gates above.
+
+Public-film correction: the internal testing account is not promoted in the film. New feature panels exclude its banner and account identifiers; the closing uses only the QuotePlate brand. Credentials remain for internal team testing.

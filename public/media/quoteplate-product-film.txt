@@ -25,4 +25,4 @@ Reuse matching past prices, then confirm today’s quantities and terms.
 
 Track billed cost per accepted unit, incomplete deliveries and outstanding credits.
 
-Explore the working restaurant demo. QuotePlate. Every quote, accountable.
+QuotePlate. Every quote, accountable.

@@ -124,7 +124,7 @@ Automatic nearby discovery uses public OpenStreetMap data through [Photon](https
 
 ## Procurement improvements — September 2026
 
-Supplier trading declarations, matching historical quote rates and delivery-cost evidence address three practical purchasing gaps. The updated 2:44 film demonstrates the buying workflow, these additions and the editable internal demo using clearly labelled fictional restaurant records.
+Supplier trading declarations, matching historical quote rates and delivery-cost evidence address three practical purchasing gaps. The updated 2:44 film demonstrates the buying workflow and these additions using clearly labelled fictional restaurant records. Internal testing credentials and account access are not promoted in the public film.
 
 - **Supplier trading declarations:** invited suppliers can state wholesale status, served PIN codes, minimum order, order cutoff in IST and lead time. The workspace shows the declaration date and flags information older than 30 days. Declarations are not independently verified or live inventory, and each order still needs confirmation.
 - **Matching historical rates:** suppliers can explicitly review and reuse prices from their own matching earlier quote. Historical prices are not live market prices. Current quantities, availability, delivery and commercial terms still require review and normal submission.
@@ -137,6 +137,6 @@ The competitive strategy is to make local-supplier procurement easier to repeat 
 
 The operator-only `scripts/demo/seed-cli.ts` command creates a separate `DEMO · Monsoon Table` tenant and an owner login at `demo@quoteplate.example`. Credentials are provided privately to the internal team, never published on the landing page, committed, or stored in GitHub secrets. Supply `DATABASE_URL`, `QUOTEPLATE_DEMO_PASSWORD` and `DEMO_SEED_CONFIRMATION=SEED_QUOTEPLATE_INTERNAL_DEMO_ONLY` only to the local operator process; the database stores an Argon2 password hash. The normal app database role remains restricted to the fixed demo tenant throughout the transaction.
 
-This is the actual app with working edits and normal tenant authorization. Menus, quotes, suppliers, orders, receiving, credits and service plans contain fictional demonstration records. A persistent in-app banner identifies the demo. It is suitable for internal testing and supervised restaurant demonstrations; do not enter real personal data or share the credentials publicly.
+This is the actual app with working edits and normal tenant authorization. Menus, quotes, suppliers, orders, receiving, credits and service plans contain fictional demonstration records. A persistent in-app banner identifies the demo. It is for internal team testing; do not enter real personal data or share the credentials publicly.
 
 The seed command is create-only. Reruns verify the fixed identity and password and preserve existing demo edits; they do not reset records or touch other restaurant tenants. Run it only after the exact main commit passes CI and its migrations have been deployed. No demo fallback is added to production APIs and no automatic supplier message is sent.

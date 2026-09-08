@@ -63,7 +63,7 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toContain('wholesale terms');
   expect(text).toContain('matching past prices');
   expect(text).toContain('billed cost per accepted unit');
-  expect(text).toContain('working restaurant demo');
+  expect(text).not.toMatch(/working restaurant demo|internal demo|demo@quoteplate/i);
 });
 
 

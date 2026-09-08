@@ -72,7 +72,7 @@ export function ProductDemoVideo() {
           <p className="public-eyebrow">The buying journey · 2:44</p>
           <h2 id="demo-title">From your kitchen to a clearer purchase.</h2>
         </div>
-        <p>Follow Monsoon Table, our fictional restaurant in Pune, through menu intake, nearby supplier discovery, quotes and delivery checks. See supplier trading terms, previous-price reuse, delivery-cost follow-ups and the working internal demo, alongside private supplier responses and selected demand sharing. Real public map listings were captured for the film. Supplier stock and prices still need confirmation.</p>
+        <p>Follow Monsoon Table, our fictional restaurant in Pune, through menu intake, nearby supplier discovery, quotes and delivery checks. See supplier trading terms, previous-price reuse and delivery-cost follow-ups, alongside private supplier responses and selected demand sharing. Real public map listings were captured for the film. Supplier stock and prices still need confirmation.</p>
       </header>
       <div className={styles.player}>
         <video ref={videoRef} controls playsInline muted preload="none" width={1920} height={1080}
