@@ -28,7 +28,7 @@
 - [ ] Publish only after required release checks and migrations succeed.
 
 ## User-requested internal demo login
-- [ ] Run production setup to seed a separate real tenant and owner account using an operator-only workflow and password secret; no public preview or shared credentials in source.
+- [ ] Run production setup to seed a separate real tenant and owner account using a local operator-only command and process-only password; no public preview or credentials in source or GitHub secrets.
 - [x] Populate actual menus, suppliers, quotes, orders, delivery checks, credits and service plans with coherent fictional records.
 - [x] Identify the fixed demo workspace with a persistent sample-data banner inside the actual app. Normal tenant authorization applies; no demo bypass.
 - [x] Validate seeded records through actual workflows and verify no changes to other tenants. Repeat seeding preserves demo edits and fails on identity mismatch.

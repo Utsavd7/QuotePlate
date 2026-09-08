@@ -120,7 +120,7 @@ test('seeds usable restaurant documents, isolates the owner, and preserves edits
       for (const request of requests.filter(request => request.status !== 'DRAFT')) await expect(getQuoteComparison({ actor, requestId: request.id }, app)).resolves.toBeDefined();
       await expect(reports.read({ actor: { ...actor, tenantId: 'other-tenant' } })).rejects.toThrow();
       expect(await withTenant(DEMO_TENANT_ID, tx => tx.user.findUnique({ where: { id: 'other-owner' } }), app)).toBeNull();
-      await expect(seedDemoRestaurant(app, secret, now)).rejects.toThrow(/admin|role/i);
+      await expect(seedDemoRestaurant(app, secret, now)).resolves.toEqual(result);
 
       await admin.menu.update({ where: { id: menu.id }, data: { name: 'Edited menu retained' } });
       await admin.tenant.update({ where: { id: DEMO_TENANT_ID }, data: { name: 'Edited demo restaurant retained' } });
@@ -174,5 +174,74 @@ test('a late creation conflict rolls back every demo row without touching the co
       expect(await admin.tenant.findUnique({ where: { id: DEMO_TENANT_ID } })).toBeNull();
       expect(await admin.user.findUnique({ where: { id: DEMO_OWNER_ID } })).toBeNull();
     } finally { await admin.$disconnect(); }
+  });
+});
+
+async function restrictedClient(admin: PrismaClient, databaseUrl: string) {
+  const secret = randomBytes(24).toString('hex');
+  await admin.$executeRawUnsafe(`ALTER ROLE autorfp_app PASSWORD '${secret}'`);
+  const url = new URL(databaseUrl);
+  url.username = 'autorfp_app'; url.password = secret;
+  return new PrismaClient({ datasources: { db: { url: url.toString() } } });
+}
+
+test('restricted app role creates a fresh demo and preserves edits with forced tenant isolation', async () => {
+  await withMigratedPostgres(async databaseUrl => {
+    const admin = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+    let app: PrismaClient | undefined;
+    try {
+      await otherTenant(admin);
+      const before = await snapshot(admin);
+      app = await restrictedClient(admin, databaseUrl);
+      const secret = password();
+      const seeded = await seedDemoRestaurant(app, secret, now);
+      expect(seeded).toMatchObject({ tenantId: DEMO_TENANT_ID, email: DEMO_OWNER_EMAIL,
+        counts: { users: 1, menus: 1, suppliers: 8, requests: 10, supplierRequests: 18, awards: 7, servicePlans: 2 } });
+      const owner = await withTenant(DEMO_TENANT_ID, tx => tx.user.findUniqueOrThrow({ where: { id: DEMO_OWNER_ID } }), app);
+      expect(owner).toMatchObject({ tenantId: DEMO_TENANT_ID, role: 'OWNER', accountState: 'ACTIVE' });
+      expect(await verifyPassword(secret, owner.passwordHash)).toBe(true);
+      expect(await withTenant(DEMO_TENANT_ID, tx => tx.user.findUnique({ where: { id: 'other-owner' } }), app)).toBeNull();
+      expect(await withTenant('other-tenant', tx => tx.user.findUnique({ where: { id: DEMO_OWNER_ID } }), app)).toBeNull();
+      await expect(withTenant(DEMO_TENANT_ID, tx => tx.tenant.update({ where: { id: 'other-tenant' }, data: { name: 'Must not change' } }), app)).rejects.toThrow();
+      // A local tenant context must not escape the seed transaction.
+      expect(await app.tenant.findMany()).toEqual([]);
+      await withTenant(DEMO_TENANT_ID, tx => tx.menu.updateMany({ where: { tenantId: DEMO_TENANT_ID }, data: { name: 'App-role edited recipe book' } }), app);
+      const edited = await snapshot(admin);
+      await expect(seedDemoRestaurant(app, secret, new Date(now.getTime() + 86400000))).resolves.toEqual(seeded);
+      expect(await snapshot(admin)).toEqual(edited);
+      await expect(seedDemoRestaurant(app, password(), now)).rejects.toThrow(/identity|password|match/i);
+      expect(await snapshot(admin)).toEqual(edited);
+      expect(await admin.tenant.findUnique({ where: { id: 'other-tenant' } })).toEqual(before.tenants[0]);
+      expect(await admin.user.findUnique({ where: { id: 'other-owner' } })).toEqual(before.users[0]);
+      const appClient = app;
+      const report = await createSupplierPerformanceOperations({ transact: (tenantId, callback) => withTenant(tenantId, callback, appClient), now: () => now }).read({ actor });
+      expect(report.awardSampleSize).toBe(7);
+    } finally { await app?.$disconnect(); await admin.$disconnect(); }
+  });
+});
+
+test('app-role hidden cross-tenant conflicts roll back early and final writes without changing any tenant', async () => {
+  await withMigratedPostgres(async databaseUrl => {
+    const admin = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+    let app: PrismaClient | undefined;
+    try {
+      await otherTenant(admin, DEMO_OWNER_EMAIL);
+      app = await restrictedClient(admin, databaseUrl);
+      const before = await snapshot(admin);
+      // RLS hides this email from the seeder; the global unique constraint must fail closed.
+      await expect(seedDemoRestaurant(app, password(), now)).rejects.toThrow();
+      expect(await snapshot(admin)).toEqual(before);
+      expect(await admin.tenant.findUnique({ where: { id: DEMO_TENANT_ID } })).toBeNull();
+      await admin.user.update({ where: { id: 'other-owner' }, data: { email: 'renamed@other.example' } });
+      await admin.auditEvent.create({ data: {
+        id: `${DEMO_TENANT_ID}:seed-v1`, tenantId: 'other-tenant', actorUserId: 'other-owner',
+        action: 'test.collision', entityType: 'Tenant', entityId: 'other-tenant', metadata: { retain: true },
+      } });
+      const lateConflict = await snapshot(admin);
+      await expect(seedDemoRestaurant(app, password(), now)).rejects.toThrow();
+      expect(await snapshot(admin)).toEqual(lateConflict);
+      expect(await admin.tenant.findUnique({ where: { id: DEMO_TENANT_ID } })).toBeNull();
+      expect(await admin.user.findUnique({ where: { id: DEMO_OWNER_ID } })).toBeNull();
+    } finally { await app?.$disconnect(); await admin.$disconnect(); }
   });
 });

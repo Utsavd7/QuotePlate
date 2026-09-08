@@ -3,6 +3,7 @@ import { randomBytes, createHash } from 'node:crypto';
 import { Prisma, type PrismaClient, type Supplier } from '@prisma/client';
 import { DEMO_TENANT_ID, DEMO_OWNER_ID, DEMO_OWNER_EMAIL } from '../../src/lib/demo/identity';
 import { createPasswordRecord, verifyPassword } from '../../src/lib/password';
+import { assertRuntimeDatabaseRole } from '../../src/lib/db/runtime-role';
 import { validateMenuDocument } from '../../src/lib/menu/menu-document';
 import { validateRequestDocuments } from '../../src/lib/procurement/request-document';
 import { appendQuoteRevision, type QuoteRevisionsV1 } from '../../src/lib/quotes/quote-revisions';
@@ -42,7 +43,8 @@ async function result(tx: Prisma.TransactionClient): Promise<DemoSeedResult> {
   };
 }
 
-/** Requires an operator Prisma client with BYPASSRLS (or superuser), never the app role.
+/** Local operator command: supports the restricted app role or an admin fixture client.
+ * The app role uses normal forced RLS scoped only to the fixed demo tenant.
  * Existing identity + matching password => read-only no-op, even after restaurant edits.
  * Conflicts, validation failures and creation errors roll back the entire transaction.
  */
@@ -58,10 +60,12 @@ export async function seedDemoRestaurant(client: PrismaClient, password: string,
   const dateOnly = (source: string) => shifted(source).toISOString().slice(0, 10);
 
   return client.$transaction(async tx => {
-    const roles = await tx.$queryRaw<Array<{ allowed: boolean }>>`
-      SELECT (rolsuper OR rolbypassrls) AS allowed FROM pg_roles WHERE rolname = current_user
+    const roles = await tx.$queryRaw<Array<{ allowed: boolean; role: string }>>`
+      SELECT (rolsuper OR rolbypassrls) AS allowed, current_user::TEXT AS role FROM pg_roles WHERE rolname = current_user
     `;
-    if (roles[0]?.allowed !== true) throw new Error('Demo seeding requires an admin database role with BYPASSRLS.');
+    if (roles[0]?.role === 'autorfp_app') await assertRuntimeDatabaseRole(tx);
+    else if (roles[0]?.allowed !== true) throw new Error('Demo seeding requires the restricted app role or an admin fixture role.');
+    await tx.$queryRaw`SELECT set_config('app.tenant_id', ${DEMO_TENANT_ID}, true)`;
     // Serializes concurrent create-once runs without locking or touching another tenant.
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${DEMO_TENANT_ID}))`;
     const tenant = await tx.tenant.findUnique({ where: { id: DEMO_TENANT_ID } });

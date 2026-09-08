@@ -135,7 +135,7 @@ The competitive strategy is to make local-supplier procurement easier to repeat 
 
 ## Internal demo restaurant account
 
-The operator-only **Seed internal QuotePlate demo** workflow creates a separate `DEMO · Monsoon Table` tenant and an owner login at `demo@quoteplate.example`. Credentials are provided privately to the internal team, never published on the landing page or committed. The password comes from the `QUOTEPLATE_DEMO_PASSWORD` repository/environment secret.
+The operator-only `scripts/demo/seed-cli.ts` command creates a separate `DEMO · Monsoon Table` tenant and an owner login at `demo@quoteplate.example`. Credentials are provided privately to the internal team, never published on the landing page, committed, or stored in GitHub secrets. Supply `DATABASE_URL`, `QUOTEPLATE_DEMO_PASSWORD` and `DEMO_SEED_CONFIRMATION=SEED_QUOTEPLATE_INTERNAL_DEMO_ONLY` only to the local operator process; the database stores an Argon2 password hash. The normal app database role remains restricted to the fixed demo tenant throughout the transaction.
 
 This is the actual app with working edits and normal tenant authorization. Menus, quotes, suppliers, orders, receiving, credits and service plans contain fictional demonstration records. A persistent in-app banner identifies the demo. It is suitable for internal testing and supervised restaurant demonstrations; do not enter real personal data or share the credentials publicly.
 

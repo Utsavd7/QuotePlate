@@ -5,7 +5,7 @@ async function main() {
   if (process.env.DEMO_SEED_CONFIRMATION !== 'SEED_QUOTEPLATE_INTERNAL_DEMO_ONLY') throw new Error('The internal demo seed confirmation is required.');
   const password = process.env.QUOTEPLATE_DEMO_PASSWORD;
   if (!password || password.length < 16) throw new Error('Configure a demo password of at least 16 characters.');
-  if (!process.env.DATABASE_URL) throw new Error('The direct database connection is required.');
+  if (!process.env.DATABASE_URL) throw new Error('The database connection is required.');
   const client = new PrismaClient();
   try {
     const result = await seedDemoRestaurant(client, password, new Date());
