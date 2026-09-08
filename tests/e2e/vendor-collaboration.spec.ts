@@ -358,7 +358,7 @@ async function saveDemandPlan(page: Page) {
   await page.getByRole('textbox', { name: /^Batch servings for/ }).fill('10');
   await page.getByRole('textbox', { name: /^Desired portions for/ }).fill('10');
   for (const [name, stock, yieldPercent] of [['Tomato', '4', '80'], ['Carrot', '0', '100']]) {
-    const inventory = page.locator('section').filter({ has: page.getByRole('heading', { name, exact: true }) });
+    const inventory = page.getByRole('group', { name: `${name} stock`, exact: true });
     await inventory.getByLabel('Usable yield %', { exact: true }).fill(yieldPercent);
     await inventory.getByLabel('Current usable stock', { exact: true }).fill(stock);
   }

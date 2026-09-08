@@ -16,6 +16,8 @@
 - [x] Worker: simplify `src/app/quote/*`, `src/app/supplier-portal/*`, `src/app/supplier-application/*` and public supplier portal components. Preserve payloads, security and financial calculations. Keep vendor mobile entry usable.
 - [x] Worker: simplify `src/components/menus/*` and `src/components/service-planning/*`; make meal selection and ingredient shortages understandable without hiding required inputs. Preserve validation and explicit quantities.
 - [x] Parent: add meaningful navigation/disclosure browser coverage using the populated internal fixture, inspect desktop/mobile screenshots, update existing journey selectors for intentional UI changes.
-- [ ] Verify: `npm run lint`, `npm run typecheck`, `npm test -- --silent`, targeted Playwright then full Playwright suite. Run one browser harness at a time. Review changes and run CI before merging and publishing.
+- [x] Verify locally: lint, TypeScript and 1,095 unit/API tests pass. All 119 active browser cases were verified across the full run and targeted reruns; 15 conditional cases were skipped. Laptop checks cover 1440×900 and 1366×768, with mobile/tablet journeys and accessibility checks.
+
+Release gate: CI must pass before merging and publishing. The live internal demo is checked again after deployment.
 
 Acceptance: five main restaurant choices, all old features reachable, vendor quote submission and order/delivery actions work, clear errors, no invented live data, no serious accessibility regression or page overflow at mobile width.
