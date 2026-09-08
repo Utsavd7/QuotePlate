@@ -167,10 +167,20 @@ export async function startAuthGateway({
   const handleLocalNextAuth = liveGoogle
     ? null
     : await compileLocalNextAuth(resolve(projectRoot), supportDirectory);
+  let seedInternalDemo;
 
   const server = createServer(async (request, response) => {
     const url = new URL(request.url ?? '/', origin);
     try {
+      if (url.pathname === '/__test/database/internal-demo' && request.method === 'POST') {
+        if (!seedInternalDemo) {
+          const outfile = join(supportDirectory, 'internal-demo.cjs');
+          await build({ absWorkingDir: projectRoot, bundle: true, entryPoints: [join(projectRoot, 'scripts/demo/seed-demo.ts')], packages: 'external', format: 'cjs', outfile, platform: 'node', logLevel: 'silent', tsconfig: join(projectRoot, 'tsconfig.json') });
+          seedInternalDemo = createRequire(import.meta.url)(outfile).seedDemoRestaurant;
+        }
+        json(response, 201, await seedInternalDemo(admin, 'Local-only demo password 42!', new Date()));
+        return;
+      }
       if (!liveGoogle && nextAuthPath.test(url.pathname)) {
         const authResponse = await handleLocalNextAuth(
           await webRequest(request, origin),

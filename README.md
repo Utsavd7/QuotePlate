@@ -132,3 +132,11 @@ Supplier trading declarations, matching historical quote rates and delivery-cost
 - **Purchases needing follow-up:** unchecked deliveries, remaining accepted quantities and unsettled credits link back to their purchase within the latest 100 awards. A delivery date is not a credit due date. Corrected receiving replaces prior evidence rather than creating another delivery.
 
 The competitive strategy is to make local-supplier procurement easier to repeat and easier to verify. It does not claim a unique industry invention, guaranteed suppliers, live market prices or enterprise inventory/payment integration. No additional paid service is introduced; existing infrastructure usage applies.
+
+## Internal demo restaurant account
+
+The operator-only **Seed internal QuotePlate demo** workflow creates a separate `DEMO · Monsoon Table` tenant and an owner login at `demo@quoteplate.example`. Credentials are provided privately to the internal team, never published on the landing page or committed. The password comes from the `QUOTEPLATE_DEMO_PASSWORD` repository/environment secret.
+
+This is the actual app with working edits and normal tenant authorization. Menus, quotes, suppliers, orders, receiving, credits and service plans contain fictional demonstration records. A persistent in-app banner identifies the demo. It is suitable for internal testing and supervised restaurant demonstrations; do not enter real personal data or share the credentials publicly.
+
+The seed command is create-only. Reruns verify the fixed identity and password and preserve existing demo edits; they do not reset records or touch other restaurant tenants. Run it only after the exact main commit passes CI and its migrations have been deployed. No demo fallback is added to production APIs and no automatic supplier message is sent.

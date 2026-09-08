@@ -1,0 +1,66 @@
+name: Seed internal QuotePlate demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Full main commit with successful CI and deployed migrations
+        required: true
+        type: string
+      confirmation:
+        description: Type SEED_QUOTEPLATE_INTERNAL_DEMO_ONLY
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: quoteplate-internal-demo-setup
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    environment: production
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Require explicit demo-only scope
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -eu
+          test "$CONFIRMATION" = 'SEED_QUOTEPLATE_INTERNAL_DEMO_ONLY'
+          printf '%s\n' "$RELEASE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.release_sha }}
+      - name: Verify main commit and passing CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -eu
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
+          git merge-base --is-ancestor "$RELEASE_SHA" origin/main
+          conclusion=$(gh api --method GET "/repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs" -f head_sha="$RELEASE_SHA" -f branch=main -f status=completed --jq '[.workflow_runs[] | select(.event == "push" and .head_branch == "main")] | first | .conclusion // ""')
+          test "$conclusion" = 'success'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --omit=peer
+      - name: Build the operator-only seed command
+        run: npx esbuild scripts/demo/seed-cli.ts --bundle --platform=node --packages=external --format=cjs --outfile=/tmp/quoteplate-seed-demo.cjs
+      - name: Create the isolated demo or preserve the existing matching workspace
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DIRECT_DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.NEON_DIRECT_DATABASE_URL }}
+          QUOTEPLATE_DEMO_PASSWORD: ${{ secrets.QUOTEPLATE_DEMO_PASSWORD }}
+          DEMO_SEED_CONFIRMATION: SEED_QUOTEPLATE_INTERNAL_DEMO_ONLY
+          NODE_PATH: ${{ github.workspace }}/node_modules
+        run: node /tmp/quoteplate-seed-demo.cjs
