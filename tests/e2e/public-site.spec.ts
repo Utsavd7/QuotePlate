@@ -484,16 +484,24 @@ test.describe('public landing responsive contract', () => {
     await page.goto('/');
 
     const route = page.getByRole('group', { name: 'QuotePlate buying journey' });
-    const connector = route.locator('.hero-route__connector').first();
+    const arrows = route.locator('.hero-route__connector svg');
     const routeNodes = route.locator(':scope > div');
     await expect(routeNodes).toHaveText([
       'Choose ingredients', 'Compare prices', 'Choose supplier', 'Check delivery',
     ]);
     await expect(routeNodes).toHaveCount(4);
     for (const node of await routeNodes.all()) await expect(node).toBeVisible();
-    expect(await connector.evaluate((element) => (
-      getComputedStyle(element, '::after').animationName
-    ))).toBe('hero-route-travel');
+    await expect(arrows).toHaveCount(3);
+    for (const arrow of await arrows.all()) {
+      await expect(arrow).toBeVisible();
+      await expect(arrow).toHaveCSS('transform', 'matrix(0, 1, -1, 0, 0, 0)');
+      const bounds = await arrow.evaluate(element => {
+        const icon = element.getBoundingClientRect();
+        const container = element.parentElement!.getBoundingClientRect();
+        return { width: icon.width, height: icon.height, fits: icon.top >= container.top && icon.bottom <= container.bottom && icon.left >= container.left && icon.right <= container.right };
+      });
+      expect(bounds).toEqual({ width: 24, height: 24, fits: true });
+    }
     const routeNodeMotion = await routeNodes.evaluateAll((nodes) => nodes.map((node) => {
       const style = getComputedStyle(node);
       const delay = style.animationDelay.split(',')[0].trim();
@@ -530,9 +538,10 @@ test.describe('public landing responsive contract', () => {
 
     await expect(routeNodes).toHaveCount(4);
     for (const node of await routeNodes.all()) await expect(node).toBeVisible();
-    expect(await connector.evaluate((element) => (
-      getComputedStyle(element, '::after').animationName
-    ))).toBe('none');
+    for (const arrow of await arrows.all()) {
+      await expect(arrow).toBeVisible();
+      await expect(arrow).toHaveCSS('transform', 'matrix(0, 1, -1, 0, 0, 0)');
+    }
     const reducedRouteNodeMotion = await routeNodes.evaluateAll((nodes) => nodes.map((node) => {
       const style = getComputedStyle(node);
       return {
@@ -566,6 +575,11 @@ test.describe('public landing responsive contract', () => {
     for (const [index, heading] of publicJourneyHeadings.entries()) {
       await page.getByRole('navigation', { name: 'Buying journey steps' }).getByRole('button').nth(index).click();
       await expect(page.getByRole('heading', { level: 3, name: heading })).toBeVisible();
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
+    for (const arrow of await arrows.all()) {
+      await expect(arrow).toBeVisible();
+      await expect(arrow).toHaveCSS('transform', 'none');
     }
   });
 
