@@ -78,19 +78,118 @@ async function requireActiveActor(
   if (!active) throw new AuthorizationError();
 }
 
-function groupedCount(
-  groups: Array<{ status: string; _count: { _all: number } }>,
-  status: string,
-) {
-  return groups.find((group) => group.status === status)?._count._all ?? 0;
-}
+type OverviewSummaryRow = {
+  activeSuppliers: bigint;
+  draftMenus: bigint;
+  approvedMenus: bigint;
+  draftRequests: bigint;
+  openRequests: bigint;
+  awardedRequests: bigint;
+  quotesReceived: bigint;
+  waiting: bigint;
+  problems: bigint;
+  deadlines: Array<Omit<OverviewData['deadlines'][number], 'suppliersInvited' | 'quotesReceived'> & {
+    suppliersInvited: string;
+    quotesReceived: string;
+  }>;
+  recentAwards: OverviewData['recentAwards'];
+};
 
-function databaseCount(value: bigint | undefined) {
-  const count = Number(value ?? BigInt(0));
+function databaseCount(value: bigint | string) {
+  const count = Number(value);
   if (!Number.isSafeInteger(count) || count < 0) {
     throw new TypeError('Overview count is outside the supported range.');
   }
   return count;
+}
+
+/** Keep summary reads in one round trip on the interactive transaction connection. */
+async function loadOverviewSummary(transaction: Prisma.TransactionClient, tenantId: string) {
+  const [summary] = await transaction.$queryRaw<OverviewSummaryRow[]>(Prisma.sql`
+    WITH tenant_requests AS (
+      SELECT "id", "title", "status", "quoteDeadline"
+      FROM "ProcurementRequest" WHERE "tenantId" = ${tenantId}
+    ), response_counts AS (
+      SELECT response."requestId", COUNT(*) AS invited,
+        COUNT(*) FILTER (WHERE response."quoteRevision" > 0) AS replied
+      FROM "SupplierRequest" response
+      JOIN tenant_requests request ON request."id" = response."requestId" AND request."status" = 'OPEN'
+      WHERE response."tenantId" = ${tenantId}
+      GROUP BY response."requestId"
+    ), tenant_awards AS (
+      SELECT "id", "requestId", "totalPaise", "createdAt", "supplierSnapshots", "receiving"
+      FROM "Award" WHERE "tenantId" = ${tenantId}
+    ), deadline_list AS (
+      SELECT "id", "title", "quoteDeadline" FROM tenant_requests
+      WHERE "status" = 'OPEN' ORDER BY "quoteDeadline", "id" LIMIT ${OVERVIEW_LIST_LIMIT}
+    ), award_list AS (
+      SELECT "id", "requestId", "totalPaise", "createdAt" FROM tenant_awards
+      ORDER BY "createdAt" DESC, "id" DESC LIMIT ${OVERVIEW_LIST_LIMIT}
+    )
+    SELECT
+      (SELECT COUNT(*) FROM "Supplier" WHERE "tenantId" = ${tenantId} AND "isActive") AS "activeSuppliers",
+      menus.*, requests.*,
+      (SELECT COALESCE(SUM(replied), 0)::bigint FROM response_counts) AS "quotesReceived",
+      delivery.*,
+      (SELECT COALESCE(jsonb_agg(jsonb_build_object(
+        'requestId', request."id", 'title', request."title",
+        'quoteDeadline', to_char(request."quoteDeadline", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        'suppliersInvited', COALESCE(response.invited, 0)::text,
+        'quotesReceived', COALESCE(response.replied, 0)::text
+      ) ORDER BY request."quoteDeadline", request."id"), '[]'::jsonb)
+       FROM deadline_list request LEFT JOIN response_counts response ON response."requestId" = request."id"
+      ) AS deadlines,
+      (SELECT COALESCE(jsonb_agg(jsonb_build_object(
+        'awardId', award."id", 'requestId', award."requestId", 'title', request."title",
+        'totalPaise', award."totalPaise"::text,
+        'awardedAt', to_char(award."createdAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+      ) ORDER BY award."createdAt" DESC, award."id" DESC), '[]'::jsonb)
+       FROM award_list award JOIN tenant_requests request ON request."id" = award."requestId"
+      ) AS "recentAwards"
+    FROM (
+      SELECT COUNT(*) FILTER (WHERE "status" = 'DRAFT') AS "draftMenus",
+        COUNT(*) FILTER (WHERE "status" = 'APPROVED') AS "approvedMenus"
+      FROM "Menu" WHERE "tenantId" = ${tenantId}
+    ) menus
+    CROSS JOIN (
+      SELECT COUNT(*) FILTER (WHERE "status" = 'DRAFT') AS "draftRequests",
+        COUNT(*) FILTER (WHERE "status" = 'OPEN') AS "openRequests",
+        COUNT(*) FILTER (WHERE "status" = 'AWARDED') AS "awardedRequests"
+      FROM tenant_requests
+    ) requests
+    CROSS JOIN (
+      SELECT COALESCE(SUM(GREATEST(
+        jsonb_array_length(award."supplierSnapshots"->'suppliers') - COALESCE(checks.checked, 0), 0
+      )), 0)::bigint AS waiting,
+        COALESCE(SUM(COALESCE(checks.problems, 0)), 0)::bigint AS problems
+      FROM tenant_awards award
+      LEFT JOIN LATERAL (
+        SELECT COUNT(*) AS checked,
+          COUNT(*) FILTER (WHERE entry->>'outcome' = 'ISSUES') AS problems
+        FROM jsonb_array_elements(COALESCE(award."receiving"->'suppliers', '[]'::jsonb)) entry
+      ) checks ON TRUE
+    ) delivery
+  `);
+  if (!summary) throw new TypeError('Overview summary is unavailable.');
+  // Prisma stores these TIMESTAMP(3) values in UTC. SQL formats them explicitly;
+  // paise and nested counts travel as text to avoid JSON number precision loss.
+  return {
+    counts: {
+      activeSuppliers: databaseCount(summary.activeSuppliers),
+      menus: { draft: databaseCount(summary.draftMenus), approved: databaseCount(summary.approvedMenus) },
+      requests: {
+        draft: databaseCount(summary.draftRequests), open: databaseCount(summary.openRequests),
+        awarded: databaseCount(summary.awardedRequests),
+      },
+      quotesReceivedForOpenRequests: databaseCount(summary.quotesReceived),
+    },
+    deliveryAttention: { waiting: databaseCount(summary.waiting), problems: databaseCount(summary.problems) },
+    deadlines: summary.deadlines.map(request => ({
+      ...request, suppliersInvited: databaseCount(request.suppliersInvited),
+      quotesReceived: databaseCount(request.quotesReceived),
+    })),
+    recentAwards: summary.recentAwards,
+  };
 }
 
 const defaultDependencies: OverviewDependencies = {
@@ -108,134 +207,11 @@ export function createOverviewOperations(
         await requireActiveActor(transaction, actor);
         const now = dependencies.now();
 
-        const [
-          activeSuppliers,
-          menuGroups,
-          requestGroups,
-          quotesReceivedForOpenRequests,
-          deadlines,
-          recentAwards,
-          deliveryRows,
-          attention,
-        ] = await Promise.all([
-          transaction.supplier.count({
-            where: { tenantId: actor.tenantId, isActive: true },
-          }),
-          transaction.menu.groupBy({
-            by: ['status'],
-            where: { tenantId: actor.tenantId },
-            _count: { _all: true },
-          }),
-          transaction.procurementRequest.groupBy({
-            by: ['status'],
-            where: {
-              tenantId: actor.tenantId,
-              status: { in: ['DRAFT', 'OPEN', 'AWARDED'] },
-            },
-            _count: { _all: true },
-          }),
-          transaction.supplierRequest.count({
-            where: {
-              tenantId: actor.tenantId,
-              request: { tenantId: actor.tenantId, status: 'OPEN' },
-              quoteRevision: { gt: 0 },
-            },
-          }),
-          transaction.procurementRequest.findMany({
-            where: { tenantId: actor.tenantId, status: 'OPEN' },
-            orderBy: [{ quoteDeadline: 'asc' }, { id: 'asc' }],
-            take: OVERVIEW_LIST_LIMIT,
-            select: {
-              id: true,
-              title: true,
-              quoteDeadline: true,
-              _count: { select: { supplierRequests: true } },
-            },
-          }),
-          transaction.award.findMany({
-            where: { tenantId: actor.tenantId },
-            orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-            take: OVERVIEW_LIST_LIMIT,
-            select: {
-              id: true,
-              requestId: true,
-              totalPaise: true,
-              createdAt: true,
-              request: { select: { title: true } },
-            },
-          }),
-          transaction.$queryRaw<Array<{ waiting: bigint; problems: bigint }>>(Prisma.sql`
-            SELECT
-              COALESCE(SUM(GREATEST(
-                jsonb_array_length(award."supplierSnapshots"->'suppliers')
-                - COALESCE(checks.checked, 0),
-                0
-              )), 0)::bigint AS "waiting",
-              COALESCE(SUM(COALESCE(checks.problems, 0)), 0)::bigint AS "problems"
-            FROM "Award" AS award
-            LEFT JOIN LATERAL (
-              SELECT
-                COUNT(*)::integer AS "checked",
-                COUNT(*) FILTER (WHERE entry->>'outcome' = 'ISSUES')::integer AS "problems"
-              FROM jsonb_array_elements(
-                COALESCE(award."receiving"->'suppliers', '[]'::jsonb)
-              ) AS entry
-            ) AS checks ON TRUE
-            WHERE award."tenantId" = ${actor.tenantId}
-          `),
+        const [summary, attention] = await Promise.all([
+          loadOverviewSummary(transaction, actor.tenantId),
           loadOverviewAttention(transaction, actor.tenantId, now),
         ]);
-
-        const responseGroups = deadlines.length
-          ? await transaction.supplierRequest.groupBy({
-              by: ['requestId'],
-              where: {
-                tenantId: actor.tenantId,
-                requestId: { in: deadlines.map(({ id }) => id) },
-                quoteRevision: { gt: 0 },
-              },
-              _count: { _all: true },
-            })
-          : [];
-        const responsesByRequest = new Map(
-          responseGroups.map((group) => [group.requestId, group._count._all]),
-        );
-
-        return {
-          generatedAt: now.toISOString(),
-          attention,
-          counts: {
-            activeSuppliers,
-            menus: {
-              draft: groupedCount(menuGroups, 'DRAFT'),
-              approved: groupedCount(menuGroups, 'APPROVED'),
-            },
-            requests: {
-              draft: groupedCount(requestGroups, 'DRAFT'),
-              open: groupedCount(requestGroups, 'OPEN'),
-              awarded: groupedCount(requestGroups, 'AWARDED'),
-            },
-            quotesReceivedForOpenRequests,
-          },
-          deliveryAttention: {
-            waiting: databaseCount(deliveryRows[0]?.waiting),
-            problems: databaseCount(deliveryRows[0]?.problems),
-          },
-          deadlines: deadlines.map((request) => ({
-            requestId: request.id,
-            title: request.title,
-            quoteDeadline: request.quoteDeadline.toISOString(),
-            suppliersInvited: request._count.supplierRequests,
-            quotesReceived: responsesByRequest.get(request.id) ?? 0,
-          })),
-          recentAwards: recentAwards.map((award) => ({
-            awardId: award.id,
-            requestId: award.requestId,
-            title: award.request.title,
-            totalPaise: award.totalPaise.toString(),
-            awardedAt: award.createdAt.toISOString(),
-          })),
-        };
+        return { generatedAt: now.toISOString(), attention, ...summary };
       });
     },
   };
