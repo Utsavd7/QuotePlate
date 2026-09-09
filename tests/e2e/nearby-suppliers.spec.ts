@@ -43,6 +43,9 @@ test('nearby lead requires explicit restaurant verification before saving', asyn
  const response=await page.request.get('/api/suppliers');const suppliers=await response.json();
  const saved=(Array.isArray(suppliers)?suppliers:suppliers.suppliers).find((s:{businessName:string})=>s.businessName===source.name);
  expect(saved).toMatchObject({businessName:source.name,verificationStatus:'VERIFIED'});
- await page.reload();await expect(page.getByRole('heading',{name:source.name,exact:true})).toBeVisible();
+ await page.reload();
+ const directory=page.getByRole('region',{name:'Supplier directory',exact:true});
+ await expect(directory.getByText(source.name,{exact:true})).toBeVisible();
+ await expect(directory.getByRole('button',{name:`Edit ${source.name}`,exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
 });
