@@ -19,6 +19,7 @@ const overview = {
     requests: { draft: 1, open: 2, awarded: 4 },
     quotesReceivedForOpenRequests: 5,
   },
+  attention: { items: [], hasMore: false },
   deliveryAttention: { waiting: 2, problems: 1 },
   deadlines: [],
   recentAwards: [],

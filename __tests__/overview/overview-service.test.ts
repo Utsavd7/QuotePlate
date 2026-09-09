@@ -3,7 +3,9 @@ import { createOverviewOperations } from '@/lib/overview/overview-service';
 
 function fakeTransaction() {
   return {
-    $queryRaw: jest.fn().mockResolvedValue([{ waiting: BigInt(2), problems: BigInt(1) }]),
+    $queryRaw: jest.fn()
+      .mockResolvedValueOnce([{ waiting: BigInt(2), problems: BigInt(1) }])
+      .mockResolvedValue([]),
     user: {
       findFirst: jest.fn().mockResolvedValue({ id: 'member-a' }),
     },
@@ -136,6 +138,7 @@ describe('overview service', () => {
     });
     expect(overview).toEqual({
       generatedAt: '2026-08-28T06:00:00.000Z',
+      attention: { items: [], hasMore: false },
       counts: {
         activeSuppliers: 8,
         menus: { draft: 2, approved: 3 },

@@ -13,8 +13,26 @@ test('five main choices keep planning, history, supplier replies and reports rea
   await page.getByRole('button', { name: 'Sign in with email' }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole('heading', { name: 'Today', exact: true })).toBeVisible();
+  const response = await page.request.get('/api/overview');
+  expect(response.ok()).toBe(true);
+  const { overview } = await response.json();
+  const attention = page.getByRole('region', { name: 'Needs your attention', exact: true });
+  await expect(attention.getByRole('listitem')).toHaveCount(overview.attention.items.length);
+  expect(overview.attention.items.length).toBeGreaterThan(0);
+  expect(new Set(overview.attention.items.map((item: { requestId: string }) => item.requestId)).size).toBe(overview.attention.items.length);
+  await expect(page.locator('main').getByRole('link', { name: 'New purchase', exact: true })).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Current work', exact: true })).toHaveCount(0);
+  for (const item of overview.attention.items) {
+    const row = attention.getByRole('listitem').filter({ has: page.getByRole('heading', { name: item.title, exact: true }) });
+    await expect(row).toHaveCount(1);
+    await expect(row.getByRole('link')).toHaveAttribute('href', new RegExp(`/procurement/${encodeURIComponent(item.requestId)}`));
+  }
   await page.screenshot({path: `/tmp/quoteplate-redesign-${info.project.name}-today.png`});
   await expectNoSeriousAxeViolations(page);
+  await attention.getByRole('link', { name: /^Check delivery for/ }).first().click();
+  await expect(page.getByRole('heading', { name: 'Check delivery', exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/#delivery-check-heading$/);
+  await page.goto('/dashboard');
   // Seeded IDs contain a colon: client navigation must not double-encode it.
   await page.getByRole('link', { name: /DEMO · Midweek staples comparison/ }).click();
   await expect(page.getByRole('heading', { name: 'DEMO · Midweek staples comparison', exact: true })).toBeVisible();
