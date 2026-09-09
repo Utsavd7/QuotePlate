@@ -217,19 +217,23 @@ test('signup appears only after playback ends, stays below controls, and replay 
 });
 
 test('seeking away from a finished video clears the end panel without changing caption preferences', async ({ page }) => {
+  // Autoplay has separate coverage. Keep this seek/caption check in manual-play
+  // mode so automatic playback cannot finish between seeking and calling play().
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/#watch-demo');
   const section = page.locator('#watch-demo');
   const video = section.locator('video');
+  await video.evaluate((element: HTMLVideoElement) => { element.load(); });
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.duration)).toBeGreaterThan(160);
   await section.getByRole('button', { name: 'Subtitles off', exact: true }).click();
-  // Clicking captions can scroll the player out of its autoplay visibility threshold.
-  // Establish real playback explicitly before testing what happens after it ends.
-  await video.scrollIntoViewIfNeeded();
+  // Centre instantly: caption controls may have scrolled the player down.
   await video.evaluate((element: HTMLVideoElement) => {
-    element.pause();
-    element.currentTime = element.duration - .25;
+    element.scrollIntoView({ block: 'center', behavior: 'instant' });
+    element.currentTime = element.duration - 1;
   });
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.seeking)).toBe(false);
+  expect(await video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
+  expect(await video.evaluate((element: HTMLVideoElement) => element.ended)).toBe(false);
   await video.evaluate((element: HTMLVideoElement) => element.play());
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.ended)).toBe(true);
   await expect(section.getByRole('button', { name: 'Replay video' })).toBeVisible();
