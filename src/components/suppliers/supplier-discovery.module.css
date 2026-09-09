@@ -13,8 +13,8 @@
 .fields label { display: block; font-size: .78rem; font-weight: 700; }
 .fields label > span { font-weight: 400; color: var(--workspace-muted); }
 .fields .ingredient { grid-column: span 2; }
-.fields input { display: block; width: 100%; min-height: 2.75rem; margin-top: .4rem; border: 1px solid var(--workspace-line); border-radius: .4rem; padding: .65rem .75rem; background: var(--workspace-surface); color: var(--workspace-ink); font: inherit; font-size: .88rem; font-weight: 400; }
-.panel button { min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .65rem 1rem; border: 1px solid var(--workspace-line); border-radius: .5rem; color: var(--workspace-ink); background: var(--workspace-surface); font: inherit; font-size: .8rem; font-weight: 750; cursor: pointer; }
+.fields input { display: block; width: 100%; min-height: 2.75rem; margin-top: .4rem; border: 1px solid var(--workspace-control-line); border-radius: .4rem; padding: .65rem .75rem; background: var(--workspace-surface); color: var(--workspace-ink); font: inherit; font-size: var(--type-body); font-weight: 400; }
+.panel button { min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .65rem 1rem; border: 1px solid var(--workspace-line); border-radius: .5rem; color: var(--workspace-ink); background: var(--workspace-surface); font: inherit; font-size: var(--type-control); font-weight: 750; cursor: pointer; }
 .panel button svg { width: 1rem; height: 1rem; }
 .panel .searchButton { margin: 1rem 0; color: var(--workspace-surface); background: var(--workspace-accent); border-color: var(--workspace-ink); }
 .summary:focus-visible, .panel input:focus-visible, .panel button:focus-visible, .sources a:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 3px; }
@@ -39,7 +39,7 @@
 @media (max-width: 600px) {
   .fields, .sources { grid-template-columns: minmax(0, 1fr); }
   .fields .ingredient { grid-column: auto; }
-  .fields input { font-size: 1rem; }
+  .fields input { font-size: var(--type-body); }
   .nextStep { align-items: stretch; flex-direction: column; }
   .searchButton { width: 100%; }
 }

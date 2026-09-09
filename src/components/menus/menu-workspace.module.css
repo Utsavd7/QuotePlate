@@ -14,7 +14,7 @@
 .header h1 { font-size: 28px; line-height: 1.08; }
 .intro { max-width: 40rem; margin: .75rem 0 0; color: var(--muted); font-size: .98rem; line-height: 1.55; }
 .eyebrow { margin: 0; color: var(--workspace-accent); font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-.primaryButton, .secondaryButton { min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: .55rem; padding: .68rem 1rem; border: 1px solid var(--ink); font: inherit; font-size: .82rem; font-weight: 750; cursor: pointer; }
+.primaryButton, .secondaryButton { min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: .55rem; padding: .68rem 1rem; border: 1px solid var(--ink); font: inherit; font-size: var(--type-control); font-weight: 750; cursor: pointer; }
 .primaryButton { color: var(--workspace-surface); background: var(--workspace-accent); border-color: var(--workspace-accent); box-shadow: none; }
 .secondaryButton { color: var(--ink); background: var(--paper); border-color: var(--line); }
 .primaryButton svg { width: 1rem; }
@@ -47,7 +47,7 @@
 .empty > p:not(.eyebrow) { max-width: 31rem; margin: .65rem 0 1.5rem; color: var(--muted); line-height: 1.55; }
 .loading { max-width: 82rem; margin: 0 auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
 .loading span { height: 14rem; border: 1px solid var(--line); background: linear-gradient(90deg,var(--paper),var(--workspace-canvas),var(--paper)); background-size: 220% 100%; animation: pulse 1.4s ease-in-out infinite; }
-.loadMore { min-height: 2.75rem; margin: 1rem auto 0; padding: .65rem 1rem; display: block; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; }
+.loadMore { min-height: 2.75rem; margin: 1rem auto 0; padding: .65rem 1rem; display: block; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; font-size: var(--type-control); font-weight: 800; cursor: pointer; }
 .loadMore:disabled { cursor: wait; opacity: .55; }
 .dialogBackdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 1rem; background: rgba(10,18,17,.72); }
 .dialog { width: min(46rem,100%); max-height: 92vh; overflow: auto; border: 1px solid var(--workspace-line); background: var(--paper); box-shadow: 0 2rem 5rem rgba(8,14,13,.3); }
@@ -59,7 +59,7 @@
 .dialogBody { padding: 1.35rem; }
 .dialogError { margin: 0 0 1rem; padding: .7rem .8rem; border: 1px solid #dfb7ae; background: #fbefec; color: #842d25; font-size: .78rem; }
 .dialog label { display: block; margin-bottom: .45rem; color: var(--muted); font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.dialog textarea, .dialog input[type="url"] { width: 100%; padding: .8rem; border: 1px solid var(--workspace-control-line); border-radius: 0; outline: none; background: var(--workspace-surface); color: var(--ink); font: inherit; font-size: 1rem; line-height: 1.5; }
+.dialog textarea, .dialog input[type="url"] { width: 100%; padding: .8rem; border: 1px solid var(--workspace-control-line); border-radius: 0; outline: none; background: var(--workspace-surface); color: var(--ink); font: inherit; font-size: var(--type-body); line-height: 1.5; }
 .dialog textarea { min-height: 18rem; resize: vertical; }
 .dialog textarea:focus, .dialog input[type="url"]:focus { border-color: var(--workspace-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--workspace-accent) 18%, transparent); }
 .dialog form > p { margin: .65rem 0 0; color: var(--muted); font-size: .76rem; line-height: 1.45; }
@@ -72,7 +72,7 @@
 .intakeChoices span, .permissionCheck span { display: flex; flex-direction: column; gap: .18rem; }
 .intakeChoices strong { font-family: var(--font-ui), sans-serif; font-size: 1.18rem; font-weight: 600; }
 .intakeChoices small, .permissionCheck small { color: var(--muted); font-size: .74rem; line-height: 1.4; }
-.backButton { min-height: 2.75rem; margin: 0 0 1rem; padding: 0 0 .2rem; display: inline-flex; align-items: center; gap: .35rem; border: 0; border-bottom: 1px solid var(--workspace-accent); background: transparent; color: var(--workspace-accent); font: inherit; font-size: .72rem; font-weight: 800; cursor: pointer; }
+.backButton { min-height: 2.75rem; margin: 0 0 1rem; padding: 0 0 .2rem; display: inline-flex; align-items: center; gap: .35rem; border: 0; border-bottom: 1px solid var(--workspace-accent); background: transparent; color: var(--workspace-accent); font: inherit; font-size: var(--type-control); font-weight: 800; cursor: pointer; }
 .backButton svg { width: .85rem; }
 .backButton:disabled { cursor: wait; opacity: .5; }
 .intakePanel { display: block; }
@@ -97,7 +97,7 @@
 .photoProgress strong { font-size: .82rem; }
 .photoProgress span { color: var(--muted); font-size: .7rem; }
 .photoProgress progress { width: 100%; height: .35rem; accent-color: var(--workspace-accent); }
-.photoProgress button { min-height: 2.75rem; padding: .45rem .7rem; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; }
+.photoProgress button { min-height: 2.75rem; padding: .45rem .7rem; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit; font-size: var(--type-control); font-weight: 800; cursor: pointer; }
 .permissionCheck { margin: .85rem 0 0 !important; padding: .8rem; display: grid !important; grid-template-columns: 1.2rem 1fr; align-items: start; gap: .65rem; border: 1px solid var(--line); background: var(--workspace-surface); color: var(--ink) !important; letter-spacing: 0 !important; text-transform: none !important; cursor: pointer; }
 .permissionCheck input { width: 1.05rem; height: 1.05rem; margin: .12rem 0 0; accent-color: var(--workspace-accent); }
 .permissionCheck strong { font-size: .78rem; }

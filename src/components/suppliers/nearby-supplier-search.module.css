@@ -8,8 +8,8 @@
 .areaForm { display:flex; align-items:end; gap:.75rem; margin:1rem 0; }
 .areaForm label { flex:1; }
 .panel label { display:grid; gap:.45rem; font-size:.8rem; font-weight:650; }
-.panel input,.panel select { width:100%; min-height:2.8rem; border:1px solid var(--workspace-line); border-radius:.4rem; background:var(--workspace-surface); color:var(--workspace-ink); padding:.65rem; font:inherit; font-size:.9rem; }
-.panel button { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; min-height:2.8rem; padding:.65rem 1rem; border:1px solid var(--workspace-line); border-radius:.45rem; font:inherit; font-size:.82rem; font-weight:700; background:var(--workspace-surface); color:var(--workspace-ink); cursor:pointer; }
+.panel input,.panel select { width:100%; min-height:2.8rem; border:1px solid var(--workspace-control-line); border-radius:.4rem; background:var(--workspace-surface); color:var(--workspace-ink); padding:.65rem; font:inherit; font-size:var(--type-body); }
+.panel button { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; min-height:2.8rem; padding:.65rem 1rem; border:1px solid var(--workspace-line); border-radius:.45rem; font:inherit; font-size:var(--type-control); font-weight:700; background:var(--workspace-surface); color:var(--workspace-ink); cursor:pointer; }
 .panel button:disabled { cursor:default; opacity:.55; }
 .panel .primary { background:var(--workspace-accent); color:var(--workspace-surface); }
 .panel button svg { width:1rem; height:1rem; }
@@ -30,7 +30,7 @@
 .panel :is(input,select,button,a):focus-visible { outline:2px solid var(--workspace-accent); outline-offset:3px; }
 .panel footer { border-top:1px solid var(--workspace-line); padding-top:1rem; margin-top:1.2rem; }
 .srOnly { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
-@media(max-width:650px) { .heading { flex-wrap:wrap; } .free { margin-left:2rem; } .areaForm { align-items:stretch; flex-direction:column; } .controls { grid-template-columns:1fr 1fr; } .controls button { grid-column:1/-1; } .results { grid-template-columns:1fr; } .panel input,.panel select { font-size:1rem; } }
+@media(max-width:650px) { .heading { flex-wrap:wrap; } .free { margin-left:2rem; } .areaForm { align-items:stretch; flex-direction:column; } .controls { grid-template-columns:1fr 1fr; } .controls button { grid-column:1/-1; } .results { grid-template-columns:1fr; } .panel input,.panel select { font-size:var(--type-body); } }
 .help a { text-decoration:underline; text-underline-offset:3px; }
 .panel { font-family: var(--font-ui); color: var(--workspace-ink); }
 .panel :focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 3px; }

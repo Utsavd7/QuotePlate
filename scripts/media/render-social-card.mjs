@@ -27,8 +27,6 @@ const font = (family, style = 'normal', weight = 500) => {
 };
 const ui = font('manrope');
 const uiBold = font('manrope', 'normal', 700);
-const display = font('newsreader');
-const italic = font('newsreader', 'italic');
 const escape = value => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('"', '&quot;');
 
 // Real font outlines make rendering independent of system fonts and network services.
@@ -59,8 +57,8 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" v
   <rect x="960" width="240" height="630" fill="${colors.forest}"/>
   ${await canonicalSvg('wordmark-horizontal.svg', 72, 65, 220, 58)}
   ${text('RESTAURANT PROCUREMENT · INDIA', uiBold, 14, 72, 198, colors.muted, 816)}
-  ${text('Every supplier quote.', display, 72, 72, 276, colors.ink, 816)}
-  ${text('One accountable decision.', italic, 68, 72, 347, colors.accent, 816)}
+  ${text('Every supplier quote.', uiBold, 66, 72, 276, colors.ink, 816)}
+  ${text('One accountable decision.', uiBold, 58, 72, 347, colors.accent, 816)}
   ${text('Ingredient requests, supplier responses, landed costs, and award', ui, 22, 72, 424, colors.muted, 816)}
   ${text('decisions in one factual record.', ui, 22, 72, 458, colors.muted, 816)}
   <path d="M72 534H920" stroke="${colors.line}"/>

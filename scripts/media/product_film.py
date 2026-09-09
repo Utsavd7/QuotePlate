@@ -12,7 +12,7 @@ import textwrap
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-WIDTH, HEIGHT, FPS, SAMPLE_RATE = 1920, 1080, 30, 48000
+WIDTH, HEIGHT, FPS, SAMPLE_RATE = 1920, 1200, 30, 48000
 
 
 def run(args, **kwargs):
@@ -314,23 +314,18 @@ def render(args, story):
     music_duration = float(probe(args.music)['format']['duration'])
     for scene in story['scenes']:
         name, duration = scene['id'], scene['duration']
-        title = edit / f'{name}-title.txt'
-        title.write_text(scene['title'])
         if 'sourceStart' in scene:
             output = edit / f'{name}.mp4'
-            ffmpeg('-ss', scene['sourceStart'], '-i', args.source_film, '-vf', f'scale={WIDTH}:{HEIGHT},setsar=1,fps={FPS}',
+            crop = scene.get('pictureCrop')
+            crop_filter = f"crop={crop['width']}:{crop['height']}:{crop['x']}:{crop['y']}," if crop else ''
+            ffmpeg('-ss', scene['sourceStart'], '-i', args.source_film, '-vf', f'{crop_filter}scale={WIDTH}:{HEIGHT},setsar=1,fps={FPS}',
                    '-frames:v', round(duration * FPS), *video_options(), output)
             chunks.append(output)
         else:
             for index, shot in enumerate(scene['shots']):
                 output = edit / f'{name}-{index}.mp4'
-                vf = (
-                    'scale=1760:900:force_original_aspect_ratio=decrease:force_divisible_by=2,'
-                    'pad=1920:992:(ow-iw)/2:(oh-ih)/2:color=0xf6f7f5,'
-                    'pad=1920:1080:0:88:color=0x172521,setsar=1,'
-                    f"drawtext=fontfile='{filter_path(font)}':textfile='{filter_path(title)}':expansion=none:fontsize=27:fontcolor=0xf8faf8:x=32:y=23,"
-                    f"drawtext=fontfile='{filter_path(font)}':text='Actual app / fictional restaurant records':fontsize=18:fontcolor=0xd7e4dc:x=w-tw-32:y=28"
-                )
+                # Match the 16:10 laptop recording: no margins, title strip or UI crop.
+                vf = f'scale={WIDTH}:{HEIGHT},setsar=1'
                 render_video_shot(args.captures / shot['file'], shot, vf, output)
                 chunks.append(output)
         voice = args.work / 'audio' / f'{name}.wav'

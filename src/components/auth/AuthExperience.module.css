@@ -42,11 +42,11 @@
 .context h1 {
   max-width: 10ch;
   margin: 1.1rem 0 0;
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: clamp(3.2rem, 6vw, 5.8rem);
   font-weight: 480;
   letter-spacing: -0.035em;
-  line-height: 0.89;
+  line-height: 1.15;
   text-wrap: balance;
 }
 
@@ -74,7 +74,7 @@
 
 .assurances dt {
   color: var(--copper-text);
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 0.68rem;
   font-weight: 700;
 }
@@ -114,7 +114,7 @@
   border-bottom: 1px solid var(--workspace-line);
   background: var(--workspace-canvas);
   color: var(--workspace-muted);
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 0.61rem;
   letter-spacing: 0.08em;
   line-height: 1.7;
@@ -395,7 +395,7 @@
 .page .context h1 {
   max-width: 12ch;
   font-size: clamp(3.4rem, min(5.8vw, 7.2vh), 5.4rem);
-  line-height: 0.96;
+  line-height: 1.15;
 }
 
 .page .assurances {
@@ -519,7 +519,7 @@
   .googleButton { transition: none; }
 }
 
-/* The story keeps its brand type; account fields share the workspace controls. */
+/* Account fields share the workspace controls. */
 .page { background:var(--workspace-canvas); color:var(--workspace-ink); font-family:var(--font-ui); }
 .page .sheet { background:var(--workspace-surface); border-color:var(--workspace-line); border-radius:12px; overflow:visible; }
 .sheet::before {
@@ -533,13 +533,13 @@
 .page .fieldset legend { font-size:.875rem; text-transform:none; letter-spacing:normal; }
 .fieldGrid label { font-size:.875rem; }
 .fieldGrid label > span { flex-wrap:wrap; }
-.page .fieldGrid input { min-width:0; min-height:48px; background:var(--workspace-surface); border-color:var(--workspace-control-line); color:var(--workspace-ink); font:500 1rem/1.5 var(--font-ui); }
+.page .fieldGrid input { min-width:0; min-height:48px; background:var(--workspace-surface); border-color:var(--workspace-control-line); color:var(--workspace-ink); font:500 var(--type-body)/1.5 var(--font-ui); }
 .page .fieldGrid input::placeholder { color:var(--workspace-muted); opacity:1; }
 .page .fieldGrid input:not(:disabled):hover { border-color:var(--workspace-muted); }
 .page .fieldGrid input:focus { border-color:var(--workspace-accent); background:var(--workspace-surface); box-shadow:none; outline:3px solid var(--workspace-accent); outline-offset:3px; }
 .page .fieldGrid input:disabled { color:var(--workspace-muted); background:var(--workspace-canvas); cursor:not-allowed; opacity:1; }
 .page .fieldGrid input[aria-invalid='true'] { border-color:#762f20; }
-.page .primaryButton, .page .googleButton { font:700 1rem/1.5 var(--font-ui); letter-spacing:normal; }
+.page .primaryButton, .page .googleButton { font:700 var(--type-control)/1.5 var(--font-ui); letter-spacing:normal; }
 .page .primaryButton { background:var(--workspace-accent); border-color:var(--workspace-accent); color:var(--workspace-surface); }
 .page .primaryButton:not(:disabled):hover { background:var(--workspace-accent-hover); border-color:var(--workspace-accent-hover); }
 .page .googleButton:not(:disabled):hover { background:var(--workspace-canvas); }

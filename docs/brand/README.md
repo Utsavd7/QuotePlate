@@ -26,7 +26,7 @@ The React component in `src/components/brand/BrandMark.tsx` is the canonical geo
 
 The logo assets are scalable SVGs with clean view boxes and no gradients or embedded raster images. The outlined wordmark is self-contained and does not require Newsreader to be installed. The social card is a static PNG so sharing crawlers do not need JavaScript, a font service, or a paid image API.
 
-Regenerate the social card with `node scripts/media/render-social-card.mjs` from the repository root. The renderer reads the workspace palette from `src/app/globals.css`, embeds the existing canonical wordmark and duotone mark unchanged, and converts the bundled Newsreader and Manrope fonts to vector paths. It writes the SVG source and the exact 1200 × 630 PNG together, checking text-column widths and image dimensions. It uses the existing local Sharp/Fontkit packages and Python 3 with FontTools/Brotli to unwrap the bundled WOFF2 fonts; `PYTHON` may select another local Python executable. No browser, application server, external fonts or image service is used. The original PNG's renderer was not archived; this script is its reproducible replacement.
+Regenerate the social card with `node scripts/media/render-social-card.mjs` from the repository root. The renderer reads the workspace palette from `src/app/globals.css`, embeds the existing canonical wordmark and duotone mark unchanged, and converts the bundled Manrope font to vector paths. It writes the SVG source and the exact 1200 × 630 PNG together, checking text-column widths and image dimensions. It uses the existing local Sharp/Fontkit packages and Python 3 with FontTools/Brotli to unwrap the bundled WOFF2 fonts; `PYTHON` may select another local Python executable. No browser, application server, external fonts or image service is used. The original PNG's renderer was not archived; this script is its reproducible replacement.
 
 ## Colour
 
@@ -48,8 +48,9 @@ Copper remains the canonical logo accent. Public and product interfaces use work
 
 ## Typography and licence
 
-- **Newsreader Variable**: public editorial headings and the QuotePlate wordmark. Working app headings use Manrope.
-- **Manrope Variable**: navigation, body copy, controls, and product UI.
+- **Newsreader Variable**: the QuotePlate wordmark only, through `--font-brand`, matching the canonical outlined SVG.
+- **Manrope Variable**: all interface headings, navigation, body copy and controls across public, restaurant and supplier pages; `--font-display` aliases `--font-ui`.
+- Shared interface tokens define body text (1rem), controls and labels (.875rem), captions (.75rem), and workspace headings (1.75rem / 1.15rem / 1rem). Public hero headings use a larger responsive scale. Controls share a 2.75rem minimum target and .5rem radius.
 - Use tabular numerals for INR values, quantities, and dates.
 
 Both typefaces are open-source and distributed under the SIL Open Font License 1.1. The bundled notice and licence are in `public/fonts/OFL-1.1.txt`.

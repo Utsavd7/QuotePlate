@@ -449,9 +449,10 @@ describe('public website contract', () => {
     expect(mark).toContain('aria-hidden={decorative');
     expect(wordmark).toContain('<BrandMark decorative');
     expect(css).toMatch(
-      /\.wordmark__name \{[^}]*font-family: var\(--font-display\);[^}]*font-weight: 520;/,
+      /\.wordmark__name \{[^}]*font-family: var\(--font-brand\);[^}]*font-weight: 520;/,
     );
-    expect(brandGuide).toContain('Newsreader Variable**: public editorial headings and the QuotePlate wordmark');
+    expect(brandGuide).toContain('Newsreader Variable**: the QuotePlate wordmark only');
+    expect(css).toContain('--font-display: var(--font-ui)');
     expect(brandGuide).not.toContain('Manrope lettering');
   });
 

@@ -1,6 +1,6 @@
 {
   "durationSeconds": 164,
-  "resolution": "1920x1080",
+  "resolution": "1920x1200",
   "fps": 30,
   "narration": "Local Kokoro ONNX af_heart, American English; measured phrase cues; approved intro, nearby and closing audio reused.",
   "sources": "Application visuals are real redesigned-app screen recordings of clicks, typing, navigation and result review, with fictional restaurant records and authentic public nearby listings. Only approved kitchen opening/closing visuals and intro, nearby and closing audio are reused. Clips play at recorded speed by default; any explicitly condensed footage is bounded to 1.5x. Public listings do not guarantee stock, supplier suitability or delivery capability.",
@@ -21,7 +21,13 @@
           "end": 3.776,
           "text": "QuotePlate connects your kitchen, purchasing decisions and suppliers."
         }
-      ]
+      ],
+      "pictureCrop": {
+        "width": 1600,
+        "height": 1000,
+        "x": 0,
+        "y": 66
+      }
     },
     {
       "id": "orientation",
@@ -409,7 +415,13 @@
           "end": 2.82,
           "text": "QuotePlate. Every quote, accountable."
         }
-      ]
+      ],
+      "pictureCrop": {
+        "width": 1600,
+        "height": 1000,
+        "x": 160,
+        "y": 66
+      }
     }
   ]
 }

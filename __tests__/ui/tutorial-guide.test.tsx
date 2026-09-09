@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import React from 'react';
+import * as progressHooks from '@/components/tutorial/use-tutorial-progress';
 import { parse } from 'node-html-parser';
 
 import {
@@ -123,10 +123,11 @@ describe('visible setup guide', () => {
   it.each(['skippedAt', 'completedAt'] as const)(
     'shows save failures with a retry control when %s is set',
     (field) => {
-      const useState = React.useState;
+      const useTutorialProgress = progressHooks.useTutorialProgress;
       const message = 'Could not save your progress. Please try again.';
-      const hook = jest.spyOn(React, 'useState').mockImplementation(((initial: unknown) =>
-        useState(initial === '' ? message : initial)) as typeof React.useState);
+      const hook = jest.spyOn(progressHooks, 'useTutorialProgress').mockImplementation((initial) => ({
+        ...useTutorialProgress(initial), error: message, pending: 1,
+      }));
       try {
         const root = parse(renderToStaticMarkup(
           <TutorialGuide initialTutorial={{ ...freshTutorial, [field]: '2026-09-08T08:00:00.000Z' }} />,
@@ -136,6 +137,8 @@ describe('visible setup guide', () => {
           field === 'completedAt' ? 'Show setup guide' : 'Continue setup',
         );
         expect(root.querySelector('button')?.hasAttribute('disabled')).toBe(false);
+        expect(root.text).toContain('Retry save');
+        expect(root.text).not.toContain('Setup complete');
       } finally {
         hook.mockRestore();
       }

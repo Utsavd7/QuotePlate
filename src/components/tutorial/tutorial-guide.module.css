@@ -44,9 +44,10 @@
 .counter { color: var(--workspace-muted); font-size: .875rem; font-weight: 700; }
 
 .progress { height: .25rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
-.progress span { display: block; }
-.progressDone { background: var(--workspace-accent); }
-.progressRest { background: var(--workspace-line); }
+.progress span { display: block; background: var(--workspace-line); }
+.progress span::after { content: ''; display: block; height: 100%; background: var(--workspace-accent); transform-origin: left; opacity: 0; transform: scaleX(.5); }
+.progress .progressDone::after { opacity: 1; transform: scaleX(1); }
+.progress .progressRest::after { opacity: 0; transform: scaleX(.5); }
 
 .body { padding: .875rem; }
 .body h2 {
@@ -57,7 +58,7 @@
   line-height: 1.4;
   text-wrap: balance;
 }
-.body > p {
+.instruction > p {
   margin: .5rem 0 1rem;
   max-width: 65ch;
   color: var(--workspace-muted);
@@ -86,6 +87,10 @@
 .destination svg { width: 1rem; height: 1rem; flex-shrink: 0; }
 
 .message { margin: 0; padding: 0 1rem 1rem; color: var(--workspace-ink); font-size: .875rem; line-height: 1.5; }
+.message p { margin: 0 0 .5rem; }
+.message button { min-height: 2.75rem; padding: .5rem .75rem; border: 1px solid var(--workspace-accent); border-radius: .5rem; background: var(--workspace-surface); color: var(--workspace-accent); font: inherit; font-weight: 700; cursor: pointer; }
+.saving { margin: 0; padding: 0 1rem .75rem; color: var(--workspace-muted); font-size: .875rem; }
+.resume .saving { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); padding: 0; }
 
 .actions {
   padding: .75rem;
@@ -147,6 +152,7 @@
 .resume .message { grid-column: 1 / -1; padding: 0; }
 
 .destination:focus-visible,
+.message button:focus-visible,
 .actions button:focus-visible,
 .resume button:focus-visible {
   outline: 3px solid var(--workspace-accent);
@@ -203,3 +209,22 @@
 .collapse:hover { background: var(--workspace-selected); color: var(--workspace-accent); }
 .collapse:focus-visible,
 .guide:focus-visible { outline: 3px solid var(--workspace-accent); outline-offset: 3px; }
+
+/* Only content/feedback moves. The real target and its ring never animate. */
+@media (prefers-reduced-motion: no-preference) {
+  .guide[data-motion="pointer"] .instruction {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 160ms cubic-bezier(.23, 1, .32, 1), transform 160ms cubic-bezier(.23, 1, .32, 1);
+  }
+  @starting-style {
+    .guide[data-motion="pointer"] .instruction { opacity: .6; transform: translateY(3px); }
+  }
+  .guide[data-motion="pointer"] .progress span::after {
+    transition: opacity 160ms cubic-bezier(.23, 1, .32, 1), transform 160ms cubic-bezier(.23, 1, .32, 1);
+  }
+  .guide[data-motion="pointer"] button,
+  .resume[data-motion="pointer"] button { transition: transform 100ms cubic-bezier(.23, 1, .32, 1); }
+  .guide[data-motion="pointer"] button:not(:disabled):active,
+  .resume[data-motion="pointer"] button:active { transform: scale(.98); }
+}
