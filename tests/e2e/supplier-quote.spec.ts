@@ -83,6 +83,17 @@ test('scrubs the link, loads the real quote form, and submits a server-calculate
   await expect(page.getByRole('heading', { name: request.title })).toBeVisible();
   await expect(page.getByText(request.restaurantName)).toBeVisible();
   await expect(page.getByText(request.supplierName)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Review your quote' })).toHaveCount(0);
+  await expect(page.locator('button[type="submit"]')).toHaveCount(1);
+  const tomatoRow = page.getByRole('article', { name: 'Tomato', exact: true });
+  await expect(tomatoRow.getByLabel('Price per kg')).toBeVisible();
+  await expect(tomatoRow.getByLabel('Quantity you can supply')).toBeVisible();
+  const boxes = await Promise.all([
+    tomatoRow.locator('[name="rate:tomato"]').boundingBox(),
+    tomatoRow.locator('[name="quantity:tomato"]').boundingBox(),
+  ]);
+  expect(Math.abs(boxes[0]!.y - boxes[1]!.y)).toBeLessThanOrEqual(2);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
   await page.locator('input[name="rate:tomato"]').fill('42');
   await page.locator('input[name="gst:tomato"]').fill('5');
@@ -90,6 +101,16 @@ test('scrubs the link, loads the real quote form, and submits a server-calculate
   await page.locator('input[name="gst:paneer"]').fill('5');
   await page.locator('input[name="inclusive:paneer"]').check();
   await page.locator('input[name="freightInr"]').fill('450');
+  await page.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Review your quote' })).toBeFocused();
+  await expect(page.locator('input[name="rate:tomato"]')).toBeHidden();
+  await expect(page.locator('input[name="freightInr"]')).toBeHidden();
+  expect(submitted).toBeUndefined();
+  await page.getByRole('button', { name: 'Edit prices or delivery' }).click();
+  await expect(page.getByRole('heading', { name: 'Enter your prices' })).toBeFocused();
+  await expect(page.locator('input[name="rate:tomato"]')).toHaveValue('42');
+  await expect(page.locator('input[name="inclusive:paneer"]')).toBeChecked();
+  await expect(page.locator('input[name="freightInr"]')).toHaveValue('450');
   await page.getByRole('button', { name: 'Review delivery & total', exact: true }).click();
   await page.getByRole('button', { name: /^Send (updated )?quote$/, exact: true }).click();
 
@@ -116,6 +137,70 @@ test('scrubs the link, loads the real quote form, and submits a server-calculate
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
   ).toBe(true);
+});
+
+test('price-sheet errors reveal fields and preserve partial supply, no quote, GST and notes through review', async ({ page }) => {
+  const posts: unknown[] = [];
+  await page.route('**/api/public/quote/access', route => route.fulfill({ status: 201, json: { ok: true } }));
+  await page.route('**/api/public/quote', async route => {
+    if (route.request().method() === 'GET') await route.fulfill({ json: request });
+    else {
+      posts.push(route.request().postDataJSON());
+      await route.fulfill({ status: 422, json: { detail: 'Check the delivery date with the restaurant.' } });
+    }
+  });
+  await page.goto(`/quote#token=${token}`);
+  const next = page.getByRole('button', { name: 'Review delivery & total', exact: true });
+  const tomato = page.getByRole('article', { name: 'Tomato', exact: true });
+  const paneer = page.getByRole('article', { name: 'Paneer', exact: true });
+  await next.click();
+  await expect(tomato.getByLabel('Price per kg')).toBeFocused();
+  await expect(tomato.getByLabel('Price per kg')).toHaveAttribute('aria-invalid', 'true');
+  await tomato.getByLabel('Price per kg').fill('55');
+  await paneer.getByLabel('Price per kg').fill('320');
+  await paneer.getByLabel('Cannot supply this item').check();
+  await expect(paneer.getByLabel('Price per kg')).toBeDisabled();
+  await paneer.getByLabel('Cannot supply this item').uncheck();
+  await expect(paneer.getByLabel('Price per kg')).toHaveValue('320');
+  await paneer.getByLabel('Cannot supply this item').check();
+  await tomato.getByLabel('Quantity you can supply').fill('101');
+  await next.click();
+  await expect(tomato.getByLabel('Quantity you can supply')).toBeFocused();
+  await tomato.getByLabel('Quantity you can supply').fill('7.5');
+  await tomato.getByLabel('GST %').fill('101');
+  await next.click();
+  await expect(tomato.getByLabel('GST %')).toBeFocused();
+  await tomato.getByLabel('GST %').fill('5');
+  await tomato.getByLabel('GST is included').check();
+  await tomato.getByLabel('Item or pack note').fill('Three 2.5 kg packs');
+  await page.getByLabel('Note to the restaurant', { exact: true }).fill('Call before delivery');
+  await page.locator('[name="deliveryDate"]').fill('');
+  await next.click();
+  await expect(page.locator('[name="deliveryDate"]')).toBeFocused();
+  await page.locator('[name="deliveryDate"]').fill(request.deliveryDate);
+  await next.click();
+  const review = page.getByRole('region', { name: 'Review your quote' });
+  await expect(review).toContainText('₹412.50');
+  await expect(review).toContainText('GST 5% included');
+  await expect(review).toContainText('Three 2.5 kg packs');
+  await expect(review).toContainText('Cannot supply this item');
+  await expect(review).toContainText('Call before delivery');
+  expect(posts).toHaveLength(0);
+  await page.getByRole('button', { name: 'Edit prices or delivery' }).click();
+  await expect(tomato.getByLabel('Quantity you can supply')).toHaveValue('7.5');
+  await expect(tomato.getByLabel('GST is included')).toBeChecked();
+  await expect(paneer.getByLabel('Cannot supply this item')).toBeChecked();
+  await next.click();
+  await page.getByRole('button', { name: 'Send quote', exact: true }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'Check the delivery date' })).toBeFocused();
+  await expect(page.locator('[name="deliveryDate"]')).toBeVisible();
+  await expect(tomato.getByLabel('Item or pack note')).toBeVisible();
+  await expect(tomato.getByLabel('Item or pack note')).toHaveValue('Three 2.5 kg packs');
+  await expect(page.getByRole('button', { name: 'Send quote', exact: true })).toHaveCount(0);
+  expect(posts).toEqual([expect.objectContaining({ items: [
+    expect.objectContaining({ requestItemId: 'tomato', availableQuantity: '7.5', unitRateInr: '55', gstPercent: '5', taxInclusive: true, substitution: 'Three 2.5 kg packs' }),
+    { requestItemId: 'paneer', noQuote: true },
+  ], notes: 'Call before delivery' })]);
 });
 
 test('previous prices require a click, preserve current inputs, and use normal submission validation', async ({ page }) => {
@@ -174,6 +259,41 @@ test('existing revisions cannot be replaced by historical prices', async ({ page
   await page.goto(`/quote#token=${token}`);
   await expect(page.locator('[name="rate:tomato"]')).toHaveValue('44');
   await expect(page.getByRole('button', { name: 'Use previous prices' })).toHaveCount(0);
+});
+
+test('a conflicting revision returns to entry and requires a fresh review without losing edits', async ({ page }) => {
+  const posts: Array<Record<string, unknown>> = [];
+  let conflicted = false;
+  await page.route('**/api/public/quote/access', route => route.fulfill({ status: 201, json: { ok: true } }));
+  await page.route('**/api/public/quote', async route => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({ json: { ...request, latestQuote: conflicted ? {
+        revision: 1, subtotalPaise: '40000', gstPaise: '0', freightPaise: '0', totalPaise: '40000',
+        deliveryDate: request.deliveryDate, validUntil: '2099-09-01', items: [],
+      } : null } });
+    } else {
+      posts.push(route.request().postDataJSON());
+      conflicted = true;
+      await route.fulfill({ status: posts.length === 1 ? 409 : 422, json: { detail: 'Check delivery.' } });
+    }
+  });
+  await page.goto(`/quote#token=${token}`);
+  await page.locator('[name="rate:tomato"]').fill('42.75');
+  await page.locator('[name="rate:paneer"]').fill('320');
+  await page.locator('[name="gst:tomato"]').fill('5');
+  const next = page.getByRole('button', { name: 'Review delivery & total', exact: true });
+  await next.click();
+  await page.getByRole('button', { name: 'Send quote', exact: true }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'A newer quote was saved' })).toBeVisible();
+  await expect(page.getByText('Last sent: version 1')).toBeVisible();
+  await expect(page.locator('[name="rate:tomato"]')).toBeVisible();
+  await expect(page.locator('[name="rate:tomato"]')).toHaveValue('42.75');
+  await expect(page.locator('[name="gst:tomato"]')).toHaveValue('5');
+  await expect(page.getByRole('button', { name: 'Send updated quote', exact: true })).toHaveCount(0);
+  await next.click();
+  await page.getByRole('button', { name: 'Send updated quote', exact: true }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'Check delivery.' })).toBeVisible();
+  expect(posts.map(post => post.expectedLatestRevision)).toEqual([0, 1]);
 });
 
 

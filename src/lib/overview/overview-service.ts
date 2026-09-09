@@ -3,6 +3,7 @@ import { Prisma, type PrismaClient } from '@prisma/client';
 import { AuthorizationError } from '@/lib/auth/guards';
 import { withTenant } from '@/lib/db/tenant-transaction';
 import { prisma } from '@/lib/prisma';
+import { loadOverviewAttention, type OverviewAttention } from './overview-attention';
 
 const OVERVIEW_LIST_LIMIT = 5;
 const ACTOR_ID_BYTES = 200;
@@ -11,6 +12,7 @@ export type OverviewActor = { tenantId: string; userId: string };
 
 export type OverviewData = {
   generatedAt: string;
+  attention: OverviewAttention;
   counts: {
     activeSuppliers: number;
     menus: { draft: number; approved: number };
@@ -104,6 +106,7 @@ export function createOverviewOperations(
       const actor = requireValidActor(input.actor);
       return dependencies.transact(actor.tenantId, async (transaction) => {
         await requireActiveActor(transaction, actor);
+        const now = dependencies.now();
 
         const [
           activeSuppliers,
@@ -113,6 +116,7 @@ export function createOverviewOperations(
           deadlines,
           recentAwards,
           deliveryRows,
+          attention,
         ] = await Promise.all([
           transaction.supplier.count({
             where: { tenantId: actor.tenantId, isActive: true },
@@ -179,6 +183,7 @@ export function createOverviewOperations(
             ) AS checks ON TRUE
             WHERE award."tenantId" = ${actor.tenantId}
           `),
+          loadOverviewAttention(transaction, actor.tenantId, now),
         ]);
 
         const responseGroups = deadlines.length
@@ -197,7 +202,8 @@ export function createOverviewOperations(
         );
 
         return {
-          generatedAt: dependencies.now().toISOString(),
+          generatedAt: now.toISOString(),
+          attention,
           counts: {
             activeSuppliers,
             menus: {

@@ -144,23 +144,46 @@ export function SupplierQuoteForm({
   const formRef = useRef<HTMLFormElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
-  const [review, setReview] = useState<ReturnType<typeof reviewQuote> | null>(null);
-  const [error, setError] = useState('');
+  const [review, setReview] = useState<(ReturnType<typeof reviewQuote> & {
+    details: Array<{ rate: string; gst: string; inclusive: boolean; substitution: string }>;
+  }) | null>(null);
+  const [error, setError] = useState<{ message: string; field?: string } | null>(null);
   const reviewHeading = useRef<HTMLHeadingElement>(null);
+  const entryHeading = useRef<HTMLHeadingElement>(null);
+  const returningToEntry = useRef(false);
   const errorMessage = useRef<HTMLParagraphElement>(null);
-  useEffect(() => { if (review) reviewHeading.current?.focus(); }, [review]);
+  useEffect(() => {
+    if (review) reviewHeading.current?.focus();
+    else if (returningToEntry.current) {
+      returningToEntry.current = false;
+      entryHeading.current?.focus();
+    }
+  }, [review]);
   useEffect(() => {
     if (error) {
       formRef.current?.querySelectorAll('details').forEach(details => { details.open = true; });
-      errorMessage.current?.focus();
+      const field = error.field ? formRef.current?.elements.namedItem(error.field) : null;
+      if (field instanceof HTMLElement) field.focus();
+      else errorMessage.current?.focus();
     }
   }, [error]);
+
+  function showProblem(message: string, field?: string) {
+    setReview(null);
+    setError({ message, field });
+  }
+
+  function fieldError(name: string) {
+    return error?.field === name
+      ? { 'aria-invalid': true as const, 'aria-describedby': 'quote-error' }
+      : {};
+  }
 
   function reusePreviousPrices() {
     const form = formRef.current;
     if (!form || request.latestQuote || submitting) return;
     setReview(null);
-    setError('');
+    setError(null);
     let filled = 0;
     for (const previous of request.previousPrices?.items ?? []) {
       const rate = form.elements.namedItem(`rate:${previous.requestItemId}`);
@@ -181,16 +204,33 @@ export function SupplierQuoteForm({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
+    // Validation is explicit so a hidden entry phase or closed note can always
+    // be revealed before we focus a field. Hidden inputs stay mounted for edits.
+    if (!event.currentTarget.checkValidity()) {
+      const invalid = event.currentTarget.querySelector<HTMLInputElement | HTMLTextAreaElement>('input:invalid, textarea:invalid, select:invalid');
+      showProblem(invalid?.validationMessage || 'Complete the required fields.', invalid?.name);
+      return;
+    }
     const form = new FormData(event.currentTarget);
-    setError('');
+    setError(null);
     if (!review) {
-      try { setReview(reviewQuote(form, request)); setMessage(''); }
+      try {
+        setReview({
+          ...reviewQuote(form, request),
+          details: request.items.map(item => ({
+            rate: String(form.get(`rate:${item.id}`) ?? ''),
+            gst: String(form.get(`gst:${item.id}`) ?? ''),
+            inclusive: form.get(`inclusive:${item.id}`) === 'on',
+            substitution: String(form.get(`substitution:${item.id}`) ?? ''),
+          })),
+        });
+        setMessage('');
+      }
       catch (problem) {
-        setError(problem instanceof Error ? problem.message : 'Check your prices and delivery charge, then try again.');
-        if (problem instanceof QuoteReviewError) {
-          const field = event.currentTarget.elements.namedItem(problem.field);
-          if (field instanceof HTMLElement) field.focus();
-        }
+        showProblem(
+          problem instanceof Error ? problem.message : 'Check your prices and delivery charge, then try again.',
+          problem instanceof QuoteReviewError ? problem.field : undefined,
+        );
       }
       return;
     }
@@ -240,19 +280,18 @@ export function SupplierQuoteForm({
         | null;
       if (response.status === 409) {
         await onRefresh();
-        setReview(null);
-        setError('A newer quote was saved. Your entries are still here. Check the last sent total and review your entries before sending an update.');
+        showProblem('A newer quote was saved. Your entries are still here. Check the last sent total and review your entries before sending an update.');
         return;
       }
       if (!response.ok || !body || !('revision' in body)) {
-        setError(firstProblem(body));
+        showProblem(firstProblem(body));
         return;
       }
       onSaved(body as PublicQuoteDto);
       setReview(null);
       setMessage(`Quote sent. Version ${body.revision} is saved with the restaurant.`);
     } catch {
-      setError('Unable to send right now. Check your connection and try again.');
+      showProblem('Unable to send right now. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -262,7 +301,7 @@ export function SupplierQuoteForm({
   const instructions = deliveryInstructions(request.deliveryDetails);
 
   return (
-    <form ref={formRef} className={styles.quoteForm} onSubmit={submit} onChange={() => { setReview(null); setError(''); }} aria-busy={submitting}>
+    <form ref={formRef} className={styles.quoteForm} noValidate onSubmit={submit} onChange={() => { setReview(null); setError(null); }} aria-busy={submitting}>
       <fieldset className={styles.formFields} disabled={submitting}>
       <section className={styles.requestSummary} aria-labelledby="request-title">
         <div>
@@ -301,17 +340,17 @@ export function SupplierQuoteForm({
 
       <ol className={styles.steps} aria-label="Quote steps">
         <li aria-current={!review ? 'step' : undefined}>1. Enter prices</li>
-        <li aria-current={review ? 'step' : undefined}>2. Review delivery &amp; total</li>
+        <li aria-current={review ? 'step' : undefined}>2. Check delivery &amp; total</li>
         <li>3. Send quote</li>
       </ol>
 
+      <div className={styles.entry} hidden={Boolean(review)}>
       <section className={styles.itemsSection} aria-labelledby="items-heading">
         <div className={styles.sectionHeading}>
           <div>
-            <p className={styles.sectionNumber}>01</p>
-            <h2 id="items-heading">Enter your prices</h2>
+            <h2 id="items-heading" ref={entryHeading} tabIndex={-1}>Enter your prices</h2>
           </div>
-          <p>Enter the price for the same unit shown in each row.</p>
+          <p>Price each item. Adjust the quantity if you can supply less.</p>
         </div>
 
         {!latest && request.previousPrices ? (
@@ -326,18 +365,19 @@ export function SupplierQuoteForm({
           </div>
         ) : !latest ? <p>No matching previous prices available. Enter current prices below.</p> : null}
 
+        <div className={styles.sheetHeader} aria-hidden="true">
+          <span>Item</span><span>Requested</span><span>Your price</span><span>Supply quantity</span><span>Availability</span>
+        </div>
         <div className={styles.quoteItems}>
-          {request.items.map((item, index) => {
+          {request.items.map((item) => {
             const latestLine = latestByItem.get(item.id);
             const disabled = cannotSupply[item.id] ?? false;
             const unit = unitLabels[item.unit];
             return (
-              <article className={styles.quoteItem} key={item.id}>
-                <header>
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  <div>
-                    <h3>{item.name}</h3>
-                    <p>{item.quantity} {unit}</p>
+              <article className={styles.quoteItem} key={item.id} aria-labelledby={`item-${item.id}`}>
+                <div className={`${styles.lineFields} ${styles.priceRow}`}>
+                  <div className={styles.itemDescription}>
+                    <h3 id={`item-${item.id}`}>{item.name}</h3>
                     {item.specification.referenceUrl ? (
                       <a
                         href={item.specification.referenceUrl}
@@ -348,38 +388,14 @@ export function SupplierQuoteForm({
                       </a>
                     ) : null}
                   </div>
-                  <label className={styles.noQuote}>
-                    <input
-                      type="checkbox"
-                      name={`noQuote:${item.id}`}
-                      defaultChecked={latestLine?.noQuote ?? false}
-                      onChange={(event) =>
-                        setCannotSupply((current) => ({
-                          ...current,
-                          [item.id]: event.currentTarget.checked,
-                        }))
-                      }
-                    />
-                    Cannot supply this item
-                  </label>
-                </header>
-                <div className={styles.lineFields}>
-                  <label>
-                    Quantity you can supply
-                    <input
-                      name={`quantity:${item.id}`}
-                      inputMode="decimal"
-                      defaultValue={latestLine?.availableQuantity ?? item.quantity}
-                      disabled={disabled}
-                      required={!disabled}
-                    />
-                  </label>
+                  <p className={styles.requestedQuantity}><span>Requested</span>{item.quantity} {unit}</p>
                   <label>
                     Price per {unit}
                     <span className={styles.moneyInput}>
                       <span aria-hidden="true">₹</span>
                       <input
                         name={`rate:${item.id}`}
+                        {...fieldError(`rate:${item.id}`)}
                         inputMode="decimal"
                         placeholder="0.00"
                         defaultValue={inrInput(latestLine?.unitRatePaise)}
@@ -389,9 +405,38 @@ export function SupplierQuoteForm({
                     </span>
                   </label>
                   <label>
+                    Quantity you can supply
+                    <input
+                      name={`quantity:${item.id}`}
+                      {...fieldError(`quantity:${item.id}`)}
+                      inputMode="decimal"
+                      defaultValue={latestLine?.availableQuantity ?? item.quantity}
+                      disabled={disabled}
+                      required={!disabled}
+                    />
+                  </label>
+                  <label className={styles.noQuote}>
+                    <input
+                      type="checkbox"
+                      name={`noQuote:${item.id}`}
+                      defaultChecked={latestLine?.noQuote ?? false}
+                      onChange={(event) => {
+                        const checked = event.currentTarget.checked;
+                        setCannotSupply((current) => ({
+                          ...current,
+                          [item.id]: checked,
+                        }));
+                      }}
+                    />
+                    Cannot supply this item
+                  </label>
+                </div>
+                <div className={`${styles.lineFields} ${styles.taxFields}`}>
+                  <label>
                     GST %
                     <input
                       name={`gst:${item.id}`}
+                      {...fieldError(`gst:${item.id}`)}
                       inputMode="decimal"
                       defaultValue={gstInput(latestLine?.gstBasisPoints)}
                       disabled={disabled}
@@ -413,6 +458,7 @@ export function SupplierQuoteForm({
                     Item or pack note
                     <input
                       name={`substitution:${item.id}`}
+                      {...fieldError(`substitution:${item.id}`)}
                       maxLength={500}
                       defaultValue={latestLine?.substitution ?? ''}
                       disabled={disabled}
@@ -429,8 +475,7 @@ export function SupplierQuoteForm({
       <section className={styles.commercialSection} aria-labelledby="commercial-heading">
         <div className={styles.sectionHeading}>
           <div>
-            <p className={styles.sectionNumber}>02</p>
-            <h2 id="commercial-heading">Check delivery</h2>
+            <h2 id="commercial-heading">Delivery &amp; terms</h2>
           </div>
         </div>
         <div className={styles.commercialGrid}>
@@ -439,6 +484,7 @@ export function SupplierQuoteForm({
             <input
               type="date"
               name="deliveryDate"
+              {...fieldError('deliveryDate')}
               defaultValue={latest?.deliveryDate ?? request.deliveryDate}
               required
             />
@@ -448,6 +494,7 @@ export function SupplierQuoteForm({
             <input
               type="date"
               name="validUntil"
+              {...fieldError('validUntil')}
               defaultValue={latest?.validUntil ?? request.quoteDeadline.slice(0, 10)}
               required
             />
@@ -458,6 +505,7 @@ export function SupplierQuoteForm({
               <span aria-hidden="true">₹</span>
               <input
                 name="freightInr"
+                {...fieldError('freightInr')}
                 inputMode="decimal"
                 defaultValue={inrInput(latest?.freightPaise) || '0'}
                 required
@@ -468,6 +516,7 @@ export function SupplierQuoteForm({
             Payment terms
             <textarea
               name="commercialTerms"
+              {...fieldError('commercialTerms')}
               maxLength={2_000}
               defaultValue={latest?.commercialTerms ?? request.commercialTerms ?? ''}
             />
@@ -476,17 +525,21 @@ export function SupplierQuoteForm({
             <summary>Add a note to the restaurant (optional)</summary>
           <label>
             Note to the restaurant
-            <textarea name="notes" maxLength={4_000} defaultValue={latest?.notes ?? ''} />
+            <textarea name="notes" {...fieldError('notes')} maxLength={4_000} defaultValue={latest?.notes ?? ''} />
           </label>
           </details>
         </div>
       </section>
+      </div>
 
       {review && <section className={styles.review} aria-labelledby="review-heading">
         <h2 id="review-heading" ref={reviewHeading} tabIndex={-1}>Review your quote</h2>
         <p>Check what you can supply and the total before sending to {request.restaurantName}.</p>
         <ul className={styles.reviewItems}>{review.items.map((item, index) => <li key={request.items[index].id}>
-          <span><strong>{item.name}</strong><small>{item.quantity ?? 'Cannot supply this item'}</small></span>
+          <span><strong>{item.name}</strong><small>{item.quantity ?? 'Cannot supply this item'}</small>
+            {item.quantity && <small>₹{review.details[index].rate} per {unitLabels[request.items[index].unit]} · GST {review.details[index].gst}% {review.details[index].inclusive ? 'included' : 'extra'}</small>}
+            {item.quantity && review.details[index].substitution && <small>Item or pack note: {review.details[index].substitution}</small>}
+          </span>
           <strong>{item.quantity ? formatInr(item.total) : 'No quote'}</strong>
         </li>)}</ul>
         <dl className={styles.reviewTotals}>
@@ -501,11 +554,11 @@ export function SupplierQuoteForm({
         {request.latestQuote?.minimumOrder && <p><strong>Minimum order:</strong> {request.latestQuote.minimumOrder}</p>}
         {review.notes && <p><strong>Note to the restaurant:</strong> {review.notes}</p>}
         <button type="button" className={styles.reuseButton} onClick={() => {
+          returningToEntry.current = true;
           setReview(null);
-          formRef.current?.querySelector<HTMLInputElement>('input:not(:disabled)')?.focus();
         }}>Edit prices or delivery</button>
       </section>}
-      {error && <p className={styles.error} role="alert" ref={errorMessage} tabIndex={-1}>{error}</p>}
+      {error && <p id="quote-error" className={styles.error} role="alert" ref={errorMessage} tabIndex={-1}>{error.message}</p>}
       {message && <p className={styles.notice} role="status">{message}</p>}
       <footer className={styles.submitBar}>
         <p>{review ? 'Ready? Send this quote to the restaurant.' : 'Review the total before sending your prices.'}</p>

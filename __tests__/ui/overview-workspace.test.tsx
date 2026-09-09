@@ -15,6 +15,12 @@ const overview: OverviewData = {
     requests: { draft: 1, open: 2, awarded: 4 },
     quotesReceivedForOpenRequests: 5,
   },
+  attention: { hasMore: false, items: [
+    { requestId: 'request-open', title: 'Fresh produce · Bandra', kind: 'compare', replies: 3, pendingDeliveries: 0, creditRemainingPaise: '0', dueAt: '2026-08-29T06:30:00.000Z' },
+    { requestId: 'request-awarded', title: 'Vegetables · Week 35', kind: 'delivery', replies: 0, pendingDeliveries: 1, creditRemainingPaise: '9182949', dueAt: '2026-08-27T10:00:00.000Z' },
+    { requestId: 'draft', title: 'Next week', kind: 'draft', replies: 0, pendingDeliveries: 0, creditRemainingPaise: '0', dueAt: '2026-08-29T06:30:00.000Z' },
+    { requestId: 'expired', title: 'No replies yet', kind: 'expired', replies: 0, pendingDeliveries: 0, creditRemainingPaise: '0', dueAt: '2026-08-28T06:00:00.000Z' },
+  ] },
   deliveryAttention: { waiting: 2, problems: 1 },
   deadlines: [
     {
@@ -37,64 +43,55 @@ const overview: OverviewData = {
 };
 
 describe('overview workspace', () => {
-  it('renders real restaurant work, deadlines, and exact awarded totals', () => {
+  it('shows one task list with direct actions and keeps history out of daily work', () => {
     const html = renderToStaticMarkup(<OverviewWorkspace initialData={overview} />);
-
-    expect(html).toContain('Today');
-    expect(html).toContain('Your next steps, from buying ingredients to checking deliveries.');
-    expect(html).toContain('New purchase');
-    expect(html).toContain('Active suppliers');
-    expect(html).toContain('Menus ready');
-    expect(html).toContain('Waiting for suppliers');
-    expect(html).toContain('Quotes received');
-    expect(html).toContain('Deliveries to check');
-    expect(html).toContain('2 waiting');
-    expect(html).toContain('1 problem');
-    expect(html).toContain('Fresh produce · Bandra');
-    expect(html).toContain('3 of 4 responded');
-    expect(html).toContain('Vegetables · Week 35');
-    expect(html).toContain('₹91,829.49');
-    expect(html).toContain('<li><span>Not sent</span><strong>1</strong></li>');
-    expect(html).toContain('<li><span>Waiting for suppliers</span><strong>2</strong></li>');
-    expect(html).toContain('<li><span>Supplier selected</span><strong>4</strong></li>');
-    expect(html).not.toContain('<li><span>Draft</span>');
-    expect(html).not.toContain('<li><span>Open</span>');
-    expect(html).not.toContain('<li><span>Awarded</span>');
-    expect(html).toContain('href="/procurement/request-open"');
-    expect(html).not.toContain('/procurement?status=OPEN');
-    expect(html).not.toMatch(/\bsavings?\b|\bagents?\b|\bprototype\b|service health|\bAI\b/i);
+    expect(html).toContain('Needs your attention');
+    expect(html.match(/>New purchase /g)).toHaveLength(1);
+    expect(html).toContain('3 supplier replies received');
+    expect(html).toContain('₹91,829.49 credit still owed');
+    expect(html).toContain('href="/procurement/request-open#purchase-comparison"');
+    expect(html).toContain('href="/procurement/request-awarded#delivery-check-heading"');
+    expect(html).toContain('Continue draft for Next week');
+    expect(html).toContain('Review request for No replies yet');
+    expect(html).toContain('Reply deadline passed. No replies received.');
+    expect(html).toContain('href="/procurement"');
+    for (const heading of ['Current work', 'At a glance', 'Recent orders', 'Active suppliers', 'Reply deadlines']) {
+      expect(html).not.toContain(heading);
+    }
   });
 
-  it('has useful empty, loading, and recoverable error states', () => {
-    const empty = renderToStaticMarkup(
-      <OverviewWorkspace
-        initialData={{
-          ...overview,
-          counts: {
-            activeSuppliers: 0,
-            menus: { draft: 0, approved: 0 },
-            requests: { draft: 0, open: 0, awarded: 0 },
-            quotesReceivedForOpenRequests: 0,
-          },
-          deadlines: [],
-          recentAwards: [],
-        }}
-      />,
-    );
-    const loading = renderToStaticMarkup(<OverviewWorkspace />);
-    const error = renderToStaticMarkup(
-      <OverviewWorkspace initialError="We could not load your overview." />,
-    );
-    const withoutDeadlines = renderToStaticMarkup(
-      <OverviewWorkspace initialData={{ ...overview, deadlines: [] }} />,
-    );
+  it('keeps credit-only follow-ups actionable and explains a bounded queue', () => {
+    const html = renderToStaticMarkup(<OverviewWorkspace initialData={{ ...overview,
+      attention: { hasMore: true, items: [{ ...overview.attention.items[1], pendingDeliveries: 0 }] },
+    }} />);
+    expect(html).toContain('Follow up credit for Vegetables');
+    expect(html).toContain('More purchases need attention. Open all purchases to see the rest.');
+    expect(html).not.toContain('delivery needs checking');
+  });
 
+  it('offers one next setup step, then a truthful waiting state', () => {
+    const emptyData: OverviewData = { ...overview, attention: { items: [], hasMore: false }, counts: {
+      activeSuppliers: 0, menus: { draft: 0, approved: 0 },
+      requests: { draft: 0, open: 0, awarded: 0 }, quotesReceivedForOpenRequests: 0,
+    } };
+    const empty = renderToStaticMarkup(<OverviewWorkspace initialData={emptyData} />);
     expect(empty).toContain('Get ready for your first purchase');
     expect(empty).toContain('Add suppliers');
-    expect(empty).toContain('Add a menu');
-    expect(withoutDeadlines).toContain(
-      '<h3>No requests waiting for quotes</h3><p>Open a checked request when you are ready to ask suppliers for prices.</p><a href="/procurement/new">New purchase',
-    );
+    expect(empty).not.toContain('Review your menu');
+    const withSupplier = renderToStaticMarkup(<OverviewWorkspace initialData={{ ...emptyData,
+      counts: { ...emptyData.counts, activeSuppliers: 1 },
+    }} />);
+    expect(withSupplier).toContain('Review your menu');
+    const waiting = renderToStaticMarkup(<OverviewWorkspace initialData={{ ...overview,
+      attention: { items: [], hasMore: false },
+    }} />);
+    expect(waiting).toContain('You’re up to date');
+    expect(waiting).toContain('Your suppliers can still reply.');
+  });
+
+  it('has useful loading and recoverable error states', () => {
+    const loading = renderToStaticMarkup(<OverviewWorkspace />);
+    const error = renderToStaticMarkup(<OverviewWorkspace initialError="We could not load your overview." />);
     expect(loading).toContain('Loading your procurement overview');
     expect(error).toContain('We could not load your overview.');
     expect(error).toContain('Your saved restaurant records are unchanged.');

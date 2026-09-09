@@ -1,4 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
+import { parse } from 'node-html-parser';
 
 import {
   SupplierQuoteForm,
@@ -62,4 +63,40 @@ test('supplier quote form is understandable, complete, and account-free', () => 
   expect(html).toContain('Quote steps');
   expect(html).not.toContain('>Send quote</button>');
   expect(html).not.toContain('Create account');
+
+  const root = parse(html);
+  expect(root.querySelectorAll('button[type="submit"]')).toHaveLength(1);
+  expect(root.querySelector('#review-heading')).toBeNull();
+  for (const item of request.items) {
+    const row = root.querySelector(`article[aria-labelledby="item-${item.id}"]`)!;
+    expect(row.querySelector('h3')?.text).toBe(item.name);
+    for (const field of ['rate', 'quantity', 'gst', 'inclusive', 'noQuote', 'substitution']) {
+      expect(row.querySelector(`input[name="${field}:${item.id}"]`)).not.toBeNull();
+    }
+    expect(row.querySelector(`input[name="gst:${item.id}"]`)?.closest('details')).toBeNull();
+    expect(row.querySelector('details')?.hasAttribute('open')).toBe(false);
+  }
+});
+
+test('saved no-quote choices, inclusive GST and optional notes remain available when revising', () => {
+  const html = renderToStaticMarkup(<SupplierQuoteForm request={{ ...request, latestQuote: {
+    revision: 2, subtotalPaise: '40000', gstPaise: '2000', freightPaise: '1000', totalPaise: '43000',
+    deliveryDate: request.deliveryDate, validUntil: '2026-09-03', minimumOrder: '₹400',
+    commercialTerms: 'Payment on delivery', notes: 'Call before delivery', submittedAt: '2026-09-01T08:00:00Z',
+    items: request.items.map((item, index) => ({ requestItemId: item.id, noQuote: index === 1,
+      availableQuantity: index === 1 ? null : '10', unit: item.unit,
+      unitRatePaise: index === 1 ? null : '4200', gstBasisPoints: 500, taxInclusive: true,
+      suppliedBrand: null, suppliedPackSize: null, suppliedQualityGrade: null,
+      substitution: index === 1 ? null : 'Two 5 kg packs', subtotalPaise: '40000', gstPaise: '2000', totalPaise: '42000',
+    })),
+  } }} onSaved={jest.fn()} onRefresh={jest.fn()} />);
+  const root = parse(html);
+  expect(root.querySelector('[name="noQuote:paneer"]')?.hasAttribute('checked')).toBe(true);
+  expect(root.querySelector('[name="rate:paneer"]')?.hasAttribute('disabled')).toBe(true);
+  expect(root.querySelector('[name="rate:tomato"]')?.getAttribute('value')).toBe('42');
+  expect(root.querySelector('[name="inclusive:tomato"]')?.hasAttribute('checked')).toBe(true);
+  expect(root.querySelector('[name="substitution:tomato"]')?.closest('details')?.hasAttribute('open')).toBe(true);
+  expect(root.querySelector('[name="notes"]')?.closest('details')?.hasAttribute('open')).toBe(true);
+  expect(html).toContain('Last sent: version 2');
+  expect(html).not.toContain('Use previous prices');
 });

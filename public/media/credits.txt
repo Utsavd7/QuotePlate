@@ -1,7 +1,7 @@
 QuotePlate first-purchase film — media credits
 164 seconds · 3840 × 2400 (16:10), native 4K · 30 fps
 
-Application visuals: 14 real application clips across an 11-scene first-purchase story, following fictional Monsoon Table from setup through delivery and credit follow-up. The menu-options clip shows type/paste, phone photos, photo upload and permitted website import; the remaining workflow is retained from the previous native 4K recording. Public approved-pilot Google entry is filmed as form filling only; authentication is completed off camera into an isolated local workspace. No production records are created and no real supplier messages are sent.
+Application visuals: 14 real application clips across an 11-scene first-purchase story, following fictional Monsoon Table from setup through delivery and credit follow-up. The menu-options clip shows type/paste, phone photos, photo upload and permitted website import. On 9 September 2026, the opening workspace, both supplier replies and final Today clips were refreshed for the simplified interface; all other source clips are retained unchanged. The refresh recreates the same fictional purchase in an independent ordinary local tenant. Public approved-pilot Google entry is filmed as form filling only; authentication is completed off camera into an isolated local workspace. No production records are created and no real supplier messages are sent.
 
 Opening and closing: the earlier licensed chef/kitchen footage is restored from its original 3840 × 2160 source, cropped to fill the 3840 × 2400 film, with freshly rendered brand graphics at the output resolution. Application footage remains native 3840 × 2400. Chef working in a large kitchen (Mixkit 43048), Stock Video Free License. People shown do not represent QuotePlate customers or endorsements.
 https://mixkit.co/free-stock-video/chef-working-in-a-large-kitchen-43048/
@@ -13,7 +13,7 @@ Music: Relax Beat, Arulo (Mixkit 292), Stock Music Free License. The existing li
 https://mixkit.co/free-stock-music/ambient/
 https://mixkit.co/license/#musicFree
 
-Voice: locally generated Kokoro ONNX af_heart stock synthetic American-English narration, with measured optional caption timings. Changed scenes receive new narration; unchanged first-purchase scenes retain their hash-verified narration. No human voice clone.
+Voice: locally generated Kokoro ONNX af_heart stock synthetic American-English narration, with measured optional caption timings. The simplification refresh retains all approved narration and optional captions unchanged, verified by hashes. No human voice clone.
 https://github.com/hexgrad/kokoro
 
 Media and generation cost: $0 additional spend. Existing licensed kitchen footage and music, with local FFmpeg/Kokoro; no paid generation service, API, subscription, credit purchase or automatic billing.

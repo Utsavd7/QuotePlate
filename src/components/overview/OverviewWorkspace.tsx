@@ -1,23 +1,11 @@
 'use client';
 
-import {
-  ArrowRight,
-  BookOpenCheck,
-  Building2,
-  CheckCircle2,
-  ClipboardList,
-  Clock3,
-  PackageCheck,
-  RefreshCw,
-  Send,
-  TriangleAlert,
-} from 'lucide-react';
+import { ArrowRight, CheckCircle2, ClipboardList, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-
 import { workspaceFetch } from '@/lib/client/workspace-prefetch';
+import type { AttentionItem } from '@/lib/overview/overview-attention';
 import type { OverviewData as ServiceOverviewData } from '@/lib/overview/overview-service';
-
 import styles from './overview-workspace.module.css';
 
 export type OverviewData = ServiceOverviewData;
@@ -41,38 +29,6 @@ export function formatInrFromPaise(value: string) {
   return `₹${groupIndianDigits(rupees)}.${paise}`;
 }
 
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Date unavailable';
-  return new Intl.DateTimeFormat('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-    timeZone: 'Asia/Kolkata',
-  }).format(date);
-}
-
-function formatAwardDate(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Award date unavailable';
-  return new Intl.DateTimeFormat('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'Asia/Kolkata',
-  }).format(date);
-}
-
-function deadlineLabel(deadline: string, generatedAt: string) {
-  const remaining = new Date(deadline).getTime() - new Date(generatedAt).getTime();
-  if (!Number.isFinite(remaining)) return 'Waiting for suppliers';
-  if (remaining <= 0) return 'Deadline passed';
-  if (remaining <= 24 * 60 * 60 * 1_000) return 'Due within 24 hours';
-  return 'Waiting for suppliers';
-}
-
 async function responseMessage(response: Response) {
   const value = (await response.json().catch(() => ({}))) as {
     detail?: string;
@@ -87,7 +43,6 @@ function OverviewLoading() {
       <div className={styles.loadingHeader} aria-hidden="true"><span /><span /></div>
       <p className={styles.loadingLabel} role="status">Loading your procurement overview</p>
       <div className={styles.loadingPanels} aria-hidden="true"><span /><span /></div>
-      <div className={styles.loadingCards} aria-hidden="true"><span /><span /><span /><span /></div>
     </main>
   );
 }
@@ -107,31 +62,24 @@ function OverviewError({ message, onRetry }: { message: string; onRetry: () => v
   );
 }
 
-function EmptyWorkspace() {
-  return (
-    <section className={styles.emptyWorkspace}>
-      <span className={styles.emptyMark}><ClipboardList aria-hidden="true" /></span>
-      <p className={styles.eyebrow}>Start here</p>
-      <h2>Get ready for your first purchase</h2>
-      <p>Add the suppliers you already buy from, then review a menu before sending your first request.</p>
-      <div className={styles.emptyActions}>
-        <Link className={styles.primaryAction} href="/suppliers">Add suppliers <ArrowRight aria-hidden="true" /></Link>
-        <Link className={styles.secondaryAction} href="/menus">Add a menu <ArrowRight aria-hidden="true" /></Link>
-      </div>
-    </section>
-  );
-}
-
-function hasAnyWork(data: OverviewData) {
-  const { counts } = data;
-  return (
-    counts.activeSuppliers > 0 ||
-    counts.menus.draft > 0 ||
-    counts.menus.approved > 0 ||
-    counts.requests.draft > 0 ||
-    counts.requests.open > 0 ||
-    counts.requests.awarded > 0
-  );
+function actionFor(item: AttentionItem) {
+  const base = `/procurement/${encodeURIComponent(item.requestId)}`;
+  switch (item.kind) {
+    case 'delivery': return {
+      label: item.pendingDeliveries ? 'Check delivery' : 'Follow up credit',
+      href: `${base}#delivery-check-heading`,
+      detail: [
+        item.pendingDeliveries ? `${item.pendingDeliveries} ${item.pendingDeliveries === 1 ? 'delivery needs' : 'deliveries need'} checking` : '',
+        item.creditRemainingPaise !== '0' ? `${formatInrFromPaise(item.creditRemainingPaise)} credit still owed` : '',
+      ].filter(Boolean).join(' · '),
+    };
+    case 'compare': return {
+      label: 'Compare prices', href: `${base}#purchase-comparison`,
+      detail: `${item.replies} supplier ${item.replies === 1 ? 'reply' : 'replies'} received`,
+    };
+    case 'expired': return { label: 'Review request', href: base, detail: 'Reply deadline passed. No replies received.' };
+    case 'draft': return { label: 'Continue draft', href: base, detail: 'Saved draft · Not sent to suppliers' };
+  }
 }
 
 export function OverviewWorkspace({
@@ -177,170 +125,58 @@ export function OverviewWorkspace({
   if (error && !data) return <OverviewError message={error} onRetry={() => void loadOverview()} />;
   if (!data) return <OverviewLoading />;
 
-  const empty = !hasAnyWork(data);
-  const responseCopy = data.counts.requests.open === 0
-    ? 'No request is waiting for suppliers'
-    : `Across ${data.counts.requests.open} ${data.counts.requests.open === 1 ? 'request' : 'requests'} waiting for suppliers`;
+  const items = data.attention.items;
+  const needsSuppliers = data.counts.activeSuppliers === 0;
+  const needsMenu = data.counts.menus.approved === 0;
+  const firstPurchase = Object.values(data.counts.requests).every(count => count === 0);
 
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <div>
-          <h1>Today</h1>
-          <p className={styles.intro}>Your next steps, from buying ingredients to checking deliveries.</p>
-        </div>
-        <div className={styles.headerActions}>
-          <Link className={styles.primaryAction} href="/procurement/new">
-            New purchase <ArrowRight aria-hidden="true" />
-          </Link>
-          <nav className={styles.quickActions} aria-label="Planning and follow-up">
-            <Link href="/service-planning">Plan meals <ArrowRight aria-hidden="true" /></Link>
-            <Link href="/supplier-performance">Check deliveries & credits <ArrowRight aria-hidden="true" /></Link>
-          </nav>
-        </div>
+        <div><h1>Today</h1><p className={styles.intro}>See what needs doing. Pick a purchase to continue.</p></div>
+        <Link className={styles.primaryAction} href="/procurement/new">New purchase <ArrowRight aria-hidden="true" /></Link>
       </header>
-
-      {error && (
-        <div className={styles.inlineError} role="alert">
-          <span>{error} The last loaded figures remain on screen. Your saved restaurant records are unchanged.</span>
-          <button type="button" onClick={() => void loadOverview()}>Try again</button>
-        </div>
-      )}
-
-      {empty ? <EmptyWorkspace /> : (
-        <>
-          <Link
-            className={styles.deliveryAttention}
-            data-pending={data.deliveryAttention.waiting > 0 || data.deliveryAttention.problems > 0}
-            href="/procurement"
-          >
-            <span className={styles.deliveryAttentionIcon}><PackageCheck aria-hidden="true" /></span>
-            <span>
-              <strong>Deliveries to check</strong>
-              <small>Confirm what arrived and compare the invoice with the accepted total.</small>
-            </span>
-            <span className={styles.deliveryAttentionCounts}>
-              <b>{data.deliveryAttention.waiting} waiting</b>
-              {data.deliveryAttention.problems > 0 && (
-                <b className={styles.deliveryProblem}><TriangleAlert aria-hidden="true" />{data.deliveryAttention.problems} {data.deliveryAttention.problems === 1 ? 'problem' : 'problems'}</b>
-              )}
-            </span>
-            <ArrowRight aria-hidden="true" />
-          </Link>
-
-          <div className={styles.detailGrid}>
-            <section className={styles.panel} aria-labelledby="deadlines-title">
-              <header>
-                <div>
-                  <h2 id="deadlines-title">Nearest quote deadlines</h2>
-                </div>
-                <Clock3 aria-hidden="true" />
-              </header>
-              {data.deadlines.length ? (
-                <div className={styles.deadlineList}>
-                  {data.deadlines.map((deadline) => (
-                    <Link href={`/procurement/${encodeURIComponent(deadline.requestId)}`} key={deadline.requestId}>
-                      <span className={styles.deadlineDate}>
-                        <strong>{formatDateTime(deadline.quoteDeadline)}</strong>
-                        <small>{deadlineLabel(deadline.quoteDeadline, data.generatedAt)}</small>
-                      </span>
-                      <span className={styles.deadlineTitle}>
-                        <strong>{deadline.title}</strong>
-                        <small>{deadline.quotesReceived} of {deadline.suppliersInvited} responded</small>
-                      </span>
-                      <ArrowRight aria-hidden="true" />
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.sectionEmpty}>
-                  <Send aria-hidden="true" />
-                  <h3>No requests waiting for quotes</h3>
-                  <p>Open a checked request when you are ready to ask suppliers for prices.</p>
-                  <Link href="/procurement/new">New purchase <ArrowRight aria-hidden="true" /></Link>
-                </div>
-              )}
-            </section>
-
-            <section className={styles.panel} aria-labelledby="awards-title">
-              <header>
-                <div>
-                  <h2 id="awards-title">Recent orders</h2>
-                </div>
-                <CheckCircle2 aria-hidden="true" />
-              </header>
-              {data.recentAwards.length ? (
-                <div className={styles.awardList}>
-                  {data.recentAwards.map((award) => (
-                    <Link href={`/procurement/${encodeURIComponent(award.requestId)}`} key={award.awardId}>
-                      <span>
-                        <strong>{award.title}</strong>
-                        <small>Ordered {formatAwardDate(award.awardedAt)}</small>
-                      </span>
-                      <span className={styles.awardAmount}>{formatInrFromPaise(award.totalPaise)}</span>
-                      <ArrowRight aria-hidden="true" />
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.sectionEmpty}>
-                  <CheckCircle2 aria-hidden="true" />
-                  <h3>No orders yet</h3>
-                  <p>Orders appear here after you choose a supplier.</p>
-                  <Link href="/procurement">Review requests <ArrowRight aria-hidden="true" /></Link>
-                </div>
-              )}
-            </section>
+      {error && <div className={styles.inlineError} role="alert">
+        <span>{error} The last loaded information remains on screen.</span>
+        <button type="button" onClick={() => void loadOverview()}>Try again</button>
+      </div>}
+      <section className={styles.panel} aria-labelledby="attention-title">
+        <header><h2 id="attention-title">Needs your attention</h2></header>
+        {items.length ? (
+          <ul className={styles.workList}>
+            {items.map(item => {
+              const action = actionFor(item);
+              return <li key={item.requestId}>
+                <div className={styles.workCopy}><h3>{item.title}</h3><p>{action.detail}</p></div>
+                <Link className={styles.workAction} href={action.href} aria-label={`${action.label} for ${item.title}`}>
+                  {action.label}<ArrowRight aria-hidden="true" />
+                </Link>
+              </li>;
+            })}
+          </ul>
+        ) : firstPurchase && (needsSuppliers || needsMenu) ? (
+          <div className={styles.emptyState}>
+            <ClipboardList aria-hidden="true" />
+            <h3>Get ready for your first purchase</h3>
+            <p>{needsSuppliers ? 'Start with a supplier you already buy from.' : 'Add and approve a menu so you can choose what to buy.'}</p>
+            <Link className={styles.workAction} href={needsSuppliers ? '/suppliers' : '/menus'}>
+              {needsSuppliers ? 'Add suppliers' : 'Review your menu'}<ArrowRight aria-hidden="true" />
+            </Link>
           </div>
-          <div className={styles.summaryHeading}>
-            <h2>At a glance</h2>
+        ) : (
+          <div className={styles.emptyState}>
+            <CheckCircle2 aria-hidden="true" />
+            <h3>{firstPurchase ? 'Ready for your first purchase' : 'You’re up to date'}</h3>
+            <p>{firstPurchase ? 'Use New purchase to ask your suppliers for prices.' : data.counts.requests.open > 0
+              ? 'Your suppliers can still reply. Come back to compare their prices.'
+              : 'No drafts, replies or delivery follow-ups need your attention right now.'}</p>
           </div>
-          <section className={styles.metricGrid} aria-label="Current procurement totals">
-            <Link className={styles.metricCard} href="/suppliers">
-              <span className={styles.metricIcon}><Building2 aria-hidden="true" /></span>
-              <span className={styles.metricLabel}>Active suppliers</span>
-              <strong>{data.counts.activeSuppliers}</strong>
-              <small>Available for new requests</small>
-              <ArrowRight className={styles.cardArrow} aria-hidden="true" />
-            </Link>
-            <Link className={styles.metricCard} href="/menus">
-              <span className={styles.metricIcon}><BookOpenCheck aria-hidden="true" /></span>
-              <span className={styles.metricLabel}>Menus ready</span>
-              <strong>{data.counts.menus.approved}</strong>
-              <small>{data.counts.menus.draft} still {data.counts.menus.draft === 1 ? 'needs' : 'need'} review</small>
-              <ArrowRight className={styles.cardArrow} aria-hidden="true" />
-            </Link>
-            <Link className={styles.metricCard} href="/procurement">
-              <span className={styles.metricIcon}><Send aria-hidden="true" /></span>
-              <span className={styles.metricLabel}>Waiting for suppliers</span>
-              <strong>{data.counts.requests.open}</strong>
-              <small>{data.counts.requests.draft} saved in draft</small>
-              <ArrowRight className={styles.cardArrow} aria-hidden="true" />
-            </Link>
-            <Link className={styles.metricCard} href="/procurement">
-              <span className={styles.metricIcon}><CheckCircle2 aria-hidden="true" /></span>
-              <span className={styles.metricLabel}>Quotes received</span>
-              <strong>{data.counts.quotesReceivedForOpenRequests}</strong>
-              <small>{responseCopy}</small>
-              <ArrowRight className={styles.cardArrow} aria-hidden="true" />
-            </Link>
-          </section>
-
-
-          <section className={styles.workflow} aria-labelledby="workflow-title">
-            <div>
-              <h2 id="workflow-title">Current work</h2>
-            </div>
-            <ol>
-              <li><span>Not sent</span><strong>{data.counts.requests.draft}</strong></li>
-              <li><span>Waiting for suppliers</span><strong>{data.counts.requests.open}</strong></li>
-              <li><span>Supplier selected</span><strong>{data.counts.requests.awarded}</strong></li>
-            </ol>
-            <Link href="/procurement">View all requests <ArrowRight aria-hidden="true" /></Link>
-          </section>
-
-        </>
-      )}
+        )}
+        <footer className={styles.queueFooter}>
+          <p>{data.attention.hasMore ? 'More purchases need attention. Open all purchases to see the rest.' : 'Find every request and past order in Purchases.'}</p>
+          <Link href="/procurement">View all purchases <ArrowRight aria-hidden="true" /></Link>
+        </footer>
+      </section>
     </main>
   );
 }
