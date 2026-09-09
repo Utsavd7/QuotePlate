@@ -13,14 +13,15 @@ async function renderAfterFailedInitialEffect(
   message: string,
 ) {
   let html = '';
+  // Keep framework children on the same React instance as the server renderer.
+  const actualReact = jest.requireActual<typeof import('react')>('react');
   await jest.isolateModulesAsync(async () => {
     const values: unknown[] = [];
     const effects: Array<() => void | (() => void)> = [];
     let stateIndex = 0;
     jest.doMock('react', () => {
-      const actual = jest.requireActual<typeof import('react')>('react');
       return {
-        ...actual,
+        ...actualReact,
         useCallback: <T,>(callback: T) => callback,
         useEffect: (effect: () => void | (() => void)) => effects.push(effect),
         useRef: <T,>(initial: T) => {
