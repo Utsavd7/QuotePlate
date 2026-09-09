@@ -42,7 +42,14 @@
   --type-h3: 1rem;
   --control-height: 2.75rem;
   --control-radius: .5rem;
+  --workspace-content-width: 82rem;
+  --workspace-page-gutter: 1.5rem;
+  --workspace-panel-radius: .625rem;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+@media (max-width: 700px) {
+  :root { --workspace-page-gutter: 1rem; }
 }
 
 @theme inline {

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { formatInr } from '@/lib/domain/money';
 import { DeliveryFollowUps } from './DeliveryFollowUps';
 import type { SupplierPerformanceReport } from '@/lib/reporting/supplier-performance-service';
+import { WorkspaceHeader } from '../workspace/Workspace';
 import styles from './supplier-performance.module.css';
 
 const unitNames: Record<string, string> = { KILOGRAM: 'kg', GRAM: 'g', LITRE: 'l', MILLILITRE: 'ml', PIECE: 'pieces', PACK: 'packs', CASE: 'cases', CRATE: 'crates' };
@@ -34,10 +35,9 @@ export function SupplierPerformanceWorkspace({ initialData }: { initialData?: Su
   }), { checked: 0, claimed: BigInt(0), settled: BigInt(0), outstanding: BigInt(0) });
 
   return <main className={styles.page}>
-    <header className={styles.header}>
-      <div><h1>Delivery record</h1><span>See delivery problems and money still owed to you.</span></div>
-      <button type="button" disabled={loading} onClick={() => { setLoading(true); setError(''); setRefresh((value) => value + 1); }}>{loading ? 'Loading…' : 'Refresh'}</button>
-    </header>
+    <WorkspaceHeader title="Delivery record" description="See delivery problems and money still owed to you." actions={
+        <button className={styles.headerButton} type="button" disabled={loading} onClick={() => { setLoading(true); setError(''); setRefresh((value) => value + 1); }}>{loading ? 'Loading…' : 'Refresh'}</button>
+      } />
     {error && <p className={styles.error} role="alert">{error}</p>}
     {loading && !data && <p role="status">Loading delivery records…</p>}
     {data && totals && <>

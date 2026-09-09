@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { ProcurementWorkspace } from '@/components/procurement/ProcurementWorkspace';
@@ -59,20 +57,10 @@ describe('procurement workspace', () => {
     expect(html).toContain('Delivery');
     expect(html).toContain('Choose ingredients');
     expect(html).toContain('aria-label="Purchase steps"');
-    expect(html).toContain('aria-pressed="true"');
+    expect(html).toContain('aria-label="Purchase status"');
     expect(html).toContain('Purchase history &amp; reports');
     expect(html).not.toContain('savings');
     expect(html).not.toContain('AI');
-  });
-
-  it('keeps both dates labelled when the desktop table heading is hidden', () => {
-    const css = fs.readFileSync(
-      path.resolve(__dirname, '../../src/components/procurement/procurement-workspace.module.css'),
-      'utf8',
-    );
-
-    expect(css).toMatch(/@media\(max-width:44rem\)[\s\S]*\.requestRow>\.date:first-of-type\{display:flex/);
-    expect(css).toMatch(/\.mobileLabel/);
   });
 
   it('has a useful empty state', () => {

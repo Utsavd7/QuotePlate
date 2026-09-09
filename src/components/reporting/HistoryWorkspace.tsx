@@ -9,6 +9,7 @@ import {
   workspaceMutationFetch,
 } from '@/lib/client/workspace-prefetch';
 import { formatInr } from '@/lib/domain/money';
+import { WorkspaceHeader } from '../workspace/Workspace';
 import styles from './reporting.module.css';
 
 type HistoryRequest = {
@@ -288,10 +289,9 @@ export function HistoryWorkspace({ initialPage }: { initialPage?: HistoryPageDat
 
   return (
     <main className={styles.page}>
-      <header className={styles.pageHeader}>
-        <div><p>Permanent buying record</p><h1>Past purchases</h1><span>Find earlier requests and decisions, then repeat a purchase when needed.</span></div>
-        <button type="button" onClick={() => router.push('/procurement/new')}><CopyPlus aria-hidden="true" />Ask suppliers for prices</button>
-      </header>
+      <WorkspaceHeader title="Past purchases" description="Find earlier requests and decisions, then repeat a purchase when needed." actions={
+        <button className={styles.headerButton} type="button" onClick={() => router.push('/procurement/new')}><CopyPlus aria-hidden="true" />Ask suppliers for prices</button>
+      } />
       {error && <div className={styles.error} role="alert">{error.message}{error.kind === 'load' && <> Your saved restaurant records are unchanged. <button type="button" onClick={() => void load(error.cursor ?? undefined)}>Try again</button></>}</div>}
       {loading ? <div className={styles.loading} aria-label="Loading history"><span /><span /><span /></div> : error?.kind === 'load' && requests.length === 0 ? null : requests.length === 0 ? (
         <section className={styles.empty}><History aria-hidden="true" /><p>No procurement history yet</p><h2>Your buying record starts when you send a request</h2><span>Sent requests, supplier response counts and awards will remain available here.</span><button type="button" onClick={() => router.push('/procurement/new')}>Ask suppliers for prices <ArrowRight aria-hidden="true" /></button></section>

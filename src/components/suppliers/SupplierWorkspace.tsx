@@ -11,7 +11,6 @@ import {
   MessageCircle,
   Phone,
   Plus,
-  Search,
   X,
 } from 'lucide-react';
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
@@ -31,6 +30,8 @@ import {
 } from '@/lib/suppliers/supplier-capabilities';
 
 import styles from './supplier-workspace.module.css';
+import workspace from '../workspace/workspace.module.css';
+import { WorkspaceHeader, WorkspaceSearch, WorkspaceToolbar } from '../workspace/Workspace';
 import { SupplierDiscovery } from './SupplierDiscovery';
 import type { NearbyPrefill } from '@/lib/suppliers/nearby-types';
 
@@ -334,6 +335,7 @@ export function SupplierWorkspace({
   const [reviewing, setReviewing] = useState('');
   const [freshApplicantLink, setFreshApplicantLink] = useState<FreshApplicantLink | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const discoveryDetails = useRef<HTMLDetailsElement>(null);
   const initialLoadStarted = useRef(false);
   const editorDialog = useRef<HTMLElement>(null);
   const savingRef = useRef(false);
@@ -686,40 +688,40 @@ export function SupplierWorkspace({
   );
 
   return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <h1>Suppliers</h1>
-          <p className={styles.intro}>
-            Find a supplier, update their details or add someone new.
-          </p>
-        </div>
+    <main className={`${workspace.page} ${styles.page}`}>
+      <WorkspaceHeader
+        title="Suppliers"
+        description="Find a supplier, update their details or add someone new."
+        actions={<>
+        <button className={styles.secondaryButton} type="button" aria-controls="supplier-discovery" onClick={() => {
+          const details = discoveryDetails.current;
+          if (!details) return;
+          details.open = true;
+          const summary = details.querySelector('summary');
+          summary?.focus({ preventScroll: true });
+          summary?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        }}><MapPin aria-hidden="true" /> Find nearby</button>
         <button className={styles.primaryButton} type="button" onClick={() => openCreate()}>
           <Plus aria-hidden="true" /> Add supplier
         </button>
-      </header>
+        </>}
+      />
 
-      <details className={styles.discovery}>
-        <summary><MapPin aria-hidden="true" /> Find nearby suppliers <span>Search your area</span></summary>
-        <SupplierDiscovery onAddSupplier={openCreate} />
-      </details>
-
-      <section className={styles.toolbar} aria-label="Supplier tools">
+      <WorkspaceToolbar label="Supplier tools">
         <form
-          className={styles.search}
+          className={styles.searchForm}
           onSubmit={(event) => {
             event.preventDefault();
             void loadSuppliers();
           }}
         >
-          <Search aria-hidden="true" />
-          <input
-            aria-label="Search suppliers"
+          <WorkspaceSearch
+            label="Search suppliers"
             placeholder="Search by name, phone, email, city or GSTIN"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
+            action={<button type="submit">Search</button>}
           />
-          <button type="submit">Search</button>
         </form>
         <select
           aria-label="Filter suppliers"
@@ -754,7 +756,7 @@ export function SupplierWorkspace({
           <Download aria-hidden="true" /> {exporting ? 'Exporting…' : 'Export CSV'}
         </button>
         </div></details>
-      </section>
+      </WorkspaceToolbar>
 
       {notice && (
         <div className={styles.notice} role="status">
@@ -789,7 +791,7 @@ export function SupplierWorkspace({
           <span /><span /><span />
         </section>
       ) : suppliers.length === 0 ? (
-        <section className={styles.empty}>
+        <section className={`${workspace.table} ${workspace.empty} ${styles.empty}`}>
           <div className={styles.emptyMark}><Building2 aria-hidden="true" /></div>
           <p className={styles.eyebrow}>Start here</p>
           <h2>Add your first supplier</h2>
@@ -799,20 +801,22 @@ export function SupplierWorkspace({
           </button>
         </section>
       ) : (
-        <section className={styles.list} aria-label="Supplier directory">
-          <div className={styles.listHeader}>
-            <span>{suppliers.length} shown</span>
+        <>
+        <p className={workspace.resultCount}>{suppliers.length} shown</p>
+        <section className={`${workspace.table} ${styles.list}`} aria-label="Supplier directory">
+          <div className={`${workspace.tableHeader} ${styles.listHeader}`}>
+            <span>Supplier</span>
             <span>Contact</span>
             <span>Location</span>
             <span>Status</span>
-            <span aria-hidden="true" />
+            <span>Actions</span>
           </div>
           {suppliers.map((supplier) => (
-            <article className={styles.row} key={supplier.id}>
+            <article className={`${workspace.tableRow} ${styles.row}`} key={supplier.id}>
               <div className={styles.identity}>
                 <span className={styles.initial}>{supplier.businessName.charAt(0).toUpperCase()}</span>
                 <div>
-                  <h2>{supplier.businessName}</h2>
+                  <span className={styles.identityName}>{supplier.businessName}</span>
                   <p>{supplier.contactName || 'Contact person not added'}</p>
                 </div>
               </div>
@@ -869,6 +873,7 @@ export function SupplierWorkspace({
             </article>
           ))}
         </section>
+        </>
       )}
 
       {nextCursor && !loading && (
@@ -881,6 +886,11 @@ export function SupplierWorkspace({
           {loadingMore ? 'Loading more…' : 'Load more suppliers'}
         </button>
       )}
+
+      <details id="supplier-discovery" ref={discoveryDetails} className={styles.discovery}>
+        <summary><MapPin aria-hidden="true" /> Find nearby suppliers <span>Search your area</span></summary>
+        <SupplierDiscovery onAddSupplier={openCreate} />
+      </details>
 
       <details className={styles.privacyDetails} aria-label="Restaurant data privacy">
         <summary>Who can see supplier information?</summary>

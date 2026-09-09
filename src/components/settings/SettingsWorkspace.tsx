@@ -32,6 +32,7 @@ import {
   workspaceMutationFetch,
 } from '@/lib/client/workspace-prefetch';
 
+import { WorkspaceHeader } from '../workspace/Workspace';
 import styles from './settings-workspace.module.css';
 
 export type WorkspaceSettingsData = SettingsData;
@@ -596,11 +597,7 @@ export function SettingsWorkspace({ initialData }: { initialData?: WorkspaceSett
   const owner = data.permissions.canManageWorkspace;
   return (
     <main className={styles.page}>
-      <header className={styles.pageHeader}>
-        <div>
-          <h1>Restaurant settings</h1>
-          <span>Manage your restaurant details and who can use this account.</span>
-        </div>
+      <WorkspaceHeader title="Restaurant settings" description="Manage your restaurant details and who can use this account." actions={
         <div className={styles.currentAccess}>
           <ShieldCheck aria-hidden="true" />
           <span>
@@ -609,7 +606,7 @@ export function SettingsWorkspace({ initialData }: { initialData?: WorkspaceSett
             <em>Your account email belongs to you, not the shared restaurant profile.</em>
           </span>
         </div>
-      </header>
+      } />
 
       {!owner && (
         <section className={styles.viewOnly} role="status">

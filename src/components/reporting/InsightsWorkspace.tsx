@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { workspaceFetch } from '@/lib/client/workspace-prefetch';
 import { formatInr } from '@/lib/domain/money';
+import { WorkspaceHeader } from '../workspace/Workspace';
 import styles from './reporting.module.css';
 
 type FactualInsights = {
@@ -90,10 +91,9 @@ export function InsightsWorkspace({ initialData }: { initialData?: FactualInsigh
 
   return (
     <main className={styles.page}>
-      <header className={styles.pageHeader}>
-        <div><h1>Reports</h1><span>Compare supplier prices and review your spending.</span></div>
-        <button type="button" disabled={loading} onClick={() => void load()}><RefreshCw aria-hidden="true" />{loading ? 'Refreshing…' : 'Refresh'}</button>
-      </header>
+      <WorkspaceHeader title="Reports" description="Compare supplier prices and review your spending." actions={
+        <button className={styles.headerButton} type="button" disabled={loading} onClick={() => void load()}><RefreshCw aria-hidden="true" />{loading ? 'Refreshing…' : 'Refresh'}</button>
+      } />
       <p><Link href="/supplier-performance">See delivery performance and credits owed</Link> · <Link href="/service-planning">Plan ingredients for today’s service</Link></p>
       {error && <div className={styles.error} role="alert">{error} Your saved restaurant records are unchanged.</div>}
       {loading && !data ? <div className={styles.loading} aria-label="Loading insights"><span /><span /><span /></div> : data && data.summary.requestSampleSize > 0 ? (
