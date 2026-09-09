@@ -2,6 +2,7 @@
 
 import { ArrowRight, CalendarDays, ClipboardList, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { workspaceFetch } from '@/lib/client/workspace-prefetch';
@@ -155,9 +156,9 @@ export function ProcurementWorkspace({
       <details className={`${ui.disclosure} ${styles.help}`}>
         <summary>Purchase history & reports</summary>
         <div className={ui.disclosureBody}>
-          <a href="/history">Past orders & repeat purchases</a>
-          <a href="/insights">Spending reports</a>
-          <a href="/supplier-performance">Delivery reports</a>
+          <Link href="/history">Past orders & repeat purchases</Link>
+          <Link href="/insights">Spending reports</Link>
+          <Link href="/supplier-performance">Delivery reports</Link>
         </div>
       </details>
 
