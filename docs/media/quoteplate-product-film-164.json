@@ -303,5 +303,15 @@
         }
       ]
     }
-  ]
+  ],
+  "visualRefresh": {
+    "date": "2026-09-09",
+    "clips": [
+      "first-workspace.mp4",
+      "vendor-reply-a.mp4",
+      "vendor-reply-b.mp4",
+      "completion-today.mp4"
+    ],
+    "description": "Simplified Today and supplier entry/review recorded in an isolated ordinary local Monsoon Table tenant. Same fictional Tomato 10 kg purchase, supplier totals INR 400/440, awarded Amber, 9 kg received and INR 40 credit owed. All other source captures and narration/caption timing retained."
+  }
 }

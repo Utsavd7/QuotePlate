@@ -154,6 +154,15 @@ python3 -B scripts/media/test_product_film.py
 
 ## Final review and handoff
 
+The 9 September 2026 simplification refresh replaces only `first-workspace`
+(3s), `vendor-reply-a` and `vendor-reply-b` (9s each), and `completion-today`
+(5s). All twelve other source clips retain their approved hashes. Speech,
+transcript and optional captions are reused unchanged through `reuse-audio`.
+The local recording recreates the same fictional purchase in an independent
+ordinary tenant without resetting shared fixtures. Today now exposes the action
+link `Check delivery for First lunch purchase` inside its attention row; the
+purchase title itself is not a link. Capture checks must use that action or row.
+
 Watch the complete film with audio; inspect text legibility, actual actions, scene
 boundaries, supplier review totals and Send controls, and continuity of the same
 request through delivery. Check narration and captions against the visible values.
