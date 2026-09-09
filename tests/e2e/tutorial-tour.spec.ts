@@ -103,7 +103,7 @@ async function openMobileNavigation(page: Page) {
   if ((page.viewportSize()?.width ?? 1440) >= 1024) return;
   const opener = page.getByRole('button', { name: 'Open navigation', exact: true }).filter({ visible: true }).first();
   await ringFollowsTarget(page, opener);
-  await guide(page).getByRole('button', { name: 'Open navigation', exact: true }).click();
+  await guide(page).getByRole('button', { name: 'Show navigation', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Workspace navigation', exact: true }).locator('aside[data-tour-step]')).toBeVisible();
 }
 
@@ -117,8 +117,9 @@ async function expectCompactLauncher(page: Page, label: string) {
   expect(control).not.toBeNull();
   expect(card!.width).toBeLessThanOrEqual(260);
   expect(card!.height).toBeLessThanOrEqual(64);
-  expect(control!.height).toBeGreaterThanOrEqual(44);
-  expect(control!.width).toBeGreaterThanOrEqual(44);
+  expect(control!.height).toBeGreaterThanOrEqual(43.99);
+  expect(control!.width).toBeGreaterThanOrEqual(43.99);
+  await expect(launcher).toHaveCSS('position', 'static');
   return button;
 }
 

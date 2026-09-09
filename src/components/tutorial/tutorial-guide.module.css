@@ -125,11 +125,10 @@
 .next:not(:disabled):active { background: var(--workspace-accent); color: var(--workspace-surface); }
 
 .resume {
-  position: fixed;
-  z-index: 50;
-  right: 1rem;
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  width: min(16rem, calc(100% - 2rem));
+  position: static;
+  width: min(16rem, 100%);
+  margin: 0;
+  flex-shrink: 0;
   padding: .25rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

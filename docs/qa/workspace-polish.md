@@ -1,4 +1,4 @@
-# Workspace UI verification — 8 September 2026
+# Workspace UI verification — 9 September 2026
 
 ## Scope
 
@@ -23,7 +23,9 @@ Normal local authentication is reused in memory per worker. Fixture-only tests a
 
 ## Results and limits
 
-The rebuilt page matrix passed all 42 route/viewport combinations. Initial failures were test setup issues: minified color spelling and repeated logins consuming the email throttle. A later filter click was covered by an active guide; control tests now explicitly collapse it after navigation. The product guide remains dismissible while in use. The final corrected control and tutorial checks are recorded by CI.
+The rebuilt page matrix passed all 42 route/viewport combinations. Initial failures were test setup issues: minified color spelling and repeated logins consuming the email throttle. A later filter click was covered by an active guide; control tests now explicitly collapse it after navigation. The product guide remains dismissible while in use.
+
+The first full CI run exposed a real regression: the collapsed setup launcher covered sticky menu approval actions. The launcher now occupies normal page flow in the workspace toolbar, beside section navigation on wider screens and wrapping on phones. The mobile guide action is labelled “Show navigation” so the actual “Open navigation” button remains unambiguous. A fractional pixel tolerance (43.99 px for a 44 px target) handles browser rounding without changing the control size. The final corrected workflows and tutorial checks are recorded by CI.
 
 Existing suites retain the real local menu-to-request-to-supplier-quote-to-award workflow, delivery checks, restaurant saves, invitation acceptance, permission restrictions, exports and supplier portals. These do not cover every possible combination of records, permission roles, upload content, offline state or external provider response. No claim of universal button coverage or instant live loading follows from the audit. Automated axe checks complement visual inspection; they are not a full screen-reader audit.
 

@@ -251,7 +251,9 @@
 .privacy p { margin: .5rem 0 0; line-height: 1.6; }
 .accountName strong { font-size: .8rem; }
 .accountName small { font-size: .73rem; }
-.sectionNav { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0; padding: .65rem clamp(1rem, 3vw, 2.75rem); border-bottom: 1px solid var(--shell-line); background: var(--workspace-surface); }
+.workspaceToolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .5rem 1rem; padding: .65rem clamp(1rem, 3vw, 2.75rem); border-bottom: 1px solid var(--shell-line); background: var(--workspace-surface); }
+.workspaceToolbar:empty { display: none; }
+.sectionNav { flex: 1; display: flex; flex-wrap: wrap; gap: .25rem; margin: 0; padding: 0; }
 .sectionNav a { display: inline-flex; align-items: center; min-height: 2.75rem; padding: .6rem .9rem; color: var(--shell-muted); text-decoration: none; font-size: .86rem; font-weight: 650; border-radius: .4rem; }
 .sectionNav a[aria-current="page"] { background: var(--workspace-selected); color: var(--workspace-accent); }
 .sectionNav a:hover { background: var(--workspace-canvas); }
@@ -267,7 +269,8 @@
 .mobileHeader { background: var(--workspace-surface); box-shadow: none; backdrop-filter: none; }
 @media (max-width: 40rem) {
   .shell .content h1 { font-size: 1.5rem; }
-  .sectionNav { padding: .4rem .6rem; gap: 0; }
+  .workspaceToolbar { padding: .4rem .6rem; }
+  .sectionNav { flex-basis: 100%; gap: 0; }
   .sectionNav a { padding: .6rem .65rem; font-size: .8rem; }
   .demoBanner { padding: .55rem 1rem; }
 }

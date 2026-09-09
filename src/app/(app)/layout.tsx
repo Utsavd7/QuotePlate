@@ -300,13 +300,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <span>This is a working test account. Changes are saved in this demo only. Do not enter real customer or supplier information.</span>
                 </aside>
               )}
-              <SectionNavigation pathname={pathname} />
+              <div className={styles.workspaceToolbar}>
+                <SectionNavigation pathname={pathname} />
+                <TutorialGuide initialTutorial={tutorial ?? undefined} />
+              </div>
               {children}
             </WorkspaceProvider>
           </div>
         </ErrorBoundary>
-
-        <TutorialGuide initialTutorial={tutorial ?? undefined} />
 
         <footer className={styles.footer}>
           <span>QuotePlate</span>

@@ -154,6 +154,9 @@ describe('visible setup guide', () => {
     expect(css).toContain('flex-wrap: wrap');
     expect(css).toMatch(/\.targetRing\s*\{[^}]*pointer-events: none/);
     expect(css).toMatch(/\.anchored\s*\{[^}]*overflow-y: auto/);
+    const launcher = css.match(/(?:^|\})\s*\.resume\s*\{([^}]+)\}/)?.[1];
+    expect(launcher).toContain('position: static');
+    expect(launcher).not.toMatch(/position: fixed|z-index:|bottom:|right:/);
   });
 
   it('is mounted once in the authenticated workspace shell', () => {

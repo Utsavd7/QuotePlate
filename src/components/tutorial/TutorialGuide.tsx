@@ -257,7 +257,7 @@ export function TutorialGuide({
           : step.instruction}</p>
         {anchor?.opensNavigation ? (
           <button className={styles.destination} type="button" onClick={() => anchor.target.click()}>
-            Open navigation <ChevronRight aria-hidden="true" />
+            Show navigation <ChevronRight aria-hidden="true" />
           </button>
         ) : (
           <Link className={styles.destination} href={step.href} onClick={() => setExpanded(false)}>
