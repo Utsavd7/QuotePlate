@@ -80,7 +80,7 @@ test('demo autoplays muted, keeps subtitles optional and fits the viewport', asy
   expect(framing.naturalRatio).toBe(1.6);
   expect(framing.displayedRatio).toBeCloseTo(framing.naturalRatio, 2);
   expect(framing.border).toBe('0px');
-  expect(framing.radius).toBe('0px');
+  expect(framing.radius).toBe('16px');
   await section.getByRole('button', { name: 'Subtitles off', exact: true }).click();
   await expect(section.getByRole('button', { name: 'Subtitles on', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.textTracks[0].mode)).toBe('showing');

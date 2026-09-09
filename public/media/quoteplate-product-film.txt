@@ -1,16 +1,16 @@
 QuotePlate — 2:44 product film
 
-Actual application captures following one fictional restaurant’s first purchase. Signup shows approved-pilot Google access. Authentication is completed off camera. Actions may be condensed; this is not a claim of loading speed. Synthetic American-English narration.
+Actual application captures following one fictional restaurant’s first purchase, with illustrative licensed kitchen opening and closing footage. Signup shows approved-pilot Google access. Authentication is completed off camera. Actions may be condensed; this is not a claim of loading speed. Synthetic American-English narration.
 
-Let’s make a first purchase with Monsoon Table, our example restaurant.
+QuotePlate connects your kitchen, purchasing decisions and suppliers.
 
-Start with your restaurant’s name, contact number, and address. Add your city, state and PIN code for the right delivery details.
+Start with your restaurant’s name, phone and address. Add your city, state and PIN code for deliveries.
 
 Enter the owner’s name and work email. For approved pilot owners, continue with Google to create the workspace and open Today.
 
-Open Menu, choose Add menu, then type or paste a dish. Here, we’re making tomato curry. Review the ingredient, quantity and unit. Approve the menu before using it for a purchase.
+Type or paste dishes, upload photos, or take a menu photo on your phone. Or use a permitted website link. Here, we type tomato curry, then review the ingredients, quantity and unit. Approve your menu before making a purchase.
 
-Open Suppliers and add the businesses you buy from. Enter each business name and its ingredient categories. We’ve added two example suppliers so we can compare their replies.
+Open Suppliers and add the businesses you buy from. Enter their names and ingredient categories. We add two example suppliers to compare their replies.
 
 Choose New purchase. Give it a name and select the approved menu. Check quantities. We need ten kilos of tomatoes. Set the delivery date and reply deadline. Choose your suppliers, save the draft, then open it for quotes.
 
@@ -20,8 +20,8 @@ Back in Purchases, compare the complete offers. Check coverage, tax, delivery ch
 
 Now check what actually arrives. We ordered ten kilos, but received nine. Enter received quantities and check the invoice. Record the missing kilo and forty rupees in credit still owed, then save.
 
-Return to Today. Your purchase and delivery follow-up are visible. Your team can see what needs attention next.
+Return to Today to see purchases and delivery follow-ups.
 
-Ready to make your first purchase? Start with pilot access, set up your restaurant, and follow these steps.
+Keep every purchase clear. Start your first purchase with QuotePlate. Every quote, accountable.
 
 Start your first purchase: https://quoteplate.netlify.app/start

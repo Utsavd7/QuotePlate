@@ -103,7 +103,7 @@ export function ProductDemoVideo() {
           <p className="public-eyebrow">The buying journey · 2:44</p>
           <h2 id="demo-title">Your first purchase, step by step.</h2>
         </div>
-        <p>Follow an approved pilot owner setting up Monsoon Table, our fictional restaurant. Add restaurant details, continue with Google, then add a menu and suppliers, request prices, compare replies, choose a supplier and check delivery.</p>
+        <p>Follow an approved pilot owner setting up Monsoon Table, our fictional restaurant. Add restaurant details and continue with Google. Add a menu using a phone photo, an upload, typed or pasted text, or a permitted website link. Then add suppliers, request prices, compare replies, choose a supplier and check delivery.</p>
       </header>
       <div className={styles.player}>
         <video ref={videoRef} controls playsInline muted preload="none" width={3840} height={2400}

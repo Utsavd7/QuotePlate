@@ -9,6 +9,10 @@ it('introduces the 2:44 first-purchase journey with fictional records', () => {
   expect(root.text).toMatch(/fictional restaurant/i);
   expect(root.text).toMatch(/approved pilot owner/i);
   expect(root.text).toMatch(/Google/);
+  expect(root.text).toMatch(/phone photo/i);
+  expect(root.text).toMatch(/upload/i);
+  expect(root.text).toMatch(/typed or pasted text/i);
+  expect(root.text).toMatch(/permitted website link/i);
   expect(root.text).not.toMatch(/internal demo|public map listings/i);
 });
 
