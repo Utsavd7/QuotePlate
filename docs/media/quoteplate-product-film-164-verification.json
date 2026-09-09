@@ -2,452 +2,122 @@
   "durationSeconds": 164.0,
   "frames": 4920,
   "resolution": [
-    1920,
-    1200
+    3840,
+    2400
   ],
   "videoCodec": "h264",
   "audioCodec": "aac",
   "fullDecode": "passed",
-  "storyboardSha256": "6a74bef896e271cfdb331ae8da8d9467cd68603601ff03e8d02343525bccb4fc",
-  "sourceSha256": "c28fb8def63cd078d1bf3c5800a8830ad4efb9b5aab89553ce7190e4d6aeb1a3",
-  "outputSha256": "3d6b220f9505315ebefbc0aaf8570aa31e9da65e1d8d3b0587fa76e3ed236202",
+  "storyboardSha256": "5bf5962ac4ccea4c9ac0b46f49401c1f93152628ee3b40a296bd7ec847ddae36",
+  "sourceSha256": "3d6b220f9505315ebefbc0aaf8570aa31e9da65e1d8d3b0587fa76e3ed236202",
+  "outputSha256": "75452763758ccdbd943dfd055a637187f956ed912dce84a03b0e915398b096cd",
   "freshCaptures": {
-    "today.mp4": "e5f1c71b7bf528dcaf7bee86dda027e0ffad9c39578d1262b7d4f69e4372a051",
-    "menu-input.mp4": "b6a4d7b734a009c3507fb05377537873399306b491c8ee205d1b8d605602e025",
-    "menu-review.mp4": "0f2aa185f9227cf69156170874ed55e0e3f6ad75cb2a8e93dba15a67357bc1ca",
-    "nearby-search.mp4": "f16f73cd74c5fef3835efab112c45f44097f69118b36757cb832b987c3790658",
-    "nearby-results.mp4": "a01ea6291bd8e48994fbb8deda1b31481199b1104cf3c74562243672ccfb9da5",
-    "new-purchase.mp4": "3d601669b1052dd2a0b50d8d64f6b568ebfc51a20198dbd7a9c925770a873a1b",
-    "vendor-quote.mp4": "a8de4b9e2498891a7e8e3065c4a2e72c7728cd617e25faea6661bb387d2955d3",
-    "vendor-review.mp4": "7dd260574f94a5677d8fc0cff924317b058253b38f7c4a0908b9375b3191a3b4",
-    "comparison.mp4": "6fc86be33a34d786cb1700877236025d0f4e1ed097d154a7980b958cf3dc3503",
-    "award.mp4": "31382bcadd03a2dde8be97659cea2d8a709376beabb47a343769ed4837527e7c",
-    "receiving.mp4": "1f6b391d983e8b7025f457fb0a33bce0f3540a826ad4cd71a7bf276ca7eb47aa",
-    "credits.mp4": "a17a7db91070ce03573616c39c287b0331d9644a9c4db2645c91db515f01fd32",
-    "supplier-orders.mp4": "4e1c22ccf6083443c09f5dc38c2c308ed53c20a33b8a783ee0e816e1a9e45501",
-    "supplier-delivery-record.mp4": "d0544a2db819166561738d4c34cf23f6ed732233bbaa3fdc58a453dcbb17d6d1",
-    "supplier-response.mp4": "94ff24384bf43993a6843ebd51568017f3504154703279f88ac81581dab9337a",
-    "plan-input.mp4": "99e68ea69ff47ea9da0e92d156abc992cbe35cf170a3f2f625fe0c72cbafc16f",
-    "plan-stock.mp4": "57d25eedbdd75648af64bcb0fa32d1441e8a6959c3dcc8394333320c5601cacb",
-    "plan-shortage.mp4": "41553294a28751e6a0169a4015b0adbc900f97e98472d1f4575f90c479cda96e",
-    "demand-select.mp4": "e9765e80381065803f858597a0c3ba7131892a154cf9e6beb66aa5c192034eae",
-    "demand-shared.mp4": "df9bb2d940038e61bd3703752ce950212ab74b32f7d09ca066390fa8be17a2d5",
-    "trading.mp4": "a1019bfc85a06990f1c2514349b51619ca697db2e3b115bf56afc0f0cb74f856",
-    "reuse-before.mp4": "e0dc6246c2f45993aabe846add10a7c96727afc7a55d8f696ece609798c5825c",
-    "reuse-after.mp4": "29c2cd1830761cba6dd883fdf1c88893fdbde32c93679d825416ed4961f8ded5",
-    "delivery-record.mp4": "1b0f499784035e062d2521076b1e293d02412354a3389a213dd9c560010a0be7",
-    "delivery-cost.mp4": "fc6d2cc26ee0b72ac70bc5e0ec4fa5c89c48b5d0117eed144740445fd8f69421"
+    "first-start.mp4": "1ec8db13b912bb80b85b481a8893990804d466b0096d58a9317988ce69f71f69",
+    "first-restaurant.mp4": "fcf36820a424c749a89c4afdb8c03958bfd7c97727574d365903dd451daf44eb",
+    "first-owner.mp4": "0b305f6f12870b9e1e8b5eeae66cf888b53daa40987cdb8ce79f6bc3991c8a2a",
+    "first-workspace.mp4": "b5aa6135362f4d33dc7b44c64c7a6c435400bdc851270b50ce430ea4e6df06b7",
+    "first-menu.mp4": "8753e50651577001750ec7085527cf5f5adf5f308a025738706c30f36cfc15cc",
+    "first-suppliers.mp4": "e2ba2270b9097c4169dfdf9b2fb295efc00f0e0b9f28c3b1d9347d668c00eca5",
+    "first-request.mp4": "9422c4120189ee3de63090654ec6e57f2b506ef1cc252047fc697f4e2b80158b",
+    "vendor-reply-a.mp4": "3e1273b7492302cb1fb043c4d67979af4edef29d7e63c29afb436ee6c31a44c2",
+    "vendor-reply-b.mp4": "7c180e84190318b481e195c7dd4116afe502178432efc49642a24d68dda8d289",
+    "completion-comparison.mp4": "ad1f1be7ad0672636f2d464730169b1c317e2e94541da41c29be18e95551df78",
+    "completion-award.mp4": "f3ac6b8d8223b69490a53d9deb8d508d5a94985dcab25e34b6809efd66dee02a",
+    "completion-delivery.mp4": "9950fa312d1d842d42d88ecd4793becdacb7eb5b3b9a9964add91ee611ac17e7",
+    "completion-credit.mp4": "f37bde4f7f60030b04fe4f5d27850f81ac9bbc2475eb5561ea05e360c238fe09",
+    "completion-today.mp4": "4d86d3e4c8ddbd5225249520df0c1e258ecb20e6dc1f81de4039030047e8ac68",
+    "first-cta.mp4": "66421a7d25ec8c9ba0db615dbedb88d0d5042f74c53b74dcf8a7c27b430092d6"
   },
   "videoShots": [
     {
-      "file": "today.mp4",
+      "file": "first-start.mp4",
       "duration": 6,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
-      "file": "menu-input.mp4",
-      "duration": 5,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "menu-review.mp4",
-      "duration": 7,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "nearby-search.mp4",
-      "duration": 6,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "nearby-results.mp4",
+      "file": "first-restaurant.mp4",
       "duration": 14,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
-      "file": "new-purchase.mp4",
-      "duration": 6,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "vendor-quote.mp4",
-      "duration": 5,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "vendor-review.mp4",
-      "duration": 5,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "comparison.mp4",
-      "duration": 7,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "award.mp4",
-      "duration": 6,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "receiving.mp4",
+      "file": "first-owner.mp4",
       "duration": 9,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
-      "file": "credits.mp4",
-      "duration": 8,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "supplier-orders.mp4",
-      "duration": 8,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "supplier-delivery-record.mp4",
-      "duration": 5,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "supplier-response.mp4",
-      "duration": 5,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "plan-input.mp4",
-      "duration": 6,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "plan-stock.mp4",
-      "duration": 6,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "plan-shortage.mp4",
-      "duration": 6,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "demand-select.mp4",
-      "duration": 8,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "demand-shared.mp4",
-      "duration": 8,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "trading.mp4",
-      "duration": 6,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "reuse-before.mp4",
+      "file": "first-workspace.mp4",
       "duration": 3,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
-      "file": "reuse-after.mp4",
-      "duration": 3,
+      "file": "first-menu.mp4",
+      "duration": 18,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
-      "file": "delivery-record.mp4",
-      "duration": 3,
+      "file": "first-suppliers.mp4",
+      "duration": 16,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
-      "file": "delivery-cost.mp4",
-      "duration": 3,
+      "file": "first-request.mp4",
+      "duration": 22,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "vendor-reply-a.mp4",
+      "duration": 9,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "vendor-reply-b.mp4",
+      "duration": 9,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "completion-comparison.mp4",
+      "duration": 10,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "completion-award.mp4",
+      "duration": 10,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "completion-delivery.mp4",
+      "duration": 12,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "completion-credit.mp4",
+      "duration": 8,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "completion-today.mp4",
+      "duration": 10,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "first-cta.mp4",
+      "duration": 8,
       "sourceStart": 0,
       "playbackRate": 1
     }
-  ],
-  "audioPacketHash": "SHA256=fe65538868e52f6db55f50d80900ce9c8a557fdd389485fbc20105e43fadd1d7",
-  "audioIdenticalToPreviousPublic": true,
-  "captionSha256": "d4f371327a7670d4e06879f522fb86d41dee4b9ece7badca5f75b207f4075235",
-  "transcriptSha256": "eca510177b240516db98cd19058e21cd38e060fe001b4b935f4a944298367767",
-  "captionsAndTranscriptUnchanged": true,
-  "posterSha256": "6254290c65a324be6d8be17bd2a2629d155ea1c6b430be150c4a1f6f0a964624",
-  "captureDetails": [
-    {
-      "file": "award.mp4",
-      "sha256": "31382bcadd03a2dde8be97659cea2d8a709376beabb47a343769ed4837527e7c",
-      "width": 1440,
-      "height": 900,
-      "duration": "6.000000",
-      "frames": "180",
-      "sampleCount": 6,
-      "uniqueSampleFrames": 6
-    },
-    {
-      "file": "comparison.mp4",
-      "sha256": "6fc86be33a34d786cb1700877236025d0f4e1ed097d154a7980b958cf3dc3503",
-      "width": 1440,
-      "height": 900,
-      "duration": "7.000000",
-      "frames": "210",
-      "sampleCount": 7,
-      "uniqueSampleFrames": 7
-    },
-    {
-      "file": "credits.mp4",
-      "sha256": "a17a7db91070ce03573616c39c287b0331d9644a9c4db2645c91db515f01fd32",
-      "width": 1440,
-      "height": 900,
-      "duration": "8.000000",
-      "frames": "240",
-      "sampleCount": 8,
-      "uniqueSampleFrames": 8
-    },
-    {
-      "file": "delivery-cost.mp4",
-      "sha256": "fc6d2cc26ee0b72ac70bc5e0ec4fa5c89c48b5d0117eed144740445fd8f69421",
-      "width": 1440,
-      "height": 900,
-      "duration": "3.000000",
-      "frames": "90",
-      "sampleCount": 3,
-      "uniqueSampleFrames": 3
-    },
-    {
-      "file": "delivery-record.mp4",
-      "sha256": "1b0f499784035e062d2521076b1e293d02412354a3389a213dd9c560010a0be7",
-      "width": 1440,
-      "height": 900,
-      "duration": "3.000000",
-      "frames": "90",
-      "sampleCount": 3,
-      "uniqueSampleFrames": 3
-    },
-    {
-      "file": "demand-select.mp4",
-      "sha256": "e9765e80381065803f858597a0c3ba7131892a154cf9e6beb66aa5c192034eae",
-      "width": 1440,
-      "height": 900,
-      "duration": "8.000000",
-      "frames": "240",
-      "sampleCount": 8,
-      "uniqueSampleFrames": 8
-    },
-    {
-      "file": "demand-shared.mp4",
-      "sha256": "df9bb2d940038e61bd3703752ce950212ab74b32f7d09ca066390fa8be17a2d5",
-      "width": 1440,
-      "height": 900,
-      "duration": "8.000000",
-      "frames": "240",
-      "sampleCount": 8,
-      "uniqueSampleFrames": 8
-    },
-    {
-      "file": "menu-input.mp4",
-      "sha256": "b6a4d7b734a009c3507fb05377537873399306b491c8ee205d1b8d605602e025",
-      "width": 1440,
-      "height": 900,
-      "duration": "5.000000",
-      "frames": "150",
-      "sampleCount": 5,
-      "uniqueSampleFrames": 5
-    },
-    {
-      "file": "menu-review.mp4",
-      "sha256": "0f2aa185f9227cf69156170874ed55e0e3f6ad75cb2a8e93dba15a67357bc1ca",
-      "width": 1440,
-      "height": 900,
-      "duration": "7.000000",
-      "frames": "210",
-      "sampleCount": 7,
-      "uniqueSampleFrames": 7
-    },
-    {
-      "file": "nearby-results.mp4",
-      "sha256": "a01ea6291bd8e48994fbb8deda1b31481199b1104cf3c74562243672ccfb9da5",
-      "width": 1440,
-      "height": 900,
-      "duration": "14.000000",
-      "frames": "420",
-      "sampleCount": 14,
-      "uniqueSampleFrames": 14
-    },
-    {
-      "file": "nearby-search.mp4",
-      "sha256": "f16f73cd74c5fef3835efab112c45f44097f69118b36757cb832b987c3790658",
-      "width": 1440,
-      "height": 900,
-      "duration": "6.000000",
-      "frames": "180",
-      "sampleCount": 6,
-      "uniqueSampleFrames": 6
-    },
-    {
-      "file": "new-purchase.mp4",
-      "sha256": "3d601669b1052dd2a0b50d8d64f6b568ebfc51a20198dbd7a9c925770a873a1b",
-      "width": 1440,
-      "height": 900,
-      "duration": "6.000000",
-      "frames": "180",
-      "sampleCount": 6,
-      "uniqueSampleFrames": 6
-    },
-    {
-      "file": "plan-input.mp4",
-      "sha256": "99e68ea69ff47ea9da0e92d156abc992cbe35cf170a3f2f625fe0c72cbafc16f",
-      "width": 1440,
-      "height": 900,
-      "duration": "6.000000",
-      "frames": "180",
-      "sampleCount": 6,
-      "uniqueSampleFrames": 6
-    },
-    {
-      "file": "plan-shortage.mp4",
-      "sha256": "41553294a28751e6a0169a4015b0adbc900f97e98472d1f4575f90c479cda96e",
-      "width": 1440,
-      "height": 900,
-      "duration": "6.000000",
-      "frames": "180",
-      "sampleCount": 6,
-      "uniqueSampleFrames": 6
-    },
-    {
-      "file": "plan-stock.mp4",
-      "sha256": "57d25eedbdd75648af64bcb0fa32d1441e8a6959c3dcc8394333320c5601cacb",
-      "width": 1440,
-      "height": 900,
-      "duration": "6.000000",
-      "frames": "180",
-      "sampleCount": 6,
-      "uniqueSampleFrames": 6
-    },
-    {
-      "file": "receiving.mp4",
-      "sha256": "1f6b391d983e8b7025f457fb0a33bce0f3540a826ad4cd71a7bf276ca7eb47aa",
-      "width": 1440,
-      "height": 900,
-      "duration": "9.000000",
-      "frames": "270",
-      "sampleCount": 9,
-      "uniqueSampleFrames": 9
-    },
-    {
-      "file": "reuse-after.mp4",
-      "sha256": "29c2cd1830761cba6dd883fdf1c88893fdbde32c93679d825416ed4961f8ded5",
-      "width": 1440,
-      "height": 900,
-      "duration": "3.000000",
-      "frames": "90",
-      "sampleCount": 3,
-      "uniqueSampleFrames": 3
-    },
-    {
-      "file": "reuse-before.mp4",
-      "sha256": "e0dc6246c2f45993aabe846add10a7c96727afc7a55d8f696ece609798c5825c",
-      "width": 1440,
-      "height": 900,
-      "duration": "3.000000",
-      "frames": "90",
-      "sampleCount": 3,
-      "uniqueSampleFrames": 3
-    },
-    {
-      "file": "supplier-delivery-record.mp4",
-      "sha256": "d0544a2db819166561738d4c34cf23f6ed732233bbaa3fdc58a453dcbb17d6d1",
-      "width": 1440,
-      "height": 900,
-      "duration": "5.000000",
-      "frames": "150",
-      "sampleCount": 5,
-      "uniqueSampleFrames": 5
-    },
-    {
-      "file": "supplier-orders.mp4",
-      "sha256": "4e1c22ccf6083443c09f5dc38c2c308ed53c20a33b8a783ee0e816e1a9e45501",
-      "width": 1440,
-      "height": 900,
-      "duration": "8.000000",
-      "frames": "240",
-      "sampleCount": 8,
-      "uniqueSampleFrames": 8
-    },
-    {
-      "file": "supplier-response.mp4",
-      "sha256": "94ff24384bf43993a6843ebd51568017f3504154703279f88ac81581dab9337a",
-      "width": 1440,
-      "height": 900,
-      "duration": "5.000000",
-      "frames": "150",
-      "sampleCount": 5,
-      "uniqueSampleFrames": 5
-    },
-    {
-      "file": "today.mp4",
-      "sha256": "e5f1c71b7bf528dcaf7bee86dda027e0ffad9c39578d1262b7d4f69e4372a051",
-      "width": 1440,
-      "height": 900,
-      "duration": "6.000000",
-      "frames": "180",
-      "sampleCount": 6,
-      "uniqueSampleFrames": 6
-    },
-    {
-      "file": "trading.mp4",
-      "sha256": "a1019bfc85a06990f1c2514349b51619ca697db2e3b115bf56afc0f0cb74f856",
-      "width": 1440,
-      "height": 900,
-      "duration": "6.000000",
-      "frames": "180",
-      "sampleCount": 6,
-      "uniqueSampleFrames": 6
-    },
-    {
-      "file": "vendor-quote.mp4",
-      "sha256": "a8de4b9e2498891a7e8e3065c4a2e72c7728cd617e25faea6661bb387d2955d3",
-      "width": 1440,
-      "height": 900,
-      "duration": "5.000000",
-      "frames": "150",
-      "sampleCount": 5,
-      "uniqueSampleFrames": 5
-    },
-    {
-      "file": "vendor-review.mp4",
-      "sha256": "7dd260574f94a5677d8fc0cff924317b058253b38f7c4a0908b9375b3191a3b4",
-      "width": 1440,
-      "height": 900,
-      "duration": "5.000000",
-      "frames": "150",
-      "sampleCount": 5,
-      "uniqueSampleFrames": 5
-    }
-  ],
-  "framing": "Full 16:10 app recordings; no padding or title strip. Kitchen opening/closing reframed using storyboard pictureCrop.",
-  "fastStart": true
+  ]
 }

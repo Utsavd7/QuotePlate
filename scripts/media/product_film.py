@@ -12,7 +12,7 @@ import textwrap
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-WIDTH, HEIGHT, FPS, SAMPLE_RATE = 1920, 1200, 30, 48000
+WIDTH, HEIGHT, FPS, SAMPLE_RATE = 3840, 2400, 30, 48000
 
 
 def run(args, **kwargs):
@@ -98,6 +98,8 @@ def validate_clip(path, shot, info=None):
     needed = shot['sourceStart'] + shot['duration'] * shot.get('playbackRate', 1)
     if not math.isfinite(available) or available + .001 < needed:
         raise ValueError(f'{path.name}: needs {needed:.3f}s of source footage but only {available:.3f}s is available. Recapture; no still/freeze fallback.')
+    if video.get('width', 0) < WIDTH or video.get('height', 0) < HEIGHT:
+        raise ValueError(f'{path.name}: native {WIDTH}x{HEIGHT} application footage is required; do not upscale lower-resolution captures.')
     return {'durationSeconds': available, 'requiredThroughSeconds': needed, 'codec': video['codec_name']}
 
 
@@ -141,11 +143,13 @@ def export_text(story, timing, work):
     (work / 'quoteplate-product-film.vtt').write_text('WEBVTT\n\n' + '\n\n'.join(cues) + '\n')
     transcript = [
         'QuotePlate — 2:44 product film',
-        'Actual application captures with fictional restaurant records. Actions are condensed. '
-        'Nearby search shows authentic public listings, not a guarantee of current availability. '
+        'Actual application captures following one fictional restaurant’s first purchase. '
+        'Signup shows approved-pilot Google access. Authentication is completed off camera. '
+        'Actions may be condensed; this is not a claim of loading speed. '
         'Synthetic American-English narration.',
     ]
     transcript.extend(scene['text'] for scene in story['scenes'])
+    transcript.append('Start your first purchase: https://quoteplate.netlify.app/start')
     (work / 'quoteplate-product-film.txt').write_text('\n\n'.join(transcript) + '\n')
     (work / 'credits.txt').write_text(Path(__file__).with_name('credits.txt').read_text())
 
@@ -257,7 +261,7 @@ def validate_inputs(args, story):
     source = probe(required(args.source_film))
     required(args.music)
     source_ends = [s[k] + s['duration'] for s in story['scenes'] for k in ('sourceStart', 'audioSourceStart') if k in s]
-    if float(source['format']['duration']) < max(source_ends):
+    if source_ends and float(source['format']['duration']) < max(source_ends):
         raise ValueError('Source film is too short; use the approved 164-second film.')
     timing = json.loads(required(args.work / 'audio/timing.json').read_text())
     if timing['storyboardSha256'] != digest(args.storyboard) and timing.get('audioFingerprint') != audio_fingerprint(story):
@@ -359,7 +363,7 @@ def render(args, story):
     if not 163.99 <= seconds <= 165 or int(video['nb_frames']) != 164 * FPS or (video['width'], video['height']) != (WIDTH, HEIGHT):
         raise ValueError('Export duration, frame count or resolution does not match the storyboard.')
     ffmpeg('-xerror', '-i', output, '-f', 'null', '-')
-    ffmpeg('-ss', '7', '-i', output, '-frames:v', '1', '-q:v', '2', args.work / 'quoteplate-product-film.jpg')
+    ffmpeg('-ss', '151', '-i', output, '-frames:v', '1', '-q:v', '2', args.work / 'quoteplate-product-film.jpg')
     # Include every capture, not only one frame per scene, so reviewers see each cut.
     sheet_frames = edit / 'contact-frames'
     sheet_frames.mkdir(exist_ok=True)

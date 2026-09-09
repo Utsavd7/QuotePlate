@@ -84,10 +84,10 @@ async function responseMessage(response: Response) {
 function OverviewLoading() {
   return (
     <main className={styles.page} aria-busy="true" aria-label="Loading your procurement overview">
-      <div className={styles.loadingHeader}><span /><span /></div>
-      <div className={styles.loadingCards}><span /><span /><span /><span /></div>
-      <div className={styles.loadingPanels}><span /><span /></div>
-      <p className={styles.srOnly}>Loading your procurement overview</p>
+      <div className={styles.loadingHeader} aria-hidden="true"><span /><span /></div>
+      <p className={styles.loadingLabel} role="status">Loading your procurement overview</p>
+      <div className={styles.loadingPanels} aria-hidden="true"><span /><span /></div>
+      <div className={styles.loadingCards} aria-hidden="true"><span /><span /><span /><span /></div>
     </main>
   );
 }
@@ -186,19 +186,19 @@ export function OverviewWorkspace({
     <main className={styles.page}>
       <header className={styles.header}>
         <div>
-
           <h1>Today</h1>
           <p className={styles.intro}>Your next steps, from buying ingredients to checking deliveries.</p>
         </div>
-        <Link className={styles.primaryAction} href="/procurement/new">
-          New purchase <ArrowRight aria-hidden="true" />
-        </Link>
+        <div className={styles.headerActions}>
+          <Link className={styles.primaryAction} href="/procurement/new">
+            New purchase <ArrowRight aria-hidden="true" />
+          </Link>
+          <nav className={styles.quickActions} aria-label="Planning and follow-up">
+            <Link href="/service-planning">Plan meals <ArrowRight aria-hidden="true" /></Link>
+            <Link href="/supplier-performance">Check deliveries & credits <ArrowRight aria-hidden="true" /></Link>
+          </nav>
+        </div>
       </header>
-
-      <div className={styles.emptyActions}>
-        <Link className={styles.secondaryAction} href="/service-planning">Plan meals <ArrowRight aria-hidden="true" /></Link>
-        <Link className={styles.secondaryAction} href="/supplier-performance">Check deliveries & credits <ArrowRight aria-hidden="true" /></Link>
-      </div>
 
       {error && (
         <div className={styles.inlineError} role="alert">
@@ -209,7 +209,11 @@ export function OverviewWorkspace({
 
       {empty ? <EmptyWorkspace /> : (
         <>
-          <Link className={styles.deliveryAttention} href="/procurement">
+          <Link
+            className={styles.deliveryAttention}
+            data-pending={data.deliveryAttention.waiting > 0 || data.deliveryAttention.problems > 0}
+            href="/procurement"
+          >
             <span className={styles.deliveryAttentionIcon}><PackageCheck aria-hidden="true" /></span>
             <span>
               <strong>Deliveries to check</strong>
@@ -224,6 +228,73 @@ export function OverviewWorkspace({
             <ArrowRight aria-hidden="true" />
           </Link>
 
+          <div className={styles.detailGrid}>
+            <section className={styles.panel} aria-labelledby="deadlines-title">
+              <header>
+                <div>
+                  <h2 id="deadlines-title">Nearest quote deadlines</h2>
+                </div>
+                <Clock3 aria-hidden="true" />
+              </header>
+              {data.deadlines.length ? (
+                <div className={styles.deadlineList}>
+                  {data.deadlines.map((deadline) => (
+                    <Link href={`/procurement/${encodeURIComponent(deadline.requestId)}`} key={deadline.requestId}>
+                      <span className={styles.deadlineDate}>
+                        <strong>{formatDateTime(deadline.quoteDeadline)}</strong>
+                        <small>{deadlineLabel(deadline.quoteDeadline, data.generatedAt)}</small>
+                      </span>
+                      <span className={styles.deadlineTitle}>
+                        <strong>{deadline.title}</strong>
+                        <small>{deadline.quotesReceived} of {deadline.suppliersInvited} responded</small>
+                      </span>
+                      <ArrowRight aria-hidden="true" />
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.sectionEmpty}>
+                  <Send aria-hidden="true" />
+                  <h3>No requests waiting for quotes</h3>
+                  <p>Open a checked request when you are ready to ask suppliers for prices.</p>
+                  <Link href="/procurement/new">New purchase <ArrowRight aria-hidden="true" /></Link>
+                </div>
+              )}
+            </section>
+
+            <section className={styles.panel} aria-labelledby="awards-title">
+              <header>
+                <div>
+                  <h2 id="awards-title">Recent orders</h2>
+                </div>
+                <CheckCircle2 aria-hidden="true" />
+              </header>
+              {data.recentAwards.length ? (
+                <div className={styles.awardList}>
+                  {data.recentAwards.map((award) => (
+                    <Link href={`/procurement/${encodeURIComponent(award.requestId)}`} key={award.awardId}>
+                      <span>
+                        <strong>{award.title}</strong>
+                        <small>Ordered {formatAwardDate(award.awardedAt)}</small>
+                      </span>
+                      <span className={styles.awardAmount}>{formatInrFromPaise(award.totalPaise)}</span>
+                      <ArrowRight aria-hidden="true" />
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.sectionEmpty}>
+                  <CheckCircle2 aria-hidden="true" />
+                  <h3>No orders yet</h3>
+                  <p>Orders appear here after you choose a supplier.</p>
+                  <Link href="/procurement">Review requests <ArrowRight aria-hidden="true" /></Link>
+                </div>
+              )}
+            </section>
+          </div>
+          <div className={styles.summaryHeading}>
+            <h2>At a glance</h2>
+          </div>
           <section className={styles.metricGrid} aria-label="Current procurement totals">
             <Link className={styles.metricCard} href="/suppliers">
               <span className={styles.metricIcon}><Building2 aria-hidden="true" /></span>
@@ -258,7 +329,6 @@ export function OverviewWorkspace({
 
           <section className={styles.workflow} aria-labelledby="workflow-title">
             <div>
-
               <h2 id="workflow-title">Current work</h2>
             </div>
             <ol>
@@ -269,72 +339,6 @@ export function OverviewWorkspace({
             <Link href="/procurement">View all requests <ArrowRight aria-hidden="true" /></Link>
           </section>
 
-          <div className={styles.detailGrid}>
-            <section className={styles.panel} aria-labelledby="deadlines-title">
-              <header>
-                <div>
-
-                  <h2 id="deadlines-title">Nearest quote deadlines</h2>
-                </div>
-                <Clock3 aria-hidden="true" />
-              </header>
-              {data.deadlines.length ? (
-                <div className={styles.deadlineList}>
-                  {data.deadlines.map((deadline) => (
-                    <Link href={`/procurement/${encodeURIComponent(deadline.requestId)}`} key={deadline.requestId}>
-                      <span className={styles.deadlineDate}>
-                        <strong>{formatDateTime(deadline.quoteDeadline)}</strong>
-                        <small>{deadlineLabel(deadline.quoteDeadline, data.generatedAt)}</small>
-                      </span>
-                      <span className={styles.deadlineTitle}>
-                        <strong>{deadline.title}</strong>
-                        <small>{deadline.quotesReceived} of {deadline.suppliersInvited} responded</small>
-                      </span>
-                      <ArrowRight aria-hidden="true" />
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.sectionEmpty}>
-                  <Send aria-hidden="true" />
-                  <h3>No requests waiting for quotes</h3>
-                  <p>Open a checked request when you are ready to ask suppliers for prices.</p>
-                  <Link href="/procurement/new">New purchase <ArrowRight aria-hidden="true" /></Link>
-                </div>
-              )}
-            </section>
-
-            <section className={styles.panel} aria-labelledby="awards-title">
-              <header>
-                <div>
-
-                  <h2 id="awards-title">Recent orders</h2>
-                </div>
-                <CheckCircle2 aria-hidden="true" />
-              </header>
-              {data.recentAwards.length ? (
-                <div className={styles.awardList}>
-                  {data.recentAwards.map((award) => (
-                    <Link href={`/procurement/${encodeURIComponent(award.requestId)}`} key={award.awardId}>
-                      <span>
-                        <strong>{award.title}</strong>
-                        <small>Ordered {formatAwardDate(award.awardedAt)}</small>
-                      </span>
-                      <span className={styles.awardAmount}>{formatInrFromPaise(award.totalPaise)}</span>
-                      <ArrowRight aria-hidden="true" />
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.sectionEmpty}>
-                  <CheckCircle2 aria-hidden="true" />
-                  <h3>No orders yet</h3>
-                  <p>Orders appear here after you choose a supplier.</p>
-                  <Link href="/procurement">Review requests <ArrowRight aria-hidden="true" /></Link>
-                </div>
-              )}
-            </section>
-          </div>
         </>
       )}
     </main>

@@ -1,20 +1,15 @@
-QuotePlate product film — media credits
-164 seconds · 1920 × 1080 · 30 fps
+QuotePlate first-purchase film — media credits
+164 seconds · 3840 × 2400 (16:10), native 4K · 30 fps
 
-Application visuals: QuotePlate's redesigned application, recorded in an isolated local environment with fictional Monsoon Table restaurant, supplier and purchasing records. Real clicks, typing, navigation and result review demonstrate the workflow. Preparation is trimmed; any acceleration is bounded to 1.5x. This is not a claim of execution speed. The five primary sections are Today, Purchases, Suppliers, Menu and Reports. Updated scenes show menu review, purchase drafts, supplier quote entry and review, comparison, receiving and credits, supplier collaboration, service planning, selected demand sharing, trading terms, historical price reuse and supplier delivery costs. No production records or real supplier messages were used.
+Application visuals: 15 fresh real application recordings across 11 scenes, following fictional Monsoon Table and one purchase from setup through delivery and credit follow-up. The live public approved-pilot Google entry is filmed as form filling only; authentication is completed off camera into an isolated local workspace. Restaurant, owner, supplier and purchase details are fictional. No production records are created and no real supplier messages are sent. No earlier kitchen or discovery footage is included.
 
-Nearby discovery: authentic Photon/VK Maps public listings in Andheri East were captured on 8 September 2026 in the redesigned UI for the 20-second discovery sequence (dry groceries, 5 km). The approved discovery narration is reused. Coverage varies; the recording is not evidence of current stock, price, opening hours or delivery capability.
+Capture: physical 3840 × 2400 viewport with native Chrome zoom at 8/3 retains a 1440 × 900 CSS laptop layout. A process-only 24 Mbps VP8 recorder setting preserves interface detail; final clips and film use H.264. Real clicks, typing, navigation and result review are recorded. Preparation is trimmed, browser audio is discarded, and any action acceleration is bounded to 1.5x. This is not a claim of loading speed. Private session and supplier-link handoffs stay in memory; authentication material is not archived, and temporary recording profiles are cleaned up.
 
-Opening and closing footage: the approved branded kitchen footage is retained. Chef working in a large kitchen (Mixkit 43048) and Splitting cherry tomatoes for a salad (Mixkit 43908), under the Stock Video Free License. The people shown do not represent QuotePlate customers or endorsements.
-https://mixkit.co/free-stock-video/chef-working-in-a-large-kitchen-43048/
-https://mixkit.co/free-stock-video/splitting-cherry-tomatoes-for-a-salad-43908/
-https://mixkit.co/license/#videoFree
-
-Music: Relax Beat, Arulo (Mixkit 292), Stock Music Free License. Existing licensed source reused below narration.
+Music: Relax Beat, Arulo (Mixkit 292), Stock Music Free License. The existing licensed music source is mixed beneath the new narration.
 https://mixkit.co/free-stock-music/ambient/
 https://mixkit.co/license/#musicFree
 
-Voice: locally generated Kokoro ONNX af_heart stock synthetic American-English narration. Approved opening, nearby-discovery narration and closing brand line are reused. Other narration is generated phrase by phrase, with measured caption timings and a bounded speaking speed. No human voice clone.
+Voice: new locally generated Kokoro ONNX af_heart stock synthetic American-English narration for this first-purchase story, generated phrase by phrase with measured optional caption timings. No human voice clone. No narration or mixed audio from earlier films is reused.
 https://github.com/hexgrad/kokoro
 
-Media and generation cost: $0. Local FFmpeg and Kokoro; no paid generation service, API, subscription, credit purchase or automatic billing.
+Media and generation cost: $0 additional spend. Existing licensed music and local FFmpeg/Kokoro; no paid generation service, API, subscription, credit purchase or automatic billing.

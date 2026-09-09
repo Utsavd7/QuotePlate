@@ -1,31 +1,27 @@
 QuotePlate — 2:44 product film
 
-Actual application captures with fictional restaurant records. Actions are condensed. Nearby search shows authentic public listings, not a guarantee of current availability. Synthetic American-English narration.
+Actual application captures following one fictional restaurant’s first purchase. Signup shows approved-pilot Google access. Authentication is completed off camera. Actions may be condensed; this is not a claim of loading speed. Synthetic American-English narration.
 
-QuotePlate connects your kitchen, purchasing decisions and suppliers.
+Let’s make a first purchase with Monsoon Table, our example restaurant.
 
-Five sections organise your work: Today, Purchases, Suppliers, Menu, and Reports.
+Start with your restaurant’s name, contact number, and address. Add your city, state and PIN code for the right delivery details.
 
-Start with a menu photo, typed dishes, or a permitted website import. Review the ingredients, quantities and units, then approve your menu.
+Enter the owner’s name and work email. For approved pilot owners, continue with Google to create the workspace and open Today.
 
-Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier.
+Open Menu, choose Add menu, then type or paste a dish. Here, we’re making tomato curry. Review the ingredient, quantity and unit. Approve the menu before using it for a purchase.
 
-Set ingredients, quantities, delivery timing and reply deadline. Choose suppliers and review your draft. Suppliers enter prices through a private link, review delivery and total, then send their quote.
+Open Suppliers and add the businesses you buy from. Enter each business name and its ingredient categories. We’ve added two example suppliers so we can compare their replies.
 
-Review each supplier’s offer: quantities, taxes, freight and delivery terms. Choose one supplier or split the purchase by item. Save your reason and the accepted decision.
+Choose New purchase. Give it a name and select the approved menu. Check quantities. We need ten kilos of tomatoes. Set the delivery date and reply deadline. Choose your suppliers, save the draft, then open it for quotes.
 
-Record what arrived, including received and rejected quantities. Check billed quantities and rates against the order. Track credits claimed, credits received and settlement references. Delivery evidence feeds the supplier’s performance record.
+Each supplier opens their private request link. They enter a price, check delivery and the total, then send their quote. Here are replies from our two example suppliers, for the same ten kilos.
 
-Each supplier has a separate private workspace for their own orders. They can confirm quantities, or agree or dispute delivery records with a reference. If the restaurant corrects a record, earlier confirmation becomes outdated.
+Back in Purchases, compare the complete offers. Check coverage, tax, delivery charges and dates. Here, the totals are four hundred and four hundred forty rupees. Choose the suitable supplier and confirm your decision.
 
-In Today, open Plan meals and set your portions. Review usable stock, expected yield and confirmed arrivals. Review the ingredient shortages and purchase quantities, then create a draft.
+Now check what actually arrives. We ordered ten kilos, but received nine. Enter received quantities and check the invoice. Record the missing kilo and forty rupees in credit still owed, then save.
 
-Choose the missing ingredients a supplier should prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. These estimates are not orders, and your team can withdraw them.
+Return to Today. Your purchase and delivery follow-up are visible. Your team can see what needs attention next.
 
-Check wholesale terms, served PIN codes and delivery lead times.
+Ready to make your first purchase? Start with pilot access, set up your restaurant, and follow these steps.
 
-Reuse matching past prices, then confirm today’s quantities and terms.
-
-Review delivery records, outstanding credits, and billed cost per accepted unit.
-
-QuotePlate. Every quote, accountable.
+Start your first purchase: https://quoteplate.netlify.app/start

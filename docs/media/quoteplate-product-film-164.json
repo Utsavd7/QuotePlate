@@ -1,427 +1,276 @@
 {
   "durationSeconds": 164,
-  "resolution": "1920x1200",
+  "resolution": "3840x2400",
   "fps": 30,
-  "narration": "Local Kokoro ONNX af_heart, American English; measured phrase cues; approved intro, nearby and closing audio reused.",
-  "sources": "Application visuals are real redesigned-app screen recordings of clicks, typing, navigation and result review, with fictional restaurant records and authentic public nearby listings. Only approved kitchen opening/closing visuals and intro, nearby and closing audio are reused. Clips play at recorded speed by default; any explicitly condensed footage is bounded to 1.5x. Public listings do not guarantee stock, supplier suitability or delivery capability.",
+  "narration": "Local Kokoro ONNX af_heart, American English; new first-purchase narration with measured optional caption cues.",
+  "sources": "Fresh real application recordings of one fictional restaurant and its first purchase. Public signup shows the actual approved-pilot Google entry; authentication is completed off camera in an isolated local environment. Supplier replies, award and delivery use the same real local request. No internal demo access or production writes. Actions may be condensed up to 1.5x; recordings do not promise loading speed.",
   "scenes": [
     {
       "id": "intro",
-      "title": "Every purchase, clearer",
-      "duration": 5,
-      "phrases": [
-        "QuotePlate connects your kitchen, purchasing decisions and suppliers."
-      ],
-      "text": "QuotePlate connects your kitchen, purchasing decisions and suppliers.",
-      "sourceStart": 0,
-      "at": 0,
-      "sourceCues": [
-        {
-          "start": 0.4,
-          "end": 3.776,
-          "text": "QuotePlate connects your kitchen, purchasing decisions and suppliers."
-        }
-      ],
-      "pictureCrop": {
-        "width": 1600,
-        "height": 1000,
-        "x": 0,
-        "y": 66
-      }
-    },
-    {
-      "id": "orientation",
-      "title": "Five sections. One clear workflow.",
+      "title": "Your first purchase",
       "duration": 6,
       "phrases": [
-        "Five sections organise your work:",
-        "Today, Purchases, Suppliers, Menu, and Reports."
+        "Let’s make a first purchase with Monsoon Table, our example restaurant."
       ],
-      "text": "Five sections organise your work: Today, Purchases, Suppliers, Menu, and Reports.",
+      "text": "Let’s make a first purchase with Monsoon Table, our example restaurant.",
       "shots": [
         {
-          "file": "today.mp4",
+          "file": "first-start.mp4",
           "duration": 6,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 5
+      "at": 0
     },
     {
-      "id": "menu",
-      "title": "Menu / Review before approving",
-      "duration": 12,
+      "id": "signup",
+      "title": "Add your restaurant",
+      "duration": 14,
       "phrases": [
-        "Start with a menu photo, typed dishes, or a permitted website import.",
-        "Review the ingredients, quantities and units, then approve your menu."
+        "Start with your restaurant’s name, contact number, and address.",
+        "Add your city, state and PIN code for the right delivery details."
       ],
-      "text": "Start with a menu photo, typed dishes, or a permitted website import. Review the ingredients, quantities and units, then approve your menu.",
+      "text": "Start with your restaurant’s name, contact number, and address. Add your city, state and PIN code for the right delivery details.",
       "shots": [
         {
-          "file": "menu-input.mp4",
-          "duration": 5,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "menu-review.mp4",
-          "duration": 7,
-          "sourceStart": 0,
-          "playbackRate": 1
-        }
-      ],
-      "at": 11,
-      "phraseStarts": [
-        0.2,
-        5.2
-      ]
-    },
-    {
-      "id": "nearby",
-      "title": "Suppliers / Find nearby businesses",
-      "duration": 20,
-      "phrases": [
-        "Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier."
-      ],
-      "text": "Find nearby food businesses inside QuotePlate. Choose your area, category and distance. These are real public map listings, with contact details when available. Coverage varies. Check products and delivery capability before adding a supplier.",
-      "at": 23,
-      "sourceCues": [
-        {
-          "start": 0.4,
-          "end": 3.34,
-          "text": "Find nearby food businesses inside QuotePlate."
-        },
-        {
-          "start": 3.9,
-          "end": 6.06,
-          "text": "Choose your area, category and distance."
-        },
-        {
-          "start": 6.84,
-          "end": 10.88,
-          "text": "These are real public map listings with contact details when available."
-        },
-        {
-          "start": 11.9,
-          "end": 12.22,
-          "text": "Coverage varies."
-        },
-        {
-          "start": 13.12,
-          "end": 16.04,
-          "text": "Check products and delivery capability before adding a supplier."
-        }
-      ],
-      "audioSourceStart": 21,
-      "shots": [
-        {
-          "file": "nearby-search.mp4",
-          "duration": 6,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "nearby-results.mp4",
+          "file": "first-restaurant.mp4",
           "duration": 14,
           "sourceStart": 0,
           "playbackRate": 1
         }
-      ]
+      ],
+      "at": 6
     },
     {
-      "id": "quotes",
-      "title": "Purchases / Prepare a draft. Suppliers review replies.",
-      "duration": 16,
+      "id": "setup",
+      "title": "Open your workspace",
+      "duration": 12,
       "phrases": [
-        "Set ingredients, quantities, delivery timing and reply deadline.",
-        "Choose suppliers and review your draft.",
-        "Suppliers enter prices through a private link,",
-        "review delivery and total, then send their quote."
+        "Enter the owner’s name and work email.",
+        "For approved pilot owners, continue with Google to create the workspace and open Today."
       ],
-      "text": "Set ingredients, quantities, delivery timing and reply deadline. Choose suppliers and review your draft. Suppliers enter prices through a private link, review delivery and total, then send their quote.",
+      "text": "Enter the owner’s name and work email. For approved pilot owners, continue with Google to create the workspace and open Today.",
       "shots": [
         {
-          "file": "new-purchase.mp4",
-          "duration": 6,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "vendor-quote.mp4",
-          "duration": 5,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "vendor-review.mp4",
-          "duration": 5,
-          "sourceStart": 0,
-          "playbackRate": 1
-        }
-      ],
-      "at": 43,
-      "phraseStarts": [
-        0.2,
-        0,
-        6.2,
-        11.2
-      ]
-    },
-    {
-      "id": "award",
-      "title": "Purchases / Compare before choosing",
-      "duration": 13,
-      "phrases": [
-        "Review each supplier’s offer: quantities, taxes, freight and delivery terms.",
-        "Choose one supplier or split the purchase by item.",
-        "Save your reason and the accepted decision."
-      ],
-      "text": "Review each supplier’s offer: quantities, taxes, freight and delivery terms. Choose one supplier or split the purchase by item. Save your reason and the accepted decision.",
-      "shots": [
-        {
-          "file": "comparison.mp4",
-          "duration": 7,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "award.mp4",
-          "duration": 6,
-          "sourceStart": 0,
-          "playbackRate": 1
-        }
-      ],
-      "at": 59,
-      "phraseStarts": [
-        0.2,
-        7.2,
-        0
-      ]
-    },
-    {
-      "id": "receiving",
-      "title": "Purchases / Check the delivery",
-      "duration": 17,
-      "phrases": [
-        "Record what arrived, including received and rejected quantities.",
-        "Check billed quantities and rates against the order.",
-        "Track credits claimed, credits received and settlement references.",
-        "Delivery evidence feeds the supplier’s performance record."
-      ],
-      "text": "Record what arrived, including received and rejected quantities. Check billed quantities and rates against the order. Track credits claimed, credits received and settlement references. Delivery evidence feeds the supplier’s performance record.",
-      "shots": [
-        {
-          "file": "receiving.mp4",
+          "file": "first-owner.mp4",
           "duration": 9,
           "sourceStart": 0,
           "playbackRate": 1
         },
         {
-          "file": "credits.mp4",
+          "file": "first-workspace.mp4",
+          "duration": 3,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 20
+    },
+    {
+      "id": "menu",
+      "title": "Approve your first menu",
+      "duration": 18,
+      "phrases": [
+        "Open Menu, choose Add menu, then type or paste a dish.",
+        "Here, we’re making tomato curry.",
+        "Review the ingredient, quantity and unit.",
+        "Approve the menu before using it for a purchase."
+      ],
+      "text": "Open Menu, choose Add menu, then type or paste a dish. Here, we’re making tomato curry. Review the ingredient, quantity and unit. Approve the menu before using it for a purchase.",
+      "shots": [
+        {
+          "file": "first-menu.mp4",
+          "duration": 18,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 32
+    },
+    {
+      "id": "suppliers",
+      "title": "Add your suppliers",
+      "duration": 16,
+      "phrases": [
+        "Open Suppliers and add the businesses you buy from.",
+        "Enter each business name and its ingredient categories.",
+        "We’ve added two example suppliers so we can compare their replies."
+      ],
+      "text": "Open Suppliers and add the businesses you buy from. Enter each business name and its ingredient categories. We’ve added two example suppliers so we can compare their replies.",
+      "shots": [
+        {
+          "file": "first-suppliers.mp4",
+          "duration": 16,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 50
+    },
+    {
+      "id": "purchase",
+      "title": "Create the first request",
+      "duration": 22,
+      "phrases": [
+        "Choose New purchase. Give it a name and select the approved menu.",
+        "Check quantities. We need ten kilos of tomatoes.",
+        "Set the delivery date and reply deadline.",
+        "Choose your suppliers, save the draft, then open it for quotes."
+      ],
+      "text": "Choose New purchase. Give it a name and select the approved menu. Check quantities. We need ten kilos of tomatoes. Set the delivery date and reply deadline. Choose your suppliers, save the draft, then open it for quotes.",
+      "shots": [
+        {
+          "file": "first-request.mp4",
+          "duration": 22,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 66
+    },
+    {
+      "id": "replies",
+      "title": "Suppliers reply",
+      "duration": 18,
+      "phrases": [
+        "Each supplier opens their private request link.",
+        "They enter a price, check delivery and the total, then send their quote.",
+        "Here are replies from our two example suppliers, for the same ten kilos."
+      ],
+      "text": "Each supplier opens their private request link. They enter a price, check delivery and the total, then send their quote. Here are replies from our two example suppliers, for the same ten kilos.",
+      "shots": [
+        {
+          "file": "vendor-reply-a.mp4",
+          "duration": 9,
+          "sourceStart": 0,
+          "playbackRate": 1
+        },
+        {
+          "file": "vendor-reply-b.mp4",
+          "duration": 9,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 88,
+      "phraseStarts": [
+        0.2,
+        2.8,
+        9.2
+      ]
+    },
+    {
+      "id": "compare",
+      "title": "Choose a supplier",
+      "duration": 20,
+      "phrases": [
+        "Back in Purchases, compare the complete offers.",
+        "Check coverage, tax, delivery charges and dates.",
+        "Here, the totals are four hundred and four hundred forty rupees.",
+        "Choose the suitable supplier and confirm your decision."
+      ],
+      "text": "Back in Purchases, compare the complete offers. Check coverage, tax, delivery charges and dates. Here, the totals are four hundred and four hundred forty rupees. Choose the suitable supplier and confirm your decision.",
+      "shots": [
+        {
+          "file": "completion-comparison.mp4",
+          "duration": 10,
+          "sourceStart": 0,
+          "playbackRate": 1
+        },
+        {
+          "file": "completion-award.mp4",
+          "duration": 10,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 106,
+      "phraseStarts": [
+        0.2,
+        3.2,
+        6,
+        12
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Check what arrived",
+      "duration": 20,
+      "phrases": [
+        "Now check what actually arrives.",
+        "We ordered ten kilos, but received nine.",
+        "Enter received quantities and check the invoice.",
+        "Record the missing kilo and forty rupees in credit still owed, then save."
+      ],
+      "text": "Now check what actually arrives. We ordered ten kilos, but received nine. Enter received quantities and check the invoice. Record the missing kilo and forty rupees in credit still owed, then save.",
+      "shots": [
+        {
+          "file": "completion-delivery.mp4",
+          "duration": 12,
+          "sourceStart": 0,
+          "playbackRate": 1
+        },
+        {
+          "file": "completion-credit.mp4",
           "duration": 8,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 72,
+      "at": 126,
       "phraseStarts": [
         0.2,
-        0,
-        9.2,
-        0
-      ]
-    },
-    {
-      "id": "portal",
-      "title": "Suppliers / Orders and delivery responses",
-      "duration": 18,
-      "phrases": [
-        "Each supplier has a separate private workspace for their own orders.",
-        "They can confirm quantities, or agree or dispute delivery records with a reference.",
-        "If the restaurant corrects a record, earlier confirmation becomes outdated."
-      ],
-      "text": "Each supplier has a separate private workspace for their own orders. They can confirm quantities, or agree or dispute delivery records with a reference. If the restaurant corrects a record, earlier confirmation becomes outdated.",
-      "shots": [
-        {
-          "file": "supplier-orders.mp4",
-          "duration": 8,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "supplier-delivery-record.mp4",
-          "duration": 5,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "supplier-response.mp4",
-          "duration": 5,
-          "sourceStart": 0,
-          "playbackRate": 1
-        }
-      ],
-      "at": 89,
-      "phraseStarts": [
-        0.2,
-        8.2,
-        0
-      ]
-    },
-    {
-      "id": "plan",
-      "title": "Today / Plan meals, buy the shortage",
-      "duration": 18,
-      "phrases": [
-        "In Today, open Plan meals and set your portions.",
-        "Review usable stock, expected yield and confirmed arrivals.",
-        "Review the ingredient shortages and purchase quantities, then create a draft."
-      ],
-      "text": "In Today, open Plan meals and set your portions. Review usable stock, expected yield and confirmed arrivals. Review the ingredient shortages and purchase quantities, then create a draft.",
-      "shots": [
-        {
-          "file": "plan-input.mp4",
-          "duration": 6,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "plan-stock.mp4",
-          "duration": 6,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "plan-shortage.mp4",
-          "duration": 6,
-          "sourceStart": 0,
-          "playbackRate": 1
-        }
-      ],
-      "at": 107,
-      "phraseStarts": [
-        0.2,
-        6.2,
+        2.4,
+        5.5,
         12.2
       ]
     },
     {
-      "id": "demand",
-      "title": "Suppliers / Share selected estimates",
-      "duration": 16,
+      "id": "today",
+      "title": "Know what needs attention",
+      "duration": 10,
       "phrases": [
-        "Choose the missing ingredients a supplier should prepare for.",
-        "Share only those estimated quantities.",
-        "Recipes, portions and stock stay private.",
-        "These estimates are not orders, and your team can withdraw them."
+        "Return to Today. Your purchase and delivery follow-up are visible.",
+        "Your team can see what needs attention next."
       ],
-      "text": "Choose the missing ingredients a supplier should prepare for. Share only those estimated quantities. Recipes, portions and stock stay private. These estimates are not orders, and your team can withdraw them.",
+      "text": "Return to Today. Your purchase and delivery follow-up are visible. Your team can see what needs attention next.",
       "shots": [
         {
-          "file": "demand-select.mp4",
-          "duration": 8,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "demand-shared.mp4",
-          "duration": 8,
+          "file": "completion-today.mp4",
+          "duration": 10,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 125
-    },
-    {
-      "id": "trading",
-      "title": "Suppliers / Check trading terms",
-      "duration": 6,
-      "phrases": [
-        "Check wholesale terms, served PIN codes and delivery lead times."
-      ],
-      "text": "Check wholesale terms, served PIN codes and delivery lead times.",
-      "shots": [
-        {
-          "file": "trading.mp4",
-          "duration": 6,
-          "sourceStart": 0,
-          "playbackRate": 1
-        }
-      ],
-      "at": 141
-    },
-    {
-      "id": "reuse",
-      "title": "Purchases / Reuse prices after review",
-      "duration": 6,
-      "phrases": [
-        "Reuse matching past prices, then confirm today’s quantities and terms."
-      ],
-      "text": "Reuse matching past prices, then confirm today’s quantities and terms.",
-      "shots": [
-        {
-          "file": "reuse-before.mp4",
-          "duration": 3,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "reuse-after.mp4",
-          "duration": 3,
-          "sourceStart": 0,
-          "playbackRate": 1
-        }
-      ],
-      "at": 147
-    },
-    {
-      "id": "accountability",
-      "title": "Supplier delivery record / Follow through",
-      "duration": 6,
-      "phrases": [
-        "Review delivery records, outstanding credits, and billed cost per accepted unit."
-      ],
-      "text": "Review delivery records, outstanding credits, and billed cost per accepted unit.",
-      "shots": [
-        {
-          "file": "delivery-record.mp4",
-          "duration": 3,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "delivery-cost.mp4",
-          "duration": 3,
-          "sourceStart": 0,
-          "playbackRate": 1
-        }
-      ],
-      "at": 153
+      "at": 146,
+      "phraseStarts": [
+        0.2,
+        5
+      ]
     },
     {
       "id": "end",
-      "title": "Every quote, accountable",
-      "duration": 5,
+      "title": "Start your first purchase",
+      "duration": 8,
       "phrases": [
-        "QuotePlate. Every quote, accountable."
+        "Ready to make your first purchase?",
+        "Start with pilot access, set up your restaurant, and follow these steps."
       ],
-      "text": "QuotePlate. Every quote, accountable.",
-      "sourceStart": 159,
-      "at": 159,
-      "sourceCues": [
+      "text": "Ready to make your first purchase? Start with pilot access, set up your restaurant, and follow these steps.",
+      "shots": [
         {
-          "start": 0.94,
-          "end": 2.82,
-          "text": "QuotePlate. Every quote, accountable."
+          "file": "first-cta.mp4",
+          "duration": 8,
+          "sourceStart": 0,
+          "playbackRate": 1
         }
       ],
-      "pictureCrop": {
-        "width": 1600,
-        "height": 1000,
-        "x": 160,
-        "y": 66
-      }
+      "at": 156,
+      "phraseStarts": [
+        0.2,
+        3
+      ]
     }
   ]
 }
