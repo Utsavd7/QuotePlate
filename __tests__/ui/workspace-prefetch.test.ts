@@ -234,7 +234,8 @@ describe('workspace prefetch', () => {
     jest.setSystemTime(new Date('2026-09-01T00:00:30.001Z'));
 
     const stale = await workspaceFetch(overviewUrl);
-    await expect(stale.json()).resolves.toEqual({ source: 'stale' });
+    // The denial arrived before consumption, so the previously returned body is revoked.
+    await expect(stale.json()).rejects.toMatchObject({ name: 'AbortError' });
     await flushMicrotasks();
 
     const fresh = await workspaceFetch(overviewUrl);
@@ -270,38 +271,31 @@ describe('workspace prefetch', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it('bypasses cached data for an already-aborted signal', async () => {
-    const controller = new AbortController();
-    controller.abort();
-    const fetchMock = jest
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(jsonResponse({ source: 'cached' }))
-      .mockResolvedValueOnce(jsonResponse({ source: 'aborted-direct' }));
-
+  it('rejects an already cancelled read without fetching or consuming a cache entry', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({ value: 4 }));
     await prefetchWorkspace(overviewUrl);
-    const direct = await workspaceFetch(overviewUrl, { signal: controller.signal });
-    const cached = await workspaceFetch(overviewUrl);
-
-    await expect(direct.json()).resolves.toEqual({ source: 'aborted-direct' });
-    await expect(cached.json()).resolves.toEqual({ source: 'cached' });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock).toHaveBeenLastCalledWith(overviewUrl, { signal: controller.signal });
+    const controller = new AbortController(); controller.abort();
+    await expect(workspaceFetch(overviewUrl, { signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    await expect((await workspaceFetch(overviewUrl)).json()).resolves.toEqual({ value: 4 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('bypasses cached data for a signal-bound request without replacing it', async () => {
-    const controller = new AbortController();
-    const fetchMock = jest
-      .spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(jsonResponse({ source: 'cached' }))
-      .mockResolvedValueOnce(jsonResponse({ source: 'signal-direct' }));
-
+  it('preserves cancellation during body consumption without poisoning the cached response', async () => {
+    jest.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({ value: 5 }));
     await prefetchWorkspace(overviewUrl);
-    const direct = await workspaceFetch(overviewUrl, { signal: controller.signal });
-    const cached = await workspaceFetch(overviewUrl);
+    const controller = new AbortController();
+    const response = await workspaceFetch(overviewUrl, { signal: controller.signal });
+    controller.abort();
+    await expect(response.json()).rejects.toMatchObject({ name: 'AbortError' });
+    await expect((await workspaceFetch(overviewUrl)).json()).resolves.toEqual({ value: 5 });
+  });
 
-    await expect(direct.json()).resolves.toEqual({ source: 'signal-direct' });
-    await expect(cached.json()).resolves.toEqual({ source: 'cached' });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+  it('shares cached data for a signal-bound request without replacing it', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({ source: 'cached' }));
+    await prefetchWorkspace(overviewUrl);
+    const response = await workspaceFetch(overviewUrl, { signal: new AbortController().signal });
+    await expect(response.json()).resolves.toEqual({ source: 'cached' });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('aborts a pending refresh during explicit invalidation without restoring its response', async () => {
@@ -387,7 +381,7 @@ describe('workspace prefetch', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it('retries a pending normal workspace A fetch in workspace B without caching A', async () => {
+  it('rejects a pending workspace A fetch after switching to B', async () => {
     let resolveWorkspaceA!: (response: Response) => void;
     const workspaceAResponse = new Promise<Response>((resolve) => {
       resolveWorkspaceA = resolve;
@@ -401,15 +395,14 @@ describe('workspace prefetch', () => {
     setWorkspacePrefetchScope('workspace-b');
     resolveWorkspaceA(jsonResponse({ workspace: 'a' }));
 
-    const response = await responsePromise;
+    await expect(responsePromise).rejects.toMatchObject({ name: 'AbortError' });
     const cachedResponse = await workspaceFetch(overviewUrl);
 
-    await expect(response.json()).resolves.toEqual({ workspace: 'b' });
     await expect(cachedResponse.json()).resolves.toEqual({ workspace: 'b' });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it('aborts a pending workspace A fetch and retries in workspace B', async () => {
+  it('aborts a pending workspace A fetch without delivering B data to it', async () => {
     let refreshSignal: AbortSignal | undefined;
     let rejectWorkspaceA!: (error: DOMException) => void;
     const pendingWorkspaceA = new Promise<Response>((_resolve, reject) => {
@@ -430,15 +423,14 @@ describe('workspace prefetch', () => {
     setWorkspacePrefetchScope('workspace-b');
     expect(refreshSignal?.aborted).toBe(true);
 
-    const response = await responsePromise;
+    await expect(responsePromise).rejects.toMatchObject({ name: 'AbortError' });
     const cachedResponse = await workspaceFetch(overviewUrl);
 
-    await expect(response.json()).resolves.toEqual({ workspace: 'b' });
     await expect(cachedResponse.json()).resolves.toEqual({ workspace: 'b' });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it('retries an ordinary workspace A failure after switching to workspace B', async () => {
+  it('rejects an ordinary workspace A failure after switching to B', async () => {
     let rejectWorkspaceA!: (error: Error) => void;
     const pendingWorkspaceA = new Promise<Response>((_resolve, reject) => {
       rejectWorkspaceA = reject;
@@ -452,10 +444,9 @@ describe('workspace prefetch', () => {
     setWorkspacePrefetchScope('workspace-b');
     rejectWorkspaceA(new Error('workspace A failed late'));
 
-    const response = await responsePromise;
+    await expect(responsePromise).rejects.toMatchObject({ name: 'AbortError' });
     const cachedResponse = await workspaceFetch(overviewUrl);
 
-    await expect(response.json()).resolves.toEqual({ workspace: 'b' });
     await expect(cachedResponse.json()).resolves.toEqual({ workspace: 'b' });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -488,7 +479,7 @@ describe('workspace prefetch', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it('clears cached first pages only after a successful non-GET mutation', async () => {
+  it('clears cached first pages around a successful non-GET mutation', async () => {
     const fetchMock = jest
       .spyOn(globalThis, 'fetch')
       .mockResolvedValueOnce(jsonResponse({ source: 'prefetch' }))

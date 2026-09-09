@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
+import { WorkspaceHeader } from '../workspace/Workspace';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -659,37 +660,14 @@ export function MenuWorkspace({
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Prepare what you need</p>
-          <h1>Menu</h1>
-          <p className={styles.intro}>
-            Add your menu, check ingredients, then approve it for planning.
-          </p>
-        </div>
-        <div className={styles.headerActions}>
-          {menus.some((menu) => menu.status === 'APPROVED') && (
-            <Link className={styles.secondaryButton} href="/service-planning">Plan meals &amp; portions</Link>
-          )}
-          <button className={styles.primaryButton} type="button" onClick={openCreate}>
-            <Plus aria-hidden="true" /> Add menu
-          </button>
-        </div>
-      </header>
-
-      <aside className={styles.explainer}>
-        <span><strong>1</strong> Add menu</span>
-        <ArrowRight aria-hidden="true" />
-        <span><strong>2</strong> Check ingredients</span>
-        <ArrowRight aria-hidden="true" />
-        <span><strong>3</strong> Approve menu</span>
-      </aside>
-      <details className={styles.privacyReassurance}>
-        <summary>Who can see your menu?</summary>
-        <p>
-          Your recipes and menus stay private to your restaurant. Other restaurants cannot see your records. Suppliers see requests you send, their own orders and delivery checks, and ingredient estimates you explicitly share. Other suppliers’ prices remain private.
-        </p>
-      </details>
+      <WorkspaceHeader title="Menu" description="Add your menu, check ingredients, then approve it for planning." actions={<>
+        {menus.some(menu => menu.status === 'APPROVED') && (
+          <Link className={styles.secondaryButton} href="/service-planning">Plan meals &amp; portions</Link>
+        )}
+        <button className={styles.primaryButton} type="button" onClick={openCreate}>
+          <Plus aria-hidden="true" /> Add menu
+        </button>
+      </>} />
 
       {error && (
         <div className={styles.error} role="alert">
@@ -712,33 +690,30 @@ export function MenuWorkspace({
           </button>
         </section>
       ) : (
-        <section className={styles.menuGrid} aria-label="Restaurant menus">
-          {menus.map((menu) => (
-            <button
-              className={styles.menuCard}
-              type="button"
-              key={menu.id}
-              onClick={() => router.push(`/menus/${encodeURIComponent(menu.id)}`)}
-            >
-              <span className={styles.cardTop}>
+        <section aria-label="Restaurant menus">
+          <p className={styles.resultCount}>{menus.length} {menus.length === 1 ? 'menu' : 'menus'} shown</p>
+          <div className={styles.menuTable}>
+            <div className={styles.tableHeader} aria-hidden="true">
+              <span>Menu name</span><span>Status</span><span>Updated</span><span>Action</span>
+            </div>
+            {menus.map(menu => (
+              <button
+                className={styles.menuRow}
+                type="button"
+                key={menu.id}
+                aria-label={`${menu.status === 'APPROVED' ? 'Approved' : 'Needs review'} Version ${menu.version} ${menu.name} ${menu.status === 'APPROVED' ? 'Approved · ready for meal planning' : 'Open and check the ingredient list'} Updated ${formatUpdated(menu.updatedAt)}`}
+                onClick={() => router.push(`/menus/${encodeURIComponent(menu.id)}`)}
+              >
+                <span className={styles.menuIdentity}><strong>{menu.name}</strong><small>Version {menu.version}</small></span>
                 <span className={menu.status === 'APPROVED' ? styles.approved : styles.draft}>
                   {menu.status === 'APPROVED' ? <CheckCircle2 aria-hidden="true" /> : <Clock3 aria-hidden="true" />}
                   {menu.status === 'APPROVED' ? 'Approved' : 'Needs review'}
                 </span>
-                <span>Version {menu.version}</span>
-              </span>
-              <strong>{menu.name}</strong>
-              <span className={styles.cardMeta}>
-                {menu.status === 'APPROVED'
-                  ? 'Approved · ready for meal planning'
-                  : 'Open and check the ingredient list'}
-              </span>
-              <span className={styles.cardBottom}>
-                Updated {formatUpdated(menu.updatedAt)}
-                <ArrowRight aria-hidden="true" />
-              </span>
-            </button>
-          ))}
+                <span className={styles.updated}><span className={styles.mobileLabel}>Updated </span>{formatUpdated(menu.updatedAt)}</span>
+                <span className={styles.rowAction} aria-hidden="true">Open menu <ArrowRight /></span>
+              </button>
+            ))}
+          </div>
         </section>
       )}
 
@@ -752,6 +727,17 @@ export function MenuWorkspace({
           {loadingMore ? 'Loading more…' : 'Load more menus'}
         </button>
       )}
+
+      <details className={styles.menuHelp}>
+        <summary>Prepare what you need</summary>
+        <ol><li>Add menu</li><li>Check ingredients</li><li>Approve menu</li></ol>
+      </details>
+      <details className={styles.privacyReassurance}>
+        <summary>Who can see your menu?</summary>
+        <p>
+          Your recipes and menus stay private to your restaurant. Other restaurants cannot see your records. Suppliers see requests you send, their own orders and delivery checks, and ingredient estimates you explicitly share. Other suppliers’ prices remain private.
+        </p>
+      </details>
 
       {workspaceId && (
         <LocalMenuPhotoGallery

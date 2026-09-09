@@ -1,12 +1,15 @@
 'use client';
 
-import { ArrowRight, CalendarDays, ClipboardList, PackageCheck, Plus, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, ClipboardList, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { workspaceFetch } from '@/lib/client/workspace-prefetch';
 import { formatIndiaDate as shortDate, formatIndiaDeadline as deadlineText } from '@/lib/domain/india-date';
 import { PurchaseJourney } from './PurchaseJourney';
+import { WorkspaceHeader, WorkspaceSearch, WorkspaceToolbar } from '../workspace/Workspace';
+import workspace from '../workspace/workspace.module.css';
 import ui from './purchase-ui.module.css';
 import styles from './procurement-workspace.module.css';
 
@@ -51,6 +54,7 @@ export function ProcurementWorkspace({
   const router = useRouter();
   const [requests, setRequests] = useState(initialRequests ?? []);
   const [filter, setFilter] = useState<RequestStatus | 'ALL'>('ALL');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(initialRequests === undefined);
   const [error, setError] = useState(initialError ?? '');
   const [nextCursor, setNextCursor] = useState<string | null>(initialNextCursor);
@@ -88,38 +92,24 @@ export function ProcurementWorkspace({
     void loadRequests(undefined, true);
   }, [initialRequests, loadRequests]);
 
-  const shown = filter === 'ALL' ? requests : requests.filter(({ status }) => status === filter);
+  const shown = requests.filter(request => (filter === 'ALL' || request.status === filter)
+    && request.title.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase()));
 
   return (
     <main className={`${styles.page} ${ui.surface}`}>
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Restaurant buying</p>
-          <h1>Purchases</h1>
-          <p className={styles.intro}>
-            Choose ingredients, then ask your suppliers for prices.
-          </p>
-        </div>
+      <WorkspaceHeader title="Purchases" description="Choose ingredients, then ask your suppliers for prices." actions={
         <button className={styles.primaryButton} type="button" onClick={() => router.push('/procurement/new')}>
           <Plus aria-hidden="true" /> Choose ingredients
         </button>
-      </header>
-
-      <PurchaseJourney />
-
-      <section className={styles.summary} aria-label="Request summary">
-        <div><ClipboardList aria-hidden="true" /><span><strong>{requests.filter(({ status }) => status === 'DRAFT').length}</strong>Not sent</span></div>
-        <div><Users aria-hidden="true" /><span><strong>{requests.filter(({ status }) => status === 'OPEN').length}</strong>Waiting for suppliers</span></div>
-        <div><PackageCheck aria-hidden="true" /><span><strong>{requests.filter(({ status }) => status === 'AWARDED').length}</strong>Supplier selected</span></div>
-      </section>
-
-      <nav className={styles.filters} aria-label="Filter requests">
-        {(['ALL', 'DRAFT', 'OPEN', 'AWARDED', 'CANCELLED'] as const).map((status) => (
-          <button className={filter === status ? styles.selectedFilter : ''} type="button" key={status} aria-pressed={filter === status} onClick={() => setFilter(status)}>
-            {status === 'ALL' ? 'All requests' : statusLabel[status]}
-          </button>
-        ))}
-      </nav>
+      } />
+      <WorkspaceToolbar label="Find purchases">
+        <WorkspaceSearch label="Search loaded purchases" placeholder="Search purchases by name" value={search} onChange={event => setSearch(event.target.value)} />
+        <select aria-label="Purchase status" value={filter} onChange={event => setFilter(event.target.value as RequestStatus | 'ALL')}>
+          {(['ALL', 'DRAFT', 'OPEN', 'AWARDED', 'CANCELLED'] as const).map(status =>
+            <option key={status} value={status}>{status === 'ALL' ? 'All requests' : statusLabel[status]} ({requests.filter(request => status === 'ALL' || request.status === status).length})</option>)}
+        </select>
+      </WorkspaceToolbar>
+      {!loading && <p className={workspace.resultCount} role="status">{shown.length} {shown.length === 1 ? 'purchase' : 'purchases'} shown{nextCursor ? ` · Search and filters cover ${requests.length} loaded purchases. Load more below.` : ''}</p>}
 
       {error && (
         <div className={styles.error} role="alert"><span>{error} Your saved restaurant records are unchanged.</span><button type="button" onClick={() => void loadRequests()}>Try again</button></div>
@@ -163,13 +153,18 @@ export function ProcurementWorkspace({
         </section>
       )}
 
-      <details className={ui.disclosure}>
+      <details className={`${ui.disclosure} ${styles.help}`}>
         <summary>Purchase history & reports</summary>
         <div className={ui.disclosureBody}>
-          <a href="/history">Past orders & repeat purchases</a>
-          <a href="/insights">Spending reports</a>
-          <a href="/supplier-performance">Delivery reports</a>
+          <Link href="/history">Past orders & repeat purchases</Link>
+          <Link href="/insights">Spending reports</Link>
+          <Link href="/supplier-performance">Delivery reports</Link>
         </div>
+      </details>
+
+      <details className={ui.disclosure}>
+        <summary>How a purchase works</summary>
+        <PurchaseJourney />
       </details>
 
       {nextCursor && !loading && (

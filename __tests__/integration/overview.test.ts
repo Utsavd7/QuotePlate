@@ -25,12 +25,14 @@ function appDatabaseUrl(databaseUrl: string, password: string) {
   return url.toString();
 }
 
-async function provisionAppClient(admin: PrismaClient, databaseUrl: string) {
+async function provisionAppClient(admin: PrismaClient, databaseUrl: string, onQuery: (sql: string) => void) {
   const password = randomBytes(24).toString('hex');
   await admin.$executeRawUnsafe(`ALTER ROLE autorfp_app PASSWORD '${password}'`);
   const client = new PrismaClient({
     datasources: { db: { url: appDatabaseUrl(databaseUrl, password) } },
+    log: [{ emit: 'event', level: 'query' }],
   });
+  client.$on('query', event => onQuery(event.query));
   await client.$connect();
   return client;
 }
@@ -459,6 +461,38 @@ async function assertSummaryQuery(admin: PrismaClient, app: PrismaClient) {
   expect(JSON.parse(JSON.stringify(summary))).toEqual(summary);
 }
 
+async function assertCurrentAccess(admin: PrismaClient, app: PrismaClient, statements: string[]) {
+  const operations = createPrismaOverviewOperations(app);
+  const actor = { tenantId: 'tenant-a', userId: 'member-a' };
+  for (const state of [
+    { userActive: false, tenantActive: true, accountState: 'ACTIVE' },
+    { userActive: true, tenantActive: false, accountState: 'ACTIVE' },
+    { userActive: true, tenantActive: true, accountState: 'INVITED' },
+    { userActive: true, tenantActive: true, accountState: 'DEACTIVATED' },
+  ] as const) {
+    await admin.user.update({ where: { id: actor.userId }, data: {
+      isActive: state.userActive, accountState: state.accountState,
+    } });
+    await admin.tenant.update({ where: { id: actor.tenantId }, data: { isActive: state.tenantActive } });
+    statements.length = 0;
+    await expect(operations.load({ actor })).rejects.toBeInstanceOf(AuthorizationError);
+    // Real SQL must stop at the live actor check, before either overview query.
+    const reads = statements.filter(sql => /^(SELECT|WITH)\b/i.test(sql.trim())
+      && !sql.includes('set_config') && !sql.includes('pg_catalog.pg_roles'));
+    expect(reads).toHaveLength(1);
+    expect(reads[0]).toContain('"User"');
+    expect(reads[0]).not.toContain('"Award"');
+  }
+  await admin.user.update({ where: { id: actor.userId }, data: { isActive: true, accountState: 'ACTIVE' } });
+  await admin.tenant.update({ where: { id: actor.tenantId }, data: { isActive: true } });
+  statements.length = 0;
+  await expect(operations.load({ actor })).resolves.toMatchObject({
+    counts: { requests: { draft: 1, open: 1, awarded: 1 } },
+  });
+  expect(statements.filter(sql => sql.trim() === 'BEGIN')).toHaveLength(1);
+  expect(statements.filter(sql => sql.trim().startsWith('WITH'))).toHaveLength(2);
+}
+
 test('overview reads tenant-scoped facts and a bounded queue of unresolved work through Postgres RLS', async () => {
   await withMigratedPostgres(async (databaseUrl) => {
     const admin = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
@@ -473,7 +507,8 @@ test('overview reads tenant-scoped facts and a bounded queue of unresolved work 
         suffix: 'private-b',
         privateNoise: true,
       });
-      app = await provisionAppClient(admin, databaseUrl);
+      const statements: string[] = [];
+      app = await provisionAppClient(admin, databaseUrl, sql => statements.push(sql));
       const operations = createPrismaOverviewOperations(app);
 
       const overview = await operations.load({
@@ -511,6 +546,7 @@ test('overview reads tenant-scoped facts and a bounded queue of unresolved work 
 
       await assertAttentionQueue(admin, app);
       await assertSummaryQuery(admin, app);
+      await assertCurrentAccess(admin, app, statements);
     } finally {
       await app?.$disconnect();
       await admin.$disconnect();

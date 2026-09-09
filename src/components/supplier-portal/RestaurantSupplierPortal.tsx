@@ -6,6 +6,7 @@ import { formatInr } from '@/lib/domain/money';
 import { Link2, MessageSquare, Sprout } from 'lucide-react';
 import type { RestaurantPortalView, PortalOrder } from '@/lib/supplier-portal/types';
 import type { computePlan } from '@/lib/service-planning/planning';
+import { WorkspaceHeader, WorkspaceToolbar } from '../workspace/Workspace';
 import styles from './restaurant-supplier-portal.module.css';
 import { TradingProfileReadView } from './TradingProfile';
 
@@ -227,8 +228,8 @@ export function RestaurantSupplierPortal() {
   }
 
   return <main className={styles.workspace}>
-    <header className={styles.header}><h1>Orders & messages</h1><p>Choose a supplier to check orders, delivery replies or share upcoming needs.</p></header>
-    <section className={styles.supplierPicker} aria-label="Choose supplier"><label>Supplier<select aria-label="Supplier" value={supplierId} disabled={busy} onChange={e => selectSupplier(e.target.value)}><option value="">Choose an active supplier</option>{suppliers.map(s => <option key={s.id} value={s.id}>{s.businessName}</option>)}</select></label><Link href="/suppliers">Manage suppliers →</Link>{cursor && <button className={styles.secondary} disabled={listingBusy || busy} onClick={() => void moreSuppliers()}>Load more suppliers</button>}</section>
+    <WorkspaceHeader title="Orders & messages" description="Choose a supplier to check orders, delivery replies or share upcoming needs." />
+    <WorkspaceToolbar label="Choose supplier"><label className={styles.supplierField}>Supplier<select aria-label="Supplier" value={supplierId} disabled={busy} onChange={e => selectSupplier(e.target.value)}><option value="">Choose an active supplier</option>{suppliers.map(s => <option key={s.id} value={s.id}>{s.businessName}</option>)}</select></label><Link href="/suppliers">Manage suppliers →</Link>{cursor && <button className={styles.secondary} disabled={listingBusy || busy} onClick={() => void moreSuppliers()}>Load more suppliers</button>}</WorkspaceToolbar>
     {listingBusy && <p role="status">Loading suppliers…</p>}
     {listingError && <p role="alert" className={styles.error}>{listingError} <button disabled={busy} onClick={refresh}>Retry</button></p>}
     {listingLoaded && !suppliers.length && <p className={styles.empty}>Add a supplier first, then manage orders and messages here.</p>}

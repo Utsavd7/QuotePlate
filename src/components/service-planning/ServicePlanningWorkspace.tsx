@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { MenuDocumentV1 } from '@/lib/menu/menu-document';
 import type { PlanInput, computePlan } from '@/lib/service-planning/planning';
 import { PlanningSummary } from './PlanningSummary';
+import { WorkspaceHeader } from '../workspace/Workspace';
 import styles from './service-planning.module.css';
 type Menu = {
   id: string;
@@ -197,11 +198,7 @@ export function ServicePlanningWorkspace() {
     }
   }
   return <main className={styles.workspace}>
-    <header>
-      <p className={styles.eyebrow}>Today · Daily planning</p>
-      <h1>Plan meals</h1>
-      <p>Choose meals and portions. Check stock. Buy what is missing.</p>
-    </header>
+    <WorkspaceHeader title="Plan meals" description="Choose meals and portions. Check stock. Buy what is missing." />
 
     <nav className={styles.steps} aria-label="Planning steps">
       <a href="#planning-meals">1 · Meals &amp; portions</a>

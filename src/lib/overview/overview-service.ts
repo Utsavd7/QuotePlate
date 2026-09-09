@@ -70,6 +70,7 @@ async function requireActiveActor(
     where: {
       id: actor.userId,
       tenantId: actor.tenantId,
+      accountState: 'ACTIVE',
       isActive: true,
       tenant: { isActive: true },
     },

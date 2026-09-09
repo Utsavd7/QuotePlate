@@ -7,6 +7,7 @@ import { workspaceFetch } from '@/lib/client/workspace-prefetch';
 import type { AttentionItem } from '@/lib/overview/overview-attention';
 import type { OverviewData as ServiceOverviewData } from '@/lib/overview/overview-service';
 import styles from './overview-workspace.module.css';
+import { WorkspaceHeader } from '../workspace/Workspace';
 
 export type OverviewData = ServiceOverviewData;
 
@@ -132,10 +133,9 @@ export function OverviewWorkspace({
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <div><h1>Today</h1><p className={styles.intro}>See what needs doing. Pick a purchase to continue.</p></div>
+      <WorkspaceHeader title="Today" description="See what needs doing. Pick a purchase to continue." actions={
         <Link className={styles.primaryAction} href="/procurement/new">New purchase <ArrowRight aria-hidden="true" /></Link>
-      </header>
+      } />
       {error && <div className={styles.inlineError} role="alert">
         <span>{error} The last loaded information remains on screen.</span>
         <button type="button" onClick={() => void loadOverview()}>Try again</button>

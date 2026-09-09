@@ -158,6 +158,19 @@ for (const size of ['1440', '1366', 'mobile'] as const) {
         const main = page.getByRole('main').first();
         await expect(main).toHaveCSS('background-color', 'rgb(246, 247, 245)');
         await expect(main).toHaveCSS('font-family', /Manrope/);
+        await expect(main).toHaveCSS('padding-left', size === 'mobile' ? '16px' : '24px');
+        await expect(main).toHaveCSS('padding-right', size === 'mobile' ? '16px' : '24px');
+        const bounds = (await main.boundingBox())!;
+        expect(bounds.x, `${route}: workspace left edge`).toBeCloseTo(size === 'mobile' ? 0 : 216, 0);
+        expect(bounds.x + bounds.width, `${route}: workspace right edge`).toBeCloseTo(page.viewportSize()!.width, 0);
+        if (route === '/procurement' || route === '/suppliers') {
+          const search = page.getByRole('searchbox');
+          const select = page.getByRole('combobox', { name: route === '/procurement' ? 'Purchase status' : 'Filter suppliers' });
+          await expect(select).toHaveCSS('border-radius', '8px');
+          await expect(select).toHaveCSS('height', '44px');
+          await expect(search).toHaveCSS('font-size', size === 'mobile' ? '16px' : '14px');
+          if (size !== 'mobile') expect(Math.abs((await search.boundingBox())!.y - (await select.boundingBox())!.y)).toBeLessThanOrEqual(1);
+        }
         const routeTheme = await main.evaluate(element => ({ background: getComputedStyle(element).backgroundColor, font: getComputedStyle(element).fontFamily, color: getComputedStyle(element).color }));
         const firstControl = page.locator('main button:enabled, main a[href], main input:enabled, main select:enabled, main summary').filter({ visible: true }).first();
         await expect(firstControl).toBeVisible();
@@ -322,13 +335,11 @@ test('purchase filters and repeat-order dialog explore and cancel without creati
   const requests = (await listed.json()).requests as Array<{ status: string; title: string }>;
   await page.goto('/procurement');
   await collapseGuide(page);
-  const filters = page.getByRole('navigation', { name: 'Filter requests' }).getByRole('button');
-  await expect(filters).toHaveCount(5);
-  for (let index = 0; index < 5; index++) {
-    await filters.nth(index).click();
-    await expect(filters.nth(index)).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByRole('navigation', { name: 'Filter requests' }).locator('[aria-pressed="true"]')).toHaveCount(1);
-    const status = ['ALL', 'DRAFT', 'OPEN', 'AWARDED', 'CANCELLED'][index];
+  const filters = page.getByRole('combobox', { name: 'Purchase status' });
+  await expect(filters.locator('option')).toHaveCount(5);
+  for (const status of ['ALL', 'DRAFT', 'OPEN', 'AWARDED', 'CANCELLED']) {
+    await filters.selectOption(status);
+    await expect(filters).toHaveValue(status);
     const expected = requests.filter(request => status === 'ALL' || request.status === status);
     const rows = page.getByRole('region', { name: 'Procurement requests', exact: true }).getByRole('button');
     await expect(rows).toHaveCount(expected.length);
@@ -336,7 +347,14 @@ test('purchase filters and repeat-order dialog explore and cancel without creati
     if (!expected.length) await expect(page.getByText('No requests match this filter.', { exact: true })).toBeVisible();
     await noOverflow(page);
   }
-  await filters.first().click();
+  await filters.selectOption('ALL');
+  const search = page.getByRole('searchbox', { name: 'Search loaded purchases' });
+  await search.fill(requests[0].title);
+  const matching = page.getByRole('region', { name: 'Procurement requests', exact: true }).getByRole('button');
+  await expect(matching).toHaveCount(requests.filter(request => request.title.toLowerCase().includes(requests[0].title.toLowerCase())).length);
+  await search.fill('No matching purchase name for this test');
+  await expect(page.getByText('No requests match this filter.', { exact: true })).toBeVisible();
+  await search.fill('');
   await page.goto('/history');
   await collapseGuide(page);
   const opener = page.getByRole('button', { name: 'Repeat order', exact: true }).first();

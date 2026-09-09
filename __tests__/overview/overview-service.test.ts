@@ -45,10 +45,12 @@ describe('overview service', () => {
     });
 
     expect(transact).toHaveBeenCalledWith('tenant-a', expect.any(Function));
+    expect(transact).toHaveBeenCalledTimes(1);
     expect(transaction.user.findFirst).toHaveBeenCalledWith({
       where: {
         id: 'member-a',
         tenantId: 'tenant-a',
+        accountState: 'ACTIVE',
         isActive: true,
         tenant: { isActive: true },
       },

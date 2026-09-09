@@ -8,6 +8,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
+import { WorkspaceHeader } from '../workspace/Workspace';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
@@ -469,25 +470,22 @@ export function MenuEditor({
 
   return (
     <main className={styles.page} ref={editorRoot}>
-      <header className={styles.header}>
-        <div className={styles.titleBlock}>
-          <button className={styles.back} type="button" onClick={() => router.push('/menus')}>
-            <ArrowLeft aria-hidden="true" /> Menus
-          </button>
-          <h1>Review menu</h1>
-          <input aria-label="Menu name" value={name} maxLength={160} disabled={deleting} onChange={(event) => setName(event.target.value)} />
-          <p>Check every dish, ingredient, quantity and unit before approval.</p>
-        </div>
-        <div className={styles.headerActions}>
-          <span className={menu.status === 'APPROVED' ? styles.approved : styles.draft}>
-            {menu.status === 'APPROVED' ? <CheckCircle2 aria-hidden="true" /> : null}
-            {menu.status === 'APPROVED' ? 'Approved' : 'Draft'} · v{menu.version}
-          </span>
-          <button className={styles.deleteButton} type="button" disabled={deleting || saving || approving} onClick={() => void deleteMenu()}>
-            <Trash2 aria-hidden="true" /> {deleting ? 'Deleting…' : 'Delete menu'}
-          </button>
-        </div>
-      </header>
+      <button className={styles.back} type="button" onClick={() => router.push('/menus')}>
+        <ArrowLeft aria-hidden="true" /> Menus
+      </button>
+      <WorkspaceHeader title="Review menu" description="Check every dish, ingredient, quantity and unit before approval." actions={<>
+        <span className={menu.status === 'APPROVED' ? styles.approved : styles.draft}>
+          {menu.status === 'APPROVED' ? <CheckCircle2 aria-hidden="true" /> : null}
+          {menu.status === 'APPROVED' ? 'Approved' : 'Draft'} · v{menu.version}
+        </span>
+        <button className={styles.deleteButton} type="button" disabled={deleting || saving || approving} onClick={() => void deleteMenu()}>
+          <Trash2 aria-hidden="true" /> {deleting ? 'Deleting…' : 'Delete menu'}
+        </button>
+      </>} />
+      <label className={styles.titleField}>
+        <span>Menu name</span>
+        <input aria-label="Menu name" value={name} maxLength={160} disabled={deleting} onChange={(event) => setName(event.target.value)} />
+      </label>
 
       {menu.status === 'APPROVED' && (
         <div className={styles.warning}>
