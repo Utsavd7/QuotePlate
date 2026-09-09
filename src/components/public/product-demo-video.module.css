@@ -47,8 +47,8 @@
 .endPanel p { margin: .375rem 0 0; color: var(--workspace-muted); font-size: 1rem; line-height: 1.5; }
 .endActions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .start, .replay { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .625rem 1rem; border: 1px solid var(--workspace-accent); border-radius: .5rem; font: 700 .875rem/1.5 var(--font-ui); text-decoration: none; cursor: pointer; }
-.start { color: var(--workspace-surface); background: var(--workspace-accent); }
-.start:hover, .start:active { color: var(--workspace-surface); background: var(--workspace-accent-hover); border-color: var(--workspace-accent-hover); }
+.endActions .start { color: var(--workspace-surface); background: var(--workspace-accent); opacity: 1; }
+.endActions .start:hover, .endActions .start:active { color: var(--workspace-surface); background: var(--workspace-accent-hover); border-color: var(--workspace-accent-hover); opacity: 1; }
 .replay { color: var(--workspace-accent); background: var(--workspace-surface); }
 .replay:hover, .replay:active { background: var(--workspace-selected); }
 .replay svg { width: 1rem; height: 1rem; }

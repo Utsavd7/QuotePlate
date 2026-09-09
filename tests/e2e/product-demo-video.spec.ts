@@ -178,6 +178,7 @@ test('signup appears only after playback ends, stays below controls, and replay 
   await expect(nextStep).toBeVisible();
   const signup = nextStep.getByRole('link', { name: 'Start your first purchase', exact: true });
   await expect(signup).toHaveAttribute('href', '/start');
+  await expect(signup).toHaveCSS('color', 'rgb(255, 255, 255)');
   await expect(nextStep).toContainText('For approved pilot owners. Sign in with Google to begin.');
   await expect(video).toHaveAttribute('controls', '');
   const playerBox = await video.boundingBox();
