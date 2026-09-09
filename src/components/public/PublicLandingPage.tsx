@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import {
   restaurantSampleQuotes,
   restaurantSampleRequest,
@@ -78,17 +79,17 @@ export function PublicLandingPage() {
               <JourneyIcon name="receipt" />
               <span>Choose ingredients</span>
             </div>
-            <span className="hero-route__connector" aria-hidden="true">→</span>
+            <span className="hero-route__connector" aria-hidden="true"><ArrowRight /></span>
             <div>
               <JourneyIcon name="list" />
               <span>Compare prices</span>
             </div>
-            <span className="hero-route__connector" aria-hidden="true">→</span>
+            <span className="hero-route__connector" aria-hidden="true"><ArrowRight /></span>
             <div>
               <JourneyIcon name="price" />
               <span>Choose supplier</span>
             </div>
-            <span className="hero-route__connector" aria-hidden="true">→</span>
+            <span className="hero-route__connector" aria-hidden="true"><ArrowRight /></span>
             <div>
               <JourneyIcon name="approve" />
               <span>Check delivery</span>
