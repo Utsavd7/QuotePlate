@@ -8,25 +8,25 @@
   "videoCodec": "h264",
   "audioCodec": "aac",
   "fullDecode": "passed",
-  "storyboardSha256": "c74ce48c16d2bea5e5528f86e3ad1d2d4a53890fa94397ca61a3585e64f33c31",
+  "storyboardSha256": "da15b139f5c8c530aa86ebc958f670a430719ea0838447ad580a5c43ef0a9022",
   "sourceSha256": "3d6b220f9505315ebefbc0aaf8570aa31e9da65e1d8d3b0587fa76e3ed236202",
-  "outputSha256": "a5a73810f63a9f135528d65a5e2df46a46ba37de8fa4208c26f615cdcc3d4ac9",
+  "outputSha256": "520dd5a15a51b31c8607911c8da80d462fa5324d53bb6351fd307fc45dde89c4",
   "freshCaptures": {
     "kitchen-intro.mp4": "18d46ffd9e38d84d97cf01bcda98b0f1b0c30d1586e8c1660ae3afb8e8c48f69",
     "first-restaurant.mp4": "fcf36820a424c749a89c4afdb8c03958bfd7c97727574d365903dd451daf44eb",
     "first-owner.mp4": "0b305f6f12870b9e1e8b5eeae66cf888b53daa40987cdb8ce79f6bc3991c8a2a",
-    "first-workspace.mp4": "561233ffda1f22ec7ba51b8a1d6a6b771b93ba1189aed2e10bb019ca7b22f440",
+    "first-workspace.mp4": "6748113dc5f97e7ddbae418daebf3058f7d0ceb37644908a73513f34b993fb43",
     "menu-options.mp4": "dc48bfbc5247970c625fc95e5713b8dcbf49aa6e75034d1a003958cfd38db950",
-    "first-menu.mp4": "8753e50651577001750ec7085527cf5f5adf5f308a025738706c30f36cfc15cc",
-    "first-suppliers.mp4": "e2ba2270b9097c4169dfdf9b2fb295efc00f0e0b9f28c3b1d9347d668c00eca5",
-    "first-request.mp4": "9422c4120189ee3de63090654ec6e57f2b506ef1cc252047fc697f4e2b80158b",
+    "first-menu.mp4": "89c7048b99e29974ea6f0420110829196e3c37ddadd8a84272e5fb3e73d8e16a",
+    "first-suppliers.mp4": "a9391a23cc7fb3ed350caf7fdb6bb3edb9d126d0248624673fface9a97f58919",
+    "first-request.mp4": "b3211d73729fa78c49679e9652ad94f51e93b4e4b1f2e5e4a39f675a2c4314e2",
     "vendor-reply-a.mp4": "ddc8c74c7f20d80a1539040bfbd30cde29f594921b5257fbbae0228c21e0e0e1",
     "vendor-reply-b.mp4": "b5e7163ab7097b980a85ef68f532a27feeaa34e52cd6e9615851e85add30a326",
-    "completion-comparison.mp4": "ad1f1be7ad0672636f2d464730169b1c317e2e94541da41c29be18e95551df78",
-    "completion-award.mp4": "f3ac6b8d8223b69490a53d9deb8d508d5a94985dcab25e34b6809efd66dee02a",
-    "completion-delivery.mp4": "9950fa312d1d842d42d88ecd4793becdacb7eb5b3b9a9964add91ee611ac17e7",
-    "completion-credit.mp4": "f37bde4f7f60030b04fe4f5d27850f81ac9bbc2475eb5561ea05e360c238fe09",
-    "completion-today.mp4": "042db0a824be850fda39d9a9c9a28b1643be4e97d881c3acdbfd4c4699f3d0c8",
+    "completion-comparison.mp4": "f848a2cfcb2a7676c5f37c7ef9b9ae5b7e1fb1a7d92c7e16e50dd379d199fbe8",
+    "completion-award.mp4": "55ff50ab36ec5614ca2c115d29091291fd5e6aff0d1c6dffd8fab08abc80cfe6",
+    "completion-delivery.mp4": "b48d7f1c919df1814ab4feecb06e8e16d211db1b83afa851e4b280c750905efe",
+    "completion-credit.mp4": "77f11f282100cafc45c09d3e7b7c02c4b57e91ad668e2ee70ef051e70f362a26",
+    "completion-today.mp4": "512bae0ab7da59a298efdc4f5990ed18cad492a87646cbab9128eba1a307f18e",
     "kitchen-end.mp4": "f033cfe90a1d4c31ead13a7ab9ebf2fd28038cbfc0780176c40334b9cc8d88df"
   },
   "brandSources": [
@@ -152,20 +152,13 @@
     }
   ],
   "visualRefreshChecks": {
-    "onlyFourRequestedClipsChanged": true,
-    "unchangedSourceClips": 12,
-    "encodedAudioSha256": "30a49eff1e1ff7737786766154d36d581dd2b873732cda9c00841e9349f8e0f4",
+    "onlyNineRequestedClipsChanged": true,
+    "unchangedSourceClips": 7,
     "encodedAudioIdenticalToPrevious": true,
+    "encodedAudioSha256": "30a49eff1e1ff7737786766154d36d581dd2b873732cda9c00841e9349f8e0f4",
     "narrationAndCaptionsUnchanged": true,
     "captureDecodeAndFrameCounts": "passed",
-    "temporaryRecordingProfilesRemoved": true,
-    "todayRecovery": {
-      "raw": "raw/page@7eb81bdfafaa41bcc561d45c08cc8fc3.webm",
-      "sourceStart": 19.8,
-      "duration": 5,
-      "playbackRate": 1,
-      "frames": 150,
-      "reason": "Old exact title-link assertion failed after successful Today navigation. Recovered genuine navigation and reading interval from same recording; no frozen padding or fabricated state."
-    }
+    "temporalVariation": "passed for all nine clips",
+    "temporaryRecordingProfilesRemoved": true
   }
 }

@@ -154,9 +154,12 @@ python3 -B scripts/media/test_product_film.py
 
 ## Final review and handoff
 
-The 9 September 2026 simplification refresh replaces only `first-workspace`
-(3s), `vendor-reply-a` and `vendor-reply-b` (9s each), and `completion-today`
-(5s). All twelve other source clips retain their approved hashes. Speech,
+The 9 September 2026 unified-workspace refresh replaces nine restaurant clips:
+`first-workspace`, `first-menu`, `first-suppliers`, `first-request`,
+`completion-comparison`, `completion-award`, `completion-delivery`,
+`completion-credit`, and `completion-today`. The seven other source clips,
+including kitchen bookends, public registration, menu-options and supplier
+replies, retain their approved hashes. Speech,
 transcript and optional captions are reused unchanged through `reuse-audio`.
 The local recording recreates the same fictional purchase in an independent
 ordinary tenant without resetting shared fixtures. Today now exposes the action
