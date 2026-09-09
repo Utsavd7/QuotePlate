@@ -175,6 +175,80 @@ for (const size of ['1440', '1366', 'mobile'] as const) {
   });
 }
 
+for (const size of ['1440', '1366', 'mobile'] as const) {
+  test(`workspace footer has no trailing scroll and navigation stays pinned ${size}`, async ({ page }, info) => {
+    test.skip(size === 'mobile' ? info.project.name !== 'mobile-chromium' : info.project.name !== 'desktop-chromium', 'One viewport matrix per matching device project.');
+    test.setTimeout(120_000);
+    if (size !== 'mobile') await page.setViewportSize({ width: Number(size), height: size === '1440' ? 900 : 768 });
+    await signIn(page, info);
+    const writes = await forbidWrites(page);
+    const sidebar = page.locator('aside[class*="desktopSidebar"]');
+    const toolbar = page.locator('[class*="workspaceToolbar"]');
+    const footer = page.locator('footer').filter({ hasText: 'Every quote, accountable.' });
+    for (const route of ['/dashboard', '/menus', '/settings', '/suppliers', '/procurement']) {
+      await test.step(route, async () => {
+        await page.goto(route);
+        await routeReady(page, route);
+        await page.evaluate(() => document.fonts.ready);
+        await expect(footer).toHaveCount(1);
+        const main = page.getByRole('main');
+        await expect(main).toHaveCount(1);
+        if (size !== 'mobile') {
+          await expect(sidebar).toBeVisible();
+          expect(Math.abs((await sidebar.boundingBox())!.y)).toBeLessThanOrEqual(1);
+        }
+        await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+        await expect.poll(() => page.evaluate(() => Math.abs(document.documentElement.scrollHeight - window.innerHeight - window.scrollY))).toBeLessThanOrEqual(1);
+        const mainBox = (await main.boundingBox())!;
+        const footerBox = (await footer.boundingBox())!;
+        expect(mainBox.y + mainBox.height, `${route}: main must end before the footer`).toBeLessThanOrEqual(footerBox.y + 1);
+        const documentBottom = await page.evaluate(() => document.documentElement.scrollHeight - window.scrollY);
+        expect(documentBottom, `${route}: no scrollable canvas after footer`).toBeLessThanOrEqual(footerBox.y + footerBox.height + 1);
+        const toolbarBox = (await toolbar.boundingBox())!;
+        const mobileHeader = page.locator('header[class*="mobileHeader"]');
+        const headerBottom = size === 'mobile' ? await mobileHeader.evaluate(element => element.getBoundingClientRect().bottom) : 0;
+        // Short pages need not scroll far enough for the toolbar to stick.
+        if (await page.evaluate(() => window.scrollY > 150)) {
+          expect(Math.abs(toolbarBox.y - headerBottom), `${route}: toolbar stays below the mobile header or at the desktop top`).toBeLessThanOrEqual(1);
+        }
+        if (size === 'mobile') expect(Math.abs((await mobileHeader.boundingBox())!.y)).toBeLessThanOrEqual(1);
+        if (size !== 'mobile') {
+          const pinned = (await sidebar.boundingBox())!;
+          expect(Math.abs(pinned.y), `${route}: sidebar must not move with page scroll`).toBeLessThanOrEqual(1);
+          expect(Math.abs(pinned.height - page.viewportSize()!.height)).toBeLessThanOrEqual(1);
+          expect(mainBox.x).toBeGreaterThanOrEqual(pinned.x + pinned.width - 1);
+        } else {
+          await expect(sidebar).toBeHidden();
+          expect(Math.abs(mainBox.x), `${route}: no desktop offset on mobile`).toBeLessThanOrEqual(1);
+        }
+        await noOverflow(page);
+        const control = main.locator('input:enabled:not([type="hidden"]), select:enabled, textarea:enabled, button:enabled, a[href]').filter({ visible: true }).last();
+        if (await control.count()) {
+          await control.evaluate(element => element.scrollIntoView({ block: 'start', behavior: 'instant' }));
+          await control.focus();
+          await expect(control).toBeFocused();
+          const controlBox = (await control.boundingBox())!;
+          const pinnedToolbar = (await toolbar.boundingBox())!;
+          expect(controlBox.y, `${route}: focused control must clear pinned navigation`).toBeGreaterThanOrEqual(pinnedToolbar.y + pinnedToolbar.height - 1);
+        }
+      });
+    }
+    if (size !== 'mobile') {
+      await page.setViewportSize({ width: Number(size), height: 400 });
+      const scroller = sidebar.locator(':scope > div');
+      expect(await scroller.evaluate(element => element.scrollHeight - element.clientHeight)).toBeGreaterThan(0);
+      const signOut = sidebar.getByRole('button', { name: 'Sign out', exact: true });
+      // Focus must reveal the bottom control without activating sign-out.
+      await signOut.focus();
+      await expect(signOut).toBeFocused();
+      await expect(signOut).toBeInViewport({ ratio: 1 });
+      expect(await scroller.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+      expect(Math.abs((await sidebar.boundingBox())!.y)).toBeLessThanOrEqual(1);
+    }
+    expect(writes).toEqual([]);
+  });
+}
+
 test('invite dialog validates locally, traps focus and dismisses through every non-submitting control', async ({ page }, info) => {
   await signIn(page, info);
   const writes = await forbidWrites(page);

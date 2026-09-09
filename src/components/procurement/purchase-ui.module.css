@@ -14,7 +14,7 @@
 }
 .surface.surface h1 { font-size: 1.75rem; }
 .surface.surface h2 { font-size: 1.15rem; }
-.surface.surface h3 { font-size: 1.125rem; }
+.surface.surface h3 { font-size: var(--type-h3); }
 .surface.surface :is(button, select, input:not([type="checkbox"]):not([type="radio"]), summary) {
   min-height: 44px;
   font-family: inherit;
@@ -34,7 +34,7 @@
   height: 18px;
   accent-color: var(--workspace-accent);
 }
-.surface.surface :is(input, select, textarea) { min-width: 0; font-size: 1rem; }
+.surface.surface :is(input, select, textarea) { min-width: 0; font-size: var(--type-body); }
 .surface.surface a { min-height: 44px; display: inline-flex; align-items: center; }
 
 .journey {
@@ -60,7 +60,7 @@
   border-block: 1px solid var(--workspace-line);
   background: var(--workspace-surface);
 }
-.disclosure > summary { padding: .75rem 1rem; font-size: .9375rem; font-weight: 750; color: var(--workspace-ink); cursor: pointer; }
+.disclosure > summary { padding: .75rem 1rem; font-size: var(--type-control); font-weight: 750; color: var(--workspace-ink); cursor: pointer; }
 .disclosure[open] > summary { border-bottom: 1px solid var(--workspace-line); }
 .disclosureBody { padding: 1rem; display: grid; gap: .5rem; }
 .disclosureBody a { color: var(--workspace-accent); text-underline-offset: 3px; }
@@ -69,7 +69,7 @@
 @media (max-width: 44rem) {
   .journey { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .journey li { font-size: .75rem; }
-  .surface.surface :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: 1rem; }
+  .surface.surface :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { font-size: var(--type-body); }
 }
 
 

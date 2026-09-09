@@ -9,7 +9,7 @@
 .workspace a { color: var(--workspace-accent); text-underline-offset: 3px; text-decoration: underline; }
 .workspace label { display: grid; gap: 8px; font-size: .9rem; font-weight: 600; }
 .workspace select, .workspace input:not([type=checkbox]) { width: 100%; min-width: 0; min-height: 46px; padding: 10px 12px; border: 1px solid var(--workspace-control-line); border-radius: 8px; background: var(--workspace-surface); color: var(--workspace-ink); font: inherit; }
-.workspace button { min-height: 44px; padding: 10px 18px; border: 1px solid var(--workspace-accent); border-radius: 8px; background: var(--workspace-accent); color: white; cursor: pointer; font: inherit; font-size: .875rem; font-weight: 600; }
+.workspace button { min-height: 44px; padding: 10px 18px; border: 1px solid var(--workspace-accent); border-radius: 8px; background: var(--workspace-accent); color: white; cursor: pointer; font: inherit; font-size: var(--type-control); font-weight: 600; }
 .workspace button:disabled { background: var(--workspace-canvas); border-color: var(--workspace-line); color: var(--workspace-muted); opacity: 1; cursor: not-allowed; }
 .workspace button:not(:disabled):hover { background: var(--workspace-accent-hover); border-color: var(--workspace-accent-hover); }
 .workspace :is(button, input, select, a, summary, [tabindex]):focus-visible { outline: 3px solid var(--workspace-accent); outline-offset: 3px; }
@@ -46,7 +46,7 @@
 .sharesTitle { margin-top: 32px !important; }
 .workspace ul { padding-left: 20px; line-height: 1.8; }
 .workspace li + li { margin-top: 8px; }
-.workspace summary { cursor: pointer; padding: 14px 0; font-size: .9rem; }
+.workspace summary { cursor: pointer; padding: 14px 0; font-size: var(--type-control); }
 .scroll { overflow-x: auto; }
 .workspace table { width: 100%; border-collapse: collapse; font-size: .82rem; text-align: left; }
 .workspace th, .workspace td { padding: 12px 10px; border-bottom: 1px solid var(--workspace-line); }
@@ -64,7 +64,7 @@
 .secondaryDetails[open] > summary::after { content: '−'; }
 .secondaryDetails > section { border: 0; margin: 0; }
 .secondaryDetails > :not(summary) { padding: 1rem; }
-.workspace button { font-size: .88rem; border-radius: .4rem; box-shadow: none; }
+.workspace button { font-size: var(--type-control); border-radius: .4rem; box-shadow: none; }
 .workspace label { text-transform: none; letter-spacing: 0; font-size: .85rem; }
 .hint { font-size: .875rem; line-height: 1.6; }
 

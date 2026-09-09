@@ -147,6 +147,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const closeNavigation = useRef<HTMLButtonElement>(null);
   const openNavigation = useRef<HTMLButtonElement>(null);
   const mobileNavigation = useRef<HTMLDivElement>(null);
+  const workspaceToolbar = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const toolbar = workspaceToolbar.current;
+    const content = toolbar?.parentElement;
+    if (!toolbar || !content) return;
+    const measure = () => content.style.setProperty('--workspace-toolbar-height', `${toolbar.getBoundingClientRect().height}px`);
+    const observer = new ResizeObserver(measure);
+    observer.observe(toolbar);
+    measure();
+    return () => {
+      observer.disconnect();
+      content.style.removeProperty('--workspace-toolbar-height');
+    };
+  }, [ready, accountUnavailable]);
 
   useEffect(() => {
     let active = true;
@@ -300,7 +315,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <span>This is a working test account. Changes are saved in this demo only. Do not enter real customer or supplier information.</span>
                 </aside>
               )}
-              <div className={styles.workspaceToolbar}>
+              <div className={styles.workspaceToolbar} ref={workspaceToolbar}>
                 <SectionNavigation pathname={pathname} />
                 <TutorialGuide initialTutorial={tutorial ?? undefined} />
               </div>

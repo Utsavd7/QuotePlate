@@ -30,7 +30,18 @@
   --muted: var(--workspace-muted);
   --accent: var(--workspace-accent);
   --font-ui: "Manrope Variable", sans-serif;
-  --font-display: "Newsreader Variable", serif;
+  --font-display: var(--font-ui);
+  --font-brand: "Newsreader Variable", serif;
+  --type-body: 1rem;
+  --type-control: .875rem;
+  --type-label: .875rem;
+  --type-caption: .75rem;
+  --type-h1: 1.75rem;
+  --type-h1-compact: 1.5rem;
+  --type-h2: 1.15rem;
+  --type-h3: 1rem;
+  --control-height: 2.75rem;
+  --control-radius: .5rem;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
@@ -195,7 +206,7 @@ textarea {
 .wordmark--inverse .brand-mark--duotone .brand-mark__quote { color: var(--stone); }
 
 .wordmark__name {
-  font-family: var(--font-display);
+  font-family: var(--font-brand);
   font-size: 1.35rem;
   font-weight: 520;
   font-optical-sizing: auto;
@@ -338,15 +349,16 @@ textarea {
   max-width: 14ch;
   font-family: var(--font-display);
   font-size: clamp(3.3rem, 7.1vw, 6.65rem);
-  font-weight: 470;
+  font-weight: 700;
   letter-spacing: -0.04em;
-  line-height: 0.87;
+  line-height: 1.05;
   text-wrap: balance;
 }
 
 .public-hero h1 em {
   color: var(--workspace-accent);
-  font-weight: 430;
+  font-weight: inherit;
+  font-style: normal;
 }
 
 .public-hero h1 {
@@ -418,7 +430,7 @@ textarea {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1rem;
-  font-weight: 560;
+  font-weight: 700;
   letter-spacing: -0.025em;
 }
 
@@ -508,7 +520,7 @@ textarea {
 .decision-preview__summary > div strong {
   font-family: var(--font-display);
   font-size: 1.35rem;
-  font-weight: 540;
+  font-weight: 700;
   letter-spacing: -0.035em;
 }
 
@@ -681,7 +693,7 @@ textarea {
 }
 
 .proof-band__grid > div:first-child { border-left: 1px solid var(--workspace-line); }
-.proof-band__grid strong { font-family: var(--font-display); font-size: 1.4rem; font-weight: 520; }
+.proof-band__grid strong { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; }
 .proof-band__grid span { max-width: 14rem; color: color-mix(in srgb, var(--ink) 65%, transparent); font-size: 0.72rem; line-height: 1.55; }
 
 .public-cta h2 {
@@ -689,9 +701,9 @@ textarea {
   max-width: 15ch;
   font-family: var(--font-display);
   font-size: clamp(2.6rem, 5vw, 4.7rem);
-  font-weight: 460;
+  font-weight: 700;
   letter-spacing: -0.04em;
-  line-height: 0.95;
+  line-height: 1.1;
   text-wrap: balance;
 }
 
@@ -784,7 +796,7 @@ textarea {
   border-bottom: 1px solid var(--ink);
 }
 
-.legal-page h1 { max-width: none; font-size: clamp(3.4rem, min(5.8vw, 7.2vh), 5.4rem); line-height: 0.96; }
+.legal-page h1 { max-width: none; font-size: clamp(3.4rem, min(5.8vw, 7.2vh), 5.4rem); line-height: 1.1; }
 .legal-page > header > p:last-child { max-width: 45rem; margin: 2rem 0 0; font-size: 1rem; line-height: 1.7; }
 
 .legal-copy {

@@ -31,8 +31,10 @@ Place finalized clips in `/tmp/quoteplate-motion-tour/captures`:
   Merely wrapping a screenshot in an MP4 is not an interactive demonstration;
   codec and duration checks do not replace human motion review.
 
-Use 1440×900 / 30fps where possible; the renderer fits without cropping inside a
-1920×1080 frame. The canvas is `#f6f7f5`, bars `#172521`. Browser audio is discarded;
+Use 1440×900 / 30fps recordings. The renderer scales the complete app to a
+1920×1200 (16:10) frame, without margins, a title strip, or cropping application
+controls. Opening/closing `pictureCrop` coordinates remove their old title strip
+while retaining the logo, main copy and closing disclosure. Browser audio is discarded;
 only approved narration/music are used. Capture a separate fictional workspace.
 No browser chrome, login/password entry, private invitation URLs, credentials or
 internal-account notices should appear in the selected source interval. Preparation
@@ -119,7 +121,7 @@ profile is accessed. Python 3.11+, FFmpeg and FFprobe are required for rendering
 the local venv also contains the optional Kokoro dependencies. `--captures`,
 `--storyboard` and `--font` override the defaults.
 
-Output is **164 seconds / 4,920 frames**, H.264/AAC, 1920×1080, 30fps with fast-start.
+Output is **164 seconds / 4,920 frames**, H.264/AAC, 1920×1200, 30fps with fast-start.
 Captures changing during encoding fail verification. The final export is fully
 decoded and frame-count checked. `verification.json` records input hashes, shot
 intervals and playback rates. A contact sheet samples every shot, but a human must
@@ -167,3 +169,18 @@ For existing contaminated clips, remove the contaminated trailing interval from
 the actual recording and uniformly retime the remaining motion to the exact slot
 (at least 0.85x). Verify the resulting first/last frames and exact frame count; do
 not generate padding or repeat a still to fill the slot.
+
+For a visual-only release, retain the previous public film as `approved-film.mp4`
+in the new work directory before rendering. Preserve its exact approved AAC audio
+packets when finalizing (no narration regeneration or audio re-encoding):
+
+```sh
+ffmpeg -i /tmp/quoteplate-borderless-film/quoteplate-product-film.mp4 \
+  -i /tmp/quoteplate-borderless-film/approved-film.mp4 \
+  -map 0:v:0 -map 1:a:0 -c copy -movflags +faststart \
+  /tmp/quoteplate-borderless-film/final.mp4
+```
+
+Fully decode the final file, compare audio packet hashes with the approved film,
+and refresh the published verification/output hash after remuxing. The player
+uses the same 16:10 ratio and has no decorative frame or rounded clipping.

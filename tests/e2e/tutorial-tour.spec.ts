@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { DEMO_OWNER_EMAIL } from '../../src/lib/demo/identity';
+import { projectTutorial } from '../../src/components/tutorial/tutorial-progress';
 import type { TutorialAction, TutorialStateDto } from '../../src/lib/tutorial/tutorial-state';
 import { expectNoSeriousAxeViolations } from './helpers/accessibility';
 
@@ -150,6 +151,7 @@ test('six real controls stay highlighted through next, back, movement and resize
   await ringFollowsTarget(page, highlighted(page));
   await expectNoSeriousAxeViolations(page, 'aside[data-tour-step]');
   await info.attach('anchored-tour', { body: await page.screenshot(), contentType: 'image/png' });
+  await expect(page.locator('aside[data-tutorial-ui]')).toHaveAttribute('data-progress-sync', 'saved');
   expect(actions).toEqual(['NEXT', 'NEXT', 'NEXT', 'NEXT', 'NEXT', 'BACK']);
   expect(errors).toEqual([]);
 });
@@ -171,6 +173,7 @@ test('real target clicks navigate, collapse, and resume at the same step', async
   await openMobileNavigation(page);
   await expect(highlighted(page)).toHaveAttribute('href', '/menus');
   await ringFollowsTarget(page, highlighted(page));
+  await expect(page.locator('aside[data-tutorial-ui]')).toHaveAttribute('data-progress-sync', 'saved');
   expect(actions).toEqual(['NEXT', 'RESUME']);
 });
 
@@ -210,6 +213,7 @@ test('keyboard collapse, skip, completion and reopen retain accessible compact c
   await info.attach('completed-tour-launcher', { body: await page.screenshot(), contentType: 'image/png' });
   await restart.click();
   await expect(guide(page)).toHaveAttribute('data-tour-step', '1');
+  await expect(page.locator('aside[data-tutorial-ui]')).toHaveAttribute('data-progress-sync', 'saved');
   expect(actions).toEqual(['RESUME', 'SKIP', 'RESUME', 'NEXT', 'NEXT', 'NEXT', 'NEXT', 'NEXT', 'COMPLETE', 'RESTART']);
 });
 
@@ -244,6 +248,7 @@ test('pauses for supplier and native modals and restores the same tour step', as
   await page.getByRole('button', { name: 'Close native dialog' }).click();
   await expect(guide(page)).toHaveAttribute('data-tour-step', '1');
   await ringFollowsTarget(page, highlighted(page));
+  await expect(page.locator('aside[data-tutorial-ui]')).toHaveAttribute('data-progress-sync', 'saved');
   expect(actions).toEqual([]);
 });
 
@@ -270,3 +275,116 @@ test('short mobile drawer keeps the fallback in its accessible scroll flow', asy
   await expect(dialog).toHaveCount(0);
   await expectCompactLauncher(page, 'Continue setup');
 });
+
+test('rapid clicks stay immediate while slow saves serialize and never reopen a collapsed guide', async ({ page }) => {
+  await openTour(page);
+  let release!: () => void;
+  const slowResponse = new Promise<void>(resolve => { release = resolve; });
+  let canonical: TutorialStateDto = { version: 1, step: 0, lastStep: 5, skippedAt: null, completedAt: null };
+  const requests: Array<{ action: TutorialAction; expectedVersion: number }> = [];
+  await page.route('**/api/tutorial', async route => {
+    const command = route.request().postDataJSON() as { action: TutorialAction; expectedVersion: number };
+    requests.push(command);
+    if (requests.length === 1) await slowResponse;
+    expect(command.expectedVersion).toBe(canonical.version);
+    canonical = projectTutorial(canonical, { action: command.action, at: '2026-09-09T00:00:00.000Z' });
+    await route.fulfill({ json: { tutorial: canonical } });
+  });
+  try {
+    await guide(page).getByRole('button', { name: 'Next', exact: true }).click();
+    await expect(guide(page)).toHaveAttribute('data-tour-step', '2', { timeout: 1000 });
+    await guide(page).getByRole('button', { name: 'Next', exact: true }).click();
+    await expect(guide(page)).toHaveAttribute('data-tour-step', '3', { timeout: 1000 });
+    await guide(page).getByRole('button', { name: 'Back', exact: true }).click();
+    await expect(guide(page)).toHaveAttribute('data-tour-step', '2', { timeout: 1000 });
+    await expect(guide(page).getByRole('button', { name: 'Next', exact: true })).toBeEnabled();
+    await expect(guide(page).getByRole('button', { name: 'Back', exact: true })).toBeEnabled();
+    await expect(guide(page)).toHaveAttribute('data-progress-sync', 'saving');
+    expect(requests).toEqual([{ action: 'NEXT', expectedVersion: 1 }]);
+    await guide(page).getByRole('button', { name: 'Collapse setup guide' }).click();
+    const resume = page.getByRole('button', { name: 'Continue setup', exact: true });
+    await expect(resume).toBeEnabled();
+    release();
+    await expect(page.locator('aside[data-tutorial-ui]')).toHaveAttribute('data-progress-sync', 'saved');
+    await expect(guide(page)).toHaveCount(0);
+    expect(requests).toEqual([
+      { action: 'NEXT', expectedVersion: 1 }, { action: 'NEXT', expectedVersion: 2 }, { action: 'BACK', expectedVersion: 3 },
+    ]);
+    await resume.click();
+    await expect(guide(page)).toHaveAttribute('data-tour-step', '2');
+    await expect(guide(page)).toHaveAttribute('data-progress-sync', 'saved');
+  } finally { release(); }
+});
+
+test('conflict rebase and failed saves keep navigation usable and retry only after reading canonical progress', async ({ page }) => {
+  await openTour(page);
+  let canonical: TutorialStateDto = { version: 1, step: 0, lastStep: 5, skippedAt: null, completedAt: null };
+  const writes: Array<{ action: TutorialAction; expectedVersion: number }> = [];
+  let reads = 0;
+  await page.route('**/api/tutorial', async route => {
+    if (route.request().method() === 'GET') {
+      reads++;
+      return route.fulfill({ json: { tutorial: canonical } });
+    }
+    const command = route.request().postDataJSON() as { action: TutorialAction; expectedVersion: number };
+    writes.push(command);
+    if (writes.length === 1) {
+      canonical = { ...canonical, step: 2, version: 5 };
+      return route.fulfill({ status: 409, json: {} });
+    }
+    if (writes.length === 2) return route.fulfill({ status: 503, json: {} });
+    expect(command.expectedVersion).toBe(canonical.version);
+    canonical = projectTutorial(canonical, { action: command.action, at: '2026-09-09T00:00:00.000Z' });
+    return route.fulfill({ json: { tutorial: canonical } });
+  });
+  await guide(page).getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(guide(page)).toHaveAttribute('data-progress-sync', 'unsaved');
+  await expect(guide(page)).toHaveAttribute('data-tour-step', '4');
+  await expect(guide(page).getByRole('status')).toContainText('Progress not saved');
+  await guide(page).getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(guide(page)).toHaveAttribute('data-tour-step', '5');
+  expect(writes).toHaveLength(2);
+  await guide(page).getByRole('button', { name: 'Retry save', exact: true }).click();
+  await expect(guide(page)).toHaveAttribute('data-progress-sync', 'saved');
+  expect(reads).toBe(2);
+  expect(writes.map(write => write.expectedVersion)).toEqual([1, 5, 5, 6]);
+  expect(canonical).toMatchObject({ step: 4, version: 7 });
+});
+
+test('keyboard and reduced-motion navigation is instant while the target ring never animates', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await openTour(page);
+  await guide(page).getByRole('button', { name: 'Next', exact: true }).click();
+  const instructions = guide(page).locator('h2').locator('..');
+  // The app-wide reduced-motion rule uses 0.01ms to preserve transition events.
+  expect(await instructions.evaluate(element => Math.max(...getComputedStyle(element).transitionDuration.split(',').map(parseFloat)))).toBeLessThanOrEqual(.00001);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await guide(page).getByRole('button', { name: 'Next', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await expect(guide(page)).toHaveAttribute('data-motion', 'instant');
+  await expect(instructions).toHaveCSS('transition-duration', '0s');
+  await expect(page.locator('[data-tour-highlight]')).toHaveCSS('transition-duration', '0s');
+  await expect(guide(page)).toHaveAttribute('data-progress-sync', 'saved');
+});
+
+for (const field of ['skippedAt', 'completedAt'] as const) {
+  test(`successful reconciliation adopts canonical ${field} without collapsing on a failed refresh`, async ({ page }) => {
+    await openTour(page);
+    const saved: TutorialStateDto = { version: 8, step: 5, lastStep: 5, skippedAt: null, completedAt: null, [field]: '2026-09-09T00:00:00.000Z' };
+    let reads = 0;
+    await page.route('**/api/tutorial', async route => {
+      if (route.request().method() === 'PATCH') return route.abort('failed');
+      if (++reads === 2) return route.fulfill({ status: 503, json: {} });
+      return route.fulfill({ json: { tutorial: saved } });
+    });
+    await guide(page).getByRole('button', { name: 'Next', exact: true }).click();
+    await guide(page).getByRole('button', { name: 'Retry save', exact: true }).click();
+    await guide(page).getByRole('button', { name: 'Use saved progress', exact: true }).click();
+    await expect(guide(page).getByRole('status')).toContainText('Could not load saved progress');
+    await expect(guide(page)).toHaveAttribute('data-tour-step', '2');
+    await guide(page).getByRole('button', { name: 'Use saved progress', exact: true }).click();
+    await expect(guide(page)).toHaveCount(0);
+    await expectCompactLauncher(page, field === 'completedAt' ? 'Show setup guide' : 'Continue setup');
+    await expect(page.locator('aside[data-tutorial-ui]')).toHaveAttribute('data-progress-sync', 'saved');
+  });
+}

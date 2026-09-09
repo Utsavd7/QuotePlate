@@ -3,9 +3,9 @@
 .brand { display:inline-flex; color:inherit; text-decoration:none; margin-bottom:36px; }
 .intro { padding:32px 0 36px; border-bottom:1px solid var(--workspace-line); margin-bottom:32px; }
 .eyebrow { font-size:.75rem; letter-spacing:.12em; text-transform:uppercase; color:var(--workspace-muted); margin:0 0 12px; }
-.intro h1 { font-family:"Newsreader Variable",Georgia,serif; font-size:clamp(2.1rem,5vw,3.7rem); font-weight:500; line-height:1.05; margin:0 0 16px; overflow-wrap:anywhere; }
+.intro h1 { font-family:var(--font-ui); font-size:clamp(2.1rem,5vw,3.7rem); font-weight:500; line-height:1.05; margin:0 0 16px; overflow-wrap:anywhere; }
 .shell h2 { font-size:1.4rem; font-weight:600; margin:0 0 12px; }
-.shell h3 { font-size:1.1rem; margin:0; overflow-wrap:anywhere; }
+.shell h3 { font-size:var(--type-h3); margin:0; overflow-wrap:anywhere; }
 .help { font-size:.875rem; color:var(--workspace-muted); line-height:1.65; max-width:75ch; }
 .order { border:1px solid var(--workspace-line); background:var(--workspace-surface); padding:clamp(18px,3vw,30px); border-radius:12px; margin-top:20px; min-width:0; }
 .orderHeader { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:14px; }
@@ -21,7 +21,7 @@
 .order label { display:grid; gap:8px; font-size:.875rem; font-weight:500; }
 .order input,.order select,.order textarea { padding:12px; font:inherit; border:1px solid var(--workspace-control-line); border-radius:5px; background:var(--workspace-surface); color:var(--workspace-ink); min-width:0; width:100%; box-sizing:border-box; }
 .order textarea { resize:vertical; }
-.order button, .refresh { width:fit-content; min-height:44px; border:1px solid var(--workspace-accent); border-radius:6px; background:var(--workspace-accent); color:#fff; padding:11px 18px; font:inherit; font-size:.875rem; cursor:pointer; }
+.order button, .refresh { width:fit-content; min-height:44px; border:1px solid var(--workspace-accent); border-radius:6px; background:var(--workspace-accent); color:#fff; padding:11px 18px; font:inherit; font-size:var(--type-control); cursor:pointer; }
 .order button:disabled, .refresh:disabled { background:var(--workspace-canvas); border-color:var(--workspace-line); color:var(--workspace-muted); opacity:1; cursor:not-allowed; }
 .order :focus-visible, .refresh:focus-visible, .tableWrap:focus-visible { outline:3px solid var(--workspace-accent); outline-offset:3px; }
 .delivery { border-top:1px solid var(--workspace-line); padding-top:24px; margin-top:28px; }
@@ -45,7 +45,7 @@
 .page { font-family:var(--font-ui),"Manrope Variable",sans-serif; background:var(--workspace-canvas); color:var(--workspace-ink); }
 .brand { min-height:44px; align-items:center; margin-bottom:16px; }
 .intro { padding:16px 0 24px; }
-.intro h1 { font-family:var(--font-ui),"Manrope Variable",sans-serif; font-size:clamp(1.8rem,4vw,3rem); font-weight:700; line-height:1.2; }
+.intro h1 { font-family:var(--font-ui); font-size:clamp(1.8rem,4vw,3rem); font-weight:700; line-height:1.2; }
 .shell h2, .shell h3 { font-family:var(--font-ui),"Manrope Variable",sans-serif; line-height:1.4; }
 .help, .items li, .order label, .tableWrap table { font-size:1rem; }
 .order input,.order select,.order textarea { min-height:48px; font-size:1rem; }

@@ -3,14 +3,14 @@
   "frames": 4920,
   "resolution": [
     1920,
-    1080
+    1200
   ],
   "videoCodec": "h264",
   "audioCodec": "aac",
   "fullDecode": "passed",
-  "storyboardSha256": "87503c5abc3760566757626be67d095b90f13d2de793ab41b077db4371d9a8c6",
+  "storyboardSha256": "6a74bef896e271cfdb331ae8da8d9467cd68603601ff03e8d02343525bccb4fc",
   "sourceSha256": "c28fb8def63cd078d1bf3c5800a8830ad4efb9b5aab89553ce7190e4d6aeb1a3",
-  "outputSha256": "230fe98bb6baa3bbf3963a61c664bf826bce6d72b7133f9fefd4c935495c12e7",
+  "outputSha256": "3d6b220f9505315ebefbc0aaf8570aa31e9da65e1d8d3b0587fa76e3ed236202",
   "freshCaptures": {
     "today.mp4": "e5f1c71b7bf528dcaf7bee86dda027e0ffad9c39578d1262b7d4f69e4372a051",
     "menu-input.mp4": "b6a4d7b734a009c3507fb05377537873399306b491c8ee205d1b8d605602e025",
@@ -190,6 +190,12 @@
       "playbackRate": 1
     }
   ],
+  "audioPacketHash": "SHA256=fe65538868e52f6db55f50d80900ce9c8a557fdd389485fbc20105e43fadd1d7",
+  "audioIdenticalToPreviousPublic": true,
+  "captionSha256": "d4f371327a7670d4e06879f522fb86d41dee4b9ece7badca5f75b207f4075235",
+  "transcriptSha256": "eca510177b240516db98cd19058e21cd38e060fe001b4b935f4a944298367767",
+  "captionsAndTranscriptUnchanged": true,
+  "posterSha256": "6254290c65a324be6d8be17bd2a2629d155ea1c6b430be150c4a1f6f0a964624",
   "captureDetails": [
     {
       "file": "award.mp4",
@@ -442,29 +448,6 @@
       "uniqueSampleFrames": 5
     }
   ],
-  "audioPacketHash": "SHA256=fe65538868e52f6db55f50d80900ce9c8a557fdd389485fbc20105e43fadd1d7",
-  "audioIdenticalToPreviousPublic": true,
-  "captionSha256": "d4f371327a7670d4e06879f522fb86d41dee4b9ece7badca5f75b207f4075235",
-  "transcriptSha256": "eca510177b240516db98cd19058e21cd38e060fe001b4b935f4a944298367767",
-  "captionsAndTranscriptUnchanged": true,
-  "posterSha256": "727cf25538fb40632d976df72a7586e116869ebf5a70f165fd66dad7bc53c90b",
-  "creditsSha256": "cb069edb19a50fae6ca14d12fa1617a38fc6cc5c12e5282b4577c70c6c886425",
-  "volume": {
-    "input_i": "-17.44",
-    "input_tp": "-3.96",
-    "input_lra": "5.00",
-    "input_thresh": "-28.82",
-    "output_i": "-17.18",
-    "output_tp": "-2.57",
-    "output_lra": "4.90",
-    "output_thresh": "-28.57",
-    "normalization_type": "dynamic",
-    "target_offset": "0.18"
-  },
-  "fastStart": true,
-  "captureMotionCheck": "All 25 clips have differing one-second samples; temporal and boundary review performed.",
-  "palette": {
-    "canvas": "#f6f7f5",
-    "bar": "#172521"
-  }
+  "framing": "Full 16:10 app recordings; no padding or title strip. Kitchen opening/closing reframed using storyboard pictureCrop.",
+  "fastStart": true
 }

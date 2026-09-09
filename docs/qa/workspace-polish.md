@@ -30,3 +30,27 @@ The first full CI run exposed a real regression: the collapsed setup launcher co
 Existing suites retain the real local menu-to-request-to-supplier-quote-to-award workflow, delivery checks, restaurant saves, invitation acceptance, permission restrictions, exports and supplier portals. These do not cover every possible combination of records, permission roles, upload content, offline state or external provider response. No claim of universal button coverage or instant live loading follows from the audit. Automated axe checks complement visual inspection; they are not a full screen-reader audit.
 
 See `performance-polish.md` for measured timings and production limitations. Screenshots and traces are produced by Playwright in its configured output directory; they are not published as marketing assets.
+
+## Follow-up: pinned navigation, immediate setup, consistent type
+
+The workspace sidebar is fixed to the viewport. Section navigation stays at the
+top of the content area, below the mobile header when present. Its measured height
+is used for focused-control scroll offsets. Short-screen sidebar overflow remains
+keyboard-accessible. Main pages use flex sizing instead of a percentage minimum
+height that included their toolbar siblings; their content ends before the footer.
+A new regression checks these bounds on five routes at both laptop sizes and mobile.
+
+Setup steps project immediately while a serialized queue saves progress using the
+server's version checks. Delayed, lost and conflicting responses do not replay an
+uncertain action against a newer version. Failed saves stay visibly unsaved, with
+retry or explicit reconciliation. Pointer interactions use 160ms content/progress
+transitions; keyboard and reduced-motion navigation remain instant. The target
+ring follows its actual control immediately. Tests cover rapid input, slow saves,
+failure recovery, delayed commits, reconciliation and focus.
+
+Manrope now supplies all interface text; the canonical Newsreader wordmark uses a
+separate brand token. Shared sizes cover headings, body text, controls and labels
+across public, restaurant and supplier pages. Landing and sharing assets follow
+the same typography. The film is 1920×1200, matching the complete 16:10 app captures
+without a decorative frame, title strip or margins. Its 164-second timeline,
+approved AAC audio packets, captions and transcript are unchanged.

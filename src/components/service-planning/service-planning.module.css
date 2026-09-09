@@ -9,8 +9,8 @@
 .workspace legend { font-size: 14px; font-weight: 750; padding: 0 8px 0 0; }
 .workspace label { min-width: 0; display: grid; gap: 8px; font-size: 14px; font-weight: 600; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px; }
-.workspace input, .workspace select { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--workspace-line); background: var(--workspace-surface); color: var(--workspace-ink); border-radius: 6px; padding: 9px; font: inherit; font-size: 16px; }
-.workspace button { min-height: 44px; border: 1px solid var(--workspace-accent); padding: 10px 16px; border-radius: 6px; background: var(--workspace-accent); color: var(--workspace-surface); margin-top: 16px; cursor: pointer; font: inherit; font-size: 14px; font-weight: 700; }
+.workspace input, .workspace select { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--workspace-control-line); background: var(--workspace-surface); color: var(--workspace-ink); border-radius: 6px; padding: 9px; font: inherit; font-size: var(--type-body); }
+.workspace button { min-height: 44px; border: 1px solid var(--workspace-accent); padding: 10px 16px; border-radius: 6px; background: var(--workspace-accent); color: var(--workspace-surface); margin-top: 16px; cursor: pointer; font: inherit; font-size: var(--type-control); font-weight: 700; }
 .workspace button:disabled { opacity: .5; cursor: default; }
 .workspace .secondaryButton { background: transparent; border-color: var(--workspace-line); color: var(--workspace-ink); }
 .workspace table { width: 100%; text-align: left; border-collapse: collapse; margin: 8px 0 16px; font-size: 14px; }
@@ -19,7 +19,7 @@
 .workspace small { display: block; font-weight: normal; margin-top: 4px; }
 .workspace details { border-bottom: 1px solid var(--workspace-line); padding: 4px 0; }
 .workspace details details { margin-left: 12px; }
-.workspace summary { min-height: 44px; padding: 12px 0; cursor: pointer; font-size: 14px; font-weight: 650; }
+.workspace summary { min-height: 44px; padding: 12px 0; cursor: pointer; font-size: var(--type-control); font-weight: 650; }
 .workspace td details { border: 0; padding: 0; }
 .workspace td summary { padding-top: 0; }
 .arrival { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); align-items: end; gap: 14px; padding-top: 18px; }
@@ -37,7 +37,7 @@
 .nextLink { display: inline-flex; align-items: center; min-height: 44px; font-weight: 750; margin-top: 12px; }
 .workspace .savedVersion { font-size: 13px; }
 .workspace :is(input, select, button, a, summary, [tabindex]):focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 3px; }
-@media(max-width: 700px) { .workspace { padding: 20px 16px 60px; } .dishList { grid-template-columns: 1fr; } .workspace input, .workspace select { font-size: 16px; } .workspace th, .workspace td { padding: 10px 8px; } }
+@media(max-width: 700px) { .workspace { padding: 20px 16px 60px; } .dishList { grid-template-columns: 1fr; } .workspace input, .workspace select { font-size: var(--type-body); } .workspace th, .workspace td { padding: 10px 8px; } }
 
 
 .workspace :where(button, a) { transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 100ms ease; }

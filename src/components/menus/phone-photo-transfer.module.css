@@ -23,7 +23,7 @@
 .status svg,.saved svg { width: 1rem; flex: 0 0 auto; }
 .spin { animation: transferSpin 1s linear infinite; }
 @keyframes transferSpin { to { transform: rotate(360deg); } }
-.scanAgain { margin-top: .8rem; min-height: 2.75rem; display: inline-flex; align-items: center; gap: .45rem; padding: 0 .8rem; border: 1px solid var(--ink); background: var(--ink); color: var(--workspace-surface); font-size: .74rem; font-weight: 800; cursor: pointer; }
+.scanAgain { margin-top: .8rem; min-height: 2.75rem; display: inline-flex; align-items: center; gap: .45rem; padding: 0 .8rem; border: 1px solid var(--ink); background: var(--ink); color: var(--workspace-surface); font-size: var(--type-control); font-weight: 800; cursor: pointer; }
 .scanAgain svg { width: .95rem; }
 .privacy { margin-top: .9rem; padding-top: .8rem; display: grid; grid-template-columns: 1.1rem 1fr; gap: .55rem; border-top: 1px solid var(--line); color: var(--muted); }
 .privacy svg { width: 1rem; color: var(--workspace-accent); }
@@ -46,7 +46,7 @@
 .batchMeta { min-width: 0; display: flex; flex-direction: column; gap: .12rem; }
 .batchMeta strong { font-size: .75rem; }
 .batchMeta span,.batchMeta small { color: var(--muted); font-size: .62rem; line-height: 1.35; }
-.batchList article > button { grid-column: 1 / -1; min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: .65rem; font-weight: 750; cursor: pointer; }
+.batchList article > button { grid-column: 1 / -1; min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; border: 1px solid var(--line); background: transparent; color: var(--muted); font-size: var(--type-control); font-weight: 750; cursor: pointer; }
 .batchList article > button svg { width: .85rem; }
 @media (max-width: 64rem) { .batchList { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 44rem) { .qrArea { grid-template-columns: 1fr; justify-items: center; text-align: center; } .qrArea span { justify-content: center; } .temporaryGrid { grid-template-columns: repeat(3,minmax(0,1fr)); } .gallery > header { align-items: flex-start; flex-direction: column; } .batchList { grid-template-columns: 1fr; } }

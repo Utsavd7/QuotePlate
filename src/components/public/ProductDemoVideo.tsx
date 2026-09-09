@@ -84,7 +84,7 @@ export function ProductDemoVideo() {
         <p>Follow Monsoon Table, our fictional restaurant in Pune, through the simpler workspace: Today, Purchases, Suppliers, Menu and Reports. See guided purchases, supplier quote review, meal planning and delivery checks. The film uses fictional restaurant records and real public map listings captured for this tour; stock and prices need confirmation.</p>
       </header>
       <div className={styles.player}>
-        <video ref={videoRef} controls playsInline muted preload="none" width={1920} height={1080}
+        <video ref={videoRef} controls playsInline muted preload="none" width={1920} height={1200}
           poster={`${source}.jpg`} aria-label="QuotePlate product demonstration"
           onVolumeChange={(event) => setSilent(event.currentTarget.muted || event.currentTarget.volume === 0)}
           onError={() => setFailed(true)}>

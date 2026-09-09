@@ -9,7 +9,7 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 
 import type {
@@ -19,6 +19,7 @@ import type {
 
 import styles from './tutorial-guide.module.css';
 import { useTourAnchor } from './use-tour-anchor';
+import { useTutorialProgress } from './use-tutorial-progress';
 
 export const TUTORIAL_STEPS = [
   {
@@ -65,33 +66,18 @@ export const TUTORIAL_STEPS = [
   },
 ] as const;
 
-type TutorialResponse = { tutorial?: TutorialStateDto };
-
-async function readTutorial(): Promise<TutorialStateDto> {
-  const response = await fetch('/api/tutorial', { cache: 'no-store' });
-  if (!response.ok) throw new Error('Unable to load setup guide');
-  const body = (await response.json()) as TutorialResponse;
-  if (!body.tutorial) throw new Error('Setup guide response was incomplete');
-  return body.tutorial;
-}
-
 export function TutorialGuide({
   initialTutorial,
 }: {
   initialTutorial?: TutorialStateDto;
 }) {
-  const [tutorial, setTutorial] = useState<TutorialStateDto | null>(
-    initialTutorial ?? null,
-  );
-  const [expanded, setExpanded] = useState(
-    Boolean(
-      initialTutorial &&
-        !initialTutorial.skippedAt &&
-        !initialTutorial.completedAt,
-    ),
-  );
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const progress = useTutorialProgress(initialTutorial);
+  const { tutorial, pending, error: message } = progress;
+  const [expandedOverride, setExpanded] = useState<boolean | null>(null);
+  const expanded = expandedOverride ?? Boolean(tutorial && !tutorial.skippedAt && !tutorial.completedAt);
+  const [keyboard, setKeyboard] = useState(true);
+  const focusFrame = useRef(0);
+  const interaction = useRef(0);
   const panel = useRef<HTMLElement>(null);
   const resumeButton = useRef<HTMLButtonElement>(null);
   const guideId = useId();
@@ -104,108 +90,82 @@ export function TutorialGuide({
     if (!expanded || !anchor || anchor.opensNavigation) return;
     const target = anchor.target;
     const followDestination = (event: MouseEvent) => {
-      if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) setExpanded(false);
+      if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+        interaction.current++;
+        setExpanded(false);
+      }
     };
     target.addEventListener('click', followDestination);
     return () => target.removeEventListener('click', followDestination);
   }, [expanded, anchor]);
 
-  function collapse() {
-    setExpanded(false);
-    requestAnimationFrame(() => {
-      const focusTarget = anchor?.host.closest('[role="dialog"]') ? anchor.target : resumeButton.current;
-      focusTarget?.focus({ preventScroll: true });
+  useEffect(() => () => cancelAnimationFrame(focusFrame.current), []);
+
+  function focusAfterToggle(open: boolean) {
+    cancelAnimationFrame(focusFrame.current);
+    focusFrame.current = requestAnimationFrame(() => {
+      const target = open ? panel.current
+        : anchor?.host.closest('[role="dialog"]') ? anchor.target : resumeButton.current;
+      target?.focus({ preventScroll: true });
     });
   }
 
-  const refresh = useCallback(async () => {
-    try {
-      const next = await readTutorial();
-      setTutorial(next);
-      setExpanded(!next.skippedAt && !next.completedAt);
-    } catch {
-      // The workspace remains usable when the optional guide is unavailable.
-    }
-  }, []);
+  function collapse() {
+    interaction.current++;
+    setExpanded(false);
+    focusAfterToggle(false);
+  }
 
-  useEffect(() => {
-    if (initialTutorial) return;
-    let active = true;
-    readTutorial()
-      .then((next) => {
-        if (!active) return;
-        setTutorial(next);
-        setExpanded(!next.skippedAt && !next.completedAt);
-      })
-      .catch(() => {
-        // The workspace remains usable when the optional guide is unavailable.
-      });
-    return () => {
-      active = false;
-    };
-  }, [initialTutorial]);
+  function apply(action: TutorialAction) {
+    if (!progress.dispatch(action)) return;
+    interaction.current++;
+    const open = action !== 'SKIP' && action !== 'COMPLETE';
+    setExpanded(open);
+    if (open !== expanded) focusAfterToggle(open);
+  }
 
-  async function apply(action: TutorialAction) {
-    if (!tutorial || saving) return;
-    setSaving(true);
-    setMessage('');
-    try {
-      const response = await fetch('/api/tutorial', {
-        method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          expectedVersion: tutorial.version,
-          action,
-        }),
-      });
-      if (response.status === 409) {
-        await refresh();
-        setMessage('Progress was refreshed. Please try again.');
-        return;
-      }
-      if (!response.ok) throw new Error('Unable to update setup guide');
-      const body = (await response.json()) as TutorialResponse;
-      if (!body.tutorial) throw new Error('Setup guide response was incomplete');
-      setTutorial(body.tutorial);
-      setExpanded(action !== 'SKIP' && action !== 'COMPLETE');
-      requestAnimationFrame(() => {
-        const destination = action === 'SKIP' || action === 'COMPLETE'
-          ? anchor?.host.closest('[role="dialog"]') ? anchor.target : resumeButton.current
-          : panel.current;
-        destination?.focus({ preventScroll: true });
-      });
-    } catch {
-      setMessage('Could not save your progress. Please try again.');
-    } finally {
-      setSaving(false);
+  async function reconcile() {
+    const revision = interaction.current;
+    const saved = await progress.useSavedProgress();
+    if (saved && revision === interaction.current) {
+      setExpanded(null);
+      focusAfterToggle(!saved.skippedAt && !saved.completedAt);
     }
   }
 
   if (!tutorial || suspended) return null;
 
   const finished = Boolean(tutorial.completedAt);
+  const syncStatus = message ? 'unsaved' : pending ? 'saving' : 'saved';
+  const notice = message ? (
+    <div className={styles.message}>
+      <p role="status">{message}</p>
+      <button type="button" onClick={progress.needsReconciliation ? () => void reconcile() : progress.retry}>
+        {progress.needsReconciliation ? 'Use saved progress' : 'Retry save'}
+      </button>
+    </div>
+  ) : pending ? <p className={styles.saving} role="status">Saving progress…</p> : null;
 
   if (!expanded) {
     return (
-      <aside className={styles.resume} aria-label="Setup guide" data-tutorial-ui>
+      <aside className={styles.resume} aria-label="Setup guide" data-tutorial-ui data-progress-sync={syncStatus} data-motion={keyboard ? 'instant' : 'pointer'} onPointerDownCapture={() => setKeyboard(false)} onKeyDownCapture={() => setKeyboard(true)}>
         <span className={finished ? styles.resumeIconDone : styles.resumeIcon}>
           {finished ? <Check aria-hidden="true" /> : <BookOpenCheck aria-hidden="true" />}
         </span>
         <span className={styles.resumeCopy}>
-          <strong>{finished ? 'Setup complete' : `Step ${stepIndex + 1} of ${TUTORIAL_STEPS.length}`}</strong>
+          <strong>{finished ? (pending ? 'Not saved yet' : 'Setup complete') : `Step ${stepIndex + 1} of ${TUTORIAL_STEPS.length}`}</strong>
           <small>{finished ? 'Review the guide any time' : 'Continue when you are ready'}</small>
         </span>
         <button
           ref={resumeButton}
           aria-expanded={false}
-          disabled={saving}
           onClick={() => void apply(finished ? 'RESTART' : 'RESUME')}
           type="button"
         >
           {finished ? <RotateCcw aria-hidden="true" /> : null}
           {finished ? 'Show setup guide' : 'Continue setup'}
         </button>
-        {message ? <p className={styles.message} role="status">{message}</p> : null}
+        {notice}
       </aside>
     );
   }
@@ -221,6 +181,10 @@ export function TutorialGuide({
       data-tour-fallback={anchor?.inline || undefined}
       data-tutorial-ui
       data-tour-step={stepIndex + 1}
+      data-progress-sync={syncStatus}
+      data-motion={keyboard ? 'instant' : 'pointer'}
+      onPointerDownCapture={() => setKeyboard(false)}
+      onKeyDownCapture={() => setKeyboard(true)}
       aria-label="Setup guide"
       aria-live="polite"
       tabIndex={-1}
@@ -251,10 +215,12 @@ export function TutorialGuide({
       </div>
 
       <div className={styles.body}>
+        <div key={stepIndex} className={styles.instruction}>
         <h2>{step.title}</h2>
         <p id={descriptionId}>{anchor?.opensNavigation
           ? `Open navigation, then choose ${step.action.replace(/^Open /, '')}.`
           : step.instruction}</p>
+        </div>
         {anchor?.opensNavigation ? (
           <button className={styles.destination} type="button" onClick={() => anchor.target.click()}>
             Show navigation <ChevronRight aria-hidden="true" />
@@ -267,12 +233,12 @@ export function TutorialGuide({
         )}
       </div>
 
-      {message ? <p className={styles.message} role="status">{message}</p> : null}
+      {notice}
 
       <div className={styles.actions}>
         <button
           className={styles.back}
-          disabled={saving || stepIndex === 0}
+          disabled={stepIndex === 0}
           onClick={() => void apply('BACK')}
           type="button"
         >
@@ -280,7 +246,6 @@ export function TutorialGuide({
         </button>
         <button
           className={styles.skip}
-          disabled={saving}
           onClick={() => void apply('SKIP')}
           type="button"
         >
@@ -288,7 +253,6 @@ export function TutorialGuide({
         </button>
         <button
           className={styles.next}
-          disabled={saving}
           onClick={() => void apply(stepIndex === tutorial.lastStep ? 'COMPLETE' : 'NEXT')}
           type="button"
         >
