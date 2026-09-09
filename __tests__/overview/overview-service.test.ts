@@ -1,62 +1,26 @@
 import { AuthorizationError } from '@/lib/auth/guards';
 import { createOverviewOperations } from '@/lib/overview/overview-service';
 
-function fakeTransaction() {
+function summaryRow() {
   return {
-    $queryRaw: jest.fn()
-      .mockResolvedValueOnce([{ waiting: BigInt(2), problems: BigInt(1) }])
-      .mockResolvedValue([]),
-    user: {
-      findFirst: jest.fn().mockResolvedValue({ id: 'member-a' }),
-    },
-    supplier: {
-      count: jest.fn().mockResolvedValue(8),
-    },
-    menu: {
-      groupBy: jest.fn().mockResolvedValue([
-        { status: 'DRAFT', _count: { _all: 2 } },
-        { status: 'APPROVED', _count: { _all: 3 } },
-      ]),
-    },
-    procurementRequest: {
-      groupBy: jest.fn().mockResolvedValue([
-        { status: 'DRAFT', _count: { _all: 1 } },
-        { status: 'OPEN', _count: { _all: 2 } },
-        { status: 'AWARDED', _count: { _all: 4 } },
-      ]),
-      findMany: jest.fn().mockResolvedValue([
-        {
-          id: 'request-soon',
-          title: 'Fresh produce · Bandra',
-          quoteDeadline: new Date('2026-08-29T06:30:00.000Z'),
-          _count: { supplierRequests: 4 },
-        },
-        {
-          id: 'request-next',
-          title: 'Dairy · Week 36',
-          quoteDeadline: new Date('2026-08-30T09:30:00.000Z'),
-          _count: { supplierRequests: 3 },
-        },
-      ]),
-    },
-    supplierRequest: {
-      count: jest.fn().mockResolvedValue(5),
-      groupBy: jest.fn().mockResolvedValue([
-        { requestId: 'request-soon', _count: { _all: 3 } },
-        { requestId: 'request-next', _count: { _all: 2 } },
-      ]),
-    },
-    award: {
-      findMany: jest.fn().mockResolvedValue([
-        {
-          id: 'award-a',
-          requestId: 'request-awarded',
-          totalPaise: BigInt(9_182_949),
-          createdAt: new Date('2026-08-27T10:00:00.000Z'),
-          request: { title: 'Vegetables · Week 35' },
-        },
-      ]),
-    },
+    activeSuppliers: BigInt(8), draftMenus: BigInt(2), approvedMenus: BigInt(3),
+    draftRequests: BigInt(1), openRequests: BigInt(2), awardedRequests: BigInt(4),
+    quotesReceived: BigInt(5), waiting: BigInt(2), problems: BigInt(1),
+    deadlines: [
+      { requestId: 'request-soon', title: 'Fresh produce · Bandra',
+        quoteDeadline: '2026-08-29T06:30:00.000Z', suppliersInvited: '4', quotesReceived: '3' },
+      { requestId: 'request-next', title: 'Dairy · Week 36',
+        quoteDeadline: '2026-08-30T09:30:00.000Z', suppliersInvited: '3', quotesReceived: '2' },
+    ],
+    recentAwards: [{ awardId: 'award-a', requestId: 'request-awarded',
+      title: 'Vegetables · Week 35', totalPaise: '9182949', awardedAt: '2026-08-27T10:00:00.000Z' }],
+  };
+}
+
+function fakeTransaction(summary = summaryRow()) {
+  return {
+    $queryRaw: jest.fn().mockResolvedValueOnce([summary]).mockResolvedValue([]),
+    user: { findFirst: jest.fn().mockResolvedValue({ id: 'member-a' }) },
   };
 }
 
@@ -90,52 +54,13 @@ describe('overview service', () => {
       },
       select: { id: true },
     });
-    expect(transaction.supplier.count).toHaveBeenCalledWith({
-      where: { tenantId: 'tenant-a', isActive: true },
-    });
-    expect(transaction.menu.groupBy).toHaveBeenCalledWith({
-      by: ['status'],
-      where: { tenantId: 'tenant-a' },
-      _count: { _all: true },
-    });
-    expect(transaction.procurementRequest.groupBy).toHaveBeenCalledWith({
-      by: ['status'],
-      where: {
-        tenantId: 'tenant-a',
-        status: { in: ['DRAFT', 'OPEN', 'AWARDED'] },
-      },
-      _count: { _all: true },
-    });
-    expect(transaction.supplierRequest.count).toHaveBeenCalledWith({
-      where: {
-        tenantId: 'tenant-a',
-        request: { tenantId: 'tenant-a', status: 'OPEN' },
-        quoteRevision: { gt: 0 },
-      },
-    });
-    expect(transaction.procurementRequest.findMany).toHaveBeenCalledWith({
-      where: { tenantId: 'tenant-a', status: 'OPEN' },
-      orderBy: [{ quoteDeadline: 'asc' }, { id: 'asc' }],
-      take: 5,
-      select: {
-        id: true,
-        title: true,
-        quoteDeadline: true,
-        _count: { select: { supplierRequests: true } },
-      },
-    });
-    expect(transaction.award.findMany).toHaveBeenCalledWith({
-      where: { tenantId: 'tenant-a' },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      take: 5,
-      select: {
-        id: true,
-        requestId: true,
-        totalPaise: true,
-        createdAt: true,
-        request: { select: { title: true } },
-      },
-    });
+    // The regression was too many serialized database round trips in a 5s transaction.
+    expect(transaction.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(transaction.user.findFirst.mock.invocationCallOrder[0])
+      .toBeLessThan(transaction.$queryRaw.mock.invocationCallOrder[0]);
+    const summaryQuery = transaction.$queryRaw.mock.calls[0][0];
+    expect(summaryQuery.values).toContain('tenant-a');
+    expect(summaryQuery.text).not.toContain('tenant-a');
     expect(overview).toEqual({
       generatedAt: '2026-08-28T06:00:00.000Z',
       attention: { items: [], hasMore: false },
@@ -174,27 +99,39 @@ describe('overview service', () => {
     });
   });
 
-  it('returns zeroes for missing status groups and skips response grouping without deadlines', async () => {
-    const transaction = fakeTransaction();
-    transaction.menu.groupBy.mockResolvedValue([]);
-    transaction.procurementRequest.groupBy.mockResolvedValue([]);
-    transaction.procurementRequest.findMany.mockResolvedValue([]);
-    transaction.supplierRequest.groupBy.mockResolvedValue([]);
-    transaction.award.findMany.mockResolvedValue([]);
-    const { operations } = operationsFor(transaction);
-
-    await expect(
-      operations.load({ actor: { tenantId: 'tenant-a', userId: 'member-a' } }),
-    ).resolves.toMatchObject({
-      counts: {
-        menus: { draft: 0, approved: 0 },
-        requests: { draft: 0, open: 0, awarded: 0 },
-      },
-      deadlines: [],
-      recentAwards: [],
-      deliveryAttention: { waiting: 2, problems: 1 },
+  it('returns zeroes and empty lists for an empty workspace', async () => {
+    const transaction = fakeTransaction({
+      activeSuppliers: BigInt(0), draftMenus: BigInt(0), approvedMenus: BigInt(0),
+      draftRequests: BigInt(0), openRequests: BigInt(0), awardedRequests: BigInt(0),
+      quotesReceived: BigInt(0), waiting: BigInt(0), problems: BigInt(0),
+      deadlines: [], recentAwards: [],
     });
-    expect(transaction.supplierRequest.groupBy).not.toHaveBeenCalled();
+    const { operations } = operationsFor(transaction);
+    await expect(operations.load({ actor: { tenantId: 'tenant-a', userId: 'member-a' } }))
+      .resolves.toMatchObject({
+        counts: { activeSuppliers: 0, menus: { draft: 0, approved: 0 },
+          requests: { draft: 0, open: 0, awarded: 0 }, quotesReceivedForOpenRequests: 0 },
+        deadlines: [], recentAwards: [], deliveryAttention: { waiting: 0, problems: 0 },
+      });
+    expect(transaction.$queryRaw).toHaveBeenCalledTimes(2);
+  });
+
+  it('preserves paise beyond JavaScript integer precision and remains JSON serializable', async () => {
+    const summary = summaryRow();
+    summary.recentAwards[0].totalPaise = '9007199254740993';
+    const { operations } = operationsFor(fakeTransaction(summary));
+    const overview = await operations.load({ actor: { tenantId: 'tenant-a', userId: 'member-a' } });
+    expect(overview.recentAwards[0].totalPaise).toBe('9007199254740993');
+    expect(JSON.parse(JSON.stringify(overview))).toEqual(overview);
+  });
+
+  it.each(['top-level', 'nested'] as const)('rejects unsafe %s counts instead of rounding them', async location => {
+    const summary = summaryRow();
+    if (location === 'top-level') summary.activeSuppliers = BigInt('9007199254740993');
+    else summary.deadlines[0].suppliersInvited = '9007199254740993';
+    const { operations } = operationsFor(fakeTransaction(summary));
+    await expect(operations.load({ actor: { tenantId: 'tenant-a', userId: 'member-a' } }))
+      .rejects.toThrow('Overview count is outside the supported range.');
   });
 
   it('denies invalid or inactive actors before reading restaurant data', async () => {
@@ -210,6 +147,6 @@ describe('overview service', () => {
     await expect(
       operations.load({ actor: { tenantId: 'tenant-a', userId: 'member-a' } }),
     ).rejects.toBeInstanceOf(AuthorizationError);
-    expect(transaction.supplier.count).not.toHaveBeenCalled();
+    expect(transaction.$queryRaw).not.toHaveBeenCalled();
   });
 });

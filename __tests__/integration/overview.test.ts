@@ -408,6 +408,57 @@ async function assertAttentionQueue(admin: PrismaClient, app: PrismaClient) {
     .toEqual({ items: [], hasMore: false });
 }
 
+async function assertSummaryQuery(admin: PrismaClient, app: PrismaClient) {
+  const operations = createPrismaOverviewOperations(app);
+  for (const tenantId of ['summary-empty', 'summary']) {
+    await seedTenant(admin, tenantId, `user-${tenantId}`, `${tenantId}@example.test`);
+  }
+  const empty = await operations.load({ actor: { tenantId: 'summary-empty', userId: 'user-summary-empty' } });
+  expect(empty).toMatchObject({
+    counts: { activeSuppliers: 0, menus: { draft: 0, approved: 0 },
+      requests: { draft: 0, open: 0, awarded: 0 }, quotesReceivedForOpenRequests: 0 },
+    deadlines: [], recentAwards: [], deliveryAttention: { waiting: 0, problems: 0 },
+    attention: { items: [], hasMore: false },
+  });
+  // More records than each five-row list, deliberately inserted in reverse order.
+  for (let index = 6; index >= 0; index--) {
+    await seedAttentionRequest(admin, {
+      id: `summary-awarded-${index}`, tenantId: 'summary', status: 'AWARDED',
+      deliveries: [{ date: '2026-09-09',
+        awardedTotalPaise: index === 6 ? '9007199254740993' : '10000',
+        ...(index === 0 ? {} : { details: receiptDetails('1') }),
+      }],
+    });
+    await admin.award.update({ where: { id: `award-summary-awarded-${index}` }, data: {
+      createdAt: new Date('2026-09-08T08:15:30.123Z'),
+    } });
+  }
+  for (let index = 5; index >= 0; index--) {
+    await seedAttentionRequest(admin, {
+      id: `summary-open-${index}`, tenantId: 'summary', status: 'OPEN',
+      deadline: new Date('2026-09-10T12:34:56.789Z'), replies: index === 0 ? [3, 0] : [1],
+    });
+  }
+  await seedAttentionRequest(admin, { id: 'summary-draft', tenantId: 'summary', status: 'DRAFT' });
+  const summary = await operations.load({ actor: { tenantId: 'summary', userId: 'user-summary' } });
+  expect(summary.counts).toEqual({
+    activeSuppliers: 8, menus: { draft: 0, approved: 0 },
+    requests: { draft: 1, open: 6, awarded: 7 }, quotesReceivedForOpenRequests: 6,
+  });
+  // Historical ISSUES still count in this legacy field even when attention is resolved.
+  expect(summary.deliveryAttention).toEqual({ waiting: 1, problems: 6 });
+  expect(summary.deadlines).toEqual(Array.from({ length: 5 }, (_, index) => ({
+    requestId: `summary-open-${index}`, title: `summary-open-${index}`,
+    quoteDeadline: '2026-09-10T12:34:56.789Z', suppliersInvited: index === 0 ? 2 : 1, quotesReceived: 1,
+  })));
+  expect(summary.recentAwards).toEqual(Array.from({ length: 5 }, (_, index) => ({
+    awardId: `award-summary-awarded-${6 - index}`, requestId: `summary-awarded-${6 - index}`,
+    title: `summary-awarded-${6 - index}`, totalPaise: index === 0 ? '9007199254740993' : '10000',
+    awardedAt: '2026-09-08T08:15:30.123Z',
+  })));
+  expect(JSON.parse(JSON.stringify(summary))).toEqual(summary);
+}
+
 test('overview reads tenant-scoped facts and a bounded queue of unresolved work through Postgres RLS', async () => {
   await withMigratedPostgres(async (databaseUrl) => {
     const admin = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
@@ -459,6 +510,7 @@ test('overview reads tenant-scoped facts and a bounded queue of unresolved work 
       ).rejects.toBeInstanceOf(AuthorizationError);
 
       await assertAttentionQueue(admin, app);
+      await assertSummaryQuery(admin, app);
     } finally {
       await app?.$disconnect();
       await admin.$disconnect();
