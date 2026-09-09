@@ -70,13 +70,14 @@ describe('workspace prefetch', () => {
   });
 
   it('preserves cancellation during body consumption without poisoning the cached response', async () => {
-    jest.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({ value: 5 }));
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({ value: 5 }));
     await prefetchWorkspace(overviewUrl);
     const controller = new AbortController();
     const response = await workspaceFetch(overviewUrl, { signal: controller.signal });
     controller.abort();
     await expect(response.json()).rejects.toMatchObject({ name: 'AbortError' });
     await expect((await workspaceFetch(overviewUrl)).json()).resolves.toEqual({ value: 5 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it('bounds stale reuse and waits for one shared refresh after the grace period', async () => {
@@ -226,6 +227,70 @@ describe('workspace prefetch', () => {
     const result = await old;
     expect(result.status).toBe(status);
     await expect(result.json()).resolves.toEqual({ error: 'Access denied' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('revokes an unconsumed cached body already returned before an auth denial', async () => {
+    jest.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(jsonResponse({ private: true }))
+      .mockResolvedValueOnce(jsonResponse({ error: 'Unauthorized' }, { status: 401 }));
+    await prefetchWorkspace('/api/settings');
+    const queued = workspaceFetch('/api/settings');
+    expect((await workspaceFetch(overviewUrl)).status).toBe(401);
+    await expect((await queued).json()).rejects.toMatchObject({ name: 'AbortError' });
+  });
+
+  it('revokes an unread returned body across a workspace switch', async () => {
+    jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(jsonResponse({ private: 'a' }));
+    const response = await workspaceFetch(overviewUrl);
+    setWorkspacePrefetchScope('workspace-b');
+    await expect(response.json()).rejects.toMatchObject({ name: 'AbortError' });
+  });
+
+  it('evicts an HTTP 200 with a failed body so the next read can retry immediately', async () => {
+    let body!: ReadableStreamDefaultController<Uint8Array>;
+    const broken = new Response(new ReadableStream<Uint8Array>({ start(controller) { body = controller; } }));
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(broken)
+      .mockResolvedValueOnce(jsonResponse({ fresh: true }));
+    const response = await workspaceFetch('/api/history?limit=25');
+    const failed = expect(response.json()).rejects.toThrow('connection lost');
+    body.error(new Error('connection lost'));
+    await failed;
+    await expect((await workspaceFetch('/api/history?limit=25')).json()).resolves.toEqual({ fresh: true });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('settles a read waiting on an unresolved old-session mutation immediately on scope change', async () => {
+    const pending = deferred<Response>();
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockReturnValueOnce(pending.promise);
+    const mutation = workspaceMutationFetch('/api/requests', { method: 'POST' });
+    const settled = jest.fn();
+    const read = workspaceFetch(overviewUrl).then(settled, settled);
+    setWorkspacePrefetchScope('workspace-b');
+    try {
+      // No mutation resolution, network response or timer is required to reject the reader.
+      for (let i = 0; i < 10; i += 1) await Promise.resolve();
+      expect(settled).toHaveBeenCalledWith(expect.objectContaining({ name: 'AbortError' }));
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    } finally {
+      pending.resolve(jsonResponse({ saved: true }));
+      await mutation; await read;
+    }
+  });
+
+  it('does not evict a successful replacement when an older response body fails later', async () => {
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(0);
+    let body!: ReadableStreamDefaultController<Uint8Array>;
+    const broken = new Response(new ReadableStream<Uint8Array>({ start(controller) { body = controller; } }));
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(broken)
+      .mockResolvedValueOnce(jsonResponse({ fresh: true }));
+    const old = await workspaceFetch(overviewUrl);
+    clock.mockReturnValue(60_001);
+    await expect((await workspaceFetch(overviewUrl)).json()).resolves.toEqual({ fresh: true });
+    const failed = expect(old.json()).rejects.toThrow('old transport failed');
+    body.error(new Error('old transport failed'));
+    await failed;
+    await expect((await workspaceFetch(overviewUrl)).json()).resolves.toEqual({ fresh: true });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 

@@ -55,7 +55,7 @@
 .page.page :is(input:not(:where([type="checkbox"], [type="radio"], [type="file"], [type="hidden"])), select, textarea) {
   min-width: 0;
   min-height: var(--control-height);
-  padding: .625rem .75rem;
+  padding: .5rem .75rem;
   border: 1px solid var(--workspace-control-line);
   border-radius: var(--control-radius);
   background-color: var(--workspace-surface);

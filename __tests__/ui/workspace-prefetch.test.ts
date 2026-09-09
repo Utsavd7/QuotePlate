@@ -234,7 +234,8 @@ describe('workspace prefetch', () => {
     jest.setSystemTime(new Date('2026-09-01T00:00:30.001Z'));
 
     const stale = await workspaceFetch(overviewUrl);
-    await expect(stale.json()).resolves.toEqual({ source: 'stale' });
+    // The denial arrived before consumption, so the previously returned body is revoked.
+    await expect(stale.json()).rejects.toMatchObject({ name: 'AbortError' });
     await flushMicrotasks();
 
     const fresh = await workspaceFetch(overviewUrl);

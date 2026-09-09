@@ -26,15 +26,26 @@ const STALE_GRACE_MS = 30_000;
 const cacheableRequests = new Set<string>(Object.values(WORKSPACE_FIRST_REQUESTS));
 const responseCache = new Map<string, CacheEntry>();
 const mutations = new Set<Promise<void>>();
+const evictFailedBodies = new WeakMap<Response, () => void>();
 let activeWorkspaceScope: string | null = null;
 let cacheGeneration = 0;
 let sessionGeneration = 0;
 let authorizationGeneration = 0;
 let authorizationDenial: Response | null = null;
+let readerLifetime = new AbortController();
+let sessionLifetime = new AbortController();
+
+function revokeReaders() {
+  readerLifetime.abort();
+  readerLifetime = new AbortController();
+}
 
 export function setWorkspacePrefetchScope(scope: string | null) {
   if (activeWorkspaceScope === scope) return;
   sessionGeneration += 1;
+  sessionLifetime.abort();
+  sessionLifetime = new AbortController();
+  revokeReaders();
   authorizationDenial = null;
   clearWorkspacePrefetch();
   mutations.clear();
@@ -60,9 +71,12 @@ function waitFor<T>(promise: Promise<T>, signal?: AbortSignal | null): Promise<T
   });
 }
 
-function cloneForReader(response: Response, signal?: AbortSignal | null): Response {
+function cloneForReader(response: Response, callerSignal?: AbortSignal | null): Response {
+  const signal = callerSignal
+    ? AbortSignal.any([callerSignal, readerLifetime.signal])
+    : readerLifetime.signal;
   const copy = response.clone();
-  if (!signal || !copy.body) return copy;
+  if (!copy.body) return copy;
   const reader = copy.body.getReader();
   let cancel: () => void;
   const cleanup = () => signal.removeEventListener('abort', cancel);
@@ -83,7 +97,12 @@ function cloneForReader(response: Response, signal?: AbortSignal | null): Respon
         if (signal.aborted) return;
         if (chunk.done) { cleanup(); controller.close(); }
         else controller.enqueue(chunk.value);
-      } catch (error) { cleanup(); controller.error(error); }
+      } catch (error) {
+        cleanup();
+        // A broken transport poisons all clones, but cancelling this reader does not.
+        if (!signal.aborted) evictFailedBodies.get(response)?.();
+        controller.error(error);
+      }
     },
     cancel() { cleanup(); void reader.cancel().catch(() => undefined); },
   });
@@ -110,13 +129,21 @@ function startWorkspaceRefresh(url: WorkspaceRequest, init?: RequestInit): Promi
     .then(response => {
       if (responseCache.get(url) === entry) {
         if (response.ok && !response.redirected) {
-          entry.response = response.clone();
+          const cached = response.clone();
+          entry.response = cached;
+          const evict = () => {
+            // An old reader must not evict a newer successful refresh or another session.
+            if (responseCache.get(url) === entry && entry.response === cached) responseCache.delete(url);
+          };
+          evictFailedBodies.set(response, evict);
+          evictFailedBodies.set(cached, evict);
           entry.expiresAt = Date.now() + TTL_MS;
         } else {
           if (!entry.response || response.redirected || (response.status >= 400 && response.status < 500)) responseCache.delete(url);
           // An auth denial applies to all prefetched private first pages, not just this URL.
           if (response.status === 401 || response.status === 403) {
             authorizationGeneration += 1;
+            revokeReaders();
             authorizationDenial = response.clone();
             for (const other of responseCache.values()) other.controller.abort();
             responseCache.clear();
@@ -150,6 +177,9 @@ export async function workspaceFetch(url: WorkspaceRequest, init?: RequestInit):
   if (!scope || method !== 'GET' || !cacheableRequests.has(url) || !canShare(init)) return fetch(url, init);
   const session = sessionGeneration;
   const authorization = authorizationGeneration;
+  const waitSignal = signal
+    ? AbortSignal.any([signal, sessionLifetime.signal])
+    : sessionLifetime.signal;
 
   for (;;) {
     if (signal?.aborted) throw aborted(signal);
@@ -157,7 +187,7 @@ export async function workspaceFetch(url: WorkspaceRequest, init?: RequestInit):
     if (authorization !== authorizationGeneration && authorizationDenial) return cloneForReader(authorizationDenial, signal);
     // Reads started during a write cannot resurrect pre-write data after invalidation.
     if (mutations.size) {
-      await waitFor(Promise.all([...mutations]), signal);
+      await waitFor(Promise.all([...mutations]), waitSignal);
       continue;
     }
     const generation = cacheGeneration;
@@ -169,7 +199,7 @@ export async function workspaceFetch(url: WorkspaceRequest, init?: RequestInit):
       return cloneForReader(current.response, signal);
     }
     let response: Response;
-    try { response = await waitFor(startWorkspaceRefresh(url, init), signal); }
+    try { response = await waitFor(startWorkspaceRefresh(url, init), waitSignal); }
     catch (error) {
       if (signal?.aborted) throw aborted(signal);
       if (session !== sessionGeneration) throw aborted();
