@@ -15,7 +15,12 @@ class MotionContractTests(unittest.TestCase):
     def setUp(self):
         self.shot = {'file': 'today.mp4', 'duration': 6, 'sourceStart': 0}
         self.info = {'format': {'format_name': 'mov,mp4', 'duration': '6'},
-                     'streams': [{'codec_type': 'video', 'codec_name': 'h264', 'duration': '6', 'nb_frames': '180'}]}
+                     'streams': [{'codec_type': 'video', 'codec_name': 'h264', 'duration': '6', 'nb_frames': '180', 'width': 3840, 'height': 2400}]}
+
+    def test_lower_resolution_source_is_not_upscaled_to_claim_4k(self):
+        self.info['streams'][0].update(width=1440, height=900)
+        with self.assertRaisesRegex(ValueError, 'native 3840x2400'):
+            film.validate_clip(Path('today.mp4'), self.shot, self.info)
 
     def test_exact_duration_clip_is_accepted(self):
         self.assertEqual(film.validate_clip(Path('today.mp4'), self.shot, self.info)['requiredThroughSeconds'], 6)
@@ -75,7 +80,7 @@ class MotionContractTests(unittest.TestCase):
     def test_checked_in_timeline_is_164_seconds_and_motion_only(self):
         story = film.load_story(film.ROOT / 'docs/media/quoteplate-product-film-164.json')
         self.assertEqual(sum(s['duration'] for s in story['scenes']), 164)
-        self.assertEqual([s['id'] for s in story['scenes'] if 'sourceStart' in s], ['intro', 'end'])
+        self.assertTrue(all(s.get('shots') and 'sourceStart' not in s for s in story['scenes']))
         self.assertTrue(all(shot['file'].endswith('.mp4') for s in story['scenes'] for shot in s.get('shots', [])))
 
 

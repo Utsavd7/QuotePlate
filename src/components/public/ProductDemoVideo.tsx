@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Captions, Volume2 } from 'lucide-react';
+import { Captions, RotateCcw, Volume2 } from 'lucide-react';
+import Link from 'next/link';
 
 import styles from './product-demo-video.module.css';
 
@@ -12,7 +13,17 @@ export function ProductDemoVideo() {
   const [silent, setSilent] = useState(true);
   const [inViewport, setInViewport] = useState(false);
   const [subtitles, setSubtitles] = useState(false);
+  const [ended, setEnded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const endPanelRef = useRef<HTMLElement>(null);
+  const revealEndPanel = useRef(false);
+
+  useEffect(() => {
+    if (ended && revealEndPanel.current) {
+      revealEndPanel.current = false;
+      endPanelRef.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    }
+  }, [ended]);
 
   useEffect(() => {
     const tracks = videoRef.current?.textTracks;
@@ -38,12 +49,16 @@ export function ProductDemoVideo() {
     }
     function syncPlayback() {
       if (!video) return;
-      if (!inView || document.hidden || reducedMotion.matches) {
+      if (!inView || document.hidden) {
         pauseAutomatically();
-      } else if (!pausedByUser && !video.ended) {
+      } else if (!reducedMotion.matches && !pausedByUser && !video.ended) {
         // Some browsers still decline autoplay. Keep the native play control usable.
         void video.play().catch(() => {});
       }
+    }
+    function onMotionChange() {
+      if (reducedMotion.matches) pauseAutomatically();
+      else syncPlayback();
     }
     function onPause() {
       if (automaticPauseEvents > 0) automaticPauseEvents -= 1;
@@ -51,8 +66,15 @@ export function ProductDemoVideo() {
     }
     function onPlay() {
       pausedByUser = false;
+      setEnded(false);
       // Also handles a pending play() completing after the user scrolls away.
-      if (!inView || document.hidden) pauseAutomatically();
+      // Read current geometry: replay may just have scrolled the video into view,
+      // before IntersectionObserver delivers its next entry.
+      const rect = video!.getBoundingClientRect();
+      const visibleWidth = Math.max(0, Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0));
+      const visibleHeight = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+      const visible = rect.width * rect.height > 0 && visibleWidth * visibleHeight / (rect.width * rect.height) >= 0.5;
+      if (!visible || document.hidden) pauseAutomatically();
     }
     const observer = new IntersectionObserver(([entry]) => {
       inView = entry.isIntersecting && entry.intersectionRatio >= 0.5;
@@ -62,14 +84,14 @@ export function ProductDemoVideo() {
     video.addEventListener('pause', onPause);
     video.addEventListener('play', onPlay);
     document.addEventListener('visibilitychange', syncPlayback);
-    reducedMotion.addEventListener('change', syncPlayback);
+    reducedMotion.addEventListener('change', onMotionChange);
     observer.observe(video);
     return () => {
       observer.disconnect();
       video.removeEventListener('pause', onPause);
       video.removeEventListener('play', onPlay);
       document.removeEventListener('visibilitychange', syncPlayback);
-      reducedMotion.removeEventListener('change', syncPlayback);
+      reducedMotion.removeEventListener('change', onMotionChange);
       video.pause();
     };
   }, []);
@@ -79,20 +101,27 @@ export function ProductDemoVideo() {
       <header className={styles.header}>
         <div>
           <p className="public-eyebrow">The buying journey · 2:44</p>
-          <h2 id="demo-title">From your kitchen to a clearer purchase.</h2>
+          <h2 id="demo-title">Your first purchase, step by step.</h2>
         </div>
-        <p>Follow Monsoon Table, our fictional restaurant in Pune, through the simpler workspace: Today, Purchases, Suppliers, Menu and Reports. See guided purchases, supplier quote review, meal planning and delivery checks. The film uses fictional restaurant records and real public map listings captured for this tour; stock and prices need confirmation.</p>
+        <p>Follow an approved pilot owner setting up Monsoon Table, our fictional restaurant. Add restaurant details, continue with Google, then add a menu and suppliers, request prices, compare replies, choose a supplier and check delivery.</p>
       </header>
       <div className={styles.player}>
-        <video ref={videoRef} controls playsInline muted preload="none" width={1920} height={1200}
+        <video ref={videoRef} controls playsInline muted preload="none" width={3840} height={2400}
           poster={`${source}.jpg`} aria-label="QuotePlate product demonstration"
           onVolumeChange={(event) => setSilent(event.currentTarget.muted || event.currentTarget.volume === 0)}
+          onEnded={(event) => {
+            if (event.currentTarget.ended) {
+              revealEndPanel.current = inViewport && !document.hidden;
+              setEnded(true);
+            }
+          }}
+          onSeeking={() => setEnded(false)}
           onError={() => setFailed(true)}>
           <source src={`${source}.mp4`} type="video/mp4" onError={() => setFailed(true)} />
           <track src={`${source}.vtt`} kind="captions" srcLang="en" label="English" />
           Your browser cannot play this video. <a href={`${source}.mp4`}>Download the demonstration.</a>
         </video>
-        {inViewport && silent && !failed && <button className={styles.unmute} type="button" onClick={() => {
+        {inViewport && silent && !failed && !ended && <button className={styles.unmute} type="button" onClick={() => {
           const video = videoRef.current;
           if (!video) return;
           video.muted = false;
@@ -110,6 +139,24 @@ export function ProductDemoVideo() {
           setSubtitles(enabled);
         }}><Captions aria-hidden="true" />Subtitles {subtitles ? 'on' : 'off'}</button>
       </div>
+      {ended && !failed && <section ref={endPanelRef} className={styles.endPanel} aria-labelledby="video-next-step-title">
+        <div>
+          <h3 id="video-next-step-title">Ready for your first purchase?</h3>
+          <p>For approved pilot owners. Sign in with Google to begin.</p>
+        </div>
+        <div className={styles.endActions}>
+          <Link className={styles.start} href="/start">Start your first purchase</Link>
+          <button className={styles.replay} type="button" onClick={() => {
+            const video = videoRef.current;
+            if (!video) return;
+            setEnded(false);
+            video.currentTime = 0;
+            video.scrollIntoView({ block: 'center', behavior: 'instant' });
+            video.focus({ preventScroll: true });
+            void video.play().catch(() => {});
+          }}><RotateCcw aria-hidden="true" />Replay video</button>
+        </div>
+      </section>}
       {failed && <p className={styles.error} role="alert">The video could not load. <a href={`${source}.mp4`}>Open the video directly</a> or try again later.</p>}
     </section>
   );
