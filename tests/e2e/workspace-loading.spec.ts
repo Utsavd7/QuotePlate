@@ -76,22 +76,20 @@ test('Today → Suppliers → Today renders cached attention without another ove
   await expect(attention).toHaveCount(0);
   await collapseGuide(page);
   const today = await navigationLink(page, 'Today');
-  await today.evaluate(element => element.addEventListener('click', () => {
-    performance.mark('cached-today-click');
-  }, { once: true }));
+  const navigationStarted = await page.evaluate(() => performance.now());
   await today.click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(attention).toBeVisible();
   await expect(attention).toHaveText(originalAttention, { useInnerText: true });
-  const sample = await page.evaluate(() => ({
-    clickToAttentionObservedMs: performance.now() - performance.getEntriesByName('cached-today-click')[0].startTime,
+  const sample = await page.evaluate(started => ({
+    clickToAttentionObservedMs: performance.now() - started,
     overviewTransportSignals: (window as unknown as { overviewTransportSignals: boolean[] }).overviewTransportSignals,
-  }));
+  }), navigationStarted);
   expect(sample.overviewTransportSignals).toEqual([true]);
   expect(overviewRequests).toBe(1);
   expect(writes).toEqual([]);
   const path = info.outputPath('cached-today-navigation.json');
   await writeFile(path, JSON.stringify({ ...sample, overviewRequests, project: info.project.name,
-    note: 'Observed after Playwright visibility assertion; fresh TTL held fixed, not a production latency benchmark.' }, null, 2));
+    note: 'Includes Playwright click and assertion overhead; fresh TTL held fixed, not a production latency benchmark.' }, null, 2));
   await info.attach('cached Today navigation', { path, contentType: 'application/json' });
 });
