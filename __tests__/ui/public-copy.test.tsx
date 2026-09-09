@@ -408,7 +408,7 @@ describe('public website contract', () => {
     const layout = source('src/app/layout.tsx');
     const packageJson = source('package.json');
 
-    for (const color of ['#101817', '#172521', '#F5F1E8', '#EBE5D9', '#D8834F', '#285E4D', '#f6f7f5', '#ffffff', '#dce1db', '#515e56', '#285e4d', '#1c483b', '#e7f0eb']) {
+    for (const color of ['#101817', '#172521', '#D8834F', '#285E4D', '#f6f7f5', '#ffffff', '#dce1db', '#515e56', '#285e4d', '#1c483b', '#e7f0eb']) {
       expect(css).toContain(color);
     }
     expect(packageJson).toContain('@fontsource-variable/manrope');
@@ -451,7 +451,7 @@ describe('public website contract', () => {
     expect(css).toMatch(
       /\.wordmark__name \{[^}]*font-family: var\(--font-display\);[^}]*font-weight: 520;/,
     );
-    expect(brandGuide).toContain('Newsreader Variable**: display headings and the QuotePlate wordmark');
+    expect(brandGuide).toContain('Newsreader Variable**: public editorial headings and the QuotePlate wordmark');
     expect(brandGuide).not.toContain('Manrope lettering');
   });
 
@@ -461,7 +461,8 @@ describe('public website contract', () => {
     const copperText = css.match(/--copper-text:\s*(#[\dA-F]{6})/i)?.[1];
     const ink = css.match(/--ink:\s*(#[\dA-F]{6})/i)?.[1];
     const raisedInk = css.match(/--raised-ink:\s*(#[\dA-F]{6})/i)?.[1];
-    const mutedLabel = css.match(/--ink-label:\s*(#[\dA-F]{6})/i)?.[1];
+    const mutedLabel = css.match(/--workspace-muted:\s*(#[\dA-F]{6})/i)?.[1];
+    expect(css).toContain('--ink-label: var(--workspace-muted)');
 
     expect(copper).toBeDefined();
     expect(copperText).toBeDefined();
@@ -470,11 +471,11 @@ describe('public website contract', () => {
     expect(mutedLabel).toBeDefined();
     expect(contrastRatio(copper!, ink!)).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(copper!, raisedInk!)).toBeGreaterThanOrEqual(4.5);
-    expect(contrastRatio(copperText!, '#F5F1E8')).toBeGreaterThanOrEqual(4.5);
-    expect(contrastRatio(copperText!, '#EBE5D9')).toBeGreaterThanOrEqual(4.5);
-    expect(contrastRatio(mutedLabel!, '#F5F1E8')).toBeGreaterThanOrEqual(4.5);
-    expect(contrastRatio(mutedLabel!, '#EBE5D9')).toBeGreaterThanOrEqual(4.5);
-    expect(contrastRatio(mutedLabel!, '#FBF8F1')).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(copperText!, '#f6f7f5')).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(copperText!, '#ffffff')).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(mutedLabel!, '#f6f7f5')).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(mutedLabel!, '#dce1db')).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(mutedLabel!, '#ffffff')).toBeGreaterThanOrEqual(4.5);
     expect(css).toMatch(/\.public-hero h1 em[\s\S]*?color: var\(--workspace-accent\)/);
     const token = (name: string) => {
       const value = css.match(new RegExp(`--workspace-${name}:\\s*(#[\\da-f]{6})`, 'i'))?.[1];

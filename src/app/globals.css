@@ -4,6 +4,7 @@
   --workspace-canvas: #f6f7f5;
   --workspace-surface: #ffffff;
   --workspace-line: #dce1db;
+  --workspace-control-line: #7c8981;
   --workspace-ink: #101817;
   --workspace-muted: #515e56;
   --workspace-accent: #285e4d;
@@ -18,16 +19,16 @@
   --workspace-accent-on-dark: #b9dfca;
   --ink: #101817;
   --raised-ink: #172521;
-  --stone: #F5F1E8;
-  --soft-stone: #EBE5D9;
+  --stone: var(--workspace-canvas);
+  --soft-stone: var(--workspace-line);
   --copper: #D8834F;
   --copper-text: #9B4C26;
-  --ink-label: #5A5E59;
+  --ink-label: var(--workspace-muted);
   --success: #285E4D;
-  --background: #F5F1E8;
+  --background: var(--workspace-canvas);
   --foreground: #101817;
-  --muted: #5A5E59;
-  --accent: #D8834F;
+  --muted: var(--workspace-muted);
+  --accent: var(--workspace-accent);
   --font-ui: "Manrope Variable", sans-serif;
   --font-display: "Newsreader Variable", serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
@@ -70,12 +71,12 @@ textarea {
 }
 
 :focus-visible {
-  outline: 3px solid var(--copper);
+  outline: 3px solid var(--workspace-accent);
   outline-offset: 3px;
 }
 
 ::selection {
-  background: var(--copper);
+  background: var(--workspace-selected);
   color: var(--ink);
 }
 
@@ -90,7 +91,7 @@ textarea {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 253, 248, 0.7), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
   animation: shimmer 1.8s infinite;
 }
 
@@ -107,11 +108,11 @@ textarea {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C6BFB3;
+  background: #b4bdb6;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #AFA69A;
+  background: #87968c;
 }
 
 /* ─── QuotePlate public editorial system ───────────────────────────────────── */
@@ -885,3 +886,7 @@ textarea {
 .public-footer :focus-visible { outline-color: var(--workspace-accent-on-dark); }
 .public-footer a:hover { color: var(--workspace-accent-on-dark); opacity: 1; }
 .decision-preview__footer a:hover { background: var(--workspace-accent-hover); opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after { animation: none; }
+}

@@ -11,6 +11,11 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: jest.fn() }),
 }));
 
+it('isolates all purchase state when the route ID changes', () => {
+  expect(RequestDetail({ requestId: 'first' }).key).toBe('first');
+  expect(RequestDetail({ requestId: 'second' }).key).toBe('second');
+});
+
 function requestItem(
   id: string,
   name: string,
@@ -224,7 +229,7 @@ describe('procurement request detail', () => {
     expect(html).toContain('Download QR for GreenLeaf Fresh Foods');
   });
 
-  it('keeps a returned award locked when an older quote refresh resolves last', async () => {
+  it.each(['request', 'comparison'])('keeps a returned award locked when %s reload fails and an older quote refresh resolves last', async failureStage => {
     const initialRequest = {
       id: 'request-1', title: 'Fresh produce · Week 36', status: 'OPEN' as const, version: 2,
       deliveryDetails: { addressLine: '18 Market Road', city: 'Mumbai', state: 'Maharashtra', pin: '400001' },
@@ -258,8 +263,9 @@ describe('procurement request detail', () => {
     });
     const fetchMock = jest.spyOn(globalThis, 'fetch')
       .mockImplementationOnce(() => staleRefresh)
-      .mockResolvedValueOnce(awardResponse)
-      .mockRejectedValueOnce(new Error('refresh unavailable'));
+      .mockResolvedValueOnce(awardResponse);
+    if (failureStage === 'comparison') fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ request: { ...initialRequest, status: 'AWARDED', version: initialRequest.version + 1 } }), { status: 200 }));
+    fetchMock.mockRejectedValueOnce(new Error('refresh unavailable'));
     const hadWindow = 'window' in globalThis;
     const originalWindow = globalThis.window;
     Object.defineProperty(globalThis, 'window', {
@@ -302,7 +308,7 @@ describe('procurement request detail', () => {
         const { RequestDetail: EffectRequestDetail } = await import('@/components/procurement/RequestDetail');
         const render = () => {
           stateIndex = 0;
-          return EffectRequestDetail({
+          const keyed = EffectRequestDetail({
             requestId: initialRequest.id,
             initialRequest,
             initialComparison: {
@@ -310,6 +316,8 @@ describe('procurement request detail', () => {
               quotes: [quote],
             },
           });
+          // Exercise the keyed route content with this test's deterministic hooks.
+          return (keyed.type as (props: typeof keyed.props) => ReactElement)(keyed.props);
         };
 
         let tree = render();
@@ -349,6 +357,10 @@ describe('procurement request detail', () => {
     expect(finalHtml).toContain('Supplier selected');
     expect(finalHtml).toContain('Supplier choice saved');
     expect(finalHtml).toContain('Final decision record');
+    expect(finalHtml).toContain('Supplier purchase orders');
+    expect(finalHtml).toContain('Award decision CSV');
+    expect(finalHtml).not.toContain('Confirm supplier choice');
+    if (failureStage === 'comparison') expect(finalHtml).toContain('Supplier prices could not be loaded.');
     expect(finalHtml).toContain('Supplier selection was recorded, but the latest view could not be loaded.');
     expect(finalHtml).not.toContain('Your saved restaurant records are unchanged.');
     expect(finalHtml).not.toContain('Your choice is final once saved.');

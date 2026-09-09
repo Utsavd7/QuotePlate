@@ -8,6 +8,11 @@
 .unmute:hover { background: var(--workspace-selected); }
 .unmute:focus-visible { outline: 3px solid var(--workspace-accent-on-dark); outline-offset: 4px; }
 .unmute svg { width: 20px; height: 20px; }
+.options { display: flex; justify-content: flex-end; margin-top: .5rem; }
+.subtitles { min-height: 44px; display: inline-flex; align-items: center; gap: .5rem; padding: .5rem .8rem; border: 1px solid var(--workspace-line); border-radius: .4rem; color: var(--workspace-muted); background: var(--workspace-surface); font: inherit; font-size: .875rem; cursor: pointer; }
+.subtitles svg { width: 20px; height: 20px; }
+.subtitles:hover, .subtitles[aria-pressed="true"] { color: var(--workspace-accent); background: var(--workspace-selected); }
+.subtitles:focus-visible { outline: 3px solid var(--workspace-accent); outline-offset: 3px; }
 .error a { color: var(--ink); text-underline-offset: .2em; }
 .error { color: #8d3027; line-height: 1.6; }
 @media (max-width: 640px) {
@@ -26,7 +31,7 @@
 }
 .section:target .header { display: none; }
 .section:target .player {
-  width: min(100%, calc((100svh - var(--demo-header-height) - 2rem) * 16 / 9));
+  width: min(100%, calc((100svh - var(--demo-header-height) - 5.25rem) * 16 / 9));
   margin-inline: auto;
 }
 @media (min-width: 761px) and (max-width: 900px) {

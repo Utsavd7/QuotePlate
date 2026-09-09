@@ -57,6 +57,8 @@ function SectionNavigation({ pathname }: { pathname: string }) {
   if (!group?.sections.length) return null;
   return <nav className={styles.sectionNav} aria-label={`${group.label} sections`}>
     {group.sections.map(item => <Link key={item.href} href={item.href}
+      onFocus={() => void prefetchWorkspace(WORKSPACE_FIRST_REQUESTS[item.href])}
+      onPointerEnter={() => void prefetchWorkspace(WORKSPACE_FIRST_REQUESTS[item.href])}
       aria-current={matchesPath(pathname, item.href) ? 'page' : undefined}>
       {item.label}
     </Link>)}
@@ -109,7 +111,10 @@ function SidebarContent({
         })}
       </nav>
 
-      <Link href="/settings" onClick={onNav} className={pathname === '/settings' ? styles.navActive : styles.navLink} aria-current={pathname === '/settings' ? 'page' : undefined}>
+      <Link href="/settings" onClick={onNav}
+        onFocus={() => void prefetchWorkspace(WORKSPACE_FIRST_REQUESTS['/settings'])}
+        onPointerEnter={() => void prefetchWorkspace(WORKSPACE_FIRST_REQUESTS['/settings'])}
+        className={pathname === '/settings' ? styles.navActive : styles.navLink} aria-current={pathname === '/settings' ? 'page' : undefined}>
         <Settings aria-hidden="true" /> Settings
       </Link>
       <details className={styles.privacy}>
@@ -295,13 +300,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <span>This is a working test account. Changes are saved in this demo only. Do not enter real customer or supplier information.</span>
                 </aside>
               )}
-              <SectionNavigation pathname={pathname} />
+              <div className={styles.workspaceToolbar}>
+                <SectionNavigation pathname={pathname} />
+                <TutorialGuide initialTutorial={tutorial ?? undefined} />
+              </div>
               {children}
             </WorkspaceProvider>
           </div>
         </ErrorBoundary>
-
-        <TutorialGuide initialTutorial={tutorial ?? undefined} />
 
         <footer className={styles.footer}>
           <span>QuotePlate</span>

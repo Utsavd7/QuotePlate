@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Volume2 } from 'lucide-react';
+import { Captions, Volume2 } from 'lucide-react';
 
 import styles from './product-demo-video.module.css';
 
@@ -11,7 +11,16 @@ export function ProductDemoVideo() {
   const [failed, setFailed] = useState(false);
   const [silent, setSilent] = useState(true);
   const [inViewport, setInViewport] = useState(false);
+  const [subtitles, setSubtitles] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const tracks = videoRef.current?.textTracks;
+    if (!tracks) return;
+    const syncSubtitles = () => setSubtitles(Array.from(tracks).some((track) => track.mode === 'showing'));
+    tracks.addEventListener('change', syncSubtitles);
+    return () => tracks.removeEventListener('change', syncSubtitles);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -80,7 +89,7 @@ export function ProductDemoVideo() {
           onVolumeChange={(event) => setSilent(event.currentTarget.muted || event.currentTarget.volume === 0)}
           onError={() => setFailed(true)}>
           <source src={`${source}.mp4`} type="video/mp4" onError={() => setFailed(true)} />
-          <track src={`${source}.vtt`} kind="captions" srcLang="en" label="English" default />
+          <track src={`${source}.vtt`} kind="captions" srcLang="en" label="English" />
           Your browser cannot play this video. <a href={`${source}.mp4`}>Download the demonstration.</a>
         </video>
         {inViewport && silent && !failed && <button className={styles.unmute} type="button" onClick={() => {
@@ -91,6 +100,15 @@ export function ProductDemoVideo() {
           setSilent(false);
           void video.play().catch(() => {});
         }}><Volume2 aria-hidden="true" />Unmute video</button>}
+      </div>
+      <div className={styles.options}>
+        <button type="button" className={styles.subtitles} aria-pressed={subtitles} onClick={() => {
+          const tracks = videoRef.current?.textTracks;
+          if (!tracks) return;
+          const enabled = !subtitles;
+          for (const track of Array.from(tracks)) track.mode = enabled ? 'showing' : 'disabled';
+          setSubtitles(enabled);
+        }}><Captions aria-hidden="true" />Subtitles {subtitles ? 'on' : 'off'}</button>
       </div>
       {failed && <p className={styles.error} role="alert">The video could not load. <a href={`${source}.mp4`}>Open the video directly</a> or try again later.</p>}
     </section>
