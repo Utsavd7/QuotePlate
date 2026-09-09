@@ -1,9 +1,12 @@
 # QuotePlate first-purchase film (164 seconds)
 
 `docs/media/quoteplate-product-film-164.json` is the edit contract: **11 scenes,
-15 fresh application clips, 164 seconds / 4,920 frames**, native **3840×2400
-(16:10), 30fps**, exported as H.264/AAC with fast-start. No kitchen footage,
-discovery footage or audio from an earlier film is used.
+14 application clips plus 2 branded kitchen clips, 164 seconds / 4,920 frames**, **3840×2400
+(16:10), 30fps**, exported as H.264/AAC with fast-start. The earlier kitchen
+opening and closing are restored from the original 3840×2160 stock footage,
+cropped to fill the film with new graphics at the output resolution. Application
+recordings remain native 3840×2400. The menu-options clip demonstrates all four
+entry choices; the rest follows the existing first-purchase recording.
 
 The story follows one fictional Monsoon Table restaurant and the same purchase:
 restaurant setup, menu approval, two suppliers, one request, their replies,
@@ -11,6 +14,25 @@ comparison, supplier selection, delivery and credit follow-up. The live public
 approved-pilot Google entry is filmed as form filling only. Authentication happens
 off camera into an isolated local workspace; filming does not create production
 records or change production authorization.
+
+## Restore the kitchen opening and closing
+
+`brand_bookends.py` renders the earlier cream badge and headline treatment over
+the original licensed 3840×2160 kitchen clip. It requires at least eight seconds
+of source motion, crops to fill 16:10, and draws graphics at 3840×2400. It exports
+a six-second intro and eight-second ending; the storyboard uses the first five
+seconds of the intro. No borders or frozen background frames are added.
+
+```sh
+python3 scripts/media/brand_bookends.py \
+  --source /path/to/licensed/kitchen-4k.mp4 \
+  --output /tmp/quoteplate-menu-revision/captures
+```
+
+The helper needs Pillow, repository-local Sharp, Node.js and FFmpeg. Georgia and
+Arial are the macOS defaults; provide `--serif` and `--sans` font paths elsewhere.
+Its manifest records source/output hashes and full-decode checks. Keep the
+original stock licence and source provenance with the archived film.
 
 ## Record the clips
 
@@ -43,12 +65,13 @@ and measured shot timings in `<label>-recording.json`.
 
 | Clip | Seconds | Visible action / result |
 | --- | ---: | --- |
-| first-start.mp4 | 6 | Public approved-pilot entry. |
-| first-restaurant.mp4 | 14 | Fill fictional restaurant and delivery details. |
+| kitchen-intro.mp4 | 5 | Restored kitchen opening and brand message. |
+| first-restaurant.mp4 | 12 | Fill fictional restaurant and delivery details. |
 | first-owner.mp4 | 9 | Fill fictional owner details; show Google entry. |
 | first-workspace.mp4 | 3 | Show the new restaurant’s Today workspace. |
+| menu-options.mp4 | 10 | Type/paste, camera on a phone, photo upload and permitted website link. |
 | first-menu.mp4 | 18 | Add a dish, review ingredients and approve the menu. |
-| first-suppliers.mp4 | 16 | Add the two example suppliers. |
+| first-suppliers.mp4 | 14 | Add the two example suppliers. |
 | first-request.mp4 | 22 | Create, check and open the same purchase request. |
 | vendor-reply-a.mp4 | 9 | First supplier enters, reviews and sends a quote. |
 | vendor-reply-b.mp4 | 9 | Second supplier replies to the same request. |
@@ -56,16 +79,17 @@ and measured shot timings in `<label>-recording.json`.
 | completion-award.mp4 | 10 | Select the supplier and confirm. |
 | completion-delivery.mp4 | 12 | Check received quantities and invoice. |
 | completion-credit.mp4 | 8 | Record the missing quantity and credit owed. |
-| completion-today.mp4 | 10 | Review the purchase and delivery follow-up on Today. |
-| first-cta.mp4 | 8 | Show the first-purchase entry call to action. |
+| completion-today.mp4 | 5 | Review the purchase and delivery follow-up on Today. |
+| kitchen-end.mp4 | 8 | Restored kitchen closing with the first-purchase address. |
 
 ### Timing and validation
 
 Each storyboard shot names its actual plain `.mp4` or `.webm` filename, `duration`,
 `sourceStart` and optional `playbackRate`. Durations must contain whole 1/30-second
 frames; offsets must be non-negative. Required source coverage is
-`sourceStart + duration * playbackRate`. Renderer rates are 1–1.5; current finalized
-clips all use rate 1. Do not accelerate an already condensed clip again. Actions
+`sourceStart + duration * playbackRate`. Renderer rates are 1–1.5. Restaurant details use 14/12 and suppliers use
+16/14 to fit the edit; other clips use rate 1. Avoid repeated acceleration of
+already condensed footage. Actions
 may be condensed up to 1.5x; this is not a promise of application loading speed.
 
 Trim raw recordings at **`shot.start`, offset zero**. `rawDuration - ended` is a
@@ -110,9 +134,11 @@ python3 scripts/media/product_film.py render \
 `--source-film` remains required, probed and hashed for CLI/cache compatibility.
 The current storyboard has no scene-level `sourceStart` or `audioSourceStart`:
 **none of that file's picture or audio is reused**. Shot-level `sourceStart: 0`
-refers only to the fresh clips. Use newly generated local Kokoro `af_heart`
-narration, measured optional caption cues and the existing licensed music bed.
-Do not use `reuse-audio` or remux the previous film's audio into this release.
+refers to the individual application or rebuilt kitchen clips. Use locally generated
+Kokoro `af_heart` narration, measured optional caption cues and the existing
+licensed music bed. Only changed narration is regenerated; unchanged scenes retain
+their hash-verified first-purchase audio.
+Do not remux a whole previous film’s audio into this changed timeline.
 Rerunning `audio` may use its hash-verified cache of this new narration.
 No paid service, new model download or media purchase is needed.
 

@@ -3,20 +3,20 @@
   "resolution": "3840x2400",
   "fps": 30,
   "narration": "Local Kokoro ONNX af_heart, American English; new first-purchase narration with measured optional caption cues.",
-  "sources": "Fresh real application recordings of one fictional restaurant and its first purchase. Public signup shows the actual approved-pilot Google entry; authentication is completed off camera in an isolated local environment. Supplier replies, award and delivery use the same real local request. No internal demo access or production writes. Actions may be condensed up to 1.5x; recordings do not promise loading speed.",
+  "sources": "Real application recordings of one fictional restaurant and its first purchase, with the earlier licensed kitchen opening and closing restored. Native 3840×2400 application footage; kitchen-source details are recorded in brandSources. Public signup shows approved-pilot Google entry; authentication is completed off camera in an isolated local environment. No internal demo promotion or production writes. Actions may be condensed up to 1.5x; recordings do not promise loading speed.",
   "scenes": [
     {
       "id": "intro",
-      "title": "Your first purchase",
-      "duration": 6,
+      "title": "Every service starts with a purchase",
+      "duration": 5,
       "phrases": [
-        "Let’s make a first purchase with Monsoon Table, our example restaurant."
+        "QuotePlate connects your kitchen, purchasing decisions and suppliers."
       ],
-      "text": "Let’s make a first purchase with Monsoon Table, our example restaurant.",
+      "text": "QuotePlate connects your kitchen, purchasing decisions and suppliers.",
       "shots": [
         {
-          "file": "first-start.mp4",
-          "duration": 6,
+          "file": "kitchen-intro.mp4",
+          "duration": 5,
           "sourceStart": 0,
           "playbackRate": 1
         }
@@ -26,21 +26,21 @@
     {
       "id": "signup",
       "title": "Add your restaurant",
-      "duration": 14,
+      "duration": 12,
       "phrases": [
-        "Start with your restaurant’s name, contact number, and address.",
-        "Add your city, state and PIN code for the right delivery details."
+        "Start with your restaurant’s name, phone and address.",
+        "Add your city, state and PIN code for deliveries."
       ],
-      "text": "Start with your restaurant’s name, contact number, and address. Add your city, state and PIN code for the right delivery details.",
+      "text": "Start with your restaurant’s name, phone and address. Add your city, state and PIN code for deliveries.",
       "shots": [
         {
           "file": "first-restaurant.mp4",
-          "duration": 14,
+          "duration": 12,
           "sourceStart": 0,
-          "playbackRate": 1
+          "playbackRate": 1.1666666666666667
         }
       ],
-      "at": 6
+      "at": 5
     },
     {
       "id": "setup",
@@ -65,20 +65,26 @@
           "playbackRate": 1
         }
       ],
-      "at": 20
+      "at": 17
     },
     {
       "id": "menu",
       "title": "Approve your first menu",
-      "duration": 18,
+      "duration": 28,
       "phrases": [
-        "Open Menu, choose Add menu, then type or paste a dish.",
-        "Here, we’re making tomato curry.",
-        "Review the ingredient, quantity and unit.",
-        "Approve the menu before using it for a purchase."
+        "Type or paste dishes, upload photos, or take a menu photo on your phone.",
+        "Or use a permitted website link.",
+        "Here, we type tomato curry, then review the ingredients, quantity and unit.",
+        "Approve your menu before making a purchase."
       ],
-      "text": "Open Menu, choose Add menu, then type or paste a dish. Here, we’re making tomato curry. Review the ingredient, quantity and unit. Approve the menu before using it for a purchase.",
+      "text": "Type or paste dishes, upload photos, or take a menu photo on your phone. Or use a permitted website link. Here, we type tomato curry, then review the ingredients, quantity and unit. Approve your menu before making a purchase.",
       "shots": [
+        {
+          "file": "menu-options.mp4",
+          "duration": 10,
+          "sourceStart": 0,
+          "playbackRate": 1
+        },
         {
           "file": "first-menu.mp4",
           "duration": 18,
@@ -86,27 +92,33 @@
           "playbackRate": 1
         }
       ],
-      "at": 32
+      "at": 29,
+      "phraseStarts": [
+        0.2,
+        8,
+        11,
+        24
+      ]
     },
     {
       "id": "suppliers",
       "title": "Add your suppliers",
-      "duration": 16,
+      "duration": 14,
       "phrases": [
         "Open Suppliers and add the businesses you buy from.",
-        "Enter each business name and its ingredient categories.",
-        "We’ve added two example suppliers so we can compare their replies."
+        "Enter their names and ingredient categories.",
+        "We add two example suppliers to compare their replies."
       ],
-      "text": "Open Suppliers and add the businesses you buy from. Enter each business name and its ingredient categories. We’ve added two example suppliers so we can compare their replies.",
+      "text": "Open Suppliers and add the businesses you buy from. Enter their names and ingredient categories. We add two example suppliers to compare their replies.",
       "shots": [
         {
           "file": "first-suppliers.mp4",
-          "duration": 16,
+          "duration": 14,
           "sourceStart": 0,
-          "playbackRate": 1
+          "playbackRate": 1.1428571428571428
         }
       ],
-      "at": 50
+      "at": 57
     },
     {
       "id": "purchase",
@@ -127,7 +139,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 66
+      "at": 71
     },
     {
       "id": "replies",
@@ -153,7 +165,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 88,
+      "at": 93,
       "phraseStarts": [
         0.2,
         2.8,
@@ -185,7 +197,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 106,
+      "at": 111,
       "phraseStarts": [
         0.2,
         3.2,
@@ -218,7 +230,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 126,
+      "at": 131,
       "phraseStarts": [
         0.2,
         2.4,
@@ -229,38 +241,33 @@
     {
       "id": "today",
       "title": "Know what needs attention",
-      "duration": 10,
+      "duration": 5,
       "phrases": [
-        "Return to Today. Your purchase and delivery follow-up are visible.",
-        "Your team can see what needs attention next."
+        "Return to Today to see purchases and delivery follow-ups."
       ],
-      "text": "Return to Today. Your purchase and delivery follow-up are visible. Your team can see what needs attention next.",
+      "text": "Return to Today to see purchases and delivery follow-ups.",
       "shots": [
         {
           "file": "completion-today.mp4",
-          "duration": 10,
+          "duration": 5,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 146,
-      "phraseStarts": [
-        0.2,
-        5
-      ]
+      "at": 151
     },
     {
       "id": "end",
-      "title": "Start your first purchase",
+      "title": "Keep every purchase clear",
       "duration": 8,
       "phrases": [
-        "Ready to make your first purchase?",
-        "Start with pilot access, set up your restaurant, and follow these steps."
+        "Keep every purchase clear.",
+        "Start your first purchase with QuotePlate. Every quote, accountable."
       ],
-      "text": "Ready to make your first purchase? Start with pilot access, set up your restaurant, and follow these steps.",
+      "text": "Keep every purchase clear. Start your first purchase with QuotePlate. Every quote, accountable.",
       "shots": [
         {
-          "file": "first-cta.mp4",
+          "file": "kitchen-end.mp4",
           "duration": 8,
           "sourceStart": 0,
           "playbackRate": 1
@@ -270,6 +277,30 @@
       "phraseStarts": [
         0.2,
         3
+      ]
+    }
+  ],
+  "brandSources": [
+    {
+      "file": "kitchen-4k.mp4",
+      "resolution": [
+        3840,
+        2160
+      ],
+      "source": "Mixkit licensed kitchen footage already used in the earlier film",
+      "use": "Original 4K footage cropped to fill the 16:10 film with new 3840×2400 brand graphics; application captures remain native 3840×2400.",
+      "sha256": "acff98c0c747077743b2d2fc1fdcb0d3d70719d4eb09937091609b006f3f36d0",
+      "intervals": [
+        {
+          "scene": "intro",
+          "start": 0.4,
+          "duration": 5
+        },
+        {
+          "scene": "end",
+          "start": 0,
+          "duration": 8
+        }
       ]
     }
   ]

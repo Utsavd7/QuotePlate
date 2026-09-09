@@ -3,7 +3,7 @@
 .header h2 { max-width: 22ch; margin: 0; font: 700 clamp(2.2rem, 3.8vw, 3.4rem)/1.1 var(--font-display); letter-spacing: -.035em; text-wrap: balance; }
 .header > p { max-width: 42ch; margin: 0; color: var(--muted); line-height: 1.75; }
 .player, .options, .endPanel { width: 87%; margin-inline: auto; }
-.player { position: relative; overflow: hidden; background: transparent; }
+.player { position: relative; overflow: hidden; border-radius: 1rem; background: transparent; }
 .player video { width: 100%; height: auto; aspect-ratio: 16 / 10; display: block; }
 .unmute { position: absolute; top: 1rem; right: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: .6rem; min-height: 48px; padding: .75rem 1.25rem; border: 1px solid var(--workspace-line); border-radius: 999px; background: var(--workspace-surface); color: var(--workspace-ink); box-shadow: 0 4px 20px #0004; font: inherit; font-size: .95rem; font-weight: 650; white-space: nowrap; cursor: pointer; }
 .unmute:hover { background: var(--workspace-selected); }

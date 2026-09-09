@@ -1,7 +1,11 @@
 QuotePlate first-purchase film — media credits
 164 seconds · 3840 × 2400 (16:10), native 4K · 30 fps
 
-Application visuals: 15 fresh real application recordings across 11 scenes, following fictional Monsoon Table and one purchase from setup through delivery and credit follow-up. The live public approved-pilot Google entry is filmed as form filling only; authentication is completed off camera into an isolated local workspace. Restaurant, owner, supplier and purchase details are fictional. No production records are created and no real supplier messages are sent. No earlier kitchen or discovery footage is included.
+Application visuals: 14 real application clips across an 11-scene first-purchase story, following fictional Monsoon Table from setup through delivery and credit follow-up. The menu-options clip shows type/paste, phone photos, photo upload and permitted website import; the remaining workflow is retained from the previous native 4K recording. Public approved-pilot Google entry is filmed as form filling only; authentication is completed off camera into an isolated local workspace. No production records are created and no real supplier messages are sent.
+
+Opening and closing: the earlier licensed chef/kitchen footage is restored from its original 3840 × 2160 source, cropped to fill the 3840 × 2400 film, with freshly rendered brand graphics at the output resolution. Application footage remains native 3840 × 2400. Chef working in a large kitchen (Mixkit 43048), Stock Video Free License. People shown do not represent QuotePlate customers or endorsements.
+https://mixkit.co/free-stock-video/chef-working-in-a-large-kitchen-43048/
+https://mixkit.co/license/#videoFree
 
 Capture: physical 3840 × 2400 viewport with native Chrome zoom at 8/3 retains a 1440 × 900 CSS laptop layout. A process-only 24 Mbps VP8 recorder setting preserves interface detail; final clips and film use H.264. Real clicks, typing, navigation and result review are recorded. Preparation is trimmed, browser audio is discarded, and any action acceleration is bounded to 1.5x. This is not a claim of loading speed. Private session and supplier-link handoffs stay in memory; authentication material is not archived, and temporary recording profiles are cleaned up.
 
@@ -9,7 +13,7 @@ Music: Relax Beat, Arulo (Mixkit 292), Stock Music Free License. The existing li
 https://mixkit.co/free-stock-music/ambient/
 https://mixkit.co/license/#musicFree
 
-Voice: new locally generated Kokoro ONNX af_heart stock synthetic American-English narration for this first-purchase story, generated phrase by phrase with measured optional caption timings. No human voice clone. No narration or mixed audio from earlier films is reused.
+Voice: locally generated Kokoro ONNX af_heart stock synthetic American-English narration, with measured optional caption timings. Changed scenes receive new narration; unchanged first-purchase scenes retain their hash-verified narration. No human voice clone.
 https://github.com/hexgrad/kokoro
 
-Media and generation cost: $0 additional spend. Existing licensed music and local FFmpeg/Kokoro; no paid generation service, API, subscription, credit purchase or automatic billing.
+Media and generation cost: $0 additional spend. Existing licensed kitchen footage and music, with local FFmpeg/Kokoro; no paid generation service, API, subscription, credit purchase or automatic billing.
