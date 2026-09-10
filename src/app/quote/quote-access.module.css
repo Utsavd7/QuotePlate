@@ -712,3 +712,23 @@
   .steps li { flex: 1 1 90px; }
   .submitBar { gap: 12px; }
 }
+
+.guideToolbar, .guideNavigation { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.guideToolbar p { margin:0; font-size:.875rem; color:var(--workspace-muted); }
+.guideToolbar .reuseButton { background:var(--workspace-surface); border-color:var(--workspace-control-line); }
+.guideNavigation { padding-top:8px; }
+.guideNavigation .reuseButton:last-child:not(:only-child) { background:var(--workspace-accent); color:var(--workspace-surface); }
+.guideNavigation .reuseButton:last-child:not(:only-child):hover { background:var(--workspace-accent-hover); }
+.quoteItem[hidden], .sheetHeader[hidden], .commercialSection[hidden], .submitBar[hidden] { display:none; }
+.guidedItems .quoteItem { padding:20px 0; }
+.guidedItems .priceRow { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.guidedItems .itemDescription h3 { font-size:1.25rem; }
+.guidedItems .requestedQuantity { justify-self:end; text-align:right; }
+.guidedItems .requestedQuantity > span { display:block; color:var(--workspace-muted); font-weight:400; }
+.guidedItems .priceRow .noQuote { grid-column:1 / -1; }
+.guidedItems .lineFields input:not([type='checkbox']) { min-height:48px; }
+.guidedItems .moneyInput input { font-size:1.25rem; }
+@media(max-width:600px) {
+  .guideToolbar { align-items:stretch; flex-direction:column; }
+  .guideNavigation .reuseButton { width:auto; flex:1; }
+}

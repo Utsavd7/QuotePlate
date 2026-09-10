@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type { PreviousQuotePrices } from '@/lib/quotes/previous-prices';
 import type { ItemSpecificationV1 } from '@/lib/domain/item-specification';
-import { formatInr } from '@/lib/domain/money';
+import { formatInr, parseInrToPaise } from '@/lib/domain/money';
 import type { ProcurementUnit } from '@/lib/domain/quantity';
 import { formatScaledDecimal } from '@/lib/domain/validation';
 
 import styles from './quote-access.module.css';
-import { QuoteReviewError, reviewQuote } from './quote-review';
+import { QuoteReviewError, reviewQuote, reviewQuoteItems } from './quote-review';
+import { QuotePriceAssistant, type PreparedPrice } from './QuotePriceAssistant';
 
 type PublicQuoteLineDto = {
   requestItemId: string;
@@ -143,6 +144,8 @@ export function SupplierQuoteForm({
   );
   const formRef = useRef<HTMLFormElement>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [guided, setGuided] = useState(false);
+  const [guidedIndex, setGuidedIndex] = useState(0);
   const [message, setMessage] = useState('');
   const [review, setReview] = useState<(ReturnType<typeof reviewQuote> & {
     details: Array<{ rate: string; gst: string; inclusive: boolean; substitution: string }>;
@@ -150,6 +153,8 @@ export function SupplierQuoteForm({
   const [error, setError] = useState<{ message: string; field?: string } | null>(null);
   const reviewHeading = useRef<HTMLHeadingElement>(null);
   const entryHeading = useRef<HTMLHeadingElement>(null);
+  const deliveryHeading = useRef<HTMLHeadingElement>(null);
+  const focusedGuidedStep = useRef<number | null>(null);
   const returningToEntry = useRef(false);
   const errorMessage = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
@@ -167,10 +172,56 @@ export function SupplierQuoteForm({
       else errorMessage.current?.focus();
     }
   }, [error]);
+  useEffect(() => {
+    if (!guided || review) { focusedGuidedStep.current = null; return; }
+    // Clearing a validation error while typing must leave focus in the input.
+    if (error) { focusedGuidedStep.current = guidedIndex; return; }
+    if (focusedGuidedStep.current === guidedIndex) return;
+    focusedGuidedStep.current = guidedIndex;
+    const heading = guidedIndex < request.items.length
+      ? document.getElementById(`item-${request.items[guidedIndex].id}`)
+      : deliveryHeading.current;
+    heading?.focus();
+  }, [guided, guidedIndex, request.items, review, error]);
 
   function showProblem(message: string, field?: string) {
+    if (guided && field) {
+      const index = request.items.findIndex(item => field.endsWith(`:${item.id}`));
+      setGuidedIndex(index >= 0 ? index : request.items.length);
+    }
     setReview(null);
     setError({ message, field });
+  }
+
+  function applyPreparedPrices(prices: PreparedPrice[]) {
+    const form = formRef.current;
+    if (!form || submitting) return { applied: 0, skipped: prices.length };
+    let applied = 0;
+    for (const price of prices) {
+      if (!request.items.some(item => item.id === price.requestItemId) ||
+          prices.filter(other => other.requestItemId === price.requestItemId).length !== 1) continue;
+      const rate = form.elements.namedItem(`rate:${price.requestItemId}`);
+      if (!(rate instanceof HTMLInputElement) || rate.disabled || rate.value.trim()) continue;
+      try { parseInrToPaise(price.rateInr); } catch { continue; }
+      rate.value = price.rateInr;
+      applied += 1;
+    }
+    setReview(null);
+    setError(null);
+    return { applied, skipped: prices.length - applied };
+  }
+
+  function nextGuidedItem() {
+    const form = formRef.current;
+    const item = request.items[guidedIndex];
+    if (!form || !item || submitting) return;
+    try {
+      reviewQuoteItems(new FormData(form), [item]);
+      setError(null);
+      setGuidedIndex(index => Math.min(index + 1, request.items.length));
+    } catch (problem) {
+      showProblem(problem instanceof Error ? problem.message : 'Check this item’s price and quantity.', problem instanceof QuoteReviewError ? problem.field : undefined);
+    }
   }
 
   function fieldError(name: string) {
@@ -363,21 +414,32 @@ export function SupplierQuoteForm({
               Use previous prices
             </button>
           </div>
-        ) : !latest ? <p>No matching previous prices available. Enter current prices below.</p> : null}
+        ) : null}
 
-        <div className={styles.sheetHeader} aria-hidden="true">
+        {!review && <QuotePriceAssistant items={request.items} disabled={submitting} onApply={applyPreparedPrices} />}
+
+        <div className={styles.guideToolbar}>
+          <p>{guided ? guidedIndex < request.items.length ? `Item ${guidedIndex + 1} of ${request.items.length}` : 'Prices checked. Confirm delivery below.' : 'Want help? Fill one item at a time.'}</p>
+          <button className={styles.reuseButton} type="button" disabled={submitting} aria-pressed={guided} onClick={() => {
+            setError(null);
+            setGuidedIndex(0);
+            setGuided(current => !current);
+          }}>{guided ? 'Show all items' : 'One item at a time'}</button>
+        </div>
+
+        <div className={styles.sheetHeader} aria-hidden="true" hidden={guided}>
           <span>Item</span><span>Requested</span><span>Your price</span><span>Supply quantity</span><span>Availability</span>
         </div>
-        <div className={styles.quoteItems}>
-          {request.items.map((item) => {
+        <div className={`${styles.quoteItems} ${guided ? styles.guidedItems : ''}`}>
+          {request.items.map((item, index) => {
             const latestLine = latestByItem.get(item.id);
             const disabled = cannotSupply[item.id] ?? false;
             const unit = unitLabels[item.unit];
             return (
-              <article className={styles.quoteItem} key={item.id} aria-labelledby={`item-${item.id}`}>
+              <article className={styles.quoteItem} key={item.id} aria-labelledby={`item-${item.id}`} hidden={guided && guidedIndex !== index}>
                 <div className={`${styles.lineFields} ${styles.priceRow}`}>
                   <div className={styles.itemDescription}>
-                    <h3 id={`item-${item.id}`}>{item.name}</h3>
+                    <h3 id={`item-${item.id}`} tabIndex={guided ? -1 : undefined}>{item.name}</h3>
                     {item.specification.referenceUrl ? (
                       <a
                         href={item.specification.referenceUrl}
@@ -470,12 +532,16 @@ export function SupplierQuoteForm({
             );
           })}
         </div>
+        {guided && <div className={styles.guideNavigation}>
+          <button type="button" className={styles.reuseButton} disabled={submitting || guidedIndex === 0} onClick={() => { setError(null); setGuidedIndex(index => Math.max(0, index - 1)); }}>Previous item</button>
+          {guidedIndex < request.items.length && <button type="button" className={styles.reuseButton} disabled={submitting} onClick={nextGuidedItem}>{guidedIndex === request.items.length - 1 ? 'Continue to delivery' : 'Next item'}</button>}
+        </div>}
       </section>
 
-      <section className={styles.commercialSection} aria-labelledby="commercial-heading">
+      <section className={styles.commercialSection} aria-labelledby="commercial-heading" hidden={guided && guidedIndex < request.items.length}>
         <div className={styles.sectionHeading}>
           <div>
-            <h2 id="commercial-heading">Delivery &amp; terms</h2>
+            <h2 id="commercial-heading" ref={deliveryHeading} tabIndex={-1}>Delivery &amp; terms</h2>
           </div>
         </div>
         <div className={styles.commercialGrid}>
@@ -560,7 +626,7 @@ export function SupplierQuoteForm({
       </section>}
       {error && <p id="quote-error" className={styles.error} role="alert" ref={errorMessage} tabIndex={-1}>{error.message}</p>}
       {message && <p className={styles.notice} role="status">{message}</p>}
-      <footer className={styles.submitBar}>
+      <footer className={styles.submitBar} hidden={!review && guided && guidedIndex < request.items.length}>
         <p>{review ? 'Ready? Send this quote to the restaurant.' : 'Review the total before sending your prices.'}</p>
         <button type="submit" disabled={submitting}>
           {submitting ? 'Sending…' : review ? latest ? 'Send updated quote' : 'Send quote' : 'Review delivery & total'}

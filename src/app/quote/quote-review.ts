@@ -8,10 +8,10 @@ export class QuoteReviewError extends Error {
 
 // Use the same exact-decimal helpers as quote submission; the server still
 // validates access, dates, revisions and the complete submitted quote.
-export function reviewQuote(form: FormData, request: PublicQuoteRequestDto) {
+export function reviewQuoteItems(form: FormData, requestItems: PublicQuoteRequestDto['items']) {
   let subtotal = BigInt(0);
   let gst = BigInt(0);
-  const items = request.items.map((item) => {
+  const items = requestItems.map((item) => {
     if (form.get(`noQuote:${item.id}`) === 'on') return { name: item.name, quantity: null, total: BigInt(0) };
     const value = (key: string) => String(form.get(`${key}:${item.id}`) ?? '');
     const quantity = value('quantity');
@@ -32,6 +32,11 @@ export function reviewQuote(form: FormData, request: PublicQuoteRequestDto) {
       return { name: item.name, quantity: `${quantity} ${item.unit.toLowerCase().replaceAll('_', ' ')}`, total: line.grossPaise };
     } catch { throw new QuoteReviewError(`rate:${item.id}`, `${item.name}: this total is too large. Check the price and quantity.`); }
   });
+  return { items, subtotal, gst };
+}
+
+export function reviewQuote(form: FormData, request: PublicQuoteRequestDto) {
+  const { items, subtotal, gst } = reviewQuoteItems(form, request.items);
   let freight: bigint;
   try { freight = parseInrToPaise(String(form.get('freightInr') ?? '')); }
   catch { throw new QuoteReviewError('freightInr', 'Enter a delivery charge of 0 or more, with at most 2 decimal places.'); }
