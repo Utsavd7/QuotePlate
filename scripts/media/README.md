@@ -1,12 +1,14 @@
-# QuotePlate first-purchase film (164 seconds)
+# QuotePlate first-purchase film (165 seconds)
 
 `docs/media/quoteplate-product-film-164.json` is the edit contract: **11 scenes,
-14 application clips plus 2 branded kitchen clips, 164 seconds / 4,920 frames**, **3840×2400
+13 application clips plus 2 branded kitchen clips, 165 seconds / 4,950 frames**, **3840×2400
 (16:10), 30fps**, exported as H.264/AAC with fast-start. The earlier kitchen
 opening and closing are restored from the original 3840×2160 stock footage,
 cropped to fill the film with new graphics at the output resolution. Application
-recordings remain native 3840×2400. The menu-options clip demonstrates all four
-entry choices; the rest follows the existing first-purchase recording.
+desktop recordings remain native 3840×2400. The phone recording is native
+1560×2400 and is placed without scaling on the 3840×2400 canvas. The menu-options
+clip demonstrates all four entry choices; the rest follows the first purchase.
+The storyboard filename retains its historical `164` suffix.
 
 The story follows one fictional Monsoon Table restaurant and the same purchase:
 restaurant setup, menu approval, two suppliers, one request, their replies,
@@ -73,8 +75,7 @@ and measured shot timings in `<label>-recording.json`.
 | first-menu.mp4 | 18 | Add a dish, review ingredients and approve the menu. |
 | first-suppliers.mp4 | 14 | Add the two example suppliers. |
 | first-request.mp4 | 22 | Create, check and open the same purchase request. |
-| vendor-reply-a.mp4 | 9 | First supplier enters, reviews and sends a quote. |
-| vendor-reply-b.mp4 | 9 | Second supplier replies to the same request. |
+| vendor-phone.mp4 | 19 | Supplier selects a printed price list, reviews local OCR matches, fills prices, uses the item guide and sends the quote. |
 | completion-comparison.mp4 | 10 | Compare complete offers. |
 | completion-award.mp4 | 10 | Select the supplier and confirm. |
 | completion-delivery.mp4 | 12 | Check received quantities and invoice. |
@@ -145,7 +146,7 @@ No paid service, new model download or media purchase is needed.
 Run `render` only after the complete capture handoff. `check` probes native capture
 resolution, duration and narration hashes. Rendering checks each encoded shot's
 frame count, rejects captures changed during encoding, fully decodes the final
-export and verifies its resolution and 4,920-frame count. Contract regressions can
+export and verifies its resolution and 4,950-frame count. Contract regressions can
 run without a server, login or render:
 
 ```sh
@@ -154,15 +155,19 @@ python3 -B scripts/media/test_product_film.py
 
 ## Final review and handoff
 
-The 9 September 2026 unified-workspace refresh replaces nine restaurant clips:
-`first-workspace`, `first-menu`, `first-suppliers`, `first-request`,
-`completion-comparison`, `completion-award`, `completion-delivery`,
-`completion-credit`, and `completion-today`. The seven other source clips,
-including kitchen bookends, public registration, menu-options and supplier
-replies, retain their approved hashes. Speech,
-transcript and optional captions are reused unchanged through `reuse-audio`.
+The 10 September 2026 phone refresh retains all fourteen non-reply source clips,
+including the restaurant screens refreshed on 9 September. A 19-second phone
+sequence replaces the two earlier supplier replies at 01:33–01:52. It uses the
+real local app and bundled OCR with a printed-text fixture, followed by review
+and an actual local quote submission. It demonstrates choosing an image, not
+operating a physical camera. The second supplier's offer remains in comparison.
+Only the phone narration changes; ten other narration WAVs retain their hashes.
+Later optional captions shift one second and remain off by default in the player.
+See [the phone refresh notes](../../docs/media/quoteplate-vendor-phone-refresh.md)
+for composition and capture details.
+
 The local recording recreates the same fictional purchase in an independent
-ordinary tenant without resetting shared fixtures. Today now exposes the action
+ordinary tenant without resetting shared fixtures. Today exposes the action
 link `Check delivery for First lunch purchase` inside its attention row; the
 purchase title itself is not a link. Capture checks must use that action or row.
 
