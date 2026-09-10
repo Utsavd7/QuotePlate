@@ -1,26 +1,38 @@
 QuotePlate — 2:45 product film
 
-Actual application captures following one fictional restaurant’s first purchase, with illustrative licensed kitchen opening and closing footage. Signup shows approved-pilot Google access. Authentication is completed off camera. Actions may be condensed; this is not a claim of loading speed. Synthetic American-English narration.
+An overview of QuotePlate’s major feature families, following one fictional restaurant’s first purchase. Actual local application recordings with illustrative licensed kitchen opening and closing footage. Restaurant details and Google entry are shown for approved pilot owners; authentication is completed off camera. Communication controls create drafts for the user to send. Actions may be condensed; this is not a claim of loading speed. Synthetic American-English narration.
 
 QuotePlate connects your kitchen, purchasing decisions and suppliers.
 
-Start with your restaurant’s name, phone and address. Add your city, state and PIN code for deliveries.
+Add your restaurant and delivery address. Keep purchasing together in one workspace.
 
-Enter the owner’s name and work email. For approved pilot owners, continue with Google to create the workspace and open Today.
+Add the owner’s details, then open Today.
 
-Type or paste dishes, upload photos, or take a menu photo on your phone. Or use a permitted website link. Here, we type tomato curry, then review the ingredients, quantity and unit. Approve your menu before making a purchase.
+Type or paste dishes, use your phone, upload photos, or use a permitted website. Review the ingredients, quantities and units. Then approve the menu for purchasing.
 
-Open Suppliers and add the businesses you buy from. Enter their names and ingredient categories. We add two example suppliers to compare their replies.
+Paste your supplier contacts. Review the list, then add them to your restaurant.
 
-Choose New purchase. Give it a name and select the approved menu. Check quantities. We need ten kilos of tomatoes. Set the delivery date and reply deadline. Choose your suppliers, save the draft, then open it for quotes.
+Create a purchase from your approved menu. Check quantities, dates and suppliers. Save the draft, then open it for quotes.
+
+Share a private link on WhatsApp, by email, or copy it. You send the message.
 
 Suppliers can quote on their phone. Choose a clear price-list photo, or paste prices. Check the matched item and rate, then fill the quote. Use one item at a time if helpful. Review delivery and the total, then send.
 
-Back in Purchases, compare the complete offers. Check coverage, tax, delivery charges and dates. Here, the totals are four hundred and four hundred forty rupees. Choose the suitable supplier and confirm your decision.
+Compare coverage, prices and delivery. Here, offers total four hundred and four hundred forty rupees. Choose the suitable supplier and confirm.
 
-Now check what actually arrives. We ordered ten kilos, but received nine. Enter received quantities and check the invoice. Record the missing kilo and forty rupees in credit still owed, then save.
+Ordered ten kilos, received nine. Check quantities and the invoice. Record the missing kilo and forty rupees still owed, then save.
 
-Return to Today to see purchases and delivery follow-ups.
+Today keeps delivery follow-ups in view.
+
+Share a private supplier workspace. Suppliers confirm contacts, categories and delivery terms, then review their own orders.
+
+Search public listings for nearby supplier leads.
+
+Plan portions, check stock, and see missing ingredients.
+
+Review supplier price ranges, spending and delivery performance.
+
+Keep purchase history, and repeat orders as new drafts.
 
 Keep every purchase clear. Start your first purchase with QuotePlate. Every quote, accountable.
 

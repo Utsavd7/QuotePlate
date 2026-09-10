@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 
 import {
   workspaceFetch,
@@ -33,6 +34,7 @@ import styles from './supplier-workspace.module.css';
 import workspace from '../workspace/workspace.module.css';
 import { WorkspaceHeader, WorkspaceSearch, WorkspaceToolbar } from '../workspace/Workspace';
 import { SupplierDiscovery } from './SupplierDiscovery';
+import { ExistingSupplierContacts } from './ExistingSupplierContacts';
 import type { NearbyPrefill } from '@/lib/suppliers/nearby-types';
 
 type SupplierSummary = {
@@ -758,6 +760,11 @@ export function SupplierWorkspace({
         </div></details>
       </WorkspaceToolbar>
 
+      <ExistingSupplierContacts onImported={async (count) => {
+        setNotice(`${count} suppliers added. Open a supplier workspace to request their business details.`);
+        await loadSuppliers(search, activeFilter, undefined, false, 'operation');
+      }} />
+
       {notice && (
         <div className={styles.notice} role="status">
           <Check aria-hidden="true" /> {notice}
@@ -821,9 +828,9 @@ export function SupplierWorkspace({
                 </div>
               </div>
               <div className={styles.detail}>
-                {supplier.phone && <span><Phone aria-hidden="true" />{supplier.phone}</span>}
+                {(supplier.phone || supplier.whatsappNumber) && <span><Phone aria-hidden="true" />{supplier.phone || supplier.whatsappNumber}</span>}
                 {supplier.email && <span><Mail aria-hidden="true" />{supplier.email}</span>}
-                {!supplier.phone && !supplier.email && <span>Contact details not added</span>}
+                {!supplier.phone && !supplier.whatsappNumber && !supplier.email && <span>Contact details not added</span>}
               </div>
               <div className={styles.detail}>
                 <span><MapPin aria-hidden="true" />{supplierPlace(supplier)}</span>
@@ -847,6 +854,7 @@ export function SupplierWorkspace({
                 </span>
               </div>
               <div className={styles.actions}>
+                {supplier.isActive && <Link href={`/supplier-collaboration?supplier=${encodeURIComponent(supplier.id)}`} aria-label={`Open workspace for ${supplier.businessName}`}>Workspace</Link>}
                 {supplier.relationshipType === 'APPLICANT' && supplier.verificationStatus === 'PENDING' ? (
                   <span className={styles.reviewActions}>
                     <button

@@ -1,4 +1,4 @@
-.panel { max-width: 82rem; margin: 0 auto 1rem; border: 1px solid var(--workspace-line); border-radius: .65rem; background: var(--workspace-surface); }
+.panel { max-width: 82rem; margin: 0 auto 1rem; border: 1px solid var(--workspace-line); border-radius: var(--workspace-panel-radius); background: var(--workspace-surface); }
 .summary { min-height: 4.5rem; display: flex; align-items: center; gap: .85rem; padding: 1rem 1.1rem; cursor: pointer; list-style: none; }
 .summary::-webkit-details-marker { display: none; }
 .summary > svg { flex-shrink: 0; width: 1.2rem; height: 1.2rem; color: var(--workspace-accent); }

@@ -103,7 +103,7 @@ export function ProductDemoVideo() {
           <p className="public-eyebrow">The buying journey · 2:45</p>
           <h2 id="demo-title">Your first purchase, step by step.</h2>
         </div>
-        <p>Follow Monsoon Table, our fictional restaurant, from setup to delivery. An approved pilot owner adds restaurant details and continues with Google. Build a menu from a phone photo, an upload, typed or pasted text, or a permitted website link. See a supplier prepare and send a quote on a phone using a printed price-list photo, then compare offers and check delivery.</p>
+        <p>Follow Monsoon Table, our fictional restaurant, through setup and its first purchase. An approved pilot owner starts with Google. Add menus from a phone photo, an upload, typed or pasted text, or a permitted website link. Share quote links through WhatsApp, Email or Copy link, then watch a supplier quote on a phone. See comparison, delivery checks, supplier workspaces, nearby search, meal planning, reports and repeat purchases.</p>
       </header>
       <div className={styles.player}>
         <video ref={videoRef} controls playsInline muted preload="none" width={3840} height={2400}

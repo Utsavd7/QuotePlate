@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-
-import { Wordmark } from '@/components/brand/Wordmark';
+import { PublicSupplierShell } from '@/components/supplier-portal/PublicSupplierShell';
 
 import { QuoteAccessClient } from './QuoteAccessClient';
 import styles from './quote-access.module.css';
@@ -15,16 +13,8 @@ export const metadata: Metadata = {
 
 export default function SupplierQuoteAccessPage() {
   return (
-    <main className={styles.page}>
-      <div className={styles.shell}>
-        <Link className={styles.brand} href="/" aria-label="QuotePlate home">
-          <Wordmark />
-        </Link>
-        <QuoteAccessClient />
-        <p className={styles.footer}>
-          The restaurant that sent this link controls the request and can issue a new link if needed.
-        </p>
-      </div>
-    </main>
+    <PublicSupplierShell className={styles.shell} footer="The restaurant that sent this link controls the request and can issue a new link if needed.">
+      <QuoteAccessClient />
+    </PublicSupplierShell>
   );
 }

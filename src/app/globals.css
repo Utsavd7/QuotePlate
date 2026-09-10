@@ -36,6 +36,13 @@
   --type-control: .875rem;
   --type-label: .875rem;
   --type-caption: .75rem;
+  --weight-body: 400;
+  --weight-label: 600;
+  --weight-control: 650;
+  --weight-heading: 750;
+  --icon-control: 1rem;
+  --icon-navigation: 1.125rem;
+  --icon-stroke: 1.75;
   --type-h1: 1.75rem;
   --type-h1-compact: 1.5rem;
   --type-h2: 1.15rem;
@@ -44,12 +51,14 @@
   --control-radius: .5rem;
   --workspace-content-width: 82rem;
   --workspace-page-gutter: 1.5rem;
+  --workspace-section-gap: 1.5rem;
+  --workspace-panel-padding: 1.25rem;
   --workspace-panel-radius: .625rem;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 @media (max-width: 700px) {
-  :root { --workspace-page-gutter: 1rem; }
+  :root { --workspace-page-gutter: 1rem; --workspace-panel-padding: 1rem; }
 }
 
 @theme inline {

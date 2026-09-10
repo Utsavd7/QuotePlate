@@ -15,6 +15,11 @@ childProcess.spawn=function(command,args,options){
  return originalSpawn.call(this,command,args,options);
 };
 export async function recorder(_browser,label,options={}) {
+ const {captureMode='desktop', ...requestedOptions}=options;
+ if(!['desktop','phone'].includes(captureMode)) throw Error('Unknown capture mode');
+ const native=captureMode==='phone'?{width:1560,height:2400}:{width:3840,height:2400};
+ const css=captureMode==='phone'?{width:390,height:600}:{width:1440,height:900};
+ const zoom=captureMode==='phone'?4:8/3;
  // Native browser zoom preserves a 1440x900 CSS layout on a 3840x2400 surface.
  // deviceScaleFactor alone leaves the browser's video at CSS-pixel resolution.
  if(!/^[a-z0-9-]+$/.test(label)) throw Error('Use a plain recording label');
@@ -22,10 +27,10 @@ export async function recorder(_browser,label,options={}) {
  const profile=await fs.mkdtemp(work+'/profiles/'+label+'-');
  const extension=profile+'/zoom-extension'; await fs.mkdir(extension);
  await fs.writeFile(extension+'/manifest.json',JSON.stringify({manifest_version:3,name:'Local 4K recording zoom',version:'1.0',permissions:['tabs'],background:{service_worker:'worker.js'}}));
- await fs.writeFile(extension+'/worker.js',"chrome.tabs.onUpdated.addListener((id,change,tab)=>{if(change.status==='complete' && /^https?:/.test(tab.url||'')) chrome.tabs.setZoom(id,8/3);});");
- const {storageState, ...contextOptions}=options;
+ await fs.writeFile(extension+'/worker.js',`chrome.tabs.onUpdated.addListener((id,change,tab)=>{if(change.status==='complete' && /^https?:/.test(tab.url||'')) chrome.tabs.setZoom(id,${zoom});});`);
+ const {storageState, ...contextOptions}=requestedOptions;
  if(typeof storageState==='string') throw Error('Recording auth state must stay in memory');
- const context=await chromium.launchPersistentContext(profile,{channel:'chromium',headless:true,...contextOptions,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`],viewport:{width:3840,height:2400},deviceScaleFactor:1,recordVideo:{dir:work+'/raw',size:{width:3840,height:2400}}});
+ const context=await chromium.launchPersistentContext(profile,{channel:'chromium',headless:true,...contextOptions,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`],viewport:native,deviceScaleFactor:1,recordVideo:{dir:work+'/raw',size:native}});
  if(storageState?.cookies) await context.addCookies(storageState.cookies);
  await context.addInitScript(()=>{
   addEventListener('DOMContentLoaded',()=>{
@@ -45,7 +50,7 @@ export async function recorder(_browser,label,options={}) {
  async function move(locator){await locator.scrollIntoViewIfNeeded();const b=await locator.boundingBox();if(!b)throw Error('Cannot move to absent control');await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:22});await pause(140);}
  async function click(locator){await move(locator);await locator.click();await pause(160);}
  async function type(locator,value){await move(locator);await locator.click();await locator.fill('');await locator.pressSequentially(String(value),{delay:60});await pause(130);}
- async function clip(name,duration,act){await page.waitForFunction(()=>innerWidth===1440 && innerHeight===900 && devicePixelRatio>2.6);await page.evaluate(()=>document.fonts.ready);const start=(performance.now()-began)/1000;await act({page,click,type,move,pause});let elapsed=(performance.now()-began)/1000-start;if(elapsed<duration)await pause((duration-elapsed)*1000);elapsed=(performance.now()-began)/1000-start;if(elapsed>duration*1.5)throw Error(name+' action too long '+elapsed+' for '+duration);shots.push({name,duration,start,elapsed});console.log('Recorded',name,elapsed.toFixed(2));
+ async function clip(name,duration,act){await page.waitForFunction(({css,zoom})=>innerWidth===css.width && innerHeight===css.height && devicePixelRatio>zoom-.05,{css,zoom});await page.evaluate(()=>document.fonts.ready);const start=(performance.now()-began)/1000;await act({page,click,type,move,pause});let elapsed=(performance.now()-began)/1000-start;if(elapsed<duration)await pause((duration-elapsed)*1000);elapsed=(performance.now()-began)/1000-start;if(elapsed>duration*1.5)throw Error(name+' action too long '+elapsed+' for '+duration);shots.push({name,duration,start,elapsed});console.log('Recorded',name,elapsed.toFixed(2));
  // Keep the current result untouched after the measured interval. Browser video
  // can lag the wall clock; the caller must not prepare the next scene yet.
  await pause(500);
@@ -57,7 +62,7 @@ export async function recorder(_browser,label,options={}) {
  const offset=0;const trailingDurationDelta=rawDuration-ended;
  await fs.mkdir(out,{recursive:true});
  for(const shot of shots){const start=shot.start;const rate=shot.elapsed/shot.duration;execFileSync('ffmpeg',['-hide_banner','-loglevel','error','-nostdin','-y','-ss',String(start),'-t',String(shot.elapsed+.15),'-i',raw,'-vf',`setpts=(PTS-STARTPTS)/${rate},fps=30`,'-an','-frames:v',String(Math.round(shot.duration*30)),'-c:v','libx264','-preset','fast','-crf','18','-t',String(shot.duration),'-movflags','+faststart',`${out}/${shot.name}.mp4`]);}
- await fs.writeFile(`${work}/${label}-recording.json`,JSON.stringify({raw,rawDuration,ended,offset,trailingDurationDelta,timeOrigin:'performance.now immediately after context.newPage',nativeResolution:[3840,2400],cssViewport:[1440,900],browserZoom:8/3,recordingBitrate:'24M',shots},null,2));
+ await fs.writeFile(`${work}/${label}-recording.json`,JSON.stringify({raw,rawDuration,ended,offset,trailingDurationDelta,timeOrigin:'performance.now immediately after context.newPage',nativeResolution:[native.width,native.height],cssViewport:[css.width,css.height],browserZoom:zoom,recordingBitrate:'24M',shots},null,2));
  }
  return {context,page,clip,finish,abort,click,type,move,pause};
 }

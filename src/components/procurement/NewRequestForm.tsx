@@ -9,6 +9,7 @@ import type { MenuDocumentV1 } from '@/lib/menu/menu-document';
 import { buildDefaultSourcingSelection } from '@/lib/procurement/request-document';
 
 import { PurchaseJourney } from './PurchaseJourney';
+import { WorkspaceHeader } from '../workspace/Workspace';
 import ui from './purchase-ui.module.css';
 import styles from './new-request-form.module.css';
 
@@ -308,12 +309,8 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
 
   return (
     <main className={`${styles.page} ${ui.surface}`}>
-      <header className={styles.header}>
-        <button type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" /> Purchases</button>
-        <p className={styles.eyebrow}>Not sent</p>
-        <h1>Choose ingredients</h1>
-        <p>Start with an approved menu. Review your draft before sharing.</p>
-      </header>
+      <button className={styles.back} type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" /> Purchases</button>
+      <WorkspaceHeader title="Choose ingredients" description="Start with an approved menu. Review your draft before sharing." actions={<span className={styles.draftStatus}>Not sent</span>} />
 
       <PurchaseJourney current={0} />
 

@@ -2,6 +2,7 @@ import { expect, test, type APIRequestContext, type APIResponse, type Browser, t
 import type { RestaurantPortalView, SupplierPortalView } from '../../src/lib/supplier-portal/types';
 import { expectNoSeriousAxeViolations } from './helpers/accessibility';
 import { resetSignupClientRateLimit } from './helpers/signup';
+import { resetSupplierPortalClientRateLimit } from './helpers/public-client-rate-limit';
 
 // Real PostgreSQL fixture + real application APIs. No route mocks, discovery,
 // outbound messages, or shared-server lifecycle changes. Both configured browser
@@ -18,8 +19,14 @@ async function resetQuoteSubmitClientRateLimit(request: APIRequestContext) {
 }
 // Isolate the shared localhost client at journey boundaries, including failures.
 // Never reset between quote submissions or alter a supplier grant's own quota.
-test.beforeEach(async ({ request }) => { await resetQuoteSubmitClientRateLimit(request); });
-test.afterEach(async ({ request }) => { await resetQuoteSubmitClientRateLimit(request); });
+test.beforeEach(async ({ request }) => {
+  await resetSupplierPortalClientRateLimit(request);
+  await resetQuoteSubmitClientRateLimit(request);
+});
+test.afterEach(async ({ request }) => {
+  await resetSupplierPortalClientRateLimit(request);
+  await resetQuoteSubmitClientRateLimit(request);
+});
 type Fixture = {
   requestId: string; itemId: string; itemName: string; supplierName: string;
   supplierId: string; grantId: string;

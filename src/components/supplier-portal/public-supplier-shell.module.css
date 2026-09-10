@@ -1,0 +1,34 @@
+.frame {
+  --supplier-content-width: 70rem;
+  --supplier-panel-padding: var(--workspace-panel-padding);
+  --supplier-section-gap: var(--workspace-section-gap);
+  --supplier-field-gap: 20px;
+  --supplier-label-gap: 8px;
+  /* Public links are often completed on phones; retain larger touch targets. */
+  --supplier-control-height: 48px;
+  --supplier-control-radius: var(--control-radius);
+  --supplier-heading-size: var(--type-h1);
+  min-height: 100dvh;
+  display: flex;
+  padding: var(--workspace-page-gutter) var(--workspace-page-gutter) var(--workspace-section-gap);
+  color: var(--workspace-ink);
+  background: var(--workspace-canvas);
+  font-family: var(--font-ui), sans-serif;
+  font-weight: var(--weight-body);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.container { width: 100%; max-width: var(--supplier-content-width); margin-inline: auto; display: flex; flex-direction: column; }
+.container > main { flex: 1; min-width: 0; }
+.header { display: flex; align-items: center; min-height: 64px; padding-bottom: var(--supplier-panel-padding); margin-bottom: var(--supplier-section-gap); border-bottom: 1px solid var(--workspace-line); }
+.brand { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: none; }
+.footer { margin-top: var(--supplier-section-gap); padding-top: var(--supplier-panel-padding); border-top: 1px solid var(--workspace-line); color: var(--workspace-muted); font-size: .875rem; line-height: 1.6; }
+.footer p { max-width: 70ch; margin: 0; }
+.frame :focus-visible { outline: 3px solid var(--workspace-accent); outline-offset: 3px; }
+.frame.frame :is(h1, h2, h3) { font-family: var(--font-ui); font-weight: var(--weight-heading); }
+.frame.frame :is(button, summary) { font-weight: var(--weight-control); }
+.frame.frame :is(label, legend, th) { font-weight: var(--weight-label); }
+.frame :global(.lucide) { stroke-width: var(--icon-stroke); }
+.frame.frame :where(button > svg) { width: var(--icon-control); height: var(--icon-control); flex-shrink: 0; }
+.frame :is(h1,h2,h3,[tabindex='-1']) { scroll-margin-block: 24px; }
+@media(max-width:700px) { .frame { --supplier-heading-size: var(--type-h1-compact); } }

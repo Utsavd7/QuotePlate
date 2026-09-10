@@ -58,7 +58,8 @@
 .inactiveBadge { color: var(--workspace-muted); background: var(--workspace-canvas); }
 .pendingBadge { color: #713917; background: #f7dfce; }
 .rejectedBadge { color: #842d25; background: #fbefec; }
-.actions { display: flex; justify-content: flex-end; }
+.actions { display: flex; flex-wrap: wrap; gap: .375rem; justify-content: flex-end; }
+.actions a { min-height: 44px; display: inline-flex; align-items: center; color: var(--workspace-accent); font-size: .8125rem; font-weight: 650; text-underline-offset: 3px; }
 .actions button, .dialog header > button { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: .5rem .75rem; border: 1px solid var(--workspace-control-line); border-radius: var(--control-radius); background: var(--workspace-surface); color: var(--workspace-ink); font: inherit; cursor: pointer; }
 .actions button:hover:not(:disabled), .dialog header > button:hover { background: var(--workspace-selected); }
 .actions svg, .dialog header > button svg { width: 1.15rem; }

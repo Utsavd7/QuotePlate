@@ -46,3 +46,11 @@
   .actions .button { flex:1 1 auto; }
   .primary, .panel > .button:last-child { justify-self:stretch; }
 }
+
+.panel { gap:var(--supplier-field-gap); }
+.sourceLabel, .rowFields label { gap:var(--supplier-label-gap); font-size:1rem; }
+.button, .iconButton, .sourceLabel textarea, .rowFields select, .rowFields input { min-height:var(--supplier-control-height); border-radius:var(--supplier-control-radius); }
+.iconButton { width:var(--supplier-control-height); }
+.hint, .sourceText { font-size:.875rem; }
+.panel .error, .panel .message { padding:16px; border:1px solid var(--workspace-line); border-radius:var(--supplier-control-radius); }
+.panel .error { border-color:#d6a586; }

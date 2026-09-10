@@ -2,8 +2,8 @@
   "durationSeconds": 165,
   "resolution": "3840x2400",
   "fps": 30,
-  "narration": "Local Kokoro ONNX af_heart, American English; new first-purchase narration with measured optional caption cues.",
-  "sources": "Real application recordings of one fictional restaurant and its first purchase, with the earlier licensed kitchen opening and closing restored. Native 3840×2400 application footage; kitchen-source details are recorded in brandSources. Public signup shows approved-pilot Google entry; authentication is completed off camera in an isolated local environment. No internal demo promotion or production writes. Actions may be condensed up to 1.5x; recordings do not promise loading speed.",
+  "narration": "Local Kokoro ONNX af_heart, American English; feature-overview narration with measured optional caption cues.",
+  "sources": "Native 3840×2400 local application recordings covering the major feature families, with one fictional Monsoon Table purchase as the main story. Fresh phone OCR recording in the approved native composition; licensed kitchen bookends and approved signup footage retained. Authentication stays off camera; no production writes or external supplier messages. Reviewed source segments run at no more than 1.5×. This is an overview, not a deep walkthrough of every feature.",
   "scenes": [
     {
       "id": "intro",
@@ -25,19 +25,19 @@
     },
     {
       "id": "signup",
-      "title": "Add your restaurant",
-      "duration": 12,
+      "title": "Set up your restaurant",
+      "duration": 10,
       "phrases": [
-        "Start with your restaurant’s name, phone and address.",
-        "Add your city, state and PIN code for deliveries."
+        "Add your restaurant and delivery address.",
+        "Keep purchasing together in one workspace."
       ],
-      "text": "Start with your restaurant’s name, phone and address. Add your city, state and PIN code for deliveries.",
+      "text": "Add your restaurant and delivery address. Keep purchasing together in one workspace.",
       "shots": [
         {
           "file": "first-restaurant.mp4",
-          "duration": 12,
+          "duration": 10,
           "sourceStart": 0,
-          "playbackRate": 1.1666666666666667
+          "playbackRate": 1.4
         }
       ],
       "at": 5
@@ -45,101 +45,114 @@
     {
       "id": "setup",
       "title": "Open your workspace",
-      "duration": 12,
+      "duration": 8,
       "phrases": [
-        "Enter the owner’s name and work email.",
-        "For approved pilot owners, continue with Google to create the workspace and open Today."
+        "Add the owner’s details, then open Today."
       ],
-      "text": "Enter the owner’s name and work email. For approved pilot owners, continue with Google to create the workspace and open Today.",
+      "text": "Add the owner’s details, then open Today.",
       "shots": [
         {
           "file": "first-owner.mp4",
-          "duration": 9,
+          "duration": 6,
           "sourceStart": 0,
-          "playbackRate": 1
+          "playbackRate": 1.5
         },
         {
           "file": "first-workspace.mp4",
-          "duration": 3,
+          "duration": 2,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 17
+      "at": 15
     },
     {
       "id": "menu",
-      "title": "Approve your first menu",
-      "duration": 28,
+      "title": "Turn a menu into ingredients",
+      "duration": 20,
       "phrases": [
-        "Type or paste dishes, upload photos, or take a menu photo on your phone.",
-        "Or use a permitted website link.",
-        "Here, we type tomato curry, then review the ingredients, quantity and unit.",
-        "Approve your menu before making a purchase."
+        "Type or paste dishes, use your phone, upload photos, or use a permitted website.",
+        "Review the ingredients, quantities and units.",
+        "Then approve the menu for purchasing."
       ],
-      "text": "Type or paste dishes, upload photos, or take a menu photo on your phone. Or use a permitted website link. Here, we type tomato curry, then review the ingredients, quantity and unit. Approve your menu before making a purchase.",
+      "text": "Type or paste dishes, use your phone, upload photos, or use a permitted website. Review the ingredients, quantities and units. Then approve the menu for purchasing.",
       "shots": [
         {
           "file": "menu-options.mp4",
-          "duration": 10,
+          "duration": 8,
           "sourceStart": 0,
           "playbackRate": 1
         },
         {
           "file": "first-menu.mp4",
-          "duration": 18,
+          "duration": 12,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 29,
+      "at": 23,
       "phraseStarts": [
         0.2,
-        8,
-        11,
-        24
+        8.4,
+        15.4
       ]
     },
     {
       "id": "suppliers",
-      "title": "Add your suppliers",
-      "duration": 14,
+      "title": "Bring your supplier contacts",
+      "duration": 8,
       "phrases": [
-        "Open Suppliers and add the businesses you buy from.",
-        "Enter their names and ingredient categories.",
-        "We add two example suppliers to compare their replies."
+        "Paste your supplier contacts. Review the list, then add them to your restaurant."
       ],
-      "text": "Open Suppliers and add the businesses you buy from. Enter their names and ingredient categories. We add two example suppliers to compare their replies.",
+      "text": "Paste your supplier contacts. Review the list, then add them to your restaurant.",
       "shots": [
         {
-          "file": "first-suppliers.mp4",
-          "duration": 14,
-          "sourceStart": 0,
-          "playbackRate": 1.1428571428571428
-        }
-      ],
-      "at": 57
-    },
-    {
-      "id": "purchase",
-      "title": "Create the first request",
-      "duration": 22,
-      "phrases": [
-        "Choose New purchase. Give it a name and select the approved menu.",
-        "Check quantities. We need ten kilos of tomatoes.",
-        "Set the delivery date and reply deadline.",
-        "Choose your suppliers, save the draft, then open it for quotes."
-      ],
-      "text": "Choose New purchase. Give it a name and select the approved menu. Check quantities. We need ten kilos of tomatoes. Set the delivery date and reply deadline. Choose your suppliers, save the draft, then open it for quotes.",
-      "shots": [
-        {
-          "file": "first-request.mp4",
-          "duration": 22,
+          "file": "supplier-contacts.mp4",
+          "duration": 8,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 71
+      "at": 43
+    },
+    {
+      "id": "purchase",
+      "title": "Create the purchase request",
+      "duration": 15,
+      "phrases": [
+        "Create a purchase from your approved menu.",
+        "Check quantities, dates and suppliers.",
+        "Save the draft, then open it for quotes."
+      ],
+      "text": "Create a purchase from your approved menu. Check quantities, dates and suppliers. Save the draft, then open it for quotes.",
+      "shots": [
+        {
+          "file": "first-request.mp4",
+          "duration": 15,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 51
+    },
+    {
+      "id": "sharing",
+      "title": "Choose how to share",
+      "duration": 7,
+      "phrases": [
+        "Share a private link on WhatsApp, by email, or copy it.",
+        "You send the message."
+      ],
+      "text": "Share a private link on WhatsApp, by email, or copy it. You send the message.",
+      "shots": [
+        {
+          "file": "request-sharing.mp4",
+          "duration": 7,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 66
     },
     {
       "id": "replies",
@@ -159,7 +172,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 93,
+      "at": 73,
       "phraseStarts": [
         0.2,
         6,
@@ -168,81 +181,178 @@
     },
     {
       "id": "compare",
-      "title": "Choose a supplier",
-      "duration": 20,
+      "title": "Compare and choose a supplier",
+      "duration": 14,
       "phrases": [
-        "Back in Purchases, compare the complete offers.",
-        "Check coverage, tax, delivery charges and dates.",
-        "Here, the totals are four hundred and four hundred forty rupees.",
-        "Choose the suitable supplier and confirm your decision."
+        "Compare coverage, prices and delivery.",
+        "Here, offers total four hundred and four hundred forty rupees.",
+        "Choose the suitable supplier and confirm."
       ],
-      "text": "Back in Purchases, compare the complete offers. Check coverage, tax, delivery charges and dates. Here, the totals are four hundred and four hundred forty rupees. Choose the suitable supplier and confirm your decision.",
+      "text": "Compare coverage, prices and delivery. Here, offers total four hundred and four hundred forty rupees. Choose the suitable supplier and confirm.",
       "shots": [
         {
           "file": "completion-comparison.mp4",
-          "duration": 10,
+          "duration": 7,
           "sourceStart": 0,
           "playbackRate": 1
         },
         {
           "file": "completion-award.mp4",
-          "duration": 10,
+          "duration": 7,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 112,
+      "at": 92,
       "phraseStarts": [
         0.2,
         3.2,
-        6,
-        12
+        8.5
       ]
     },
     {
       "id": "delivery",
-      "title": "Check what arrived",
-      "duration": 20,
+      "title": "Check deliveries and credits",
+      "duration": 14,
       "phrases": [
-        "Now check what actually arrives.",
-        "We ordered ten kilos, but received nine.",
-        "Enter received quantities and check the invoice.",
-        "Record the missing kilo and forty rupees in credit still owed, then save."
+        "Ordered ten kilos, received nine.",
+        "Check quantities and the invoice.",
+        "Record the missing kilo and forty rupees still owed, then save."
       ],
-      "text": "Now check what actually arrives. We ordered ten kilos, but received nine. Enter received quantities and check the invoice. Record the missing kilo and forty rupees in credit still owed, then save.",
+      "text": "Ordered ten kilos, received nine. Check quantities and the invoice. Record the missing kilo and forty rupees still owed, then save.",
       "shots": [
         {
           "file": "completion-delivery.mp4",
-          "duration": 12,
+          "duration": 8,
           "sourceStart": 0,
           "playbackRate": 1
         },
         {
           "file": "completion-credit.mp4",
-          "duration": 8,
+          "duration": 6,
           "sourceStart": 0,
           "playbackRate": 1
         }
       ],
-      "at": 132,
+      "at": 106,
       "phraseStarts": [
         0.2,
-        2.4,
-        5.5,
-        12.2
+        3.1,
+        8.1
       ]
     },
     {
       "id": "today",
-      "title": "Know what needs attention",
-      "duration": 5,
+      "title": "See what needs attention",
+      "duration": 4,
       "phrases": [
-        "Return to Today to see purchases and delivery follow-ups."
+        "Today keeps delivery follow-ups in view."
       ],
-      "text": "Return to Today to see purchases and delivery follow-ups.",
+      "text": "Today keeps delivery follow-ups in view.",
       "shots": [
         {
           "file": "completion-today.mp4",
+          "duration": 4,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 120
+    },
+    {
+      "id": "workspace",
+      "title": "Confirm details in a private workspace",
+      "duration": 13,
+      "phrases": [
+        "Share a private supplier workspace.",
+        "Suppliers confirm contacts, categories and delivery terms, then review their own orders."
+      ],
+      "text": "Share a private supplier workspace. Suppliers confirm contacts, categories and delivery terms, then review their own orders.",
+      "shots": [
+        {
+          "file": "workspace-sharing.mp4",
+          "duration": 4,
+          "sourceStart": 0,
+          "playbackRate": 1
+        },
+        {
+          "file": "supplier-confirmation.mp4",
+          "duration": 9,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 124,
+      "phraseStarts": [
+        0.2,
+        4.1
+      ]
+    },
+    {
+      "id": "nearby",
+      "title": "Discover nearby suppliers",
+      "duration": 5,
+      "phrases": [
+        "Search public listings for nearby supplier leads."
+      ],
+      "text": "Search public listings for nearby supplier leads.",
+      "shots": [
+        {
+          "file": "nearby-discovery.mp4",
+          "duration": 5,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 137
+    },
+    {
+      "id": "planning",
+      "title": "Plan meals and missing ingredients",
+      "duration": 5,
+      "phrases": [
+        "Plan portions, check stock, and see missing ingredients."
+      ],
+      "text": "Plan portions, check stock, and see missing ingredients.",
+      "shots": [
+        {
+          "file": "meal-planning.mp4",
+          "duration": 5,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 142
+    },
+    {
+      "id": "reports",
+      "title": "Review purchasing reports",
+      "duration": 5,
+      "phrases": [
+        "Review supplier price ranges, spending and delivery performance."
+      ],
+      "text": "Review supplier price ranges, spending and delivery performance.",
+      "shots": [
+        {
+          "file": "purchase-reports.mp4",
+          "duration": 5,
+          "sourceStart": 0,
+          "playbackRate": 1
+        }
+      ],
+      "at": 147
+    },
+    {
+      "id": "history",
+      "title": "Reuse past purchases",
+      "duration": 5,
+      "phrases": [
+        "Keep purchase history, and repeat orders as new drafts."
+      ],
+      "text": "Keep purchase history, and repeat orders as new drafts.",
+      "shots": [
+        {
+          "file": "purchase-history.mp4",
           "duration": 5,
           "sourceStart": 0,
           "playbackRate": 1
@@ -301,8 +411,25 @@
   "visualRefresh": {
     "date": "2026-09-10",
     "clips": [
-      "vendor-phone.mp4"
+      "first-workspace.mp4",
+      "menu-options.mp4",
+      "first-menu.mp4",
+      "supplier-contacts.mp4",
+      "first-request.mp4",
+      "request-sharing.mp4",
+      "vendor-phone.mp4",
+      "completion-comparison.mp4",
+      "completion-award.mp4",
+      "completion-delivery.mp4",
+      "completion-credit.mp4",
+      "completion-today.mp4",
+      "workspace-sharing.mp4",
+      "supplier-confirmation.mp4",
+      "nearby-discovery.mp4",
+      "purchase-history.mp4",
+      "meal-planning.mp4",
+      "purchase-reports.mp4"
     ],
-    "description": "Real responsive phone quote with local printed-price OCR, exact-rate review, fill blanks, guided item and quote submission. All other video source clips preserved."
+    "description": "Fresh local recordings after the coordinated UI review; real contact import, manual sharing, phone OCR, purchase, receiving, supplier confirmation, discovery, planning, reports and repeat orders."
   }
 }

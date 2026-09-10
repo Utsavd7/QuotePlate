@@ -219,7 +219,7 @@ describe('procurement request detail', () => {
         }}
         busy={false}
         onCopy={jest.fn()}
-        onWhatsApp={jest.fn()}
+        requestTitle="Vegetables & dairy"
         onQr={jest.fn()}
       />,
     );
@@ -227,6 +227,15 @@ describe('procurement request detail', () => {
     expect(html).toContain('Copy');
     expect(html).toContain('WhatsApp');
     expect(html).toContain('Download QR for GreenLeaf Fresh Foods');
+    const share = parse(html).querySelector('a');
+    expect(share?.text).toContain('Share on WhatsApp');
+    const destination = new URL(share!.getAttribute('href')!);
+    expect(destination.origin).toBe('https://wa.me');
+    expect(destination.searchParams.get('text')).toContain('Vegetables & dairy');
+    expect(destination.searchParams.get('text')).toContain(`https://quoteplate.example/quote#token=${'Q'.repeat(43)}`);
+    expect(destination.searchParams.get('text')).toContain('submit your prices through this link');
+    expect(share?.getAttribute('target')).toBe('_blank');
+    expect(share?.getAttribute('rel')).toBe('noopener noreferrer');
   });
 
   it.each(['request', 'comparison'])('keeps a returned award locked when %s reload fails and an older quote refresh resolves last', async failureStage => {

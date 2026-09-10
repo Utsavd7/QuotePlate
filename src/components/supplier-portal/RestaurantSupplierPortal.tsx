@@ -9,6 +9,7 @@ import type { computePlan } from '@/lib/service-planning/planning';
 import { WorkspaceHeader, WorkspaceToolbar } from '../workspace/Workspace';
 import styles from './restaurant-supplier-portal.module.css';
 import { TradingProfileReadView } from './TradingProfile';
+import { LinkShareActions } from '../shared/LinkShareActions';
 
 type Ingredient = Pick<ReturnType<typeof computePlan>['ingredients'][number], 'itemKey' | 'name' | 'deficit' | 'usableDeficit' | 'unit' | 'specification' | 'blocked'>;
 export type SavedDemandPlan = {
@@ -17,7 +18,7 @@ export type SavedDemandPlan = {
   readiness: { ingredients: Ingredient[]; warnings: string[] };
 };
 type FreshLink = { url: string; expiresAt: string };
-type Supplier = { id: string; businessName: string; isActive: boolean };
+type Supplier = { id: string; businessName: string; isActive: boolean; email?: string | null };
 type PlanListing = { plans: { id: string; name: string; version: number; serviceAt: string }[] };
 const date = (value: string) => new Date(value).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
 const unit = (value: string) => value.toLowerCase().replaceAll('_', ' ');
@@ -49,8 +50,9 @@ async function api<T>(path: string, method = 'GET', body?: unknown, signal?: Abo
   return data as T;
 }
 
-export function PortalControls({ canManage, access, freshLink, busy, onCreate, onRevoke, onCopy, onDismiss }: {
+export function PortalControls({ canManage, access, freshLink, busy, email, onCreate, onRevoke, onCopy, onDismiss }: {
   canManage: boolean; access: RestaurantPortalView['access']; freshLink: FreshLink | null; busy: boolean;
+  email?: string | null;
   onCreate: () => void; onRevoke: () => void; onCopy: () => void; onDismiss: () => void;
 }) {
   const [now] = useState(() => Date.now());
@@ -65,7 +67,8 @@ export function PortalControls({ canManage, access, freshLink, busy, onCreate, o
       {freshLink && <div className={styles.freshLink}>
         <label>New private link<input readOnly value={freshLink.url} onFocus={e => e.currentTarget.select()} /></label>
         <p>Copy this link now. It is shown only here after creation and cannot be retrieved later. Expires {date(freshLink.expiresAt)}.</p>
-        <div className={styles.actions}><button disabled={busy} onClick={onCopy}>Copy link</button><button className={styles.secondary} onClick={onDismiss}>Dismiss link</button></div>
+        <p>WhatsApp opens on your laptop or phone. Select this supplier and press Send from your own account. Email opens a draft in your mail app; Copy link works anywhere.</p>
+        <div className={styles.actions}><LinkShareActions message={`Please confirm your business details for our restaurant, then use this private link to check orders and delivery records: ${freshLink.url}`} subject="Your private supplier workspace on QuotePlate" email={email} disabled={busy} onCopy={onCopy} /><button className={styles.secondary} onClick={onDismiss}>Dismiss link</button></div>
       </div>}
     </>}
   </section>;
@@ -119,9 +122,9 @@ export function DemandReview({ plan, selectedItemKeys, disabled, onSelect }: { p
   </>;
 }
 
-export function RestaurantSupplierPortal() {
+export function RestaurantSupplierPortal({ initialSupplierId = '' }: { initialSupplierId?: string } = {}) {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [supplierId, setSupplierId] = useState('');
+  const [supplierId, setSupplierId] = useState(initialSupplierId);
   const [listingLoaded, setListingLoaded] = useState(false);
   const [listingError, setListingError] = useState('');
   const [cursor, setCursor] = useState<string | null>(null);
@@ -136,7 +139,7 @@ export function RestaurantSupplierPortal() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(Boolean(initialSupplierId));
   const [planLoading, setPlanLoading] = useState(false);
   const [reload, setReload] = useState(0);
   const mutationLock = useRef(false);
@@ -145,11 +148,19 @@ export function RestaurantSupplierPortal() {
   useEffect(() => {
     const controller = new AbortController();
     api<{ suppliers: Supplier[]; nextCursor?: string | null }>('/api/suppliers?active=true&limit=50', 'GET', undefined, controller.signal)
-      .then(data => { setSuppliers(data.suppliers.filter(s => s.isActive)); setCursor(data.nextCursor ?? null); setListingLoaded(true); setListingError(''); })
+      .then(async data => {
+        const active = data.suppliers.filter(s => s.isActive);
+        if (initialSupplierId && !active.some(s => s.id === initialSupplierId)) {
+          const selected = await api<{ supplier: Supplier }>(`/api/suppliers/${encodeURIComponent(initialSupplierId)}`, 'GET', undefined, controller.signal);
+          if (selected.supplier.isActive) active.push(selected.supplier);
+        }
+        if (controller.signal.aborted) return;
+        setSuppliers(active); setCursor(data.nextCursor ?? null); setListingLoaded(true); setListingError('');
+      })
       .catch(e => { if (!controller.signal.aborted) setListingError(e.message); })
       .finally(() => { if (!controller.signal.aborted) setListingBusy(false); });
     return () => controller.abort();
-  }, [reload]);
+  }, [reload, initialSupplierId]);
 
   useEffect(() => {
     if (!supplierId) return;
@@ -239,7 +250,7 @@ export function RestaurantSupplierPortal() {
     {loading && <p role="status">Loading supplier activity…</p>}
     {view && <>
       <h2 className={styles.supplierName}>{view.supplierName}</h2>
-      <PortalControls canManage={view.canManage} access={view.access} freshLink={freshLink} busy={busy} onCreate={() => void mutate('create')} onRevoke={() => void mutate('revoke')} onCopy={() => void copyLink()} onDismiss={() => setFreshLink(null)} />
+      <PortalControls canManage={view.canManage} access={view.access} freshLink={freshLink} email={suppliers.find(supplier => supplier.id === supplierId)?.email} busy={busy} onCreate={() => void mutate('create')} onRevoke={() => void mutate('revoke')} onCopy={() => void copyLink()} onDismiss={() => setFreshLink(null)} />
       <details className={styles.secondaryDetails}><summary>Supplier delivery terms</summary><TradingProfileReadView profile={view.tradingProfile} /></details>
       <SupplierOrders orders={view.orders} />
       <details key={supplierId} className={styles.secondaryDetails} open={view.forecasts.length > 0}>

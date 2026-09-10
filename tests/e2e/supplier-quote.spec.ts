@@ -322,6 +322,28 @@ test('real awarded request repeats with private historical prices and saves only
   await page.getByRole('button', { name: 'New link' }).click();
   const link = await page.locator('code').filter({ hasText: '/quote#token=' }).textContent();
   expect(link).toBeTruthy();
+  const share = page.getByRole('link', { name: 'Share on WhatsApp', exact: true });
+  const shareUrl = new URL((await share.getAttribute('href'))!);
+  expect(shareUrl.origin).toBe('https://wa.me');
+  expect(shareUrl.searchParams.get('text')).toContain(link);
+  expect(shareUrl.searchParams.get('text')).toContain('submit your prices through this link');
+  const emailDraft = new URL((await page.getByRole('link', { name: 'Email', exact: true }).getAttribute('href'))!);
+  expect(emailDraft.protocol).toBe('mailto:');
+  expect(emailDraft.searchParams.get('body')).toContain(link);
+  await expect(page.getByRole('button', { name: 'Copy link', exact: true })).toBeVisible();
+  await expect(page.getByText('Choose Share on WhatsApp, select this supplier, then press Send.', { exact: false })).toBeVisible();
+  const beforeShare = (await (await page.request.get(`/api/requests/${fixture.requestId}`)).json()).request;
+  // Exercise the laptop/phone handoff without contacting WhatsApp or any supplier.
+  await page.context().route('https://wa.me/**', route => route.fulfill({ contentType: 'text/html', body: '<p>WhatsApp handoff intercepted</p>' }));
+  const popupPromise = page.waitForEvent('popup');
+  await share.click();
+  const popup = await popupPromise;
+  await expect(popup.getByText('WhatsApp handoff intercepted')).toBeVisible();
+  await popup.close();
+  const afterShare = (await (await page.request.get(`/api/requests/${fixture.requestId}`)).json()).request;
+  expect(afterShare.version).toBe(beforeShare.version);
+  expect(afterShare.supplierRequests).toEqual(beforeShare.supplierRequests);
+  await page.screenshot({ path: testInfo.outputPath('manual-whatsapp-sharing.png'), fullPage: true });
   const { viewport, userAgent, isMobile, hasTouch, deviceScaleFactor } = testInfo.project.use;
   const supplierContext = await browser.newContext({ viewport, userAgent, isMobile, hasTouch, deviceScaleFactor });
   try {

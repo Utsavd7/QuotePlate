@@ -492,8 +492,8 @@
 
 .page { background:var(--workspace-canvas); }
 .paper, .fields input { background:var(--workspace-surface); border-color:var(--workspace-line); }
-.intro h1, .linkState h1, .success h1 { font-size:28px; }
-.sectionTitle h2, .categoryLegend { font-size:18.4px; }
+.intro h1, .linkState h1, .success h1 { font-size:var(--supplier-heading-size); }
+.sectionTitle h2, .categoryLegend { font-size:var(--type-h2); }
 
 .page { color:var(--workspace-ink); }
 .paper { overflow:visible; }
@@ -526,3 +526,21 @@
 .spinner, .stopMark { width:16px; height:16px; }
 .spinner { border-color:var(--workspace-line); border-top-color:var(--workspace-accent); }
 .successMark { background:var(--workspace-selected); color:var(--workspace-accent); border-color:var(--workspace-accent); }
+
+/* Shared public supplier spacing; keep application sections and selection states. */
+.shell { width:100%; max-width:none; margin:0; }
+.paper { padding:var(--supplier-panel-padding); border-radius:var(--workspace-panel-radius); }
+.form { gap:var(--supplier-section-gap); }
+.intro { gap:16px 32px; align-items:start; }
+.intro > p:not(.eyebrow) { max-width:65ch; font-size:1rem; }
+.sectionTitle { margin-bottom:20px; gap:12px; }
+.fields { gap:var(--supplier-field-gap); }
+.fields label { gap:var(--supplier-label-gap); color:var(--workspace-ink); font-size:1rem; font-weight:600; line-height:1.5; align-content:start; }
+.fields input, .submitRow button { min-height:var(--supplier-control-height); border-radius:var(--supplier-control-radius); }
+.category span { min-height:var(--supplier-control-height); font-size:1rem; font-weight:500; line-height:1.5; }
+.fieldHint, .fieldError, .fields small, .sectionTitle p, .submitRow p { font-size:.875rem; line-height:1.6; }
+.fields small, .fieldError, .message { color:#843614; }
+.message { padding:16px; border-radius:var(--supplier-control-radius); }
+.submitRow { padding-top:24px; gap:20px; }
+.linkState, .success { min-height:260px; margin-inline:0; gap:20px; }
+.linkMessage { padding:16px; border-radius:var(--supplier-control-radius); }

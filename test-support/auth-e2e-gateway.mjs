@@ -264,6 +264,32 @@ export async function startAuthGateway({
         return;
       }
 
+      if (url.pathname === '/__test/database/reset-supplier-portal-client-rate-limit') {
+        // This gateway is loopback-only test infrastructure. Never expose this
+        // reset outside the explicit local fixture mode or during live OAuth runs.
+        if (process.env.QUOTEPLATE_LOCAL_E2E !== '1' || liveGoogle) {
+          response.writeHead(404).end();
+          return;
+        }
+        if (request.method !== 'POST') {
+          response.writeHead(405, { Allow: 'POST' }).end();
+          return;
+        }
+        // next start gives serial localhost journeys the same client identity.
+        // Reset only that bucket, preserving grant quotas and every other client.
+        const subjectDigest = createHash('sha256')
+          .update('quoteplate:v1:public-client:supplier-portal:', 'utf8')
+          .update('production-unidentified', 'utf8')
+          .digest('hex');
+        const keyDigest = createHash('sha256')
+          .update('quoteplate:v1:rate-limit:supplier-portal-client:', 'utf8')
+          .update(subjectDigest, 'ascii')
+          .digest('hex');
+        await admin.rateLimitBucket.deleteMany({ where: { keyDigest } });
+        response.writeHead(204, { 'Cache-Control': 'no-store' }).end();
+        return;
+      }
+
       if (url.pathname === '/__test/database/reset-quote-submit-client-rate-limit' && request.method === 'POST') {
         // Only the production-mode localhost quote-submission client bucket.
         // Preserve per-grant quotas, quote-access limits, and all application data.

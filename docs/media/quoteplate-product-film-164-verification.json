@@ -8,26 +8,34 @@
   "videoCodec": "h264",
   "audioCodec": "aac",
   "fullDecode": "passed",
-  "storyboardSha256": "caf53394c7b93baf63c18344ebbe3f2ad587dcab149ef780b5c6746ea91e0d72",
+  "storyboardSha256": "026616d3953419c9b2f2efec0cae9cabe2b28b83edfbe2956b53025fe55f4f12",
   "sourceSha256": "3d6b220f9505315ebefbc0aaf8570aa31e9da65e1d8d3b0587fa76e3ed236202",
-  "outputSha256": "d209cdcfbf76a5a7bacc512568b9882b0023d6de031d52c2bd1d5bfe26e963fa",
+  "outputSha256": "825fa242ddc2f8aa5a26660a62b512f5fa28e6f2a1fd67ffc970142029a01f68",
   "freshCaptures": {
     "kitchen-intro.mp4": "18d46ffd9e38d84d97cf01bcda98b0f1b0c30d1586e8c1660ae3afb8e8c48f69",
     "first-restaurant.mp4": "fcf36820a424c749a89c4afdb8c03958bfd7c97727574d365903dd451daf44eb",
     "first-owner.mp4": "0b305f6f12870b9e1e8b5eeae66cf888b53daa40987cdb8ce79f6bc3991c8a2a",
-    "first-workspace.mp4": "6748113dc5f97e7ddbae418daebf3058f7d0ceb37644908a73513f34b993fb43",
-    "menu-options.mp4": "dc48bfbc5247970c625fc95e5713b8dcbf49aa6e75034d1a003958cfd38db950",
-    "first-menu.mp4": "89c7048b99e29974ea6f0420110829196e3c37ddadd8a84272e5fb3e73d8e16a",
-    "first-suppliers.mp4": "a9391a23cc7fb3ed350caf7fdb6bb3edb9d126d0248624673fface9a97f58919",
-    "first-request.mp4": "b3211d73729fa78c49679e9652ad94f51e93b4e4b1f2e5e4a39f675a2c4314e2",
-    "vendor-phone.mp4": "7fd8ee8924c786090deed1dae92ca27b1600a71dd672880ed274bfa31050552a",
-    "completion-comparison.mp4": "f848a2cfcb2a7676c5f37c7ef9b9ae5b7e1fb1a7d92c7e16e50dd379d199fbe8",
-    "completion-award.mp4": "55ff50ab36ec5614ca2c115d29091291fd5e6aff0d1c6dffd8fab08abc80cfe6",
-    "completion-delivery.mp4": "b48d7f1c919df1814ab4feecb06e8e16d211db1b83afa851e4b280c750905efe",
-    "completion-credit.mp4": "77f11f282100cafc45c09d3e7b7c02c4b57e91ad668e2ee70ef051e70f362a26",
-    "completion-today.mp4": "512bae0ab7da59a298efdc4f5990ed18cad492a87646cbab9128eba1a307f18e",
+    "first-workspace.mp4": "d43f440f00a14ab2ce88104809e03ae32f6de78bfe25b20f200e9a6fde2be6e9",
+    "menu-options.mp4": "549e4db13abaa2520bfae1c1f48e9dff4c7338991af755fca58b6ad6da3f246b",
+    "first-menu.mp4": "baa1e98302f6403e05db1104a1a2919128b05d1cf6f7d3163b99f26d7ee0fbe3",
+    "supplier-contacts.mp4": "a171d37b462f8b1f2a0642dd1cdde938a93aadec4b4f031d9791f22655262d67",
+    "first-request.mp4": "75850bb943a7942e63aa1ce638f9b9b5fcb8e395499dc3907dffed9fad829909",
+    "request-sharing.mp4": "34e908c384dcab56bbdf2e0d373247a7b021a398e529209c8e6fa20377e7016c",
+    "vendor-phone.mp4": "48515c01a406543137a7e4fc58281198b7f8998c60cd36954650350a36c8ddc3",
+    "completion-comparison.mp4": "d981e7b2fda1e4edcf5a45db5ab0090136b527c35907c9e7270c8a9667ec20d7",
+    "completion-award.mp4": "ea7e8b3c9506e6ae590da730fe85b6342d1eae67c44ff869cd980062e915bc14",
+    "completion-delivery.mp4": "a367c9df9208ffb14db43ff84e0321cce606b0e113367284682d08d6fd07ad95",
+    "completion-credit.mp4": "e776c9786abb80c5ef349253ce654b1260cc0215086c7b96a5b6ccb6b407ed5e",
+    "completion-today.mp4": "639486b4329e3c2b12e96cbe7cd2f12ce56b45d9f51a8b214bb79e5640b29212",
+    "workspace-sharing.mp4": "ca069ee538a63fd96192fd343963eb9020b2b46e5533f0f678e43d2768686536",
+    "supplier-confirmation.mp4": "3da4982fa877f4ee79cef37265d27663fc62cb0edb209ae0497d1cb9d7729a7e",
+    "nearby-discovery.mp4": "40e7020d5c419ff09402620f9d193d81934e103d2052e17df52964edbd419fad",
+    "meal-planning.mp4": "141b1025ff502909800c6ca1b74bc81d50e3c111427317249caf9173aed93bbc",
+    "purchase-reports.mp4": "97a3c1dfd48fdf6300f1220ce89221607ce57bb560b2080bc9bfe583f43160a0",
+    "purchase-history.mp4": "fc5f69702dd51ef6389c30288c80838f70c06bf385cf031baedfdb0e453f29cd",
     "kitchen-end.mp4": "f033cfe90a1d4c31ead13a7ab9ebf2fd28038cbfc0780176c40334b9cc8d88df"
   },
+  "posterAtSeconds": 160,
   "brandSources": [
     {
       "file": "kitchen-4k.mp4",
@@ -61,43 +69,49 @@
     },
     {
       "file": "first-restaurant.mp4",
-      "duration": 12,
+      "duration": 10,
       "sourceStart": 0,
-      "playbackRate": 1.1666666666666667
+      "playbackRate": 1.4
     },
     {
       "file": "first-owner.mp4",
-      "duration": 9,
+      "duration": 6,
       "sourceStart": 0,
-      "playbackRate": 1
+      "playbackRate": 1.5
     },
     {
       "file": "first-workspace.mp4",
-      "duration": 3,
+      "duration": 2,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
       "file": "menu-options.mp4",
-      "duration": 10,
+      "duration": 8,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
       "file": "first-menu.mp4",
-      "duration": 18,
+      "duration": 12,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
-      "file": "first-suppliers.mp4",
-      "duration": 14,
+      "file": "supplier-contacts.mp4",
+      "duration": 8,
       "sourceStart": 0,
-      "playbackRate": 1.1428571428571428
+      "playbackRate": 1
     },
     {
       "file": "first-request.mp4",
-      "duration": 22,
+      "duration": 15,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "request-sharing.mp4",
+      "duration": 7,
       "sourceStart": 0,
       "playbackRate": 1
     },
@@ -109,30 +123,66 @@
     },
     {
       "file": "completion-comparison.mp4",
-      "duration": 10,
+      "duration": 7,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
       "file": "completion-award.mp4",
-      "duration": 10,
+      "duration": 7,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
       "file": "completion-delivery.mp4",
-      "duration": 12,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "completion-credit.mp4",
       "duration": 8,
       "sourceStart": 0,
       "playbackRate": 1
     },
     {
+      "file": "completion-credit.mp4",
+      "duration": 6,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
       "file": "completion-today.mp4",
+      "duration": 4,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "workspace-sharing.mp4",
+      "duration": 4,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "supplier-confirmation.mp4",
+      "duration": 9,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "nearby-discovery.mp4",
+      "duration": 5,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "meal-planning.mp4",
+      "duration": 5,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "purchase-reports.mp4",
+      "duration": 5,
+      "sourceStart": 0,
+      "playbackRate": 1
+    },
+    {
+      "file": "purchase-history.mp4",
       "duration": 5,
       "sourceStart": 0,
       "playbackRate": 1
@@ -144,62 +194,301 @@
       "playbackRate": 1
     }
   ],
-  "phoneRefresh": {
+  "featureOverview": {
+    "nativeDesktop": [
+      3840,
+      2400
+    ],
     "nativePhone": [
       1560,
       2400
     ],
-    "cssViewport": [
-      390,
-      600
-    ],
-    "canvas": [
-      3840,
-      2400
-    ],
-    "placement": [
-      2280,
-      0
-    ],
-    "upscaled": false,
-    "source": "real local UI recording with real bundled OCR",
-    "printedFixtureSha256": "d6b04b63d20b8d0a130e1f6757daf73aa4964effa6b1dfc0d6174ae658571a3f",
-    "phoneSourceSha256": "7567440791a3294d4420f32288d4833e85978006b200283f94d46a90bf38b0da",
-    "composedClipSha256": "7fd8ee8924c786090deed1dae92ca27b1600a71dd672880ed274bfa31050552a",
-    "duration": 19,
-    "frames": 570,
-    "realSubmissionVerified": true,
-    "rateInr": "40",
-    "quantity": "10",
-    "totalPaise": "40000",
-    "deliveryDate": "2026-09-11",
-    "validUntil": "2026-09-10",
-    "retainedVideos": [
-      "kitchen-intro.mp4",
-      "first-restaurant.mp4",
-      "first-owner.mp4",
-      "first-workspace.mp4",
-      "menu-options.mp4",
-      "first-menu.mp4",
-      "first-suppliers.mp4",
-      "first-request.mp4",
-      "completion-comparison.mp4",
-      "completion-award.mp4",
-      "completion-delivery.mp4",
-      "completion-credit.mp4",
-      "completion-today.mp4",
-      "kitchen-end.mp4"
-    ],
-    "unaffectedNarrationWavsUnchanged": 10,
-    "retainedVideoCount": 14,
-    "maxVolumeDb": -4.9,
-    "profilesRemoved": true
+    "localTenant": true,
+    "browserResponseMocks": false,
+    "externalMessages": 0,
+    "privacy": "Private link text masked in capture only; authentication off camera.",
+    "shots": {
+      "first-workspace": {
+        "duration": 2,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "d43f440f00a14ab2ce88104809e03ae32f6de78bfe25b20f200e9a6fde2be6e9"
+      },
+      "menu-options": {
+        "duration": 8,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "549e4db13abaa2520bfae1c1f48e9dff4c7338991af755fca58b6ad6da3f246b"
+      },
+      "first-menu": {
+        "duration": 12,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "baa1e98302f6403e05db1104a1a2919128b05d1cf6f7d3163b99f26d7ee0fbe3"
+      },
+      "supplier-contacts": {
+        "duration": 8,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "a171d37b462f8b1f2a0642dd1cdde938a93aadec4b4f031d9791f22655262d67"
+      },
+      "first-request": {
+        "duration": 15,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "75850bb943a7942e63aa1ce638f9b9b5fcb8e395499dc3907dffed9fad829909"
+      },
+      "request-sharing": {
+        "duration": 7,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "34e908c384dcab56bbdf2e0d373247a7b021a398e529209c8e6fa20377e7016c"
+      },
+      "vendor-phone": {
+        "duration": 19,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "48515c01a406543137a7e4fc58281198b7f8998c60cd36954650350a36c8ddc3"
+      },
+      "completion-comparison": {
+        "duration": 7,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "d981e7b2fda1e4edcf5a45db5ab0090136b527c35907c9e7270c8a9667ec20d7"
+      },
+      "completion-award": {
+        "duration": 7,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "ea7e8b3c9506e6ae590da730fe85b6342d1eae67c44ff869cd980062e915bc14"
+      },
+      "completion-delivery": {
+        "duration": 8,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "a367c9df9208ffb14db43ff84e0321cce606b0e113367284682d08d6fd07ad95"
+      },
+      "completion-credit": {
+        "duration": 6,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "e776c9786abb80c5ef349253ce654b1260cc0215086c7b96a5b6ccb6b407ed5e"
+      },
+      "completion-today": {
+        "duration": 4,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "639486b4329e3c2b12e96cbe7cd2f12ce56b45d9f51a8b214bb79e5640b29212"
+      },
+      "workspace-sharing": {
+        "duration": 4,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "ca069ee538a63fd96192fd343963eb9020b2b46e5533f0f678e43d2768686536"
+      },
+      "supplier-confirmation": {
+        "duration": 9,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "3da4982fa877f4ee79cef37265d27663fc62cb0edb209ae0497d1cb9d7729a7e"
+      },
+      "nearby-discovery": {
+        "duration": 5,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "40e7020d5c419ff09402620f9d193d81934e103d2052e17df52964edbd419fad"
+      },
+      "purchase-history": {
+        "duration": 5,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": true,
+        "sha256": "fc5f69702dd51ef6389c30288c80838f70c06bf385cf031baedfdb0e453f29cd"
+      },
+      "meal-planning": {
+        "duration": 5,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": false,
+        "sha256": "141b1025ff502909800c6ca1b74bc81d50e3c111427317249caf9173aed93bbc"
+      },
+      "purchase-reports": {
+        "duration": 5,
+        "completed": true,
+        "retainedFromCompletedLocalCapture": false,
+        "sha256": "97a3c1dfd48fdf6300f1220ce89221607ce57bb560b2080bc9bfe583f43160a0"
+      }
+    },
+    "nearby": {
+      "resolveStatus": 200,
+      "source": "actual public request",
+      "resultsMocked": false,
+      "searchStatus": 200,
+      "resultCount": 5
+    },
+    "continuity": "One fictional purchase recreated in ordinary isolated local tenants. Completed footage retained after a capture-selector correction; no application responses are fabricated.",
+    "purchase": {
+      "title": "First lunch purchase",
+      "item": "Tomato",
+      "quantity": "10",
+      "offersPaise": [
+        "40000",
+        "44000"
+      ],
+      "awardPaise": "40000",
+      "received": "9",
+      "invoiceInr": "400",
+      "creditClaimedInr": "40"
+    },
+    "phone": {
+      "retainedFromCompletedLocalCapture": true,
+      "realOCR": true,
+      "realSubmission": true,
+      "rate": "40",
+      "quantity": "10",
+      "totalPaise": "40000",
+      "nativePhone": [
+        1560,
+        2400
+      ],
+      "placement": [
+        2280,
+        0
+      ],
+      "upscaled": false
+    },
+    "supplierConfirmation": {
+      "saved": true,
+      "onlyOwnContacts": true,
+      "category": "VEGETABLES",
+      "servedPin": "560001",
+      "retainedFromCompletedLocalCapture": true
+    }
   },
+  "visualReview": {
+    "status": "passed",
+    "method": "Source-frame review for every clip, additional phone/contact action frames, actual capture assertions and final rendered contact sheet. Not a claim of uninterrupted full-length human playback.",
+    "clips": {
+      "kitchen-intro.mp4": {
+        "sha256": "18d46ffd9e38d84d97cf01bcda98b0f1b0c30d1586e8c1660ae3afb8e8c48f69",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "first-restaurant.mp4": {
+        "sha256": "fcf36820a424c749a89c4afdb8c03958bfd7c97727574d365903dd451daf44eb",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "first-owner.mp4": {
+        "sha256": "0b305f6f12870b9e1e8b5eeae66cf888b53daa40987cdb8ce79f6bc3991c8a2a",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "first-workspace.mp4": {
+        "sha256": "d43f440f00a14ab2ce88104809e03ae32f6de78bfe25b20f200e9a6fde2be6e9",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "menu-options.mp4": {
+        "sha256": "549e4db13abaa2520bfae1c1f48e9dff4c7338991af755fca58b6ad6da3f246b",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "first-menu.mp4": {
+        "sha256": "baa1e98302f6403e05db1104a1a2919128b05d1cf6f7d3163b99f26d7ee0fbe3",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "supplier-contacts.mp4": {
+        "sha256": "a171d37b462f8b1f2a0642dd1cdde938a93aadec4b4f031d9791f22655262d67",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Additional early keyframes reviewed: two contacts, review fields and successful import."
+      },
+      "first-request.mp4": {
+        "sha256": "75850bb943a7942e63aa1ce638f9b9b5fcb8e395499dc3907dffed9fad829909",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "request-sharing.mp4": {
+        "sha256": "34e908c384dcab56bbdf2e0d373247a7b021a398e529209c8e6fa20377e7016c",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "vendor-phone.mp4": {
+        "sha256": "48515c01a406543137a7e4fc58281198b7f8998c60cd36954650350a36c8ddc3",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Additional keyframes at 3, 5.5, 14.5 and 16.5 seconds reviewed: OCR price, quote total and submission."
+      },
+      "completion-comparison.mp4": {
+        "sha256": "d981e7b2fda1e4edcf5a45db5ab0090136b527c35907c9e7270c8a9667ec20d7",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "completion-award.mp4": {
+        "sha256": "ea7e8b3c9506e6ae590da730fe85b6342d1eae67c44ff869cd980062e915bc14",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "completion-delivery.mp4": {
+        "sha256": "a367c9df9208ffb14db43ff84e0321cce606b0e113367284682d08d6fd07ad95",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "completion-credit.mp4": {
+        "sha256": "e776c9786abb80c5ef349253ce654b1260cc0215086c7b96a5b6ccb6b407ed5e",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "completion-today.mp4": {
+        "sha256": "639486b4329e3c2b12e96cbe7cd2f12ce56b45d9f51a8b214bb79e5640b29212",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "workspace-sharing.mp4": {
+        "sha256": "ca069ee538a63fd96192fd343963eb9020b2b46e5533f0f678e43d2768686536",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "supplier-confirmation.mp4": {
+        "sha256": "3da4982fa877f4ee79cef37265d27663fc62cb0edb209ae0497d1cb9d7729a7e",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "nearby-discovery.mp4": {
+        "sha256": "40e7020d5c419ff09402620f9d193d81934e103d2052e17df52964edbd419fad",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "meal-planning.mp4": {
+        "sha256": "141b1025ff502909800c6ca1b74bc81d50e3c111427317249caf9173aed93bbc",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Final pickup: six-kilogram shortage visible in both middle and ending frames."
+      },
+      "purchase-reports.mp4": {
+        "sha256": "97a3c1dfd48fdf6300f1220ce89221607ce57bb560b2080bc9bfe583f43160a0",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Final pickup: loaded price ranges visible at opening; delivery/credit metrics visible afterward."
+      },
+      "purchase-history.mp4": {
+        "sha256": "fc5f69702dd51ef6389c30288c80838f70c06bf385cf031baedfdb0e453f29cd",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      },
+      "kitchen-end.mp4": {
+        "sha256": "f033cfe90a1d4c31ead13a7ab9ebf2fd28038cbfc0780176c40334b9cc8d88df",
+        "review": "Opening, middle and ending source samples; actual recorded UI actions and continuity checked.",
+        "note": "Source contact-strip review passed."
+      }
+    },
+    "privacy": "Authentication excluded; private-link strings masked before capture; no external messages.",
+    "nativeCapture": "Desktop 3840x2400; phone 1560x2400 placed at x=2280 without scaling.",
+    "finalContactSheet": "passed"
+  },
+  "maxVolumeDb": -4.5,
+  "profilesRemoved": true,
   "bundleSha256": {
-    "quoteplate-product-film.mp4": "d209cdcfbf76a5a7bacc512568b9882b0023d6de031d52c2bd1d5bfe26e963fa",
-    "quoteplate-product-film.jpg": "b1a0f9ff83c2303a4ab3549aa2cfbcfc143697f3e930319bd53dbb694ffac3e3",
-    "quoteplate-product-film.vtt": "3d16e5f0cf0558f20be4f5d69c7992f4acddedddad3d989457763ae8bcc71082",
-    "quoteplate-product-film.txt": "9893bbd7928541d55dca5d4661c724d5fb6a6abc9a5afd87312c0b401540633e",
-    "credits.txt": "0b41c016fe290f809d907930411d84389cdf3f69b943527ffcea97ed8a4d4eda"
+    "quoteplate-product-film.mp4": "825fa242ddc2f8aa5a26660a62b512f5fa28e6f2a1fd67ffc970142029a01f68",
+    "quoteplate-product-film.jpg": "babec4028bafa83bde9f4f9432d131387e10b91d2d9a55c8aaffac99de7fd2b1",
+    "quoteplate-product-film.vtt": "10ff6f178d6835fcb778faffb977f9d7cbff6cca8669623ecdebd4734f603454",
+    "quoteplate-product-film.txt": "0643bdc23ac99534f7c634bdd0bbd087e186af50ea2f2f9f7bef27570c0f80fc",
+    "credits.txt": "a5d8b0d516a3d0f331406db4f357edcc9a5ff8a37e6d0e2ebd688329615e5cda"
   }
 }

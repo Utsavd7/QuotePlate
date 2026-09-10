@@ -1,7 +1,7 @@
-# QuotePlate first-purchase film (165 seconds)
+# QuotePlate feature-overview film (165 seconds)
 
-`docs/media/quoteplate-product-film-164.json` is the edit contract: **11 scenes,
-13 application clips plus 2 branded kitchen clips, 165 seconds / 4,950 frames**, **3840×2400
+`docs/media/quoteplate-product-film-164.json` is the edit contract: **17 scenes,
+20 application clips plus 2 branded kitchen clips, 165 seconds / 4,950 frames**, **3840×2400
 (16:10), 30fps**, exported as H.264/AAC with fast-start. The earlier kitchen
 opening and closing are restored from the original 3840×2160 stock footage,
 cropped to fill the film with new graphics at the output resolution. Application
@@ -37,6 +37,54 @@ Its manifest records source/output hashes and full-decode checks. Keep the
 original stock licence and source provenance with the archived film.
 
 ## Record the clips
+
+The current orchestrator is `feature_overview_capture.mjs`. It recreates one
+ordinary local purchase and records 18 fresh app clips after the coordinated UI
+review. It never controls the server or resets shared fixtures. Its default
+invocation only checks preparation and does not open a browser:
+
+```sh
+node scripts/media/feature_overview_capture.mjs
+# Only after the parent validates the refreshed UI build:
+node scripts/media/feature_overview_capture.mjs --capture-after-ui-validation
+```
+
+Defaults: work `/tmp/quoteplate-feature-overview-film`, local app
+`http://127.0.0.1:52560`, phone composition assets
+`/tmp/quoteplate-vendor-phone-film`. Override `QUOTEPLATE_FILM_WORK`,
+`QUOTEPLATE_FILM_ORIGIN` (loopback only), or `QUOTEPLATE_PHONE_ASSETS` as needed.
+The phone asset directory needs `phone-canvas.png` and `printed-price-fixture.png`.
+The 19-second phone sequence is freshly recorded at native size and composited
+without a border or scaling. Desktop capture preserves the application's layout.
+
+After capture, pass `--storyboard /tmp/quoteplate-feature-overview-film/storyboard.json`
+to the renderer. New clips have playback rate 1 there; the recorder already fits
+their actions to the timeline. Never accelerate new footage a second time using
+the older source rates. See [the revised timeline](../../docs/media/quoteplate-feature-overview.md).
+The earlier source-clip table below documents footage available for reuse.
+
+`--resume-completed` accepts only hash-verified, correctly sized exports listed in
+`capture-progress.json`. A clip enters that checkpoint after MP4 export succeeds;
+the phone clip enters after composition succeeds. Partial main-journey recordings
+(first twelve clips) are explicitly unsupported: use a new `QUOTEPLATE_FILM_WORK`
+directory and run without the resume flag for a full capture. Existing footage is
+preserved. Once those twelve clips exist, missing workspace and overview groups
+can resume in another isolated ordinary tenant. `--pickup-planning-reports` with
+`--resume-completed` refreshes only those two shots from a completed run.
+
+Regression checks, without a browser:
+
+```sh
+node --test scripts/media/test_capture_checkpoint.mjs
+python3 -B scripts/media/test_product_film.py
+```
+
+Only actual app responses are used. Nearby discovery makes a real public-source
+request and records controls alone if unavailable. Private-link text receives a
+recording-only mask before it can enter raw footage; the real controls remain.
+WhatsApp and Email are hovered, Copy is clicked, and no external messages are sent.
+Random credentials and private link handoffs stay in memory, outside authentication
+recording and archives.
 
 Use `scripts/media/motion_capture.mjs`, which exports
 `recorder(browser, label, options)`. It returns `page`, `context`,
