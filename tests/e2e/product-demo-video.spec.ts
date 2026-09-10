@@ -114,7 +114,7 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toMatch(/restaurant(?:['’]s)? (?:details|name)/i);
   expect(text).toMatch(/menu/i);
   expect(text).toMatch(/suppliers/i);
-  expect(text).toMatch(/new purchase/i);
+  expect(text).toMatch(/new purchase|create a purchase/i);
   expect(text).toMatch(/price-list photo/i);
   expect(text).toMatch(/one item at a time/i);
   expect(text).toMatch(/compar(?:e|ing)/i);
@@ -123,7 +123,15 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toMatch(/fictional|example restaurant/i);
   expect(text).toContain('Start your first purchase');
   expect(text).toContain('2:45');
-  expect(text).not.toMatch(/nearby search|real public map listings/i);
+  expect(text).toMatch(/WhatsApp/i);
+  expect(text).toMatch(/email/i);
+  expect(text).toMatch(/copy/i);
+  expect(text).toMatch(/you send the message/i);
+  expect(text).toMatch(/confirm contacts, categories and delivery terms/i);
+  expect(text).toMatch(/public listings for nearby supplier leads/i);
+  expect(text).toMatch(/plan portions, check stock/i);
+  expect(text).toMatch(/delivery performance/i);
+  expect(text).toMatch(/repeat orders as new drafts/i);
   expect(text).not.toMatch(/working restaurant demo|internal demo|demo@quoteplate/i);
 });
 

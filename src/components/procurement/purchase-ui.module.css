@@ -8,12 +8,12 @@
 .surface.surface :is(h1, h2, h3) {
   font-family: inherit;
   font-weight: 750;
-  letter-spacing: -.025em;
-  line-height: 1.25;
+  letter-spacing: -.01em;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
-.surface.surface h1 { font-size: 1.75rem; }
-.surface.surface h2 { font-size: 1.15rem; }
+.surface.surface h1 { font-size: var(--type-h1); line-height: 1.3; letter-spacing: -.025em; }
+.surface.surface h2 { font-size: var(--type-h2); }
 .surface.surface h3 { font-size: var(--type-h3); }
 .surface.surface :is(button, select, input:not([type="checkbox"]):not([type="radio"]), summary) {
   min-height: 44px;

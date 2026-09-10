@@ -1,12 +1,18 @@
 import { expect, test } from '@playwright/test';
 import { resetSignupClientRateLimit } from './helpers/signup';
+import { resetSupplierPortalClientRateLimit } from './helpers/public-client-rate-limit';
 import { expectNoSeriousAxeViolations } from './helpers/accessibility';
 import type { SupplierPortalView } from '../../src/lib/supplier-portal/types';
 
 // Uses the real application, isolated PostgreSQL fixture, authentication and RLS.
 // Parent runs this with the combined e2e harness; no route mocks.
-test('supplier confirms trading terms, restaurant sees them after reload, stale writes conflict', async ({ page, browser }, info) => {
- test.setTimeout(120000);
+// The local suite shares one public client. Reset only at journey boundaries;
+// retain production limits and each supplier grant's quota throughout the test.
+test.beforeEach(async ({ request }) => { await resetSupplierPortalClientRateLimit(request); });
+test.afterEach(async ({ request }) => { await resetSupplierPortalClientRateLimit(request); });
+
+test('supplier confirms business details, revisits saved contacts, and keeps drafts through conflicts', async ({ page, browser }, info) => {
+ test.setTimeout(180000);
  await resetSignupClientRateLimit(page.request);
  const email = `trading-${info.project.name}-${Date.now()}@example.com`;
  const password = 'Local-only trading profile password 42!';
@@ -31,11 +37,44 @@ test('supplier confirms trading terms, restaurant sees them after reload, stale 
  try {
   const supplier = await context.newPage();
   await supplier.goto(link);
-  await supplier.locator('summary').filter({hasText:'Your business details (optional)'}).click();
+  const editor = supplier.getByRole('region', { name: /^(Confirm your|Your confirmed) business details$/ });
+  await expect(editor.getByText('Confirmation needed', { exact: true })).toBeVisible();
+  await supplier.getByRole('link', { name: 'Go to orders and quotes' }).click();
+  await expect(supplier.getByRole('heading', { name: 'Needs your response' })).toBeFocused();
+  await expect(supplier.getByRole('button', { name: 'Confirm business details', exact: true })).toBeVisible();
+  await supplier.getByRole('button', { name: 'Confirm business details', exact: true }).focus();
+  await supplier.keyboard.press('Enter');
   const form = supplier.getByRole('form', { name: 'Edit trading profile' });
   await expect(form).toBeVisible();
   const initial = await supplier.evaluate(async () => (await fetch('/api/public/supplier-portal')).json()) as SupplierPortalView;
   expect(initial.tradingProfile).toBeNull();
+  await expect(form.getByLabel('Contact name')).toHaveValue(initial.businessDetails?.contactName ?? '');
+  await expect(form.getByLabel('Phone number', { exact: true })).toHaveValue(initial.businessDetails?.phone ?? '');
+  await expect(form.getByLabel('WhatsApp number')).toHaveValue(initial.businessDetails?.whatsappNumber ?? '');
+  await expect(form.getByLabel('Email address')).toHaveValue(initial.businessDetails?.email ?? '');
+  await form.getByLabel('Contact name').focus();
+  await supplier.keyboard.press('Tab');
+  await expect(form.getByLabel('Phone number', { exact: true })).toBeFocused();
+  await supplier.keyboard.press('Tab');
+  await expect(form.getByLabel('WhatsApp number')).toBeFocused();
+  await form.getByLabel('Contact name').fill('Meera Orders');
+  await form.getByLabel('Phone number', { exact: true }).fill('');
+  await form.getByLabel('WhatsApp number').fill('');
+  await form.getByLabel('Email address').fill('');
+  await form.getByRole('button', { name: 'Continue to delivery details' }).click();
+  await expect(editor.getByRole('alert')).toContainText('Add at least one');
+  await form.getByLabel('Phone number', { exact: true }).fill('9111122222');
+  for (const checkbox of await form.getByRole('checkbox', { checked: true }).all()) await checkbox.uncheck();
+  await form.getByRole('button', { name: 'Continue to delivery details' }).click();
+  await expect(editor.getByRole('alert')).toContainText('Choose at least one product category');
+  await form.getByRole('checkbox', { name: 'Vegetables', exact: true }).check();
+  await form.getByRole('checkbox', { name: 'Fruits', exact: true }).check();
+  await expect(form.getByText('2 selected', { exact: true })).toBeVisible();
+  await expectNoSeriousAxeViolations(supplier);
+  expect(await supplier.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await form.getByRole('button', { name: 'Continue to delivery details' }).click();
+  await expect(form.getByRole('heading', { name: 'Delivery & order terms' })).toBeFocused();
+  expect((await supplier.evaluate(async () => (await fetch('/api/public/supplier-portal')).json()) as SupplierPortalView).tradingProfile).toBeNull();
   await form.getByLabel('Wholesale supply').selectOption('yes');
   await form.getByLabel('Delivery PIN codes').fill('411001, 411002');
   await form.getByLabel('Minimum order').fill('2500.00');
@@ -43,10 +82,27 @@ test('supplier confirms trading terms, restaurant sees them after reload, stale 
   await form.getByLabel('Days needed before delivery').fill('1');
   await form.getByLabel('Supplier note').fill('Call before placing a bulk order.');
   await form.getByRole('button', { name: 'Save business details' }).click();
-  await expect(supplier.getByRole('status')).toContainText('Trading profile confirmed and saved.');
+  await expect(editor.getByRole('status')).toContainText('Business details confirmed and saved.');
+  await expect(editor.getByRole('status')).toBeFocused();
+  await expect(editor.getByText('Confirmation needed', { exact: true })).toHaveCount(0);
+  await expect(editor.getByText('Supplier-confirmed', { exact: true })).toBeVisible();
+  await expect(editor.getByRole('region', { name: 'Supplier trading profile' })).toContainText('+919111122222');
+  await supplier.getByRole('button', { name: 'Refresh records' }).click();
+  await expect(editor.getByRole('status')).toContainText('Business details confirmed and saved.');
+  await expect(editor.getByText('Supplier-confirmed', { exact: true })).toBeVisible();
   await supplier.reload();
-  await supplier.locator('summary').filter({hasText:'Your business details (optional)'}).click();
+  await supplier.getByRole('button', { name: 'Edit business details', exact: true }).click();
+  await expect(form.getByLabel('Contact name')).toHaveValue('Meera Orders');
+  await expect(form.getByLabel('Phone number', { exact: true })).toHaveValue('+919111122222');
+  await expect(form.getByLabel('WhatsApp number')).toHaveValue('');
+  await expect(form.getByLabel('Email address')).toHaveValue('');
+  await expect(form.getByRole('checkbox', { name: 'Vegetables', exact: true })).toBeChecked();
+  await expect(form.getByRole('checkbox', { name: 'Fruits', exact: true })).toBeChecked();
+  await form.getByRole('button', { name: 'Continue to delivery details' }).click();
   await expect(form.getByLabel('Minimum order')).toHaveValue('2500.00');
+  await form.getByLabel('Supplier note').fill('My unsaved delivery note.');
+  await supplier.getByRole('button', { name: 'Refresh records' }).click();
+  await expect(form.getByLabel('Supplier note')).toHaveValue('My unsaved delivery note.');
   await page.reload();
   await page.getByRole('combobox', { name: 'Supplier', exact: true }).selectOption(fixture.supplierId);
   await page.locator('summary').filter({hasText:'Supplier delivery terms'}).click();
@@ -57,15 +113,53 @@ test('supplier confirms trading terms, restaurant sees them after reload, stale 
   await expect(readView).toContainText('₹2500.00');
   await expect(readView).toContainText('16:30');
   await expect(readView).toContainText('Call before placing a bulk order.');
+  await expect(readView).toContainText('Meera Orders');
+  await expect(readView).toContainText('+919111122222');
+  await expect(readView).toContainText('Vegetables, Fruits');
+  await expect(readView.locator('time[aria-label="Business details confirmed"]')).toHaveAttribute('datetime', /T/);
+  await expect(readView.locator('time[aria-label="Delivery terms confirmed"]')).toHaveAttribute('datetime', /T/);
   const conflict = await supplier.evaluate(async portalId => {
    const response = await fetch('/api/public/supplier-portal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'trading-profile', portalId, expectedRevision: 0, profile: { wholesale: 'no', servedPins: [], minimumOrderInr: null, orderCutoffIst: null, leadTimeDays: null, note: null } }) });
    return { status: response.status, body: await response.json() };
   }, initial.portalId);
   expect(conflict.status).toBe(409);
   expect(conflict.body.detail).toContain('Trading profile changed');
+  // Another team member saves through the real endpoint while this form is open.
+  const concurrent = await supplier.evaluate(async () => {
+   const view = await (await fetch('/api/public/supplier-portal')).json() as SupplierPortalView;
+   const { revision, updatedAt: _at, businessDetailsConfirmedAt: _businessAt, ...profile } = view.tradingProfile!;
+   void _at; void _businessAt;
+   const response = await fetch('/api/public/supplier-portal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'trading-profile', portalId: view.portalId, expectedRevision: revision, profile: { ...profile, note: 'A newer saved delivery note.' } }) });
+   return response.status;
+  });
+  expect(concurrent).toBe(200);
+  await form.getByRole('button', { name: 'Save business details' }).click();
+  await expect(editor.getByRole('alert')).toContainText('Trading profile changed');
+  await expect(form.getByLabel('Supplier note')).toHaveValue('My unsaved delivery note.');
+  await form.getByRole('button', { name: 'Load latest saved details' }).click();
+  await expect(editor.getByRole('status')).toContainText('Your draft has been kept');
+  await expect(editor.getByRole('region', { name: 'Supplier trading profile' })).toContainText('A newer saved delivery note.');
+  await expect(form.getByLabel('Supplier note')).toHaveValue('My unsaved delivery note.');
+  await expect(form.getByRole('button', { name: 'Save business details' })).toBeDisabled();
+  // Form submission must enforce the same resolution guard as the disabled button.
+  await form.evaluate(element => (element as HTMLFormElement).requestSubmit());
+  await expect(editor.getByRole('alert')).toContainText('choose which details to use before saving');
+  const unresolved = await supplier.evaluate(async () => (await fetch('/api/public/supplier-portal')).json()) as SupplierPortalView;
+  expect(unresolved.tradingProfile?.note).toBe('A newer saved delivery note.');
+  await editor.getByRole('button', { name: 'Keep draft for next save' }).click();
+  await form.getByRole('button', { name: 'Save business details' }).click();
+  await expect(editor.getByRole('status')).toContainText('Business details confirmed and saved.');
   await supplier.reload();
-  await supplier.locator('summary').filter({hasText:'Your business details (optional)'}).click();
+  await supplier.getByRole('button', { name: 'Edit business details', exact: true }).click();
+  await form.getByRole('button', { name: 'Continue to delivery details' }).click();
   await expect(form.getByLabel('Wholesale supply')).toHaveValue('yes');
+  await expect(form.getByLabel('Supplier note')).toHaveValue('My unsaved delivery note.');
+  await form.getByLabel('Supplier note').fill('This draft is explicitly replaced.');
+  await form.getByRole('button', { name: 'Load latest saved details' }).click();
+  await editor.getByRole('button', { name: 'Replace draft with saved details' }).click();
+  await form.getByRole('button', { name: 'Continue to delivery details' }).click();
+  await expect(form.getByLabel('Supplier note')).toHaveValue('My unsaved delivery note.');
   await expectNoSeriousAxeViolations(supplier);
+  expect(await supplier.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
  } finally { await context.close(); }
 });

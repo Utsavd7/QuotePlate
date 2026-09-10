@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
-  Clipboard,
   Download,
   ExternalLink,
   FileSpreadsheet,
@@ -43,6 +42,8 @@ import {
 import { DraftRequestEditor } from './DraftRequestEditor';
 import { DeliveryCheckPanel, type DeliveryReceivingSummary } from './DeliveryCheckPanel';
 import { PurchaseJourney } from './PurchaseJourney';
+import { LinkShareActions } from '../shared/LinkShareActions';
+import { WorkspaceHeader } from '../workspace/Workspace';
 import ui from './purchase-ui.module.css';
 import styles from './request-detail.module.css';
 
@@ -233,24 +234,22 @@ export function SupplierFreshLinkActions({
   link,
   busy,
   onCopy,
-  onWhatsApp,
+  requestTitle,
+  email,
   onQr,
 }: {
   link: ShareLink;
   busy: boolean;
   onCopy: () => void;
-  onWhatsApp: () => void;
+  requestTitle: string;
+  email?: string | null;
   onQr: () => void;
 }) {
   const supplier = link.businessName ?? 'supplier';
+  const message = `Hello ${supplier},\nPlease quote for ${requestTitle}.\nOpen and submit your prices through this link: ${link.url}\nNo login needed. Please send the quote through QuotePlate so our restaurant can compare it.`;
   return (
     <>
-      <button type="button" disabled={busy} onClick={onCopy}>
-        <Clipboard aria-hidden="true" />Copy
-      </button>
-      <button type="button" disabled={busy} onClick={onWhatsApp}>
-        <MessageCircle aria-hidden="true" />WhatsApp
-      </button>
+      <LinkShareActions message={message} subject={`Quote request: ${requestTitle}`} email={email} disabled={busy} onCopy={onCopy} />
       <button
         type="button"
         disabled={busy}
@@ -489,12 +488,6 @@ function RequestDetailContent({
     }
   }
 
-  function shareApplicationOnWhatsApp() {
-    if (!applicationLink) return;
-    const text = `Apply to quote for our restaurant: ${applicationLink.url}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
-  }
-
   async function saveDownload(response: Response, fallbackFilename: string) {
     if (!response.ok) throw new Error(await problemMessage(response, 'We could not prepare this download.'));
     const disposition = response.headers.get('content-disposition') ?? '';
@@ -547,11 +540,6 @@ function RequestDetailContent({
     } finally {
       setWorking('');
     }
-  }
-
-  function whatsappLink(link: ShareLink) {
-    const text = `Quote request from our restaurant: ${link.url}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   }
 
   const splitPreview = useMemo(() => comparison
@@ -735,18 +723,15 @@ function RequestDetailContent({
     ? confirmedAward : null;
   return (
     <main className={`${styles.page} ${ui.surface}`}>
-      <header className={styles.header}>
-        <div>
-          <button className={styles.back} type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" />Purchases</button>
-          <p className={styles.eyebrow}>Purchase</p>
-          <h1>{request.title}</h1>
-          <div className={styles.headerMeta}>
+      <button className={styles.back} type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" />Purchases</button>
+      <WorkspaceHeader title={request.title} description={
+          <span className={styles.headerMeta}>
             <span className={styles[`status${request.status}`]}>{statusLabel[request.status]}</span>
             <span>Version {request.version}</span>
             <span>{request.items.items.length} {request.items.items.length === 1 ? 'item' : 'items'}</span>
             <span>{request.supplierRequests.length} {request.supplierRequests.length === 1 ? 'supplier' : 'suppliers'}</span>
-          </div>
-        </div>
+          </span>
+        } actions={<>
         {request.status === 'DRAFT' && (
           <div className={styles.headerActions}>
             <button className={styles.secondaryButton} type="button" disabled={Boolean(working)} onClick={() => setEditingDraft((current) => !current)}>
@@ -758,7 +743,7 @@ function RequestDetailContent({
           </div>
         )}
         {request.status === 'AWARDED' && <div className={styles.locked}><ShieldCheck aria-hidden="true" />Supplier choice saved</div>}
-      </header>
+      </>} />
 
       <PurchaseJourney
         current={request.status === 'DRAFT' ? 0 : request.status === 'OPEN' ? (wholeSupplierRequestId || awardMode === 'SPLIT' ? 2 : 1) : request.status === 'AWARDED' ? 3 : undefined}
@@ -1031,6 +1016,11 @@ function RequestDetailContent({
       )}
       <section className={styles.panel}>
         <header><div><h2>Supplier links & access</h2></div><Users aria-hidden="true" /></header>
+        {request.status === 'OPEN' && <div className={styles.shareHelp}>
+          <strong>Share a private link with each supplier</strong>
+          <p>Choose Share on WhatsApp, select this supplier, then press Send. You can also open an Email draft or Copy link. WhatsApp works on laptop and phone.</p>
+          <p>Suppliers submit prices through their link without a login. Replies sent only in WhatsApp do not appear here. The status below shows link views and submitted quotes, not message delivery.</p>
+        </div>}
         {applicationLink && (
           <div className={styles.applicationInvite}>
             <div>
@@ -1040,8 +1030,7 @@ function RequestDetailContent({
               <small>Available until {displayDate(applicationLink.expiresAt, true)}</small>
             </div>
             <span>
-              <button type="button" onClick={() => void copyApplicationLink()}><Clipboard aria-hidden="true" />Copy</button>
-              <button type="button" onClick={shareApplicationOnWhatsApp}><MessageCircle aria-hidden="true" />WhatsApp</button>
+              <LinkShareActions message={`Apply to quote for ${request.title}: ${applicationLink.url}`} subject={`Supplier invitation: ${request.title}`} disabled={Boolean(working)} onCopy={() => void copyApplicationLink()} />
             </span>
           </div>
         )}
@@ -1062,7 +1051,8 @@ function RequestDetailContent({
                       link={freshLink}
                       busy={Boolean(working)}
                       onCopy={() => void copyLink(freshLink)}
-                      onWhatsApp={() => whatsappLink(freshLink)}
+                      requestTitle={request.title}
+                      email={grant.supplier.email}
                       onQr={() => void downloadQr(freshLink)}
                     />
                   )}

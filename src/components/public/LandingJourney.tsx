@@ -90,9 +90,9 @@ export function LandingJourney() {
             <div className="story-scene__copy">
               <h3>Ask for prices</h3>
               <p>
-                Share a private link with each supplier for only their assigned items, quantities,
-                delivery requirements and terms. Suppliers enter prices, review delivery and the total,
-                then send their quote. No supplier account needed.
+                Choose WhatsApp or Email to prepare a message, then press Send in that app. Or copy
+                the private link yourself. Suppliers see only their assigned items, quantities and delivery terms,
+                enter prices, review the total and submit their quote. No supplier account needed.
               </p>
             </div>
             <div

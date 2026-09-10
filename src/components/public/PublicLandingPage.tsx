@@ -133,13 +133,13 @@ export function PublicLandingPage() {
           <header>
             <p className="public-eyebrow">A clearer relationship, on both sides</p>
             <h2 id="supplier-benefits-title">Good for your kitchen. Useful for your suppliers.</h2>
-            <p>Keep your saved suppliers together. Find nearby businesses when needed and review them before inviting them. Open-map listings are free to search.</p>
+            <p>Add your existing supplier contacts and share private links through WhatsApp, Email or Copy link. Find nearby businesses when needed and review them before inviting them. Open-map listings are free to search.</p>
           </header>
           <ol className="supplier-benefits__steps">
             <li><span aria-hidden="true">01</span><div><h3>Enter prices, review, then send</h3><p>Suppliers enter prices, review delivery and the total, then send their quote through a private link. They can confirm orders or ask for a change. No supplier account required.</p></div></li>
             <li><span aria-hidden="true">02</span><div><h3>Agree on what arrived</h3><p>Suppliers can agree or dispute delivery checks and recorded credits, with an invoice or delivery-note reference. Changed checks need a fresh response.</p></div></li>
             <li><span aria-hidden="true">03</span><div><h3>Share upcoming needs</h3><p>Share selected ingredient estimates so suppliers can prepare. Recipes, portions and stock stay private. Confirm orders separately.</p></div></li>
-            <li><span aria-hidden="true">04</span><div><h3>Make your delivery terms clear</h3><p>Suppliers enter service PIN codes, minimum orders and ordering times, with their confirmation date shown. These are supplier declarations, not verified stock or delivery guarantees.</p></div></li>
+            <li><span aria-hidden="true">04</span><div><h3>Make your delivery terms clear</h3><p>Suppliers check prefilled contact details, confirm product categories, and enter service PIN codes, minimum orders and ordering times. Their confirmation date stays visible. Each order still needs confirmation.</p></div></li>
           </ol>
         </section>
 

@@ -189,8 +189,8 @@ describe('public website contract', () => {
     expect(markup).toContain('permitted website link');
     expect(markup).toContain('In Plan meals, choose meals and portions, check stock, then review missing ingredients.');
     expect(markup).toContain('Enter batch servings, usable stock, yield and confirmed arrivals explicitly.');
-    expect(markup).toContain('Suppliers enter prices, review delivery and the total');
-    expect(markup).toContain('then send their quote.');
+    expect(markup).toContain('Choose WhatsApp or Email to prepare a message, then press Send in that app.');
+    expect(markup).toContain('enter prices, review the total and submit their quote.');
     expect(markup).toContain('Check dish names, add ingredients and quantities, then approve the menu.');
     expect(markup).toContain('Enter dish names only.');
     expect(markup).toContain('Purchases require an approved menu.');
@@ -199,8 +199,7 @@ describe('public website contract', () => {
     expect(markup).toContain('allow new suppliers to apply, then approve them yourself');
     expect(markup).not.toContain('verified new suppliers');
     expect(markup).toContain('No supplier account needed');
-    expect(markup).toContain('Share a private link with each supplier for only their assigned items');
-    expect(markup).toContain('delivery requirements and terms');
+    expect(markup).toContain('Suppliers see only their assigned items, quantities and delivery terms');
     expect(markup).toContain('Compare item prices, GST, delivery charges and dates');
     expect(markup).toContain('Check the full total');
     expect(markup).toContain('choose one supplier or split items between suppliers');

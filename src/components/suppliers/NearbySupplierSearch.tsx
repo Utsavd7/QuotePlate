@@ -5,19 +5,23 @@ import { NEARBY_CATEGORIES, nearbyPrefill, type NearbyCategory, type NearbyCente
 import styles from './nearby-supplier-search.module.css';
 type Props = { onAddSupplier: (prefill?: NearbyPrefill) => void };
 export function NearbySupplierResults({ results, onAddSupplier }: Props & { results: NearbyResult[] }) {
-  return <div className={styles.results}>{results.map(item => <article className={styles.card} key={item.id}>
+  return <div className={styles.results}>{results.map(item => {
+    const prefill = nearbyPrefill(item);
+    return <article className={styles.card} key={item.id}>
     <div className={styles.cardHeading}><h3>{item.name}</h3><span>{item.distanceKm} km</span></div>
     <p className={styles.badges}><span>{item.kind}</span><span>Unverified</span></p>
     <p>{item.address || 'Street address not mapped'}</p>
     {item.phone && <p>Phone: {item.phone}</p>}
-    {!item.phone && !item.website && <p>Contact details not mapped</p>}
+    {prefill.email && <p>Email: {prefill.email}</p>}
+    {!item.phone && !item.website && !prefill.email && <p>Contact details not mapped</p>}
     <div className={styles.links}>
       {item.website && <a href={item.website} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Website ↗</a>}
       <a href={item.mapUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Map ↗</a>
       <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">OSM listing ↗</a>
     </div>
-    <button type="button" onClick={() => onAddSupplier(nearbyPrefill(item))}>Review and add<span className={styles.srOnly}> {item.name}</span></button>
-  </article>)}</div>;
+    <button type="button" onClick={() => onAddSupplier(prefill)}>Review and add<span className={styles.srOnly}> {item.name}</span></button>
+  </article>;
+  })}</div>;
 }
 export function NearbySupplierSearch({ onAddSupplier }: Props) {
   const [area, setArea] = useState('');

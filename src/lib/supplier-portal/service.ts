@@ -1,4 +1,4 @@
-import { parseTradingProfileSubmission, readTradingProfile } from '@/lib/trading-profile/domain';
+import { businessDetailsConfirmationDate, parseTradingProfileSubmission, readTradingProfile } from '@/lib/trading-profile/domain';
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { withTenant } from '@/lib/db/tenant-transaction';
@@ -11,6 +11,7 @@ import { buildReceivingSummary, validateStoredReceiving } from '@/lib/receiving/
 import { validateRequestItems } from '@/lib/procurement/request-document';
 import { validateMenuDocument } from '@/lib/menu/menu-document';
 import { computePlan, validatePlanInput } from '@/lib/service-planning/planning';
+import { validateSupplierCapabilities } from '@/lib/suppliers/supplier-capabilities';
 import { bounded, exact, fingerprint, parseAction, parseDemand, parseSubmission, PortalError, selectDemand, text } from './domain';
 import type { PortalAction, PortalForecast, PortalOrder, RestaurantPortalView, SupplierPortalView } from './types';
 
@@ -144,8 +145,13 @@ export function createPortalOperations(client: PrismaClient = prisma) {
     }, client);
   }
   async function snapshot(tx: Tx, grant: Grant, supplierId: string, expiresAt: Date, now: Date): Promise<SupplierPortalView> {
-    const supplier = await tx.supplier.findUniqueOrThrow({ where: { id: supplierId }, select: { businessName: true, tradingProfile: true, tenant: { select: { name: true } } } });
-    return { tradingProfile: readTradingProfile(supplier.tradingProfile), portalId: grant.portalId, restaurantName: supplier.tenant.name, supplierName: supplier.businessName, expiresAt: expiresAt.toISOString(), orders: await orders(tx, grant.tenantId, supplierId, now), forecasts: await forecasts(tx, grant.tenantId, supplierId) };
+    const supplier = await tx.supplier.findUniqueOrThrow({ where: { id: supplierId, tenantId: grant.tenantId }, select: { businessName: true, contactName: true, phone: true, whatsappNumber: true, email: true, capabilities: true, tradingProfile: true, tenant: { select: { name: true } } } });
+    // Initial address-book defaults can be incomplete; saved declarations are validated separately.
+    const businessDetails = {
+      contactName: supplier.contactName, phone: supplier.phone, whatsappNumber: supplier.whatsappNumber, email: supplier.email,
+      categories: validateSupplierCapabilities(supplier.capabilities).categories.map(({ category }) => category),
+    };
+    return { businessDetails, tradingProfile: readTradingProfile(supplier.tradingProfile), portalId: grant.portalId, restaurantName: supplier.tenant.name, supplierName: supplier.businessName, expiresAt: expiresAt.toISOString(), orders: await orders(tx, grant.tenantId, supplierId, now), forecasts: await forecasts(tx, grant.tenantId, supplierId) };
   }
   return {
     async restaurantView(actor: Actor, supplierId: string): Promise<RestaurantPortalView> {
@@ -183,7 +189,13 @@ export function createPortalOperations(client: PrismaClient = prisma) {
           const supplier = await tx.supplier.findUniqueOrThrow({ where: { id: supplierId }, select: { tradingProfile: true } });
           const current = readTradingProfile(supplier.tradingProfile);
           if ((current?.revision ?? 0) !== input.expectedRevision) throw new PortalError('Trading profile changed. Reload before saving.', 409);
-          const profile = { ...input.profile, revision: input.expectedRevision + 1, updatedAt: now.toISOString() };
+          // Terms-only saves preserve confirmation freshness, including legacy timestamp fallback.
+          const confirmedAt = input.profile.businessDetails ? now.toISOString() : current ? businessDetailsConfirmationDate(current) : null;
+          const profile = {
+            ...(current?.businessDetails ? { businessDetails: current.businessDetails } : {}),
+            ...input.profile, revision: input.expectedRevision + 1, updatedAt: now.toISOString(),
+            ...(confirmedAt ? { businessDetailsConfirmedAt: confirmedAt } : {}),
+          };
           bounded(profile, 8192);
           await tx.supplier.update({ where: { id: supplierId }, data: { tradingProfile: json(profile) } });
           await writeAuditEvent(tx, { tenantId: grant.tenantId, action: 'portal.trading-profile-updated', entityId: supplierId, metadata: { revision: profile.revision } });

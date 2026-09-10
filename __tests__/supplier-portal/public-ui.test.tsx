@@ -40,10 +40,23 @@ it('makes the invoice and issue facts visible before supplier agreement',()=>{
  expect(output).toContain('CN-44 pending');
 });
 
-it('puts requested actions before optional history and business details', () => {
+it('brings business confirmation forward while keeping order responses and history available', () => {
  const output = html({...view, orders: [{...view.orders[0], requestId:'old', title:'Old completed request', status:'closed'}, view.orders[0]]});
+ expect(output.indexOf('Confirm your business details')).toBeLessThan(output.indexOf('Needs your response'));
  expect(output.indexOf('Needs your response')).toBeLessThan(output.indexOf('Dinner supplies'));
  expect(output.indexOf('Dinner supplies')).toBeLessThan(output.indexOf('Old completed request'));
- expect(output.indexOf('Order history')).toBeLessThan(output.indexOf('Your business details (optional)'));
- expect(output).toContain('<summary>Your business details (optional)</summary>');
+ expect(output).toContain('href="#supplier-orders-title"');
+ expect(output).toContain('Go to orders and quotes');
+ expect(output).toContain('Confirm order');
+ expect(output).toContain('aria-label="Edit trading profile" hidden=""');
+ expect(output).not.toContain('Your business details (optional)');
+});
+
+it('prefills only this supplier’s provided contacts and leaves orders usable before confirmation', () => {
+ const output = html({ ...view, businessDetails: { contactName: 'Asha', phone: '+919111122222', whatsappNumber: null, email: null, categories: ['VEGETABLES'] } });
+ expect(output).toContain('value="Asha"');
+ expect(output).toContain('value="+919111122222"');
+ expect(output).toContain('1 selected');
+ expect(output).toContain('Confirmation needed');
+ expect(output).toContain('Save order response');
 });

@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-
-import { Wordmark } from '@/components/brand/Wordmark';
+import { PublicSupplierShell } from '@/components/supplier-portal/PublicSupplierShell';
 
 import { SupplierApplicationAccess } from './SupplierApplicationAccess';
 import styles from './supplier-application.module.css';
@@ -15,19 +13,11 @@ export const metadata: Metadata = {
 
 export default function SupplierApplicationPage() {
   return (
-    <main className={styles.page}>
-      <div className={styles.shell}>
-        <Link className={styles.brand} href="/" aria-label="QuotePlate home">
-          <Wordmark />
-        </Link>
+    <PublicSupplierShell className={styles.shell} footer="Your details are shared only with the restaurant that sent this link.">
         <div className={styles.paper}>
           <div className={styles.rule} aria-hidden="true" />
           <SupplierApplicationAccess />
         </div>
-        <p className={styles.pageFooter}>
-          Your details are shared only with the restaurant that sent this link.
-        </p>
-      </div>
-    </main>
+    </PublicSupplierShell>
   );
 }

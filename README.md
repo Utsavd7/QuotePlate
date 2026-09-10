@@ -1,86 +1,122 @@
 # QuotePlate
 
-QuotePlate is a procurement workspace for restaurants in India. It turns menus into ingredient requests, collects private supplier quotes, compares landed cost, records the restaurant's choice, checks each delivery and entered invoice total, and starts the next buying cycle from saved history.
+QuotePlate helps restaurants in India plan ingredient purchases, collect supplier quotes, compare costs, choose suppliers and check deliveries. Suppliers use private browser links to confirm business details, submit prices and respond to orders without creating a QuotePlate account.
 
-Live product: [quoteplate.netlify.app](https://quoteplate.netlify.app)
+[Hosted product](https://quoteplate.netlify.app) · Built by [Utsav Doshi](https://github.com/Utsavd7)
 
-Built by [Utsav Doshi](https://github.com/Utsavd7).
+This README describes the current repository, including supplier onboarding, manual sharing and the shared workspace design. Availability on the hosted site depends on its deployed revision.
 
 ## Product demo
 
 [![Watch the QuotePlate product demo — 2 minutes 45 seconds](public/media/quoteplate-product-film.jpg)](https://quoteplate.netlify.app/#watch-demo)
 
-[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 2:45 · 4K, 3840 × 2400
+[Watch on the website](https://quoteplate.netlify.app/#watch-demo) · 2:45 · 4K, 3840 × 2400
 
-Follow a fictional restaurant in Bengaluru from setup and menu entry through its first purchase, private supplier quotes, comparison and delivery checks. The phone section shows a supplier preparing prices from a printed list, reviewing the quote and sending it. The restaurant then records a partial delivery and the outstanding credit. Routine actions are condensed; the narration explains the inputs and review steps.
+The film follows the fictional Monsoon Table restaurant through setup, menu entry, supplier contacts, a purchase request, manual sharing, supplier quotes on a phone, comparison and delivery checks. Short scenes introduce supplier workspaces, nearby discovery, meal planning, reports and repeat purchases. It uses condensed recordings of the app to cover the main feature families; the full feature reference is below.
 
 [Transcript](public/media/quoteplate-product-film.txt) · [English captions](public/media/quoteplate-product-film.vtt) · [Media credits](public/media/credits.txt)
 
-## Product
+Media is served from `public/media`. The player starts muted when at least half visible, offers an explicit unmute control and optional captions, pauses offscreen, and respects manual pauses and reduced-motion preferences. The homepage buying journey has manually selected stages; old `/product` bookmarks redirect there.
 
-The current release supports:
+## Product overview
 
-- create a menu by typing dish names, uploading up to ten photos from the current device, scanning a QR code to send up to ten original phone photos at a time, or importing a menu page you have permission to use;
-- scan menu photos in the browser, review the detected text, remove unwanted dishes together, delete unused menus, and approve the final dishes and ingredients;
-- organise ingredients using categories familiar to Indian restaurants;
-- find nearby food businesses inside the workspace using free Photon area lookup and Overpass open-map results, then review public listings and explicitly confirm restaurant verification before adding a supplier; public coverage, contact details and wholesale capability are not guaranteed;
-- widen supplier searches by ingredient and area using external Google Maps, Google, Justdial, IndiaMART, TradeIndia, ExportersIndia, Kompass and go4WorldBusiness searches, then review and add them manually without a search API or billing account;
-- keep existing suppliers, choose more than one sourcing route, or accept applications from new suppliers and then approve or reject them;
-- create and share a private quote link for each supplier, with no supplier account required;
-- prepare supplier prices from a printed price-list photo or pasted text, review selected rates before filling blank eligible fields, and optionally enter the quote one item at a time;
-- issue a separate expiring supplier workspace link for own-order status, acknowledgement and delivery feedback;
-- preserve supplier agreement/dispute responses with evidence references; changed restaurant checks require renewed confirmation;
-- share explicitly selected ingredient-shortage estimates from a saved plan with a chosen supplier, and withdraw them later; recipes, portions and stock counts are excluded;
-- collect quantities, rates, GST, freight, availability, delivery, substitutions, and payment terms;
-- compare complete and incomplete quotes while keeping the final decision with the restaurant;
-- award the full request to one supplier or split items across suppliers;
-- check each winning supplier delivery, record problems, and automatically flag any difference between the entered invoice total and the accepted total;
-- record received, rejected and billed quantities against each supplier's awarded allocation, keep partial deliveries open, and track credits claimed, received and still owed;
-- save daily portion plans from approved recipe snapshots, enter batch servings, usable stock, expected yield and confirmed incoming supplies, then calculate shared ingredient shortages;
-- turn calculated shortages into an editable procurement draft, and repeat a daily plan while clearing stock and arrival assumptions;
-- compare suppliers using recorded fulfilment, rejection, completed delivery dates and credit balances; use established on-time evidence to break equally capable supplier suggestions;
-- see counts of deliveries waiting for a check and unresolved problems on the restaurant home page;
-- download request, comparison, award, accounting, QR, supplier, and purchase order records;
-- keep delivery check totals and problem counts in history, repeat a completed awarded request into a new draft, and use prior buying facts as guidance;
-- manage restaurant details, roles, invitations, Google sign in, sign out, and an optional six step setup guide;
-- use the public site and product workspace on phones, tablets, and laptops.
+The workspace works on phones, tablets and laptops. Restaurants keep control of contact review, quote requests, supplier selection and delivery records.
 
-The landing page includes a 4K (3840 × 2400) product film of 2 minutes 45 seconds, with optional English captions and a transcript. It uses condensed recordings of the actual app with fictional restaurant records in an isolated environment. The story follows restaurant setup, menu choices, a purchase request, supplier quotes on a phone, comparison and delivery follow-up. Media is served from `public/media` and the video autoplays muted when at least half is visible, shows an explicit Unmute video button, pauses offscreen, and respects manual pauses and reduced-motion preferences. Captions are off by default and can be enabled in the player; no external video service is required. The buying journey uses compact, manually selected stages on desktop and phones, with one step counter and no automatic movement. Old `/product` bookmarks redirect to this journey on the homepage.
+Restaurant pages share aligned content rails, titles, toolbars, controls and a fixed desktop sidebar. Supplier quote, application and workspace links share a responsive public shell. Fonts, weights and icon sizing use common tokens; the [workspace UI rules](docs/design/workspace-ui.md) describe the layout and accessibility conventions. Populated browser checks cover all primary restaurant pages at laptop and phone dimensions.
 
-The product does not introduce suppliers and then disappear from the workflow. Its value is the reusable request, quote, decision, purchase order, and price history for every buying cycle.
+| Area | What you can do | Routes |
+| --- | --- | --- |
+| Today | See purchases needing attention; plan meals and portions, account for usable stock and confirmed arrivals, and turn shortages into a draft purchase. | `/dashboard`, `/service-planning` |
+| Menu | Type dishes, read menu photos, transfer phone photos by QR, or import a permitted menu page. Review dishes and ingredients, organise categories, approve recipes, bulk-remove dishes and delete unused menus. | `/menus`, `/menus/[id]` |
+| Your suppliers | Add contacts individually, paste a small list, import/export CSV, maintain capabilities, review new applications and find public supplier leads. | `/suppliers` |
+| Purchases | Create and edit requests, use existing or newly selected suppliers and/or accept applications, share private quote links, compare GST/freight-inclusive costs, and award the whole request or split items across suppliers. | `/procurement`, `/procurement/new`, `/procurement/[id]` |
+| Orders & messages | Create supplier workspace links, read business declarations, share selected demand estimates, and review order acknowledgements and delivery responses. | `/supplier-collaboration` |
+| Delivery record | Review fulfilment, rejected quantities, dated delivery evidence, billed cost per accepted unit and outstanding credits. Follow problems back to the purchase. | `/supplier-performance` |
+| Past purchases and reports | Revisit requests, quotes, decisions and delivery checks; repeat an awarded purchase into a new draft; compare recorded supplier prices and spending. | `/history`, `/insights` |
+| Settings and access | Maintain restaurant details, owner/member roles and invitation links; sign in/out and use the optional six-step setup guide. | `/settings`, `/signin`, `/start`, `/join` |
+| Supplier pages | Apply to supply a restaurant, submit a private quote, or use a separate workspace link for business details and order responses. | `/supplier-application`, `/quote`, `/supplier-portal` |
 
-### Vendor price lists and guided quote entry
+Purchases include downloadable request, quote comparison, award and accounting CSVs, a private quote-link QR image, and a purchase order PDF for each awarded supplier. Owner permissions protect awards, supplier verification, restaurant settings and team access. `/intelligence` redirects to Reports at `/insights`.
 
-On a private quote link, suppliers can choose **Use a price list**, take or select one JPEG, PNG or WebP photo, or paste prices as text. Photo reading is intended for clear printed English. Each photo must be at most 8 MB, 20 megapixels and 8,000 pixels on either edge. Pasted and recognized text is limited to 12,000 characters and 100 nonempty lines; longer lists must be split into smaller parts.
+## Supplier onboarding and manual sharing
 
-Suppliers review the source text, item matches, units and rates before choosing **Use checked prices**. Only blank, enabled price fields for eligible request items are filled. Existing manual prices, supply quantities and GST settings stay as entered. Ambiguous rows, conflicting prices and incompatible units need correction or manual entry; the helper does not invent or convert rates or units.
+### Start with existing contacts
 
-Optional guided entry presents one item at a time and checks that item's entries before advancing. Suppliers then review delivery details and the total before explicitly sending the quote. Preparing prices or moving through the guide never submits a quote or sends a message automatically.
+In **Suppliers → Add existing contacts**, paste up to 50 lines of business name, phone and email, separated by commas or spreadsheet tabs, without column headings. Each row needs a name and at least a phone or email. Review, correct or remove rows before explicitly adding them. Duplicate contacts are checked after normalization; an import conflict rejects the whole batch and keeps the editable review. Existing records are not overwritten. Individual entry and full CSV import/export remain available.
 
-The helper runs in the hosted website using bundled browser OCR, with no paid AI service or photo upload. Vendor price-list photos stay on the supplier's current device. This is separate from the restaurant menu workflow, where a QR link transfers temporary encrypted copies of phone photos to the restaurant's browser.
+Adding contacts saves them for the restaurant; it does not invite or message anyone. Open **Workspace** beside an active supplier to select them in **Orders & messages**, where an owner can create their private workspace link.
 
-### Daily planning and delivery evidence
+### Share on WhatsApp, Email or Copy link
 
-Open **Plan today’s service** to select an approved menu and enter the number of servings produced by each recipe batch. Recipe quantities represent usable ingredient requirements. Stock and confirmed arrivals must also be usable quantities. The planner subtracts available stock before dividing the remaining shortage by yield: 10 kg needed, 4 kg usable stock and 80% yield means purchasing 7.5 kg. Shared stock is allocated once, in dish order. Missing recipes, unknown stock, incompatible specifications and unsupported pack conversions block procurement rather than imply readiness. The restaurant records arrival confirmations; there is no live inventory or supplier availability integration.
+The same three controls appear with newly created private quotation links, supplier workspace links and new supplier application links:
 
-Saved plans preserve their approved recipe version. Optimistic version checks prevent stale edits, and procurement conversion creates one reviewable draft without contacting suppliers. After conversion, repeat the plan to make a new daily record with fresh stock inputs.
+- **Share on WhatsApp** opens a prepared message in the WhatsApp app or web experience available on the device. Choose the intended recipient and press **Send** from your own signed-in account. The quotation message names the purchase and asks the supplier to submit prices through the link.
+- **Email** opens a prepared subject and message through the device/browser's default `mailto:` handler. This can be a configured mail app or registered webmail handler; QuotePlate does not choose Gmail or Outlook for you. A valid saved supplier email fills the recipient for quote and workspace links. Otherwise, including application links, choose the recipient yourself. Review and send in that mail handler; if none is configured, use **Copy link**.
+- **Copy link** copies the URL for you to paste into a channel of your choice. It does not send a message.
 
-Delivery details use cumulative received and rejected quantities, including replacements. Credit balances are restaurant-entered records, not verified bank transactions. **Supplier performance** reads the latest 100 awards; suggestion ranking uses its bounded recent award sample and requires at least three dated, completed deliveries before on-time evidence affects otherwise equal capability matches. Missing checks do not count as successful deliveries.
+Suppliers need a browser and their private link, not a QuotePlate login, email account or app installation, to quote. Replies made only in WhatsApp or email are not imported: suppliers must submit through QuotePlate for prices to appear in the comparison. Quote status shows link views and submitted quotes, not WhatsApp/email delivery or read receipts.
 
-These features add no dependencies, subscriptions or metered AI services. Existing hosting, database and storage usage still applies. Their practical advantage is connecting portion requirements, purchasing, actual receipts and money recovery in one workflow; competitive uniqueness and business results require validation with restaurants.
+There is no WhatsApp Business API, central sender, connected mailbox or automatic invitation, reminder or order messaging. Share or copy private links before leaving the creation screen: their original secret cannot be retrieved later. Replace a lost link and share the new one. Supplier workspace links last 30 days and can be replaced or revoked; replacing one invalidates the previous link.
+
+### Confirm supplier business details and respond to orders
+
+The supplier workspace starts with **Confirm your business details**. It prefills the restaurant's saved contacts and categories until the supplier has a saved declaration. Suppliers review contact name, phone, WhatsApp number, email and product categories, then wholesale status, served PINs, minimum order, cutoff time in IST, lead time and notes. Confirmation needs at least one contact method and one category; email is optional. Suppliers can update details later and continue to their orders without completing this confirmation first.
+
+The restaurant sees dated supplier declarations, with business details and delivery terms flagged for reconfirmation after 30 days. Older profiles remain readable, and stale submissions cannot overwrite a newer revision. Confirmation is a supplier statement for that restaurant: it does not independently verify the business, change the restaurant's address book or verification status, or establish marketing consent.
+
+In the same workspace, suppliers can acknowledge their awarded orders, request changes, and agree with or dispute restaurant delivery checks using notes and textual document references. Earlier responses are retained; changed restaurant checks require renewed confirmation. Corrections stay in the restaurant's delivery check. This is structured order correspondence, with no file attachments or bank-verified settlement.
+
+Owners can also share selected ingredient-shortage estimates from a saved future meal plan and withdraw them. Suppliers see only the selected purchasable quantities and specifications, without recipes, portions or stock counts. Estimates are not orders or arrival confirmations. Changed plans make snapshots outdated; past-service, converted or withdrawn estimates are hidden from suppliers.
+
+## Nearby discovery and wider search
+
+**Find suppliers in your area** resolves an Indian locality, city or PIN, then searches a selected category within 2, 5 or 10 km. Categories cover produce, dairy, meat, fish, dry groceries, spices and packaging. Up to 40 public leads show approximate straight-line distance, available contacts, website, map and original listing links.
+
+Nearby lookup uses OpenStreetMap data through [Photon](https://github.com/komoot/photon) and the [VK Maps Overpass instance](https://maps.mail.ru/osm/tools/overpass/), with [OpenStreetMap attribution](https://www.openstreetmap.org/copyright). User-triggered requests send the area to Photon and selected coordinates, category and radius to VK Maps' service in Russia. Requests are bounded and rate-limited, with area matches cached for up to 24 hours and public results for up to one hour. The main `overpass-api.de` instance is not used.
+
+A public email is included only when the OSM `email` or `contact:email` tag contains an accepted single address. It appears as plain contact text and enters the unsaved **Review and add** form. Invalid addresses, control characters and multiple addresses are rejected, without guessing contacts from names or websites. Missing email and older cached results remain usable. Source links and the **Unverified** label are retained.
+
+Map entries are leads, not a verified supplier directory or live inventory. They may describe retailers, contain stale contacts or omit businesses entirely. Check products, capacity, delivery coverage and contacts yourself. Saving a map lead requires explicit confirmation that the restaurant checked it; “restaurant-verified” records that review, not certification by QuotePlate or OSM.
+
+**Search other websites** builds external searches for Google Maps, Google Search, Justdial, IndiaMART, TradeIndia, ExportersIndia, Kompass and go4WorldBusiness. An optional configured Google Search Element can show combined results in an isolated frame after submission. Search terms go to the chosen provider; ads, sign-in requirements and external charges may apply. External results are not scraped or imported into the address book.
+
+Nearby lookup and manual link sharing require no paid search or messaging integration in this implementation. Provider terms, limits and availability can change; hosting, database, storage and phone/data usage still cost money. There is no guarantee of free operation, complete coverage, verified contacts or successful supplier responses.
+
+## Quotes and price-list assistance
+
+Supplier quotes collect quantities, rates, GST, freight, availability, delivery details, substitutions and payment terms. Restaurants can compare complete and incomplete offers before the owner records a full or split award. Accepted prices, quantities, supplier facts and terms are preserved with the award.
+
+On a private quote link, **Use a price list** accepts one JPEG, PNG or WebP photo, or pasted text. Photo reading is intended for clear printed English. Limits are 8 MB, 20 megapixels and 8,000 pixels per edge; pasted or recognized text is limited to 12,000 characters and 100 nonempty lines.
+
+Suppliers review source text, matches, units and rates before choosing **Use checked prices**. Only blank eligible price fields are filled. Existing manual prices, quantities and GST choices stay as entered. Ambiguous matches, conflicting prices and incompatible units need correction; the helper does not invent or convert rates or units. Optional guided entry handles one item at a time, followed by delivery and total review and explicit quote submission.
+
+For repeat requests, suppliers can review and reuse their own earlier prices only for matching items, units and specifications. Historical prices are not live market prices; current quantities, availability and terms still need review and normal submission.
+
+Price-list OCR runs locally in the supplier's browser using bundled assets, without a photo upload or paid AI service. Restaurant menu intake separately supports up to ten device photos, or a QR transfer of up to ten phone originals per batch; transferred photos use temporary encrypted copies. All detected menu text, dishes and ingredients need restaurant review.
+
+## Planning, deliveries and purchase history
+
+In **Today → Plan meals**, select an approved menu, enter portions and servings per recipe batch, then account for usable stock, expected yield and confirmed arrivals. For example, 10 kg required, 4 kg usable stock and 80% yield means buying 7.5 kg. Shared stock is allocated once, in dish order. Missing recipes, unknown stock, incompatible specifications and unsupported conversions block procurement rather than imply readiness. Arrivals are confirmed by the restaurant; there is no live inventory or availability integration.
+
+Saved plans preserve approved recipe snapshots and reject stale edits. Converting shortages creates an editable procurement draft without contacting suppliers. Repeating a plan clears stock and arrival assumptions for the next service.
+
+For each winning supplier, record received, rejected and billed quantities against their awarded allocation. Receipts and rejections are cumulative, including replacements; partial deliveries stay open. QuotePlate flags differences between the entered invoice total and accepted total and tracks credits claimed, received and still owed. These are entered delivery and financial records, not automatic invoice extraction or verified bank payments.
+
+**Delivery record** uses the latest 100 awards for fulfilment, rejection, dated delivery evidence and credit balances. Capability suggestions can use established on-time evidence to break otherwise equal matches, requiring at least three dated completed deliveries in their bounded recent sample. Missing checks do not count as successful deliveries.
+
+Billed cost per accepted unit uses only checks with entered billed quantity and rate. It includes GST under the accepted order's tax terms, excludes freight and order-level credits, and remains provisional for partial deliveries. Missing billed inputs and zero accepted quantity do not produce a misleading rate. Compatible mass/volume units normalize; differing specifications stay separate.
+
+Follow-up lists link unchecked deliveries, remaining quantities and unsettled credits back to the purchase. A delivery date is not a credit due date. Correcting a check replaces its evidence rather than inventing another delivery. Past purchases can become new drafts; prior prices and performance guide the next decision without guaranteeing savings.
 
 ## Safety and privacy
 
-- Your recipes, menus, supplier prices, and purchase records stay private to your restaurant. Other restaurants cannot see them. A supplier workspace exposes only that supplier’s own records and ingredient estimates your owner explicitly shares.
-- Each quote link has a unique secret key. The key itself is not stored, works for only one request, expires, and can be replaced or revoked. Supplier workspace links use a separate secret scoped to that supplier.
-- Award records preserve the accepted prices, quantities, supplier facts, and delivery terms used for the decision.
-- Owner only actions protect restaurant settings, team access, supplier verification, and awards.
-- The production service refuses to start when required security settings are missing.
-- Rate limits cover account creation, invitations, supplier access, supplier submissions, and applications.
-- Browser security rules stop other sites from placing QuotePlate inside a hidden frame, reduce information shared through links, and limit unnecessary device access.
-- Menu photos sent from a phone through the QR transfer travel as temporary encrypted copies. The decryption key stays in the QR link, and retrieved originals are kept only in that restaurant workspace on the current browser.
-- Vendor price-list photos are read locally in the supplier's browser and stay on that device; they are not uploaded through the menu-photo transfer or sent to an AI service.
-- Backup and restore tools are included for the operator.
+- Restaurant workspaces are isolated. Suppliers see only their scoped quote/order records and explicitly shared estimates, not other suppliers' offers or the restaurant's recipes and stock.
+- Quote and workspace links use separate expiring secrets stored as digests, with replacement and revocation controls. Treat the URLs as private access credentials.
+- Owners control sensitive settings, team invitations, verification, awards and supplier workspace sharing. Rate limits protect account, invitation, supplier access and submission routes.
+- Production validates security settings and the restricted database role. Browser policies limit framing, unnecessary device permissions and referrer disclosure.
+- QR menu transfers use temporary encrypted copies; the decryption key stays in the QR link. Retrieved originals remain in that workspace on the current browser. Vendor price-list photos stay on the vendor's device.
+- Choosing an external search or sharing handler sends the selected search terms or prepared message/link to that service. Check the recipient before sending a private link.
+- Operator backup and restore checks are available in `scripts/backup-postgres.sh` and `scripts/restore-verify.sh`.
 
 ## Run locally
 
@@ -89,22 +125,36 @@ Requirements: Node.js 24 and PostgreSQL 16.
 ```bash
 npm install
 cp .env.sample .env
-npx prisma migrate deploy
+```
+
+Replace `.env` placeholders with your own settings; never commit credentials. Use `NEXTAUTH_URL=http://localhost:3000` and a locally generated `NEXTAUTH_SECRET`. Google sign-in appears only when both Google client values are configured; its local callback is `http://localhost:3000/api/auth/callback/google`.
+
+Apply all committed migrations using an operator connection that owns the database tables and has the required migration privileges. Supply that connection privately as `QUOTEPLATE_MIGRATION_URL` for this command:
+
+```bash
+DATABASE_URL="$QUOTEPLATE_MIGRATION_URL" npx prisma migrate deploy
+```
+
+The migrations create the restricted `autorfp_app` role. Configure its login credential separately and use its connection as the app's `.env` `DATABASE_URL`; never run the web app with the migration/owner connection. Then start:
+
+```bash
 npm run dev
 ```
 
-Replace the placeholders in `.env` with your own values and never commit that file. The application accepts up to twenty approved pilot owner emails.
+Production owner activation uses verified Google accounts from the configured pilot list of one to twenty emails. Local account creation and existing credential sign-in follow their separate access rules; this is not unrestricted public production signup.
 
-For optional combined supplier results, create a free ad-supported [Google Programmable Search Engine](https://programmablesearchengine.google.com/controlpanel/all) using **Sites to search**: `justdial.com`, `indiamart.com`, `tradeindia.com`, `exportersindia.com`, `in.kompass.com`, and `go4worldbusiness.com`. Set its public `cx` ID as `NEXT_PUBLIC_SUPPLIER_SEARCH_ENGINE_ID` before building, then rebuild when it changes. Use the Search Element, not the paid JSON API or an ad-free plan; no API key or billing account is needed. Google supports [up to 50 configured domains](https://programmablesearchengine.googleblog.com/2026/01/updates-to-our-web-search-products.html) on this free option. Results load only after the user submits a search, in an isolated frame without access to restaurant data or QuotePlate browser storage. Search terms go to Google, ads may appear, and Google controls index coverage. Google Maps and individual website searches remain available externally; without a configured engine, only those external searches are shown.
+### Optional combined supplier search
+
+Configure a [Google Programmable Search Engine](https://programmablesearchengine.google.com/controlpanel/all) with supplier domains under **Sites to search**: `justdial.com`, `indiamart.com`, `tradeindia.com`, `exportersindia.com`, `in.kompass.com` and `go4worldbusiness.com`. Set its public `cx` ID as `NEXT_PUBLIC_SUPPLIER_SEARCH_ENGINE_ID` before building; rebuild after changing it.
+
+The integration uses Google's ad-supported Search Element, not the JSON API; it has no search API-key setting. Verify provider eligibility and terms separately. It loads after an explicit search in an isolated frame without restaurant data or QuotePlate storage access. Without a configured engine, external searches and nearby OSM discovery still work.
 
 ## Production setup
 
-1. Configure the values documented in `.env.sample` on the hosting service.
-2. Apply the committed migrations before the first deployment.
-3. Add the production address and Google callback address to the OAuth client.
-4. Check the live and readiness endpoints before inviting a restaurant.
-
-For upgrades, apply `20260907000100_service_planning` before deploying this version, then regenerate the Prisma client during installation/build. It adds tenant-isolated service plans and immutable plan revisions, and increases the bounded receiving document capacity. Existing award and legacy delivery records remain readable. The readiness and restore checks require the updated schema. Local test migrations do not update the production database.
+1. Configure the runtime settings in `.env.sample`, including HTTPS origin, a restricted database connection, authentication secret and approved pilot owner emails. Set `QUOTEPLATE_RUNTIME_STARTUP_CHECK=1` only in the production server/function runtime, not public builds.
+2. Apply **all** committed migrations with the operator connection before deploying. Current feature migrations include `20260907000100_service_planning`, `20260907000200_supplier_collaboration` and `20260908000100_supplier_trading_profile`.
+3. Regenerate Prisma during installation/build, configure the production Google callback at `/api/auth/callback/google`, and deploy the tested revision.
+4. Check `/api/health/live` and `/api/health/ready` before inviting restaurants. Readiness and restore checks require the updated schema; running local test migrations does not update production.
 
 ## Verification
 
@@ -117,38 +167,18 @@ npm run build
 npm run test:e2e
 ```
 
-The checks cover access control, workspace isolation, authentication, menu intake, OCR boundaries, supplier workflow, quote integrity, landed cost calculations, awards, delivery and invoice checks, repeat ordering, exports, responsive layouts, accessibility, migrations, and a bounded twenty restaurant load profile.
+The suites cover access control, tenant isolation, authentication, menu/OCR boundaries, supplier onboarding and sharing, nearby email extraction, quote integrity, costs, awards, delivery checks, repeat ordering, exports, responsive layouts, accessibility, migrations and a bounded twenty-restaurant load profile. Passing results must be established for the revision being released; this README is not a deployment or test-run report.
 
 ## Project references
 
 - [Brand assets and usage](docs/brand/README.md)
 - [India restaurant procurement review](docs/research/india-restaurant-procurement-competitive-review.md)
-
-Repository: [github.com/Utsavd7/QuotePlate](https://github.com/Utsavd7/QuotePlate)
-
-## Supplier workspace and nearby discovery
-
-Owners open **Supplier collaboration**, select a supplier and create a private workspace link. Links last 30 days and can be replaced or revoked. Copy and share the link yourself; QuotePlate does not send messages automatically. Suppliers can acknowledge their awarded orders and agree or dispute restaurant delivery checks with textual document references. These responses preserve restaurant records; corrections happen in the existing delivery check. Changed checks invalidate earlier confirmation. No file attachments or bank-verified settlements are provided.
-
-For demand sharing, select a saved service plan, review the purchasable shortage rows and choose which ones to expose. A share is an estimate, not an order or incoming-stock confirmation. Changed plans make old snapshots outdated; withdraw shares when no longer applicable.
-
-Automatic nearby discovery uses public OpenStreetMap data through [Photon](https://github.com/komoot/photon) and the [VK Maps public Overpass instance](https://maps.mail.ru/osm/tools/overpass/), with [OpenStreetMap attribution](https://www.openstreetmap.org/copyright). The selected search coordinates, category and radius are sent to VK Maps’ service in Russia. The main overpass-api.de instance is not used. Searches are user-triggered, bounded and rate-limited; cached public results reduce repeat traffic. No paid API key or additional dependency is required. The free providers do not guarantee availability or complete Indian supplier coverage. Listings may be retailers rather than wholesalers; verify capacity, delivery area, prices and contact details before procurement. The review form requires explicit confirmation before saving a map lead as restaurant-verified; the data provider does not verify it. Existing external website searches remain available. Existing hosting/database usage costs still apply.
-
-## Procurement improvements — September 2026
-
-Supplier trading declarations, matching historical quote rates and delivery-cost evidence address three practical purchasing gaps. The updated 4K film, running 2:45, demonstrates a first purchase and the phone quote assistant using fictional restaurant records. Internal testing credentials and account access are not promoted in the public film.
-
-- **Supplier trading declarations:** invited suppliers can state wholesale status, served PIN codes, minimum order, order cutoff in IST and lead time. The workspace shows the declaration date and flags information older than 30 days. Declarations are not independently verified or live inventory, and each order still needs confirmation.
-- **Matching historical rates:** suppliers can explicitly review and reuse prices from their own matching earlier quote. Historical prices are not live market prices. Current quantities, availability, delivery and commercial terms still require review and normal submission.
-- **Billed cost per accepted unit:** supplier performance uses only item checks with entered billed quantity and rate. It includes GST using the accepted order's tax terms, but excludes freight and order-level credits. It is not cash paid or a bank-verified saving. Partial deliveries remain provisional; missing billed inputs are excluded from both numerator and denominator, and zero accepted quantity has no displayed rate. Compatible mass/volume units normalize; differing specifications stay separate.
-- **Purchases needing follow-up:** unchecked deliveries, remaining accepted quantities and unsettled credits link back to their purchase within the latest 100 awards. A delivery date is not a credit due date. Corrected receiving replaces prior evidence rather than creating another delivery.
-
-The competitive strategy is to make local-supplier procurement easier to repeat and easier to verify. It does not claim a unique industry invention, guaranteed suppliers, live market prices or enterprise inventory/payment integration. No additional paid service is introduced; existing infrastructure usage applies.
+- [Service planning implementation](src/lib/service-planning/README.md)
+- [Supplier collaboration implementation](src/lib/supplier-portal/README.md)
+- Repository: [github.com/Utsavd7/QuotePlate](https://github.com/Utsavd7/QuotePlate)
 
 ## Internal demo restaurant account
 
-The operator-only `scripts/demo/seed-cli.ts` command creates a separate `DEMO · Monsoon Table` tenant and an owner login at `demo@quoteplate.example`. Credentials are provided privately to the internal team, never published on the landing page, committed, or stored in GitHub secrets. Supply `DATABASE_URL`, `QUOTEPLATE_DEMO_PASSWORD` and `DEMO_SEED_CONFIRMATION=SEED_QUOTEPLATE_INTERNAL_DEMO_ONLY` only to the local operator process; the database stores an Argon2 password hash. The normal app database role remains restricted to the fixed demo tenant throughout the transaction.
+The operator-only `scripts/demo/seed-cli.ts` command creates a separate `DEMO · Monsoon Table` tenant for internal team testing. Supply `DATABASE_URL`, `QUOTEPLATE_DEMO_PASSWORD` and `DEMO_SEED_CONFIRMATION=SEED_QUOTEPLATE_INTERNAL_DEMO_ONLY` privately to the local operator process. The database stores an Argon2 password hash. Do not publish or commit the login credentials, expose them on the landing page, or store them in GitHub secrets.
 
-This is the actual app with working edits and normal tenant authorization. Menus, quotes, suppliers, orders, receiving, credits and service plans contain fictional demonstration records. A persistent in-app banner identifies the demo. It is for internal team testing; do not enter real personal data or share the credentials publicly.
-
-The seed command is create-only. Reruns verify the fixed identity and password and preserve existing demo edits; they do not reset records or touch other restaurant tenants. Run it only after the exact main commit passes CI and its migrations have been deployed. No demo fallback is added to production APIs and no automatic supplier message is sent.
+This uses the actual app with fictional menus, suppliers, quotes, orders, receiving, credits and plans, normal tenant authorization, and a persistent demo banner. Do not enter real personal data. The create-only seed verifies identity and password on reruns, preserves edits and does not reset other tenants. The normal app database role remains restricted to the fixed demo tenant during the transaction. Run the seed only after the exact main revision passes CI and its migrations are deployed. It adds neither a production API fallback nor automatic supplier messaging.

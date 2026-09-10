@@ -5,7 +5,7 @@
   --shell-paper: var(--workspace-surface);
   --shell-line: var(--workspace-line);
   --shell-copper: var(--workspace-accent);
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   color: var(--shell-ink);
   background: var(--workspace-canvas);
@@ -143,7 +143,7 @@
 }
 .signOut:hover { border-color: #dfb7ae; background: #fbefec; color: #842d25; }
 
-.workspace { --workspace-header-height: 0px; min-width: 0; min-height: 100vh; margin-inline-start: 13.5rem; flex: 1; display: flex; flex-direction: column; background: var(--shell-stone); }
+.workspace { --workspace-header-height: 0px; min-width: 0; min-height: 100dvh; margin-inline-start: 13.5rem; flex: 1; display: flex; flex-direction: column; background: var(--shell-stone); }
 .content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 /* Page percentage heights must not include their toolbar and banner siblings. */
 .shell .content > main { flex: 1; min-height: 0; }
@@ -151,7 +151,7 @@
 .content main :where([id], input, select, textarea, button, a, summary, [tabindex]) { scroll-margin-top: calc(var(--workspace-header-height) + var(--workspace-toolbar-height, 0px) + 1rem); }
 .footer {
   min-height: 3.2rem;
-  padding: .8rem clamp(1rem, 3vw, 2.75rem);
+  padding: 1rem max(var(--workspace-page-gutter), calc((100% - var(--workspace-content-width)) / 2));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -168,7 +168,7 @@
 .mobileHeader, .mobileOverlay { display: none; }
 
 .connectionPage, .loadingPage {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -241,7 +241,7 @@
 
 /* One quiet, readable system for the working app. */
 .shell { --font-display: var(--font-ui); --shell-stone: var(--workspace-canvas); --shell-paper: var(--workspace-surface); --shell-line: var(--workspace-line); --shell-muted: var(--workspace-muted); background: var(--shell-stone); }
-.sidebarContent { padding: 1.25rem .9rem; }
+.sidebarContent { padding: 1rem; }
 .newRequest { min-height: var(--control-height); margin: 1.2rem 0; border-radius: var(--control-radius); box-shadow: none; background: var(--workspace-accent); border-color: var(--workspace-accent); font-weight: 700; }
 .newRequest:hover, .newRequest:active { transform: none; box-shadow: none; background: var(--workspace-accent-hover); }
 .nav { gap: .4rem; }
@@ -270,7 +270,7 @@
 .shell .content input, .shell .content textarea, .shell .content select { font-size: var(--type-body); }
 .shell .content summary { min-height: var(--control-height); cursor: pointer; }
 .footer { font-size: .75rem; text-transform: none; letter-spacing: 0; background: transparent; }
-.demoBanner { display: flex; flex-wrap: wrap; gap: .3rem .8rem; margin: 0; padding: .65rem 1.25rem; border: 0; border-bottom: 1px solid #e1d2ae; border-radius: 0; font-size: .75rem; }
+.demoBanner { display: flex; flex-wrap: wrap; gap: .3rem .8rem; margin: 0; padding: .65rem max(var(--workspace-page-gutter), calc((100% - var(--workspace-content-width)) / 2)); border: 0; border-bottom: 1px solid #e1d2ae; border-radius: 0; font-size: .75rem; }
 .mobileHeader { background: var(--workspace-surface); box-shadow: none; backdrop-filter: none; }
 @media (max-width: 40rem) {
   .shell .content h1 { font-size: var(--type-h1-compact, 1.5rem); }
@@ -279,3 +279,8 @@
   .sectionNav a { padding: .6rem .65rem; font-size: var(--type-control); }
   .demoBanner { padding: .55rem 1rem; }
 }
+
+/* Consistent navigation and action icon strokes throughout the restaurant app. */
+.shell :global(.lucide) { stroke-width: var(--icon-stroke); }
+.nav svg, .navActive svg, .sidebarContent > a > svg { width: var(--icon-navigation); height: var(--icon-navigation); }
+.navLink, .navActive, .newRequest, .signOut, .sectionNav a { font-weight: var(--weight-control); }

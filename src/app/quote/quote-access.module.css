@@ -604,8 +604,8 @@
 
 .page { background:var(--workspace-canvas); }
 .card { background:var(--workspace-surface); border-color:var(--workspace-line); }
-.card h1, .formCard .requestSummary h1 { max-width:24ch; font-size:28px; }
-.sectionHeading h2, .review h2 { font-size:18.4px; }
+.card h1, .formCard .requestSummary h1 { max-width:24ch; font-size:var(--supplier-heading-size); }
+.sectionHeading h2, .review h2 { font-size:var(--type-h2); }
 .quoteItem { border-color:var(--workspace-line); }
 .lineFields input:not([type='checkbox']), .commercialGrid input, .commercialGrid textarea, .moneyInput { background:var(--workspace-surface); border-color:var(--workspace-line); }
 .review > p { overflow-wrap:anywhere; white-space:pre-wrap; }
@@ -732,3 +732,20 @@
   .guideToolbar { align-items:stretch; flex-direction:column; }
   .guideNavigation .reuseButton { width:auto; flex:1; }
 }
+
+/* Shared public supplier spacing; preserve the quote sheet and guided layout. */
+.shell { width:100%; max-width:none; margin:0; }
+.card, .formCard { width:100%; padding:var(--supplier-panel-padding); border-radius:var(--workspace-panel-radius); }
+.quoteForm, .formFields, .entry { gap:var(--supplier-section-gap); }
+.commercialGrid { gap:var(--supplier-field-gap); }
+.lineFields label, .commercialGrid label { gap:var(--supplier-label-gap); font-size:1rem; font-weight:600; line-height:1.5; letter-spacing:normal; }
+.lineFields input:not([type='checkbox']), .commercialGrid input, .commercialGrid textarea, .reuseButton, .submitBar button { min-height:var(--supplier-control-height); border-radius:var(--supplier-control-radius); }
+.moneyInput { border-radius:var(--supplier-control-radius); }
+.moneyInput input:not([type='checkbox']) { border-radius:0; }
+.itemsSection, .commercialSection { gap:20px; }
+.sectionHeading > p { font-size:.875rem; line-height:1.6; }
+.intro { max-width:65ch; margin:20px 0; font-size:1rem; }
+.status, .latestBanner, .error, .notice { padding:16px; border-radius:var(--supplier-control-radius); font-size:.875rem; line-height:1.6; }
+.submitBar { padding-top:24px; gap:20px; }
+.submitBar p { max-width:65ch; font-size:.875rem; line-height:1.6; }
+@media(max-width:600px) { .sectionHeading { align-items:flex-start; flex-direction:column; } .sectionHeading > p { max-width:none; text-align:left; } }

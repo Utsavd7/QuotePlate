@@ -143,9 +143,10 @@ def export_text(story, timing, work):
     (work / 'quoteplate-product-film.vtt').write_text('WEBVTT\n\n' + '\n\n'.join(cues) + '\n')
     transcript = [
         'QuotePlate — 2:45 product film',
-        'Actual application captures following one fictional restaurant’s first purchase, '
-        'with illustrative licensed kitchen opening and closing footage. '
-        'Signup shows approved-pilot Google access. Authentication is completed off camera. '
+        'An overview of QuotePlate’s major feature families, following one fictional restaurant’s first purchase. '
+        'Actual local application recordings with illustrative licensed kitchen opening and closing footage. '
+        'Restaurant details and Google entry are shown for approved pilot owners; authentication is completed off camera. '
+        'Communication controls create drafts for the user to send. '
         'Actions may be condensed; this is not a claim of loading speed. '
         'Synthetic American-English narration.',
     ]
@@ -364,7 +365,8 @@ def render(args, story):
     if not 163.99 <= seconds <= 165 or int(video['nb_frames']) != 165 * FPS or (video['width'], video['height']) != (WIDTH, HEIGHT):
         raise ValueError('Export duration, frame count or resolution does not match the storyboard.')
     ffmpeg('-xerror', '-i', output, '-f', 'null', '-')
-    ffmpeg('-ss', '153', '-i', output, '-frames:v', '1', '-q:v', '2', args.work / 'quoteplate-product-film.jpg')
+    poster_at = next(scene['at'] + min(3, scene['duration'] / 2) for scene in story['scenes'] if scene['id'] == 'end')
+    ffmpeg('-ss', poster_at, '-i', output, '-frames:v', '1', '-q:v', '2', args.work / 'quoteplate-product-film.jpg')
     # Include every capture, not only one frame per scene, so reviewers see each cut.
     sheet_frames = edit / 'contact-frames'
     sheet_frames.mkdir(exist_ok=True)
@@ -388,7 +390,7 @@ def render(args, story):
         'durationSeconds': seconds, 'frames': int(video['nb_frames']), 'resolution': [WIDTH, HEIGHT],
         'videoCodec': video['codec_name'], 'audioCodec': audio['codec_name'], 'fullDecode': 'passed',
         'storyboardSha256': digest(args.storyboard), 'sourceSha256': digest(args.source_film),
-        'outputSha256': digest(output), 'freshCaptures': capture_hashes,
+        'outputSha256': digest(output), 'freshCaptures': capture_hashes, 'posterAtSeconds': poster_at,
         'brandSources': story.get('brandSources', []),
         'videoShots': [shot for scene in story['scenes'] for shot in scene.get('shots', [])],
     })

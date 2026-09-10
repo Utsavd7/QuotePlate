@@ -12,6 +12,7 @@ export type NearbyCategory = keyof typeof NEARBY_CATEGORIES;
 export type NearbyCenter = { id: string; label: string; lat: number; lon: number };
 export type NearbyResult = {
   id: string; name: string; distanceKm: number; phone: string | null; website: string | null;
+  email?: string | null;
   address: string; city: string; state: string; pin: string; category: NearbyCategory;
   kind: 'Wholesale listing' | 'Retail potential'; sourceUrl: string; mapUrl: string;
   verificationStatus: 'UNVERIFIED';
@@ -62,6 +63,15 @@ function safeWebsite(value: unknown) {
     return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : null;
   } catch { return null; }
 }
+function safePublicEmail(value: unknown): string | null {
+  // Reject controls before trimming: str() would repair malformed source data.
+  if (typeof value !== 'string' || /[\u0000-\u001f\u007f-\u009f]/.test(value)) return null;
+  const email = value.trim().toLowerCase();
+  // Match supplier email normalization and its 320-byte bound. This ASCII-only
+  // single-mailbox check also excludes URLs, display names and address lists.
+  if (email.length > 320 || !/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/.test(email)) return null;
+  return email;
+}
 export function parseNearbyResults(data: unknown, center: NearbyCenter, category: NearbyCategory, radius: number): NearbyResult[] {
   buildNearbyQuery(center, category, radius);
   const envelope = record(data);
@@ -93,6 +103,7 @@ export function parseNearbyResults(data: unknown, center: NearbyCenter, category
     const address = [t['addr:housenumber'], t['addr:street'], t['addr:suburb'], t['addr:city'], t['addr:state'], t['addr:postcode']].map(v => str(v, 80)).filter(Boolean).join(', ');
     results.push({ id, name, distanceKm: Math.round(km * 100) / 100, category,
       phone: str(t.phone || t['contact:phone'], 80) || null, website: safeWebsite(t.website || t['contact:website']),
+      email: safePublicEmail(t.email) ?? safePublicEmail(t['contact:email']),
       address, city: str(t['addr:city'], 80), state: str(t['addr:state'], 80), pin: /^[1-9]\d{5}$/.test(str(t['addr:postcode'])) ? str(t['addr:postcode']) : '',
       kind: wholesale ? 'Wholesale listing' : 'Retail potential', sourceUrl: `https://www.openstreetmap.org/${id}`,
       mapUrl: `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=17/${lat}/${lon}`, verificationStatus: 'UNVERIFIED',
@@ -101,7 +112,7 @@ export function parseNearbyResults(data: unknown, center: NearbyCenter, category
   return results.sort((a, b) => a.distanceKm - b.distanceKm).slice(0, 40);
 }
 export function nearbyPrefill(result: NearbyResult) {
-  return { businessName: result.name, phone: result.phone || '', addressLine: result.address.slice(0, 240), city: result.city, state: result.state, pin: result.pin,
+  return { businessName: result.name, phone: result.phone || '', email: safePublicEmail(result.email) ?? '', addressLine: result.address.slice(0, 240), city: result.city, state: result.state, pin: result.pin,
     notes: `Unverified OpenStreetMap lead. ${result.kind}; ${NEARBY_CATEGORIES[result.category].label} category match only. Confirm products, contact and delivery before saving. Source: ${result.sourceUrl}${result.website ? ` Website: ${result.website}` : ''}` };
 }
 export type NearbyPrefill = ReturnType<typeof nearbyPrefill>;

@@ -71,8 +71,9 @@ export function SupplierPortalContent({view,busy,onSubmit}: {view:SupplierPortal
  const historyOrders = view.orders.filter(order => !needsResponse(order) && order.status === 'closed');
  return <>
   <header className={styles.intro}><p className={styles.eyebrow}>Your restaurant connection</p><h1>{view.restaurantName}</h1><p>Orders and delivery records for <strong>{view.supplierName}</strong>.</p><p className={styles.help}>This private link expires {date(view.expiresAt)}. Keep it with your team.</p></header>
+  <TradingProfileEditor key={view.portalId} initialProfile={view.tradingProfile} initialBusinessDetails={view.businessDetails} portalId={view.portalId} disabled={busy} />
   <section aria-labelledby="supplier-orders-title">
-   <h2 id="supplier-orders-title">Needs your response</h2>
+   <h2 id="supplier-orders-title" tabIndex={-1}>Needs your response</h2>
    <p className={styles.help}>Send prices, confirm orders and check deliveries here. Other suppliers’ quotes and orders stay private.</p>
    {actionOrders.length ? actionOrders.map(order => <Order key={`${order.requestId}-${order.version}-${order.delivery?.fingerprint ?? ''}`} order={order} busy={busy} onSubmit={onSubmit} />) : <p className={styles.empty}>Nothing needs your response right now. Your orders and history are below.</p>}
   </section>
@@ -96,11 +97,6 @@ export function SupplierPortalContent({view,busy,onSubmit}: {view:SupplierPortal
   <details className={styles.secondary}>
    <summary>Upcoming ingredient estimates ({view.forecasts.length})</summary>
   <section className={styles.forecasts} aria-labelledby="supplier-forecast-title"><h2 id="supplier-forecast-title">Upcoming ingredient estimates</h2><p className={styles.help}>Estimate only — these are not confirmed orders or instructions to deliver. The restaurant chose these quantities to help you plan availability.</p>{view.forecasts.length ? view.forecasts.map(forecast=><article key={forecast.id} className={styles.order}><header className={styles.orderHeader}><h3>Service {date(forecast.serviceAt)}</h3><span className={styles.badge}>{forecast.stale ? 'Outdated — ask for an update' : 'Estimate only'}</span></header><ul className={styles.items}>{forecast.items.map(item=><li key={item.itemKey}><div><strong>{item.name}</strong>{item.specification && <small>{item.specification}</small>}</div><span>{item.quantity} {unit(item.unit)}</span></li>)}</ul><p className={styles.help}>Shared {date(forecast.sharedAt)}. Confirm quantities with the restaurant before reserving stock.</p></article>) : <p className={styles.empty}>The restaurant has not shared upcoming demand with you.</p>}</section>
-  </details>
-  <details className={styles.secondary}>
-   <summary>Your business details (optional)</summary>
-   <p className={styles.help}>Keep your delivery areas and order terms up to date for this restaurant.</p>
-   <TradingProfileEditor key={`${view.portalId}-${view.tradingProfile?.revision ?? 0}`} initialProfile={view.tradingProfile} portalId={view.portalId} disabled={busy} />
   </details>
  </>;
 }

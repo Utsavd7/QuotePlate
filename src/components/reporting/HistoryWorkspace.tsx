@@ -302,10 +302,10 @@ export function HistoryWorkspace({ initialPage }: { initialPage?: HistoryPageDat
             <article className={styles.historyRow} key={request.id}>
               <button className={styles.historyOpen} type="button" onClick={() => router.push(`/procurement/${encodeURIComponent(request.id)}`)} aria-label={`Open ${request.title}`} />
               <span className={styles.historyTitle}><strong>{request.title}</strong><small>Created {displayDate(request.createdAt)} · {request._count.items} {request._count.items === 1 ? 'item' : 'items'}</small></span>
-              <span className={styles.historyDate}><CalendarDays aria-hidden="true" />{displayDate(request.deliveryDate)}</span>
-              <span className={styles.historyCount}><strong>{request._count.supplierRequests}</strong><small>{request.respondingSupplierCount} replied</small></span>
+              <span className={styles.historyDate}><span className={styles.compactLabel}>Delivery date</span><CalendarDays aria-hidden="true" />{displayDate(request.deliveryDate)}</span>
+              <span className={styles.historyCount}><span className={styles.compactLabel}>Suppliers</span><strong>{request._count.supplierRequests}</strong><small>{request.respondingSupplierCount} replied</small></span>
               <span className={styles.historyRevisions}><strong>{request.quoteRevisionCount}</strong><small>quote versions</small></span>
-              <span className={styles.historyValue}>{request.award ? <>
+              <span className={styles.historyValue}><span className={styles.compactLabel}>Order total</span>{request.award ? <>
                 <strong>{formatInr(request.award.totalPaise)}</strong>
                 <small>{request.award.supplierCount} winning {request.award.supplierCount === 1 ? 'supplier' : 'suppliers'}</small>
                 {request.award.receiving && <small>

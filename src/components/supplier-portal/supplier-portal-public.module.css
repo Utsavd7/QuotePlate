@@ -71,8 +71,8 @@
 }
 
 .page { background:var(--workspace-canvas); }
-.intro h1 { font-size:28px; }
-.shell h2 { font-size:18.4px; }
+.intro h1 { font-size:var(--supplier-heading-size); }
+.shell h2 { font-size:var(--type-h2); }
 .order { background:var(--workspace-surface); border-color:var(--workspace-line); }
 .order input,.order select,.order textarea { border-color:var(--workspace-line); }
 .order button, .refresh { background:var(--workspace-accent); border-color:var(--workspace-accent); }
@@ -106,3 +106,51 @@
  .tableWrap td::before { flex:1 1 50%; }
  .tableWrap td > * { min-width:0; }
 }
+
+.profileEditor { margin:0 0 32px; }
+.profileEditor [hidden] { display:none; }
+.profileActions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:18px; }
+.profileActions a { display:inline-flex; align-items:center; min-height:44px; color:var(--workspace-accent); text-underline-offset:4px; }
+.profileActions button { max-width:100%; }
+.profileForm { border-top:1px solid var(--workspace-line); padding-top:24px; margin-top:24px; }
+.profileForm > fieldset { max-width:none; }
+.profileFields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.profileFields label { align-content:start; }
+.profileEditor .profileCategories { max-width:none; margin-top:12px; }
+.profileCategories legend { margin-bottom:0; }
+.profileCategories p { margin:0 0 4px; }
+.profileCategoryGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.profileEditor .profileCategory { display:flex; align-items:center; gap:10px; padding:10px 12px; min-height:48px; border:1px solid var(--workspace-control-line); border-radius:6px; cursor:pointer; }
+.profileCategory:has(input:checked) { border-color:var(--workspace-accent); background:var(--workspace-selected); }
+.profileCategory:has(input:focus-visible) { outline:3px solid var(--workspace-accent); outline-offset:3px; }
+.profileCategory input[type='checkbox'] { flex:none; width:20px; height:20px; min-height:0; padding:0; margin:0; accent-color:var(--workspace-accent); }
+.profileCategory span { min-width:0; overflow-wrap:anywhere; }
+.profileSaved { margin-top:20px; border-top:1px solid var(--workspace-line); }
+.profileSaved > summary { cursor:pointer; min-height:48px; padding:14px 0; font-weight:600; }
+.profileSaved > .order { margin-top:0; border:0; border-radius:0; padding:12px 0; background:transparent; }
+.profileSummary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 24px; margin:24px 0 0; }
+.profileSummary dt { color:var(--workspace-muted); font-size:.875rem; }
+.profileSummary dd { margin:6px 0 0; overflow-wrap:anywhere; line-height:1.5; }
+.profileSummaryWide { grid-column:1 / -1; }
+@media(max-width:760px) { .profileCategoryGrid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:540px) {
+ .profileFields, .profileSummary, .profileCategoryGrid { grid-template-columns:1fr; }
+ .profileSummary { gap:16px; }
+ .profileActions { align-items:stretch; }
+ .profileActions a { justify-content:center; width:100%; }
+ .profileCategory { font-size:1rem; }
+}
+
+/* Limit public frame adjustments to this shell, including the shared read view. */
+.shell { width:100%; max-width:none; margin:0; }
+.shell .intro { padding:0 0 24px; margin-bottom:var(--supplier-section-gap); }
+.shell .order { padding:var(--supplier-panel-padding); border-radius:var(--workspace-panel-radius); }
+.shell .order fieldset { gap:var(--supplier-field-gap); }
+.shell .order label { gap:var(--supplier-label-gap); font-size:1rem; font-weight:600; line-height:1.5; }
+.shell .order :is(input:not([type='checkbox']),select,textarea,button), .shell .refresh { min-height:var(--supplier-control-height); border-radius:var(--supplier-control-radius); }
+.shell .profileFields { gap:var(--supplier-field-gap); }
+.shell .profileEditor { margin-bottom:var(--supplier-section-gap); }
+.shell .profileSaved > .order { padding:16px 0; }
+.shell .error, .shell .notice { padding:16px; border-radius:var(--supplier-control-radius); font-size:.875rem; line-height:1.6; }
+.shell .help { max-width:65ch; }
+.shell .toolbar { margin:0 0 24px; }
