@@ -119,8 +119,8 @@ def load_story(path):
                 raise ValueError(f"Capture durations do not match: {scene['id']}")
         if audio_source_start(scene) is not None and not scene.get('sourceCues'):
             raise ValueError('Reused scenes require measured source caption cues.')
-    if at != story['durationSeconds'] or at > 165 or at != 164:
-        raise ValueError('This film must be exactly 164 seconds.')
+    if at != story['durationSeconds'] or at > 165 or at != 165:
+        raise ValueError('This film must be exactly 165 seconds.')
     return story
 
 
@@ -142,7 +142,7 @@ def export_text(story, timing, work):
             cues.append(f'{stamp(start)} --> {stamp(end)}\n' + '\n'.join(lines))
     (work / 'quoteplate-product-film.vtt').write_text('WEBVTT\n\n' + '\n\n'.join(cues) + '\n')
     transcript = [
-        'QuotePlate — 2:44 product film',
+        'QuotePlate — 2:45 product film',
         'Actual application captures following one fictional restaurant’s first purchase, '
         'with illustrative licensed kitchen opening and closing footage. '
         'Signup shows approved-pilot Google access. Authentication is completed off camera. '
@@ -361,7 +361,7 @@ def render(args, story):
     video = next(stream for stream in info['streams'] if stream['codec_type'] == 'video')
     audio = next(stream for stream in info['streams'] if stream['codec_type'] == 'audio')
     seconds = float(info['format']['duration'])
-    if not 163.99 <= seconds <= 165 or int(video['nb_frames']) != 164 * FPS or (video['width'], video['height']) != (WIDTH, HEIGHT):
+    if not 163.99 <= seconds <= 165 or int(video['nb_frames']) != 165 * FPS or (video['width'], video['height']) != (WIDTH, HEIGHT):
         raise ValueError('Export duration, frame count or resolution does not match the storyboard.')
     ffmpeg('-xerror', '-i', output, '-f', 'null', '-')
     ffmpeg('-ss', '153', '-i', output, '-frames:v', '1', '-q:v', '2', args.work / 'quoteplate-product-film.jpg')

@@ -1,4 +1,4 @@
-QuotePlate — 2:44 product film
+QuotePlate — 2:45 product film
 
 Actual application captures following one fictional restaurant’s first purchase, with illustrative licensed kitchen opening and closing footage. Signup shows approved-pilot Google access. Authentication is completed off camera. Actions may be condensed; this is not a claim of loading speed. Synthetic American-English narration.
 
@@ -14,7 +14,7 @@ Open Suppliers and add the businesses you buy from. Enter their names and ingred
 
 Choose New purchase. Give it a name and select the approved menu. Check quantities. We need ten kilos of tomatoes. Set the delivery date and reply deadline. Choose your suppliers, save the draft, then open it for quotes.
 
-Each supplier opens their private request link. They enter a price, check delivery and the total, then send their quote. Here are replies from our two example suppliers, for the same ten kilos.
+Suppliers can quote on their phone. Choose a clear price-list photo, or paste prices. Check the matched item and rate, then fill the quote. Use one item at a time if helpful. Review delivery and the total, then send.
 
 Back in Purchases, compare the complete offers. Check coverage, tax, delivery charges and dates. Here, the totals are four hundred and four hundred forty rupees. Choose the suitable supplier and confirm your decision.
 

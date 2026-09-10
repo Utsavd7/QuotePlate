@@ -327,7 +327,9 @@ test('real awarded request repeats with private historical prices and saves only
   try {
     const supplierPage = await supplierContext.newPage();
     await supplierPage.goto(link!);
-    await expect(supplierPage.getByText('No matching previous prices available. Enter current prices below.')).toBeVisible();
+    await expect(supplierPage.locator(`[name="rate:${fixture.itemId}"]`)).toBeVisible();
+    await expect(supplierPage.locator(`[name="rate:${fixture.itemId}"]`)).toHaveValue('');
+    await expect(supplierPage.getByRole('button', { name: 'Use previous prices' })).toHaveCount(0);
     await supplierPage.locator(`[name="rate:${fixture.itemId}"]`).fill('42.75');
     await supplierPage.locator(`[name="gst:${fixture.itemId}"]`).fill('5');
     await supplierPage.locator(`[name="inclusive:${fixture.itemId}"]`).check();

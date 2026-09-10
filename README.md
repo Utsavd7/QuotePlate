@@ -8,11 +8,11 @@ Built by [Utsav Doshi](https://github.com/Utsavd7).
 
 ## Product demo
 
-[![Watch the QuotePlate product demo — 2 minutes 29 seconds](public/media/quoteplate-product-film.jpg)](https://quoteplate.netlify.app/#watch-demo)
+[![Watch the QuotePlate product demo — 2 minutes 45 seconds](public/media/quoteplate-product-film.jpg)](https://quoteplate.netlify.app/#watch-demo)
 
-[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 2:44 · 1920 × 1080 Full HD
+[Watch the video on the website](https://quoteplate.netlify.app/#watch-demo) · 2:45 · 4K, 3840 × 2400
 
-Follow a fictional restaurant in Pune from a menu photo through supplier discovery, private quotes, cost comparison and a purchase decision. Updated application footage demonstrates item-level receiving, partial deliveries, credits claimed and received, supplier performance, portion and yield planning, and a shortage-only purchase draft. Routine actions are condensed; the narration explains the inputs and review steps.
+Follow a fictional restaurant in Bengaluru from setup and menu entry through its first purchase, private supplier quotes, comparison and delivery checks. The phone section shows a supplier preparing prices from a printed list, reviewing the quote and sending it. The restaurant then records a partial delivery and the outstanding credit. Routine actions are condensed; the narration explains the inputs and review steps.
 
 [Transcript](public/media/quoteplate-product-film.txt) · [English captions](public/media/quoteplate-product-film.vtt) · [Media credits](public/media/credits.txt)
 
@@ -26,7 +26,8 @@ The current release supports:
 - find nearby food businesses inside the workspace using free Photon area lookup and Overpass open-map results, then review public listings and explicitly confirm restaurant verification before adding a supplier; public coverage, contact details and wholesale capability are not guaranteed;
 - widen supplier searches by ingredient and area using external Google Maps, Google, Justdial, IndiaMART, TradeIndia, ExportersIndia, Kompass and go4WorldBusiness searches, then review and add them manually without a search API or billing account;
 - keep existing suppliers, choose more than one sourcing route, or accept applications from new suppliers and then approve or reject them;
-- send each supplier a private quote link with no supplier account required;
+- create and share a private quote link for each supplier, with no supplier account required;
+- prepare supplier prices from a printed price-list photo or pasted text, review selected rates before filling blank eligible fields, and optionally enter the quote one item at a time;
 - issue a separate expiring supplier workspace link for own-order status, acknowledgement and delivery feedback;
 - preserve supplier agreement/dispute responses with evidence references; changed restaurant checks require renewed confirmation;
 - share explicitly selected ingredient-shortage estimates from a saved plan with a chosen supplier, and withdraw them later; recipes, portions and stock counts are excluded;
@@ -44,9 +45,19 @@ The current release supports:
 - manage restaurant details, roles, invitations, Google sign in, sign out, and an optional six step setup guide;
 - use the public site and product workspace on phones, tablets, and laptops.
 
-The landing page includes a two-minute-twenty-nine-second product film with captions and a transcript. It uses condensed recordings of the actual app with fictional restaurant records in an isolated environment, and real public nearby listings captured for the demonstration. It includes nearby discovery, supplier delivery responses and selected demand sharing. Media is served from `public/media` and the video starts muted with captions when at least half is visible, shows an explicit Unmute video button, pauses offscreen, and respects manual pauses and reduced-motion preferences; no external video service is required. The buying journey uses compact, manually selected stages on desktop and phones, with one step counter and no automatic movement. Old `/product` bookmarks redirect to this journey on the homepage.
+The landing page includes a 4K (3840 × 2400) product film of 2 minutes 45 seconds, with optional English captions and a transcript. It uses condensed recordings of the actual app with fictional restaurant records in an isolated environment. The story follows restaurant setup, menu choices, a purchase request, supplier quotes on a phone, comparison and delivery follow-up. Media is served from `public/media` and the video autoplays muted when at least half is visible, shows an explicit Unmute video button, pauses offscreen, and respects manual pauses and reduced-motion preferences. Captions are off by default and can be enabled in the player; no external video service is required. The buying journey uses compact, manually selected stages on desktop and phones, with one step counter and no automatic movement. Old `/product` bookmarks redirect to this journey on the homepage.
 
 The product does not introduce suppliers and then disappear from the workflow. Its value is the reusable request, quote, decision, purchase order, and price history for every buying cycle.
+
+### Vendor price lists and guided quote entry
+
+On a private quote link, suppliers can choose **Use a price list**, take or select one JPEG, PNG or WebP photo, or paste prices as text. Photo reading is intended for clear printed English. Each photo must be at most 8 MB, 20 megapixels and 8,000 pixels on either edge. Pasted and recognized text is limited to 12,000 characters and 100 nonempty lines; longer lists must be split into smaller parts.
+
+Suppliers review the source text, item matches, units and rates before choosing **Use checked prices**. Only blank, enabled price fields for eligible request items are filled. Existing manual prices, supply quantities and GST settings stay as entered. Ambiguous rows, conflicting prices and incompatible units need correction or manual entry; the helper does not invent or convert rates or units.
+
+Optional guided entry presents one item at a time and checks that item's entries before advancing. Suppliers then review delivery details and the total before explicitly sending the quote. Preparing prices or moving through the guide never submits a quote or sends a message automatically.
+
+The helper runs in the hosted website using bundled browser OCR, with no paid AI service or photo upload. Vendor price-list photos stay on the supplier's current device. This is separate from the restaurant menu workflow, where a QR link transfers temporary encrypted copies of phone photos to the restaurant's browser.
 
 ### Daily planning and delivery evidence
 
@@ -67,7 +78,8 @@ These features add no dependencies, subscriptions or metered AI services. Existi
 - The production service refuses to start when required security settings are missing.
 - Rate limits cover account creation, invitations, supplier access, supplier submissions, and applications.
 - Browser security rules stop other sites from placing QuotePlate inside a hidden frame, reduce information shared through links, and limit unnecessary device access.
-- Phone photos travel as temporary encrypted copies. The decryption key stays in the QR link, and retrieved originals are kept only in that restaurant workspace on the current browser.
+- Menu photos sent from a phone through the QR transfer travel as temporary encrypted copies. The decryption key stays in the QR link, and retrieved originals are kept only in that restaurant workspace on the current browser.
+- Vendor price-list photos are read locally in the supplier's browser and stay on that device; they are not uploaded through the menu-photo transfer or sent to an AI service.
 - Backup and restore tools are included for the operator.
 
 ## Run locally
@@ -124,7 +136,7 @@ Automatic nearby discovery uses public OpenStreetMap data through [Photon](https
 
 ## Procurement improvements — September 2026
 
-Supplier trading declarations, matching historical quote rates and delivery-cost evidence address three practical purchasing gaps. The updated 2:44 film demonstrates the buying workflow and these additions using clearly labelled fictional restaurant records. Internal testing credentials and account access are not promoted in the public film.
+Supplier trading declarations, matching historical quote rates and delivery-cost evidence address three practical purchasing gaps. The updated 4K film, running 2:45, demonstrates a first purchase and the phone quote assistant using fictional restaurant records. Internal testing credentials and account access are not promoted in the public film.
 
 - **Supplier trading declarations:** invited suppliers can state wholesale status, served PIN codes, minimum order, order cutoff in IST and lead time. The workspace shows the declaration date and flags information older than 30 days. Declarations are not independently verified or live inventory, and each order still needs confirmation.
 - **Matching historical rates:** suppliers can explicitly review and reuse prices from their own matching earlier quote. Historical prices are not live market prices. Current quantities, availability, delivery and commercial terms still require review and normal submission.
