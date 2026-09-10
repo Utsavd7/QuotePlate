@@ -1,5 +1,5 @@
 {
-  "durationSeconds": 164,
+  "durationSeconds": 165,
   "resolution": "3840x2400",
   "fps": 30,
   "narration": "Local Kokoro ONNX af_heart, American English; new first-purchase narration with measured optional caption cues.",
@@ -143,24 +143,18 @@
     },
     {
       "id": "replies",
-      "title": "Suppliers reply",
-      "duration": 18,
+      "title": "Quote from your phone",
+      "duration": 19,
       "phrases": [
-        "Each supplier opens their private request link.",
-        "They enter a price, check delivery and the total, then send their quote.",
-        "Here are replies from our two example suppliers, for the same ten kilos."
+        "Suppliers can quote on their phone. Choose a clear price-list photo, or paste prices.",
+        "Check the matched item and rate, then fill the quote.",
+        "Use one item at a time if helpful. Review delivery and the total, then send."
       ],
-      "text": "Each supplier opens their private request link. They enter a price, check delivery and the total, then send their quote. Here are replies from our two example suppliers, for the same ten kilos.",
+      "text": "Suppliers can quote on their phone. Choose a clear price-list photo, or paste prices. Check the matched item and rate, then fill the quote. Use one item at a time if helpful. Review delivery and the total, then send.",
       "shots": [
         {
-          "file": "vendor-reply-a.mp4",
-          "duration": 9,
-          "sourceStart": 0,
-          "playbackRate": 1
-        },
-        {
-          "file": "vendor-reply-b.mp4",
-          "duration": 9,
+          "file": "vendor-phone.mp4",
+          "duration": 19,
           "sourceStart": 0,
           "playbackRate": 1
         }
@@ -168,8 +162,8 @@
       "at": 93,
       "phraseStarts": [
         0.2,
-        2.8,
-        9.2
+        6,
+        11
       ]
     },
     {
@@ -197,7 +191,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 111,
+      "at": 112,
       "phraseStarts": [
         0.2,
         3.2,
@@ -230,7 +224,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 131,
+      "at": 132,
       "phraseStarts": [
         0.2,
         2.4,
@@ -254,7 +248,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 151
+      "at": 152
     },
     {
       "id": "end",
@@ -273,7 +267,7 @@
           "playbackRate": 1
         }
       ],
-      "at": 156,
+      "at": 157,
       "phraseStarts": [
         0.2,
         3
@@ -305,18 +299,10 @@
     }
   ],
   "visualRefresh": {
-    "date": "2026-09-09",
+    "date": "2026-09-10",
     "clips": [
-      "first-workspace.mp4",
-      "first-menu.mp4",
-      "first-suppliers.mp4",
-      "first-request.mp4",
-      "completion-comparison.mp4",
-      "completion-award.mp4",
-      "completion-delivery.mp4",
-      "completion-credit.mp4",
-      "completion-today.mp4"
+      "vendor-phone.mp4"
     ],
-    "description": "Unified restaurant workspace headers, tables and spacing captured as real actions in a unique ordinary local Monsoon Table tenant. Same fictional Tomato 10 kg purchase, supplier totals INR 400/440, awarded Amber, 9 kg received and INR 40 credit owed. Kitchen bookends, public registration, menu-options, supplier reply clips, narration and optional captions retained."
+    "description": "Real responsive phone quote with local printed-price OCR, exact-rate review, fill blanks, guided item and quote submission. All other video source clips preserved."
   }
 }

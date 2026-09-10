@@ -77,9 +77,9 @@ class MotionContractTests(unittest.TestCase):
         changed['scenes'][1]['phrases'][0] = 'Different speech.'
         self.assertNotEqual(film.audio_fingerprint(story), film.audio_fingerprint(changed))
 
-    def test_checked_in_timeline_is_164_seconds_and_motion_only(self):
+    def test_checked_in_timeline_is_165_seconds_and_motion_only(self):
         story = film.load_story(film.ROOT / 'docs/media/quoteplate-product-film-164.json')
-        self.assertEqual(sum(s['duration'] for s in story['scenes']), 164)
+        self.assertEqual(sum(s['duration'] for s in story['scenes']), 165)
         self.assertTrue(all(s.get('shots') and 'sourceStart' not in s for s in story['scenes']))
         self.assertTrue(all(shot['file'].endswith('.mp4') for s in story['scenes'] for shot in s.get('shots', [])))
 

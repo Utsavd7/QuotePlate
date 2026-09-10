@@ -114,13 +114,15 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toMatch(/restaurant(?:['’]s)? (?:details|name)/i);
   expect(text).toMatch(/menu/i);
   expect(text).toMatch(/suppliers/i);
-  expect(text).toMatch(/request/i);
+  expect(text).toMatch(/new purchase/i);
+  expect(text).toMatch(/price-list photo/i);
+  expect(text).toMatch(/one item at a time/i);
   expect(text).toMatch(/compar(?:e|ing)/i);
   expect(text).toMatch(/choos(?:e|ing)/i);
   expect(text).toMatch(/delivery/i);
   expect(text).toMatch(/fictional|example restaurant/i);
   expect(text).toContain('Start your first purchase');
-  expect(text).toContain('2:44');
+  expect(text).toContain('2:45');
   expect(text).not.toMatch(/nearby search|real public map listings/i);
   expect(text).not.toMatch(/working restaurant demo|internal demo|demo@quoteplate/i);
 });

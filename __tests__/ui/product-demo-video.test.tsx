@@ -2,10 +2,10 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { parse } from 'node-html-parser';
 import { ProductDemoVideo } from '@/components/public/ProductDemoVideo';
 
-it('introduces the 2:44 first-purchase journey with fictional records', () => {
+it('introduces the 2:45 first-purchase journey with fictional records', () => {
   const root = parse(renderToStaticMarkup(<ProductDemoVideo />));
   expect(root.querySelector('h2')?.text).toBe('Your first purchase, step by step.');
-  expect(root.text).toContain('2:44');
+  expect(root.text).toContain('2:45');
   expect(root.text).toMatch(/fictional restaurant/i);
   expect(root.text).toMatch(/approved pilot owner/i);
   expect(root.text).toMatch(/Google/);

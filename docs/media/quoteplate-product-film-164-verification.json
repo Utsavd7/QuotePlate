@@ -1,6 +1,6 @@
 {
-  "durationSeconds": 164.0,
-  "frames": 4920,
+  "durationSeconds": 165.0,
+  "frames": 4950,
   "resolution": [
     3840,
     2400
@@ -8,9 +8,9 @@
   "videoCodec": "h264",
   "audioCodec": "aac",
   "fullDecode": "passed",
-  "storyboardSha256": "da15b139f5c8c530aa86ebc958f670a430719ea0838447ad580a5c43ef0a9022",
+  "storyboardSha256": "caf53394c7b93baf63c18344ebbe3f2ad587dcab149ef780b5c6746ea91e0d72",
   "sourceSha256": "3d6b220f9505315ebefbc0aaf8570aa31e9da65e1d8d3b0587fa76e3ed236202",
-  "outputSha256": "520dd5a15a51b31c8607911c8da80d462fa5324d53bb6351fd307fc45dde89c4",
+  "outputSha256": "d209cdcfbf76a5a7bacc512568b9882b0023d6de031d52c2bd1d5bfe26e963fa",
   "freshCaptures": {
     "kitchen-intro.mp4": "18d46ffd9e38d84d97cf01bcda98b0f1b0c30d1586e8c1660ae3afb8e8c48f69",
     "first-restaurant.mp4": "fcf36820a424c749a89c4afdb8c03958bfd7c97727574d365903dd451daf44eb",
@@ -20,8 +20,7 @@
     "first-menu.mp4": "89c7048b99e29974ea6f0420110829196e3c37ddadd8a84272e5fb3e73d8e16a",
     "first-suppliers.mp4": "a9391a23cc7fb3ed350caf7fdb6bb3edb9d126d0248624673fface9a97f58919",
     "first-request.mp4": "b3211d73729fa78c49679e9652ad94f51e93b4e4b1f2e5e4a39f675a2c4314e2",
-    "vendor-reply-a.mp4": "ddc8c74c7f20d80a1539040bfbd30cde29f594921b5257fbbae0228c21e0e0e1",
-    "vendor-reply-b.mp4": "b5e7163ab7097b980a85ef68f532a27feeaa34e52cd6e9615851e85add30a326",
+    "vendor-phone.mp4": "7fd8ee8924c786090deed1dae92ca27b1600a71dd672880ed274bfa31050552a",
     "completion-comparison.mp4": "f848a2cfcb2a7676c5f37c7ef9b9ae5b7e1fb1a7d92c7e16e50dd379d199fbe8",
     "completion-award.mp4": "55ff50ab36ec5614ca2c115d29091291fd5e6aff0d1c6dffd8fab08abc80cfe6",
     "completion-delivery.mp4": "b48d7f1c919df1814ab4feecb06e8e16d211db1b83afa851e4b280c750905efe",
@@ -103,14 +102,8 @@
       "playbackRate": 1
     },
     {
-      "file": "vendor-reply-a.mp4",
-      "duration": 9,
-      "sourceStart": 0,
-      "playbackRate": 1
-    },
-    {
-      "file": "vendor-reply-b.mp4",
-      "duration": 9,
+      "file": "vendor-phone.mp4",
+      "duration": 19,
       "sourceStart": 0,
       "playbackRate": 1
     },
@@ -151,14 +144,62 @@
       "playbackRate": 1
     }
   ],
-  "visualRefreshChecks": {
-    "onlyNineRequestedClipsChanged": true,
-    "unchangedSourceClips": 7,
-    "encodedAudioIdenticalToPrevious": true,
-    "encodedAudioSha256": "30a49eff1e1ff7737786766154d36d581dd2b873732cda9c00841e9349f8e0f4",
-    "narrationAndCaptionsUnchanged": true,
-    "captureDecodeAndFrameCounts": "passed",
-    "temporalVariation": "passed for all nine clips",
-    "temporaryRecordingProfilesRemoved": true
+  "phoneRefresh": {
+    "nativePhone": [
+      1560,
+      2400
+    ],
+    "cssViewport": [
+      390,
+      600
+    ],
+    "canvas": [
+      3840,
+      2400
+    ],
+    "placement": [
+      2280,
+      0
+    ],
+    "upscaled": false,
+    "source": "real local UI recording with real bundled OCR",
+    "printedFixtureSha256": "d6b04b63d20b8d0a130e1f6757daf73aa4964effa6b1dfc0d6174ae658571a3f",
+    "phoneSourceSha256": "7567440791a3294d4420f32288d4833e85978006b200283f94d46a90bf38b0da",
+    "composedClipSha256": "7fd8ee8924c786090deed1dae92ca27b1600a71dd672880ed274bfa31050552a",
+    "duration": 19,
+    "frames": 570,
+    "realSubmissionVerified": true,
+    "rateInr": "40",
+    "quantity": "10",
+    "totalPaise": "40000",
+    "deliveryDate": "2026-09-11",
+    "validUntil": "2026-09-10",
+    "retainedVideos": [
+      "kitchen-intro.mp4",
+      "first-restaurant.mp4",
+      "first-owner.mp4",
+      "first-workspace.mp4",
+      "menu-options.mp4",
+      "first-menu.mp4",
+      "first-suppliers.mp4",
+      "first-request.mp4",
+      "completion-comparison.mp4",
+      "completion-award.mp4",
+      "completion-delivery.mp4",
+      "completion-credit.mp4",
+      "completion-today.mp4",
+      "kitchen-end.mp4"
+    ],
+    "unaffectedNarrationWavsUnchanged": 10,
+    "retainedVideoCount": 14,
+    "maxVolumeDb": -4.9,
+    "profilesRemoved": true
+  },
+  "bundleSha256": {
+    "quoteplate-product-film.mp4": "d209cdcfbf76a5a7bacc512568b9882b0023d6de031d52c2bd1d5bfe26e963fa",
+    "quoteplate-product-film.jpg": "b1a0f9ff83c2303a4ab3549aa2cfbcfc143697f3e930319bd53dbb694ffac3e3",
+    "quoteplate-product-film.vtt": "3d16e5f0cf0558f20be4f5d69c7992f4acddedddad3d989457763ae8bcc71082",
+    "quoteplate-product-film.txt": "9893bbd7928541d55dca5d4661c724d5fb6a6abc9a5afd87312c0b401540633e",
+    "credits.txt": "0b41c016fe290f809d907930411d84389cdf3f69b943527ffcea97ed8a4d4eda"
   }
 }

@@ -240,6 +240,7 @@ async function seedAttentionRequest(admin: PrismaClient, input: {
       tenantId, requestId: id, supplierId: respondingSupplier.id,
       tokenDigest: randomBytes(32).toString('hex'),
       expiresAt: input.deadline ?? attentionNow,
+      createdAt: new Date((input.deadline ?? attentionNow).getTime() - 86_400_000),
       quoteRevision: revision, quoteRevisions: quoteRevisions({ count: revision }),
     } });
   }
