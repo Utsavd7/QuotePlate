@@ -114,11 +114,11 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toMatch(/no menu needed/i);
   expect(text).toMatch(/invoice photo/i);
   expect(text).toMatch(/review and apply billed quantities and rates/i);
-  expect(text).toMatch(/public website.*review the source/is);
+  expect(text).toMatch(/public website[\s\S]*review the source/i);
   expect(text).toMatch(/add your restaurant and delivery address/i);
   expect(text).toMatch(/menu/i);
   expect(text).toMatch(/suppliers/i);
-  expect(text).toMatch(/add them to your draft.*choose suppliers and save/is);
+  expect(text).toMatch(/add them to your draft[\s\S]*choose suppliers and save/i);
   expect(text).toMatch(/price-list photo/i);
   expect(text).toMatch(/one item at a time/i);
   expect(text).toMatch(/compar(?:e|ing)/i);
