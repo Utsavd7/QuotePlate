@@ -20,7 +20,7 @@ export function PublicHeader({ home = false, sticky = false }: PublicHeaderProps
         </nav>
         <div className="public-header__actions">
           <Link className="public-text-action" href="/signin">Sign in</Link>
-          <Link className="public-button public-button--small" href="/start">Start a pilot</Link>
+          <Link className="public-button public-button--small" href="/start">Get started</Link>
         </div>
       </div>
     </header>

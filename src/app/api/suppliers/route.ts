@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 import { privateNoStoreResponse } from '@/lib/api/private-response';
 import { problemResponse } from '@/lib/api/problem';
@@ -19,14 +21,16 @@ import {
 } from '@/lib/suppliers/supplier-http';
 
 export async function GET(request: Request) {
-  const account = await requireAccountContext();
-  if (!account) {
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.userId;
+  const tenantId = session?.user?.tenantId;
+  if (typeof userId !== 'string' || !userId || typeof tenantId !== 'string' || !tenantId) {
     return privateNoStoreResponse(problemResponse(401, 'Unauthorized', 'Authentication is required.'));
   }
   const url = new URL(request.url);
   try {
     const result = await listSuppliers({
-      actor: supplierActor(account),
+      actor: { tenantId, userId },
       active: url.searchParams.get('active') ?? undefined,
       search: url.searchParams.get('search') ?? undefined,
       limit: url.searchParams.get('limit') ?? undefined,

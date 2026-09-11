@@ -1,81 +1,67 @@
 # India restaurant procurement competitive review
 
-Reviewed on 28 August 2026. Product claims below come from public company pages unless a different source is named. Private-company revenue figures are not live ARR and should not be presented as such.
+Reviewed and sources visited on **11 September 2026 (India, IST)**. This replaces the 28 August review. Scope: public primary product pages, provider documentation and the [repository README](../../README.md), read before research at baseline `f9a2ab6` on `codex/close-procurement-gaps`.
 
-## Launch decision
+## Evidence and product baseline
 
-QuotePlate should launch as an accountable request-to-quote system for a restaurant's own suppliers. It should not expand into a POS, general inventory ERP, marketplace, logistics company, payment processor, or AI ordering product before real pilot usage proves that need.
+**Advertised** means a supplier's own website describes a capability. **Observed** means public page content was retrieved, not that the feature worked in an authenticated app. **Built** below means documented in QuotePlate's repository baseline. **Planned** means approved work awaiting parent integration and verification. No competitor account, paid trial, supplier contact, order or hands-on app trial was conducted for this review. Search tools can return cached pages; the visit date does not establish when a vendor last changed its site.
 
-The durable advantage is the complete buying record:
+The README explicitly distinguishes repository features from availability at the [hosted product](https://quoteplate.netlify.app). This review does not verify that site's deployed revision, migrations or authenticated workflows. It also does not substitute for an application test report. The [8 September direction note](2026-09-08-procurement-edge.md) remains historical context; use this review for refreshed source qualifications.
 
-- a reviewed ingredient request;
-- one private, expiring link per supplier;
-- no supplier account or app;
-- comparable quantities, GST, freight, delivery dates, substitutions, coverage, and terms;
-- immutable quote revisions;
-- whole-order or split-supplier awards made by a person;
-- purchase-order and accounting exports;
-- one-click repeat requests and permanent price/decision history.
+| QuotePlate area | Built in the README baseline | Limits to preserve |
+| --- | --- | --- |
+| Request, quote and award | Reviewed menu ingredients; contact entry/import; private mobile quote links; structured prices, quantities, GST, freight, substitutions and terms; whole/split awards, saved decision facts, repeat purchases and exports. | Supplier choice remains with the restaurant. Historical prices are not live market rates. |
+| Receiving | Received, rejected and billed quantities by awarded supplier; partial deliveries/replacements; entered invoice variance and credit balances. | Entered evidence, not automatic invoice reading or bank-verified payment. |
+| Supplier performance | Delivery record, dated fulfilment evidence, rejections, credit follow-up and billed cost per accepted unit. | Latest 100 awards; missing checks are not successful deliveries. Billed unit cost excludes freight/order credits and remains provisional on partial deliveries. |
+| Photo price lists | Browser-local OCR of one printed-English supplier photo or pasted text, checked matching, guided entry and explicit reuse of matching earlier prices. | Review before applying/submitting; no invented unit conversions. Photo limits: 8 MB, 20 megapixels, 8,000 pixels per edge. |
+| Service planning | Approved recipes, portions, usable stock, yield and confirmed arrivals produce an editable shortage purchase draft; plans can be saved/repeated. | No live inventory or automatic demand forecast. Unknown stock, missing recipes and unsupported conversions block procurement. |
+| Private supplier portals | Separate expiring workspace links, supplier business declarations, order acknowledgements, delivery responses and selected demand estimates. | No supplier account required. Declarations are not certification; estimates are not orders. Supplier scope excludes competing offers, recipes and stock. |
+| Discovery and sharing | Nearby OSM leads with valid tagged public contacts; external supplier searches; WhatsApp, email-handler and copy-link sharing. | Leads require restaurant review. Sharing prepares content; a person sends it. No automated invitations/reminders, connected mailbox or WhatsApp read receipts. |
+| Access and presentation | Private restaurant tenants, owner/member permissions, Google/credential sign-in, team invitations and responsive green UI. | Production Google owner activation is pilot-allowlisted in this baseline, not unrestricted public signup. Preserve English first and existing features. |
 
-This also answers the bypass risk. QuotePlate is not paid for introducing a dealer. A restaurant keeps using it because every new buying cycle is faster to repeat, prices remain comparable, and the final decision remains provable even when all parties already know one another.
+**Integrated in the current release branch:** public verified-Google signup, reviewed shopping-list/invoice assistance and supplier website-contact review. Local unit, database and laptop/phone browser checks are recorded in the [release validation report](../qa/2026-09-11-procurement-gaps.md); use that report for deployed status. These additions extend the baseline and do not establish a competitive advantage or real-user completion rate.
 
-## Direct India competitors
+## Priority competitors: advertised workflow and availability
 
-| Product | Publicly presented strength | Product/UI review | What QuotePlate should do |
-|---|---|---|---|
-| [Petpooja Purchase Manager](https://blog.petpooja.com/industry-business-guides/petpooja-purchase-manager-features-setup/) | Free POSS add-on comparing live Hyperpure, DMart, and uploaded local-supplier rates; cheapest-item cart; direct vendor checkout; inventory sync. | Strongest direct workflow competitor. The screen is a dense yellow-accent commerce catalogue with item cards and vendor carts. It is fast for known catalogues, but local supplier prices depend on uploaded rate cards rather than a supplier submitting a structured, revisioned quote. | Keep supplier response easier and more trustworthy. Do not imitate catalogue density. Later consider an optional supplier rate-card import only after pilots request it. |
-| [SupplyNote](https://supplynote.in/ims) | Full F&B supply-chain suite: products, inventory, PO/GRN, supplier ledgers, recipes, production, batches, payments, forecasting, and 70+ reports. | Modern marketing page and broad enterprise scope. The dashboard presents many modules, cards, filters, and reports; it is capable but materially heavier than a four-restaurant pilot needs. | Stay focused and easier to adopt. Receiving/GRN and supplier delivery performance are the most credible post-pilot additions; the rest should remain deferred. |
-| [Restroworks](https://www.restroworks.com/restaurant-supply-chain-management-software/) | Purchase requests, POs, invoices, vendor communication, outlet transfers, forecasting, 200+ reports, and 500+ integrations; company claims 25,000+ restaurants. | Enterprise marketing is extensive, while the published purchase-order screen is visually dated and form-heavy. It is designed for large, integrated restaurant operations. | Preserve QuotePlate's calmer comparison-first UI. Do not build broad integrations before a specific pilot requires one. |
-| [Hyperpure](https://www.hyperpure.com/) | Large B2B ingredient catalogue and logistics network; next-day, urgent, and speciality supply; public site claims 130+ cities and 1 lakh+ partners. | Polished marketplace/e-commerce experience with search, product imagery, ratings, live prices, and add-to-cart actions. It solves fulfilment from Hyperpure's seller network, not neutral comparison of every restaurant's existing dealers. | Remain marketplace-neutral. A Hyperpure quote or purchase source can later be represented like any other supplier without becoming dependent on it. |
-| [FrontPe supplier management](https://www.frontpe.com/features/supplier-management) | Supplier profiles, POs, partial receiving, payables, low-stock replenishment, and inventory updates. | Clear, readable page, but it uses a stock photograph and exposes little real product UI. The company says it was founded in 2026 and offers a broader POS platform. | Keep real product evidence on the website. Do not add payables or stock control until customers complete the current request-to-award loop. |
-| [Procol](https://www.procol.ai/strategic-sourcing-software/) | Enterprise RFx, auctions, supplier onboarding, scoring, contracts, analytics, and ERP integrations. | Polished enterprise sourcing, but onboarding and configuration create a much longer path to first value for a small restaurant. | Keep QuotePlate's structured comparison and audit trail without copying enterprise scoring, auctions, or contract modules. |
-| [QuickProc](https://quickproc.in/) / [GETPOS](https://getpos.io/purchase-procurement/) | India-focused RFQ, quote comparison, award, PO, GRN, invoice, and compliance workflows. | Their most relevant pattern is comparing specification, lead time, commercial terms, and price together. | Preserve this full-fact comparison while keeping supplier participation account-free and mobile-first. |
+All linked sources in this section were visited on 11 September 2026. No absence in a marketing page proves absence in the product.
 
-## Useful global benchmark
+| Product and primary sources | Advertised workflow | India/access evidence and uncertainty | Implication for QuotePlate |
+| --- | --- | --- | --- |
+| **The Right Vendor** — [home](https://www.therightvendor.com/), [terms](https://www.therightvendor.com/terms) | Restaurants post specifications, quantities and timelines; suppliers bid; buyers compare/select and complete/review orders. | India terms and Chandigarh address; restaurant/supplier signup and a seven-day trial are advertised. Registration was not attempted; active supplier coverage is unverified. The home page mentions payment processing while terms say transactions are between buyer and vendor and it does not directly process payments. | Direct overlap with request–bid–selection. Demonstrate lower participation effort rather than claim this workflow is exclusive. Treat its scale/savings counters as unverified marketing. |
+| **Hospiverse India** — [home](https://www.hospiverse.in/), [about](https://www.hospiverse.in/about), [terms](https://www.hospiverse.in/legal/terms) | HORECA supplier/catalogue discovery, RFQs, relationship-manager assistance; Growth lists comparison and CSV/PDF exports. Third-party sales contract directly with suppliers. Its terms classify food listings as discovery/referrals: Hospiverse does not accept or fulfil food orders or collect their payment. | India-focused with buyer/brand registration. About marks a June 2026 launch live, while home still uses early-access/pre-launch wording. Home says buyer plans are free until paid launch, with plan quotas, but also advertises unlimited early-access RFQs; About says buyers are free forever. Entitlements, future charges and local fulfilment need confirmation. | Assisted sourcing is a real competing proposition, but registration, catalogue counts and “verified” labels do not prove coverage or delivery. QuotePlate should retain the distinction between public leads, supplier declarations and restaurant checks. |
+| **Workwise Hospitality** — [official hospitality page](https://hospitality.letsworkwise.com/) | RFQs/tenders, repeated negotiations including packaging/freight/tax, annual rate contracts, property approvals, PO-to-GRN/payment tracking and timestamped history. | Rupee-based positioning and named Indian hotel customers indicate India focus; demo-led access. Direct opens yielded no readable body; the search index retrieved the official page's content. No authenticated access or current commercial terms verified. | Strong overlap in comparison and accountability, with broader multi-property tendering. Its advertised time/cost reductions are vendor claims, not a QuotePlate target or observed result. |
+| **RestoX by Quantbit** — [restaurant procurement](https://quantbit.io/solutions/restox/restaurant-procurement-software) | Requisitions, supplier quotations, approval controls, POs, goods receipts, quality/rejection records, invoice matching, supplier performance and price history. | Explicit India market positioning and assessment/demo calls. The page makes implementation scope conditional on requirements and data readiness. The non-www page opened; the www variant failed retrieval. No configured app tested. This is Quantbit's RestoX, not the similarly named RestroX POS. | Receiving and supplier evidence are shared category capabilities. Compare actual setup effort and exception handling; do not infer implementation depth or usability from the feature list. |
+| **BirchStreet** — [platform](https://birchstreetai.com/), [RFQ sourcing](https://birchstreetai.com/products/rfq-sourcing/), [India-region training](https://recurringtraining.birchstreetsystems.com/birchstreet_buyer_training_schedule_zone_3) | Hospitality RFQs/selection, awarded item schedules and supplier onboarding; wider purchasing, invoicing/AP, inventory and recipe modules. | The old company domain redirects to BirchStreet.AI. Its official training page includes India and receiving, supporting regional presence; retrieved registration dates were from 2025. This does not confirm a current small-restaurant India package, supplier network coverage, training slot or price. Sales-led access, untested. | Use as a control/workflow benchmark. Recipe-based procurement and supplier participation are not evidence of uniqueness; compare a representative local supplier's actual effort. |
+| **HorecaShip** — [home](https://www.horecaship.com/) | Planned purchase requests, RFQs, comparison, approvals, supplier records, inventory and analytics. | Explicitly aimed at Indian hospitality. Procurement and other operating modules remain labeled **Coming 2026**; learning is labeled available now. The dashboard's “Live” illustration does not override those module labels. | A roadmap competitor, not a verified available procurement alternative. No procurement availability date, trial outcome or price established. |
+| **Petpooja Purchase Manager** — [product](https://www.petpooja.com/poss/purchase-manager), [setup article](https://blog.petpooja.com/industry-business-guides/petpooja-purchase-manager-features-setup/) | HyperPure/DMart comparison, local supplier Excel rate-card upload, lowest-priced-item cart assistance, vendor checkout and POSS inventory updates. | Advertised as included free with a **Petpooja POSS account**, not a standalone free procurement service. Setup article updated 1 September 2026; platform coverage depends on location. Local prices depend on uploaded cards. No signup, checkout, stock sync or supplier-submitted quote tested. | A close comparison for existing POSS customers. QuotePlate already has supplier photo/text price assistance; evaluate who maintains prices, commercial-term completeness and receiving exceptions rather than defer rate-card help again. |
 
-[MarketMan](https://www.marketman.com/platform) combines inventory, purchasing, receiving, invoice automation, recipes, accounts payable, multi-unit operations, mobile apps, and integrations. Its public pricing begins at $199 per location per month, so it is a useful enterprise feature benchmark but not the right launch scope or cost model for QuotePlate.
+### Petpooja's channel comparison: useful framing, not price evidence
 
-## Revenue and scale signals
+Petpooja's [HyperPure vs DMart vs Local Vendors comparison](https://blog.petpooja.com/operations-workflows/hyperpure-vs-dmart-vs-local-vendors-comparison/) (dated/updated 29 May 2026) advocates choosing channels by item, delivery needs and local relationships. It is a vendor-authored comparison, not an independent basket test. Its claims about cheapest categories, credit, city counts and delivery speed must not become current market facts here. Hyperpure's [own current home page](https://www.hyperpure.com/) advertises ingredient fulfilment, including instant delivery; actual service still needs a PIN/item/time check. Neither source establishes a universal cheapest supplier.
 
-These figures are not directly comparable: Hyperpure sells physical goods, while Petpooja and Restroworks are software businesses. They indicate competitor scale, not QuotePlate's obtainable market or a valuation.
+For a fair trial, compare the same specification, pack/unit, quantity, GST treatment, freight, minimum order, availability, delivery deadline and credit terms at the same time. Missing terms make an offer incomplete; an old local rate card is not a current supplier commitment. These are proposed comparison controls, not observed savings.
 
-| Company/product | Best public signal found | Confidence and limitation |
-|---|---|---|
-| Hyperpure | Eternal's official FY25 filing reports ₹6,196 crore of Hyperpure segment revenue; the official Q4 FY25 investor page reports ₹1,840 crore for the quarter. | High confidence historical revenue, but it is goods-led segment revenue and not SaaS ARR. Sources: [Eternal/Zomato investor relations](https://www.zomato.com/investor-relations/annual-reports), [NSE integrated filing](https://nsearchives.nseindia.com/corporate/ixbrl/INTEGRATED_FILING_INDAS_89061_01052025190844_iXBRL_WEB.html). |
-| Petpooja | A 2025 funding report states FY24 revenue was about ₹76 crore, up 43%; Petpooja publishes annual-return links on its corporate-information page. | Medium confidence, historical company revenue rather than Purchase Manager revenue or current ARR. Sources: [Petpooja corporate information](https://www.petpooja.com/corporate_information), [Restaurant India funding report](https://www.restaurantindia.in/news/restaurant-india-news-petpooja-raises-rs-137-crore-to-boost-ai-and-product-expansion-in). |
-| Restroworks | A filing-data provider reports FY25 revenue of ₹40.44 crore. Restroworks separately claims 25,000+ restaurant locations and $5.57 billion of orders processed in 2025. | Medium confidence. The revenue extraction is third-party and current ARR is undisclosed. Sources: [company financial summary](https://www.thecompanycheck.com/company/restroworks-tech-private-limited/U72200DL2011PTC224247), [Restroworks company facts](https://www.restroworks.com/llm-info/). |
-| SupplyNote | No reliable current revenue or ARR disclosure was found. | Do not publish an estimate. Public pages establish product breadth and customer claims, not revenue. |
-| FrontPe | No revenue or ARR disclosure was found; its site says it was founded in 2026. | Too new for a defensible run-rate conclusion. |
+## Wider landscape retained from the earlier review
 
-## Feature decision after review
+These public pages were also opened on 11 September 2026; all capabilities remain advertised, not app-tested. Current local onboarding, implementation scope and fees are unverified unless explicitly stated above.
 
-### Keep in the launch product
+| Product | Relevant evidence and limitation |
+| --- | --- |
+| [Restroworks](https://www.restroworks.com/restaurant-supply-chain-management-software/) | Advertises purchasing requests, POs, invoices, vendor email and kitchen coordination. A broader operations alternative; this review does not establish that it is harder to use. |
+| [FrontPe](https://www.frontpe.com/features/supplier-management) | Advertises PO stages, partial receiving, inventory updates and supplier balances. Receiving/payable visibility is not a unique QuotePlate claim. |
+| [Procol](https://www.procol.ai/strategic-sourcing-software/) | Advertises RFx/auctions, supplier comparison/scoring, contracts and analytics. Enterprise sourcing benchmark; no small-restaurant adoption result established. |
+| [QuickProc](https://quickproc.in/) | Advertises requisition, RFQ/auction, award, PO, GRN, invoice matching and payment workflow. Broader execution overlap, not evidence of Indian restaurant supplier coverage. |
+| [MarketMan](https://www.marketman.com/platform) | Advertises purchasing/receiving, scanned-invoice insights, recipes and multi-location inventory. Global benchmark; India package/availability and current subscription price not verified. |
+| [SupplyNote](https://supplynote.in/ims) / [GETPOS](https://getpos.io/purchase-procurement/) | SupplyNote returned a loading shell and GETPOS failed retrieval. Keep on the evaluation list; their older detailed feature descriptions are not freshly verified by this pass. |
 
-- menu-to-ingredient demand review;
-- supplier directory and CSV import;
-- private mobile quote links and QR exports;
-- structured quotes with revisions;
-- GST, freight, delivery, coverage, substitution, and term comparison;
-- whole and split awards;
-- immutable award snapshots and audit history;
-- repeat requests, price-range insights, CSV/PDF/accounting exports;
-- Google and credential sign-in, invitations, roles, tenant isolation, and responsive UI.
+Historical company revenue, marketplace transaction volume and marketing customer counts are not comparable SaaS ARR. The old revenue/scale ranking and unrefreshed price quotes are omitted from this workflow review; no replacement estimates or fees are inferred.
 
-### Next only after pilot evidence
+## Decision and validation priorities
 
-1. Receiving against an awarded purchase order: received quantity, variance, rejection reason, and delivery date.
-2. Supplier performance based only on recorded facts: response time, quote coverage, awarded value, on-time delivery, and receiving variance.
-3. Multi-outlet delivery locations if one pilot restaurant operates more than one outlet.
-4. Optional catalogue/rate-card import for repeat local suppliers.
+Position QuotePlate as a private buying workspace for a restaurant and its own suppliers, spanning reviewed demand, quotes, human awards, receiving and repeat decisions. **The potential advantage is lower repeated effort with clearer evidence; it remains a hypothesis.** Several competitors advertise the same broad chain. No “unique”, “only”, cheapest or faster-than-competitor claim is established.
 
-### Explicitly defer
+Keep the existing green UI, English-first language, account-free private supplier access, tenant boundaries and manual WhatsApp/email sharing. Retain built receiving, supplier performance, photo price lists, service planning and supplier portals. Any usability refinement should preserve those capabilities while measuring where inexperienced users need help.
 
-- POS and customer billing;
-- perpetual inventory and automatic stock consumption;
-- warehouse, batch, barcode, expiry, or production planning;
-- vendor payments, credit, or card handling;
-- logistics or physical fulfilment;
-- paid WhatsApp/SMS, OCR, LLM, forecasting, or price APIs;
-- marketplace commissions or exclusive supplier relationships.
+The new signup, shopping-list/invoice and website-contact additions have passed local implementation checks; their competitive value still needs a real-user trial. Wider scope still deferred: POS/customer billing, perpetual inventory/automatic stock consumption, warehouse/batch/expiry operations, factory production scheduling, payment processing/credit provision, physical logistics, paid messaging/OCR/LLM/search APIs and marketplace commissions. Existing service planning and entered credit records do not imply those broader integrations.
 
-These deferred areas would add substantial data, operations, support, and billing risk without improving the first four restaurants' core quote-to-award job.
+Use the [employee/supplier trial and zero-paid-integration notes](2026-09-11-procurement-trial-and-cost-notes.md) before making adoption or cost claims. Procurement modules that are coming soon, demo-gated or inaccessible should be recorded as unavailable to test, not scored as failures. Current launch limits are unmeasured low-tech completion, unverified deployed revision, uncertain local competitor availability and provider/hosting constraints—not missing features that the README already documents.

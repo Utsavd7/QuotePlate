@@ -23,12 +23,12 @@ const content = {
     note: 'Restaurant records remain on the server; your browser stores only the session needed to keep you signed in.',
   },
   start: {
-    eyebrow: 'India pilot',
+    eyebrow: 'Restaurant owner signup',
     title: 'Set up the workspace behind your next purchase.',
     description:
       'Keep your team, suppliers, purchases and order history in one restaurant workspace.',
     document: 'Owner registration',
-    note: 'Starting the pilot does not activate a paid plan or automatic billing.',
+    note: 'Creating a workspace does not activate a paid plan or automatic billing.',
   },
 } as const;
 
@@ -82,11 +82,11 @@ export function AuthPageShell(props: AuthPageShellProps) {
             </div>
           </div>
           {props.mode === 'start' && (
-            <aside className={styles.pilotNotice} aria-label="Controlled pilot terms">
-              <strong>Controlled pilot terms</strong>
+            <aside className={styles.pilotNotice} aria-label="Create your restaurant workspace">
+              <strong>Create your restaurant workspace</strong>
               <ul>
-                <li>Up to twenty approved restaurant workspaces</li>
-                <li>Use the Google account approved for your workspace</li>
+                <li>Sign up with your verified Google email</li>
+                <li>No operator approval needed</li>
                 <li>No payment card. No billing.</li>
               </ul>
             </aside>

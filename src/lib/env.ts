@@ -1,7 +1,4 @@
-import {
-  configuredPilotEmails,
-  localPilotTestModeAllowed,
-} from '@/lib/auth/pilot-access';
+import { isLoopbackHostname, localPilotTestModeAllowed } from '@/lib/auth/pilot-access';
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
@@ -10,11 +7,6 @@ export class EnvironmentConfigurationError extends Error {
     super(`Invalid production environment: ${variables.join(', ')}`);
     this.name = 'EnvironmentConfigurationError';
   }
-}
-
-function loopback(hostname: string) {
-  const normalized = hostname.toLowerCase();
-  return normalized === 'localhost' || normalized === '::1' || normalized.startsWith('127.');
 }
 
 function parseUrl(
@@ -41,7 +33,7 @@ function parseUrl(
 }
 
 function requireRemoteTls(url: URL | null, variable: string, production: boolean, issues: Set<string>) {
-  if (!url || !production || loopback(url.hostname)) return;
+  if (!url || !production || isLoopbackHostname(url.hostname)) return;
   if (!['require', 'verify-full'].includes(url.searchParams.get('sslmode') ?? '')) {
     issues.add(variable);
   }
@@ -64,7 +56,7 @@ export function validateRuntimeEnvironment(environment: Environment = process.en
   );
   if (databaseUrl?.username === '') issues.add('DATABASE_URL');
   requireRemoteTls(databaseUrl, 'DATABASE_URL', production, issues);
-  if (siteUrl && production && siteUrl.protocol !== 'https:' && !loopback(siteUrl.hostname)) {
+  if (siteUrl && production && siteUrl.protocol !== 'https:' && !isLoopbackHostname(siteUrl.hostname)) {
     issues.add('NEXTAUTH_URL');
   }
   if ((environment.NEXTAUTH_SECRET?.trim().length ?? 0) < 32) {
@@ -75,13 +67,9 @@ export function validateRuntimeEnvironment(environment: Environment = process.en
   if (Boolean(googleClientId) !== Boolean(googleClientSecret)) {
     issues.add(googleClientId ? 'GOOGLE_CLIENT_SECRET' : 'GOOGLE_CLIENT_ID');
   }
-  const pilotEmails = configuredPilotEmails(environment);
   const localPilotTestMode = localPilotTestModeAllowed(environment);
   if (environment.QUOTEPLATE_LOCAL_E2E && !localPilotTestMode) {
     issues.add('QUOTEPLATE_LOCAL_E2E');
-  }
-  if (production && !pilotEmails && !localPilotTestMode) {
-    issues.add('QUOTEPLATE_PILOT_EMAILS');
   }
   if (issues.size > 0 || !databaseUrl || !siteUrl) {
     throw new EnvironmentConfigurationError([...issues].sort());
@@ -92,6 +80,5 @@ export function validateRuntimeEnvironment(environment: Environment = process.en
     nextAuthSecret: environment.NEXTAUTH_SECRET!.trim(),
     googleClientId,
     googleClientSecret,
-    pilotEmails: pilotEmails ? [...pilotEmails] : [],
   };
 }

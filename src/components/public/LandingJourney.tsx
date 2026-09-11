@@ -44,7 +44,7 @@ export function LandingJourney() {
               <h3>Choose ingredients</h3>
               <p>
                 Add a menu by photo, upload, paste or a permitted website link.
-                Check dish names, add ingredients and quantities, then approve the menu. Purchases require an approved menu.
+                Check dish names, add ingredients and quantities, then approve the menu. Or start a purchase directly from a typed shopping list or photo, reviewing each quantity and unit.
               </p>
               <p>In Plan meals, choose meals and portions, check stock, then review missing ingredients. Enter batch servings, usable stock, yield and confirmed arrivals explicitly.</p>
             </div>

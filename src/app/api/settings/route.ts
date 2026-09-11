@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 
 import {
   deactivateWorkspaceMember,
@@ -19,6 +20,7 @@ import {
   requireOwner,
 } from '@/lib/auth/guards';
 import { requireAccountContext } from '@/lib/server-account';
+import { authOptions } from '@/lib/auth';
 import { browserJsonMutationRejection } from '@/lib/security/browser-mutation';
 
 const SETTINGS_BODY_BYTES = 16 * 1_024;
@@ -107,17 +109,25 @@ function actorFor(context: NonNullable<Awaited<ReturnType<typeof requireAccountC
 }
 
 export async function GET() {
-  let context;
+  const started = performance.now();
+  let session;
   try {
-    context = await requireAccountContext();
+    session = await getServerSession(authOptions);
   } catch (error) {
     return settingsProblem(error);
   }
-  if (!context) return unauthorized();
+  const userId = session?.user?.userId;
+  const tenantId = session?.user?.tenantId;
+  if (typeof userId !== 'string' || !userId || typeof tenantId !== 'string' || !tenantId) return unauthorized();
+  const sessionFinished = performance.now();
   try {
-    return privateResponse(NextResponse.json(
-      await getWorkspaceSettings({ actor: actorFor(context) }),
-    ));
+    // The settings operation checks the active user, tenant and current role in
+    // its own transaction. Loading the account here first repeats that DB work.
+    const settings = await getWorkspaceSettings({ actor: { userId, tenantId } });
+    const response = privateResponse(NextResponse.json(settings));
+    response.headers.set('Server-Timing',
+      `session;dur=${(sessionFinished - started).toFixed(1)}, settings;dur=${(performance.now() - sessionFinished).toFixed(1)}`);
+    return response;
   } catch (error) {
     return settingsProblem(error);
   }

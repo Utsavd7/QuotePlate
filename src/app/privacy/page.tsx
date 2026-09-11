@@ -4,14 +4,14 @@ import { LegalPageLayout } from '@/components/public/LegalPageLayout';
 
 export const metadata: Metadata = {
   title: 'Privacy',
-  description: `Pilot privacy notice for ${brand.productName}.`,
+  description: `Privacy notice for ${brand.productName}.`,
 };
 
 export default function PrivacyPage() {
   return (
     <LegalPageLayout
       title="Privacy notice"
-      intro={`This notice explains how ${brand.companyName} handles personal and commercial information during the controlled pilot.`}
+      intro={`This notice explains how ${brand.companyName} handles personal and commercial information when you use the service.`}
     >
       <section>
         <h2>Data we collect</h2>
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
       </section>
       <section>
         <h2>How we use it</h2>
-        <p>We use this information to operate and secure the pilot, provide the procurement workflow, respond to support requests, and diagnose service problems. We do not sell personal information or use procurement records for advertising.</p>
+        <p>We use this information to operate and secure the service, provide the procurement workflow, respond to support requests, and diagnose service problems. We do not sell personal information or use procurement records for advertising.</p>
       </section>
       <section>
         <h2>Who can see it</h2>
@@ -28,12 +28,14 @@ export default function PrivacyPage() {
       </section>
       <section>
         <h2>Retention and deletion</h2>
-        <p>We keep active pilot records while the workspace is in use and retain limited security or commercial records where reasonably needed. Pilot participants may request access, correction, export, or deletion through the support channel supplied during onboarding. Some request, quote, award, or audit records may need to be retained to preserve an accurate commercial history.</p>
+        <p>We keep active workspace records while the workspace is in use and retain limited security or commercial records where reasonably needed. Workspace users may request access, correction, export, or deletion through the support channel supplied during onboarding. Some request, quote, award, or audit records may need to be retained to preserve an accurate commercial history.</p>
       </section>
       <section>
         <h2>Security and changes</h2>
+        <p>When you choose to check a supplier website, our server reads permitted public pages from that site to find published contact details. We show their source and check date for your review. This does not send your restaurant records to that website or independently verify the business.</p>
+        <p>Shopping-list, supplier price-list and invoice photo reading runs in your browser. These helpers do not upload those photos; you review any suggested values before adding them to a saved record.</p>
         <p>Nearby supplier searches send the area you choose to Photon and a category and approximate coordinates to VK Maps’ public Overpass service (maps.mail.ru, hosted in Russia). Public map results may be cached to reduce repeat requests. Restaurant recipes, prices and purchasing records are not sent with these searches. Review public listings before adding a supplier.</p>
-        <p>We use access controls, tenant isolation, expiring supplier links, and limited audit history. No online service can promise absolute security. We may update this draft as the pilot and hosting arrangements develop, and will present a revised date when we do.</p>
+        <p>We use access controls, tenant isolation, expiring supplier links, and limited audit history. No online service can promise absolute security. We may update this draft as the service and hosting arrangements develop, and will present a revised date when we do.</p>
       </section>
     </LegalPageLayout>
   );

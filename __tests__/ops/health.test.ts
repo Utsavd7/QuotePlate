@@ -14,7 +14,6 @@ const validRuntimeEnvironment = {
   DATABASE_URL: 'postgresql://autorfp_app:secret@ep-example-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&connection_limit=5',
   NEXTAUTH_URL: 'https://quoteplate.example',
   NEXTAUTH_SECRET: 'a-production-session-secret-with-more-than-32-characters',
-  QUOTEPLATE_PILOT_EMAILS: 'pilot-one@example.com,pilot-two@example.com',
 };
 
 describe('production environment', () => {
@@ -47,28 +46,11 @@ describe('production environment', () => {
     }
   });
 
-  it('requires one to twenty unique pilot owner emails in production', () => {
-    const twentyEmails = Array.from(
-      { length: 20 },
-      (_, index) => `owner-${index + 1}@example.com`,
-    ).join(',');
+  it.each([undefined, '', 'obsolete-invalid-list'])('does not require an operator allowlist in production (%s)', (legacyList) => {
     expect(() => validateRuntimeEnvironment({
       ...validRuntimeEnvironment,
-      QUOTEPLATE_PILOT_EMAILS: twentyEmails,
+      QUOTEPLATE_PILOT_EMAILS: legacyList,
     })).not.toThrow();
-
-    for (const pilotEmails of [
-      undefined,
-      '',
-      'not-an-email',
-      'same@example.com,same@example.com',
-      `${twentyEmails},owner-21@example.com`,
-    ]) {
-      expect(() => validateRuntimeEnvironment({
-        ...validRuntimeEnvironment,
-        QUOTEPLATE_PILOT_EMAILS: pilotEmails,
-      })).toThrow(EnvironmentConfigurationError);
-    }
   });
 
   it('permits production-like loopback URLs for isolated local verification', () => {
@@ -89,6 +71,35 @@ describe('production environment', () => {
     })).not.toThrow();
   });
 
+  it.each(['127.0.0.1', '127.42.3.9', 'localhost', 'LOCALHOST', '[::1]', '[0:0:0:0:0:0:0:1]'])(
+    'permits non-TLS local fixtures on parsed loopback %s',
+    (hostname) => {
+      expect(() => validateRuntimeEnvironment({
+        ...validRuntimeEnvironment,
+        NEXTAUTH_URL: `http://${hostname}:3000`,
+        DATABASE_URL: `postgresql://autorfp_app:test@${hostname}:5432/quoteplate`,
+        QUOTEPLATE_LOCAL_E2E: '1',
+      })).not.toThrow();
+    },
+  );
+
+  it.each([
+    { NEXTAUTH_URL: 'http://127.app.example.com' },
+    { DATABASE_URL: 'postgresql://autorfp_app:test@127.db.example.com/quoteplate' },
+  ])('requires production TLS for 127-prefixed DNS names (%j)', (urls) => {
+    expect(() => validateRuntimeEnvironment({ ...validRuntimeEnvironment, ...urls }))
+      .toThrow(EnvironmentConfigurationError);
+  });
+
+  it('rejects remote 127-prefixed DNS fixture mode even when both URLs use TLS', () => {
+    expect(() => validateRuntimeEnvironment({
+      ...validRuntimeEnvironment,
+      NEXTAUTH_URL: 'https://127.app.example.com',
+      DATABASE_URL: 'postgresql://autorfp_app:test@127.db.example.com/quoteplate?sslmode=require',
+      QUOTEPLATE_LOCAL_E2E: '1',
+    })).toThrow('QUOTEPLATE_LOCAL_E2E');
+  });
+
   it('rejects the browser-test flag when production services are remote', () => {
     try {
       validateRuntimeEnvironment({
@@ -100,7 +111,7 @@ describe('production environment', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(EnvironmentConfigurationError);
       expect((error as EnvironmentConfigurationError).variables).toEqual(
-        expect.arrayContaining(['QUOTEPLATE_LOCAL_E2E', 'QUOTEPLATE_PILOT_EMAILS']),
+        ['QUOTEPLATE_LOCAL_E2E'],
       );
     }
   });

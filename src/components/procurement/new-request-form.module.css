@@ -26,3 +26,4 @@
 .back { min-height: var(--control-height); display: inline-flex; align-items: center; gap: .5rem; margin: 0 0 .5rem; padding: 0; border: 0; background: transparent; color: var(--workspace-muted); font-size: var(--type-control); font-weight: 650; cursor: pointer; }
 .back svg { width: 1rem; height: 1rem; }
 .draftStatus { padding: .35rem .65rem; border-radius: var(--control-radius); background: var(--workspace-selected); color: var(--workspace-accent); font-size: var(--type-control); font-weight: 650; }
+.listDraft{display:grid;gap:.85rem;margin:1rem 0;min-width:0}.listDraft h3,.listDraft p{margin:0}.listDraft p{font-size:.875rem;line-height:1.5;color:var(--workspace-muted)}.listDraft fieldset{min-width:0;margin:0;padding:.8rem;border:1px solid var(--workspace-line)}.listDraft legend{font-size:.875rem;font-weight:650}.listDraft input,.listDraft select{box-sizing:border-box}

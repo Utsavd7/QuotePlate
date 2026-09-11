@@ -1,4 +1,5 @@
 import { GET, PATCH, POST } from '@/app/api/settings/route';
+import { getServerSession } from 'next-auth';
 import {
   deactivateWorkspaceMember,
   getWorkspaceSettings,
@@ -9,6 +10,7 @@ import { AuthorizationError } from '@/lib/auth/guards';
 import { requireAccountContext } from '@/lib/server-account';
 
 jest.mock('@/lib/server-account', () => ({ requireAccountContext: jest.fn() }));
+jest.mock('next-auth', () => ({ getServerSession: jest.fn() }));
 jest.mock('@/lib/account/workspace-settings', () => ({
   getWorkspaceSettings: jest.fn(),
   updateWorkspaceSettings: jest.fn(),
@@ -51,6 +53,7 @@ function expectPrivate(response: Response) {
 describe('settings API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(getServerSession).mockResolvedValue({ user: { userId: 'owner-a', tenantId: 'tenant-a' } });
     jest.mocked(requireAccountContext).mockResolvedValue({ tenant, user: owner } as never);
     jest.mocked(getWorkspaceSettings).mockResolvedValue(settings as never);
     jest.mocked(updateWorkspaceSettings).mockResolvedValue(settings as never);
@@ -63,12 +66,15 @@ describe('settings API', () => {
     expect(response.status).toBe(200);
     expectPrivate(response);
     expect(getWorkspaceSettings).toHaveBeenCalledWith({ actor: { tenantId: 'tenant-a', userId: 'owner-a' } });
+    expect(requireAccountContext).not.toHaveBeenCalled();
+    expect(response.headers.get('server-timing')).toMatch(/^session;dur=\d+(?:\.\d+)?, settings;dur=\d+(?:\.\d+)?$/);
     const body = await response.json();
     expect(body).toEqual(settings);
     expect(JSON.stringify(body)).not.toMatch(/tenantId|tokenDigest|passwordHash/i);
   });
 
   it('lets a member view settings and clearly denies every mutation before parsing it', async () => {
+    jest.mocked(getServerSession).mockResolvedValue({ user: { userId: 'member-a', tenantId: 'tenant-a' } });
     jest.mocked(requireAccountContext).mockResolvedValue({ tenant, user: member } as never);
     jest.mocked(getWorkspaceSettings).mockResolvedValue({
       ...settings,
@@ -89,6 +95,7 @@ describe('settings API', () => {
   });
 
   it('returns a private 401 without touching services for an unauthenticated request', async () => {
+    jest.mocked(getServerSession).mockResolvedValue(null);
     jest.mocked(requireAccountContext).mockResolvedValue(null);
 
     const response = await GET();
@@ -98,8 +105,8 @@ describe('settings API', () => {
     expect(getWorkspaceSettings).not.toHaveBeenCalled();
   });
 
-  it('keeps account lookup failures private instead of exposing database details', async () => {
-    jest.mocked(requireAccountContext).mockRejectedValueOnce(
+  it('keeps session lookup failures private instead of exposing internal details', async () => {
+    jest.mocked(getServerSession).mockRejectedValueOnce(
       new Error('postgres password for tenant-secret'),
     );
 
@@ -109,6 +116,14 @@ describe('settings API', () => {
     expectPrivate(response);
     expect(await response.text()).not.toMatch(/postgres|password|tenant-secret/i);
     expect(getWorkspaceSettings).not.toHaveBeenCalled();
+  });
+
+  it('rejects a revoked database actor despite a valid signed session', async () => {
+    jest.mocked(getWorkspaceSettings).mockRejectedValueOnce(new AuthorizationError());
+    const response = await GET();
+    expect(response.status).toBe(403);
+    expectPrivate(response);
+    expect(requireAccountContext).not.toHaveBeenCalled();
   });
 
   it('updates bounded validated restaurant, contact, and GSTIN details as the database actor', async () => {

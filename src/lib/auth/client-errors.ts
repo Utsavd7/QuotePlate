@@ -59,7 +59,7 @@ export function authErrorMessage(error: unknown): string {
   const safeProviderMessage = safeProviderMessages.get(error);
   if (safeProviderMessage) return safeProviderMessage;
   if (unavailableCodes.has(error)) {
-    return 'Google sign-in is temporarily unavailable. Use email and password or try again shortly.';
+    return 'Google sign-in is temporarily unavailable. Try again shortly.';
   }
   return 'Sign in could not be completed. Try again.';
 }

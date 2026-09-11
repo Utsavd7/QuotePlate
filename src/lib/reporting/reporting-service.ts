@@ -255,7 +255,7 @@ function validateActor(actor: ReportingActor) {
 
 async function requireActor(transaction: Parameters<Parameters<typeof withTenant>[1]>[0], actor: ReportingActor) {
   const user = await transaction.user.findFirst({
-    where: { id: actor.userId, tenantId: actor.tenantId, isActive: true, tenant: { isActive: true } },
+    where: { id: actor.userId, tenantId: actor.tenantId, accountState: 'ACTIVE', isActive: true, tenant: { isActive: true } },
     select: { id: true },
   });
   if (!user) throw new AuthorizationError();

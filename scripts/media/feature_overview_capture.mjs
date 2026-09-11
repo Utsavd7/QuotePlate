@@ -13,22 +13,29 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { verifiedShots, loadCheckpoint, writeCheckpoint } from './capture_checkpoint.mjs';
+import { prepareGapAssets, selectWebsiteNarration, captureSignup, captureWebsite, captureShopping, captureInvoice } from './gap_capture_helpers.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const require = createRequire(import.meta.url);
 const { chromium, expect } = require('@playwright/test');
 const run = promisify(execFile);
-const work = process.env.QUOTEPLATE_FILM_WORK || '/tmp/quoteplate-feature-overview-film';
+const gapUpdate = process.argv.includes('--gap-update') ||
+  JSON.parse(await fs.readFile(path.join(root, 'docs/media/quoteplate-product-film-164.json'), 'utf8')).edition === 'procurement-gaps-2026-09-11';
+const resumeGap = gapUpdate && process.argv.includes('--resume-gap');
+const runId = randomUUID().slice(0, 8);
+const work = process.env.QUOTEPLATE_FILM_WORK || (gapUpdate ? '/tmp/quoteplate-gap-film' : '/tmp/quoteplate-feature-overview-film');
 const origin = process.env.QUOTEPLATE_FILM_ORIGIN || 'http://127.0.0.1:52560';
 const priorPhone = process.env.QUOTEPLATE_PHONE_ASSETS || '/tmp/quoteplate-vendor-phone-film';
-const storyPath = path.join(root, 'docs/media/quoteplate-product-film-164.json');
+const storyPath = path.join(root, gapUpdate ? 'docs/media/quoteplate-gap-film-165.json' : 'docs/media/quoteplate-product-film-164.json');
 assert(['localhost', '127.0.0.1'].includes(new URL(origin).hostname), 'Local tenant only');
 assert.equal(new URL(origin).protocol, 'http:');
 process.env.QUOTEPLATE_FILM_WORK = work;
 const { recorder } = await import('./motion_capture.mjs');
 const names = ['Amber Fresh Produce', 'Copper Pot Produce'];
 const title = 'First lunch purchase';
-const slots = {
+const slots = gapUpdate ? Object.fromEntries(JSON.parse(await fs.readFile(storyPath, 'utf8')).scenes
+  .flatMap(scene => scene.shots).filter(shot => !shot.file.startsWith('kitchen-'))
+  .map(shot => [shot.file.replace(/\.mp4$/, ''), shot.duration])) : {
   'first-workspace': 2, 'menu-options': 8, 'first-menu': 12,
   'supplier-contacts': 8, 'first-request': 15, 'request-sharing': 7,
   'vendor-phone': 19, 'completion-comparison': 7, 'completion-award': 7,
@@ -49,6 +56,8 @@ const progressPath = path.join(work, 'capture-progress.json');
 const evidence = { nativeDesktop: [3840, 2400], nativePhone: [1560, 2400], localTenant: true,
   browserResponseMocks: false, externalMessages: 0, privacy: 'Private link text masked in capture only; authentication off camera.', shots: {} };
 function mark(value) { stage = value; console.log('Film: ' + value); }
+const gap = { work, origin, evidence, clip, paste, responseFor: (...args) => responseFor(...args), ownerJson, expect, hash,
+  isRetained: name => retained.has(name) };
 
 async function prepare() {
   await fs.mkdir(work, { recursive: true });
@@ -56,6 +65,10 @@ async function prepare() {
   const story = JSON.parse(await fs.readFile(storyPath, 'utf8'));
   assert.equal(story.scenes.reduce((sum, s) => sum + s.duration, 0), 165);
   for (const name of ['phone-canvas.png', 'printed-price-fixture.png']) await fs.access(path.join(priorPhone, name));
+  if (gapUpdate) {
+    assert(!process.argv.includes('--resume-completed'), 'Gap capture requires a fresh run; partial shared-state resumes are not supported.');
+    await prepareGapAssets(gap, story);
+  }
   for (const [name, expected] of Object.entries(slots)) {
     const shot = story.scenes.flatMap(s => s.shots).find(s => s.file === name + '.mp4');
     assert.equal(shot?.duration, expected, name + ' timeline slot');
@@ -64,10 +77,10 @@ async function prepare() {
     status: 'prepared; awaiting parent UI validation before capture',
     origin, durationSeconds: 165, slots, authentication: 'Unrecorded ordinary signup; random credentials in memory.',
     phoneAssets: priorPhone, serverControl: 'Parent only',
-    retained: ['kitchen-intro.mp4', 'first-restaurant.mp4', 'first-owner.mp4', 'kitchen-end.mp4'],
+    retained: gapUpdate ? ['kitchen-intro.mp4', 'kitchen-end.mp4'] : ['kitchen-intro.mp4', 'first-restaurant.mp4', 'first-owner.mp4', 'kitchen-end.mp4'],
     nearby: 'One actual public-source search; show real controls if unavailable, never fixture results.',
   });
-  console.log('Preparation ready: 18 application clips; 165-second timeline; no browser started.');
+  console.log(`Preparation ready: ${Object.keys(slots).length} application clips; 165-second timeline; no browser started.`);
 }
 
 async function ownerJson(page, endpoint, method = 'GET', body) {
@@ -114,7 +127,9 @@ async function safePage(page) {
 }
 
 async function makeRecorder(label, storageState, captureMode = 'desktop') {
-  const r = await recorder(null, label + (retained.size ? '-resume' : ''), { baseURL: origin, captureMode, ...(storageState ? { storageState } : {}) });
+  const recordingLabel = gapUpdate ? label + '-' + runId : label + (retained.size ? '-resume' : '');
+  const r = await recorder(null, recordingLabel, { baseURL: origin, captureMode, ...(storageState ? { storageState } : {}) });
+  r.recordingLabel = recordingLabel;
   active.add(r);
   pending.set(r, []);
   r.page.setDefaultTimeout(20000);
@@ -175,7 +190,19 @@ async function finish(r) {
   await r.finish(); active.delete(r);
   // The phone clip is committed only after its native surface is composited.
   await commitShots(pending.get(r).filter(name => name !== 'vendor-phone'));
+  if (gapUpdate) {
+    const timing = JSON.parse(await fs.readFile(path.join(work, r.recordingLabel + '-recording.json'), 'utf8'));
+    const rawSha256 = await hash(timing.raw);
+    evidence.motion ??= {};
+    for (const shot of timing.shots) {
+      const name = shot.name === 'phone-native' ? 'vendor-phone' : shot.name;
+      evidence.motion[name] = { raw: timing.raw, rawSha256, start: shot.start, elapsed: shot.elapsed,
+        duration: shot.duration, actionCompression: shot.elapsed / shot.duration,
+        nativeResolution: timing.nativeResolution, recordingManifest: r.recordingLabel + '-recording.json' };
+    }
+  }
   pending.delete(r);
+  if (gapUpdate) await json(path.join(work, 'capture-evidence.partial.json'), evidence);
 }
 async function paste(r, locator, value) { await r.move(locator); await locator.fill(String(value)); await r.pause(180); }
 async function confirmClick(r, button, message) {
@@ -237,14 +264,25 @@ async function captureRestaurant(owner) {
       capabilities: { v: 1, categories: [{ category: 'VEGETABLES', tier: 'CAPABLE', rank: 1 }], items: [] },
     });
   }
+  if (gapUpdate) await captureWebsite(r, gap);
   await p.goto(origin + '/procurement/new');
   await expect(p.getByLabel(/Request title/)).toBeVisible();
+  if (gapUpdate) await captureShopping(r, gap);
   await clip(r, 'first-request', async () => {
     await r.type(p.getByLabel(/Request title/), title);
-    await r.move(p.getByLabel(/Approved menu/)); await p.getByLabel(/Approved menu/).selectOption({ label: 'Lunch menu' });
+    if (gapUpdate) {
+      await expect(p.getByLabel(/Approved menu/)).toHaveValue('');
+      const category = p.getByLabel('Draft category, row 1', { exact: true });
+      await r.move(category); await category.selectOption('VEGETABLES');
+    }
+    else { await r.move(p.getByLabel(/Approved menu/)); await p.getByLabel(/Approved menu/).selectOption({ label: 'Lunch menu' }); }
     for (const name of names) {
       const box = p.getByRole('checkbox', { name: new RegExp(name) });
       if (!await box.isChecked()) await r.click(box);
+    }
+    if (gapUpdate && evidence.website.saved) {
+      const publicLead = p.getByRole('checkbox', { name: /Shubham Trading Company/ });
+      if (await publicLead.isChecked()) await r.click(publicLead);
     }
     const discovery = p.getByRole('checkbox', { name: /Also invite new verified suppliers/ });
     if (await discovery.isChecked()) await r.click(discovery);
@@ -263,7 +301,9 @@ async function captureRestaurant(owner) {
     await inspectShareControls(r, row, 'orders@amber-produce.example');
   });
   const request = opened.request;
+  if (gapUpdate) { assert.equal(request.menuId, null); evidence.shopping.savedMenuId = null; evidence.shopping.savedDraft = true; }
   assert.equal(request.status, 'OPEN'); assert.equal(request.items.items.length, 1);
+  if (gapUpdate) assert.deepEqual(request.supplierRequests.map(grant => grant.supplier.businessName).sort(), [...names].sort(), 'Only fictional suppliers can receive local quote grants');
   assert.equal(request.items.items[0].quantity, '10'); assert.equal(request.items.items[0].name, 'Tomato');
   const handoff = { ...owner, requestId: request.id, item: request.items.items[0], suppliers: names.map((name, i) => {
     const grant = request.supplierRequests.find(g => g.supplier.businessName === name); assert(grant);
@@ -319,12 +359,14 @@ async function capturePhone(h, browser) {
   });
   await finish(r);
   const native = path.join(work, 'captures/phone-native.mp4');
+  if (!retained.has('vendor-phone')) {
   await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-nostdin', '-y',
     '-loop', '1', '-framerate', '30', '-i', path.join(priorPhone, 'phone-canvas.png'), '-i', native,
     '-filter_complex', '[0:v][1:v]overlay=x=2280:y=0:shortest=1[v]', '-map', '[v]', '-an',
     '-frames:v', '570', '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-threads', '2',
     '-pix_fmt', 'yuv420p', '-movflags', '+faststart', path.join(work, 'captures/vendor-phone.mp4')]);
   await commitShots(['vendor-phone']);
+  }
   evidence.phone = { realOCR: true, realSubmission: true, rate: '40', quantity: '10', totalPaise: '40000',
     nativePhone: [1560, 2400], canvas: [3840, 2400], placement: [2280, 0], upscaled: false,
     printedFixtureSha256: await hash(path.join(priorPhone, 'printed-price-fixture.png')) };
@@ -367,13 +409,16 @@ async function captureCompletion(h) {
   const form = delivery.locator('form').filter({ hasText: names[0] });
   const item = form.getByRole('group', { name: 'Tomato', exact: true });
   await delivery.scrollIntoViewIfNeeded();
+  if (gapUpdate) await captureInvoice(r, form, item, gap);
   await clip(r, 'completion-delivery', async () => {
     await r.type(form.getByLabel(/^Invoice total in rupees/), '400');
     await r.type(item.getByLabel('Received so far', { exact: true }), '9');
     await r.type(item.getByLabel('Rejected so far', { exact: true }), '0');
-    await r.click(item.locator('summary').filter({ hasText: 'Invoice quantity & rate (optional)' }));
-    await r.type(item.getByLabel('Billed quantity (optional)', { exact: true }), '10');
-    await r.type(item.getByLabel('Billed rate in rupees', { exact: true }), '40');
+    if (!gapUpdate) {
+      await r.click(item.locator('summary').filter({ hasText: 'Invoice quantity & rate (optional)' }));
+      await r.type(item.getByLabel('Billed quantity (optional)', { exact: true }), '10');
+      await r.type(item.getByLabel('Billed rate in rupees', { exact: true }), '40');
+    }
     await paste(r, form.getByLabel('Actual delivery date', { exact: true }), localDate());
   });
   await clip(r, 'completion-credit', async () => {
@@ -596,6 +641,10 @@ async function captureOverview(h) {
 async function complete() {
   assert.equal(captured.size, Object.keys(slots).length);
   assert.equal(evidence.externalMessages, 0);
+  if (gapUpdate) {
+    const inputs = JSON.parse(await fs.readFile(path.join(work, 'ui-source-hashes.json'), 'utf8'));
+    for (const [file, expected] of Object.entries(inputs)) assert.equal(await hash(path.join(root, file)), expected, 'UI changed during recording: ' + file);
+  }
   const story = JSON.parse(await fs.readFile(storyPath, 'utf8'));
   for (const scene of story.scenes) for (const shot of scene.shots) {
     if (captured.has(shot.file.replace(/\.mp4$/, ''))) {
@@ -604,7 +653,16 @@ async function complete() {
     }
   }
   story.visualRefresh.clips = [...captured].map(name => name + '.mp4');
-  story.visualRefresh.description = 'Fresh local recordings after the coordinated UI review; real contact import, manual sharing, phone OCR, purchase, receiving, supplier confirmation, discovery, planning, reports and repeat orders.';
+  story.visualRefresh.description = gapUpdate
+    ? 'Fresh local recordings after parent UI validation: public signup, shopping-list OCR without a menu, public website contact review, invoice OCR, and all retained major feature families.'
+    : 'Fresh local recordings after the coordinated UI review; real contact import, manual sharing, phone OCR, purchase, receiving, supplier confirmation, discovery, planning, reports and repeat orders.';
+  if (gapUpdate && !evidence.website.saved) {
+    const scene = story.scenes.find(scene => scene.id === 'website');
+    scene.phrases = ['Check a supplier’s public website.', 'If contacts are unavailable, add them manually.'];
+    scene.text = scene.phrases.join(' ');
+    evidence.website.narrationReflectsUnavailable = true;
+    await selectWebsiteNarration(gap);
+  }
   await json(path.join(work, 'storyboard.json'), story);
   await json(path.join(work, 'capture-evidence.json'), evidence);
   await writeCheckpoint(progressPath, 'complete', evidence.shots, true);
@@ -615,6 +673,43 @@ await prepare();
 if (process.argv.includes('--capture-after-ui-validation')) {
   let browser;
   try {
+    if (gapUpdate) {
+      const approval = JSON.parse(await fs.readFile(path.join(work, 'parent-ui-validation.json'), 'utf8'));
+      assert.equal(approval.status, 'local final UI validated', 'Wait for the parent final UI validation message');
+      assert.equal(approval.origin, origin);
+      assert(approval.parentMessage?.trim(), 'Record the actual parent validation message, not an inferred approval');
+      const inputs = JSON.parse(await fs.readFile(path.join(work, 'ui-source-hashes.json'), 'utf8'));
+      assert.equal(approval.uiSourceManifestSha256, await hash(path.join(work, 'ui-source-hashes.json')));
+      for (const [file, expected] of Object.entries(inputs)) assert.equal(await hash(path.join(root, file)), expected, 'UI changed since validation: ' + file);
+      evidence.parentValidation = approval;
+      if (resumeGap) {
+        const records = await loadCheckpoint(progressPath, slots, [], inspectShot);
+        try {
+          Object.assign(evidence, JSON.parse(await fs.readFile(path.join(work, 'capture-evidence.partial.json'), 'utf8')));
+        } catch (error) { if (error.code !== 'ENOENT') throw error; }
+        evidence.motion ??= {};
+        for (const [name, record] of Object.entries(records)) {
+          retained.add(name); captured.add(name); evidence.shots[name] = record;
+        }
+        // Older interrupted runs persisted the signed recording manifest before
+        // partial evidence was introduced. Recover only checkpoint-verified shots.
+        for (const file of (await fs.readdir(work)).filter(name => name.endsWith('-recording.json'))) {
+          const timing = JSON.parse(await fs.readFile(path.join(work, file), 'utf8'));
+          for (const shot of timing.shots) {
+            const name = shot.name === 'phone-native' ? 'vendor-phone' : shot.name;
+            if (!retained.has(name) || evidence.motion[name]) continue;
+            evidence.motion[name] = { raw: timing.raw, rawSha256: await hash(timing.raw), start: shot.start,
+              elapsed: shot.elapsed, duration: shot.duration, actionCompression: shot.elapsed / shot.duration,
+              nativeResolution: timing.nativeResolution, recordingManifest: file };
+          }
+        }
+        for (const name of retained) assert(evidence.motion[name], 'Missing original recording intervals: ' + name);
+        evidence.continuity = 'Verified completed clips retained after a capture-selector correction. The same fictional purchase is recreated through normal actions in a fresh local tenant; no fabricated responses.';
+      } else {
+        assert.equal((await fs.readdir(path.join(work, 'captures'))).filter(name => !name.startsWith('kitchen-')).length, 0,
+          'Use --resume-gap for checkpoint-verified clips, or a fresh work directory.');
+      }
+    }
     if (process.argv.includes('--resume-completed')) {
       const records = await loadCheckpoint(progressPath, slots, Object.keys(slots).slice(0, 12), inspectShot);
       for (const [name, record] of Object.entries(records)) {
@@ -631,13 +726,18 @@ if (process.argv.includes('--capture-after-ui-validation')) {
       evidence.continuity = 'One fictional purchase recreated in ordinary isolated local tenants. Completed footage retained after a capture-selector correction; no application responses are fabricated.';
     }
     browser = await chromium.launch({ headless: true });
+    if (gapUpdate) {
+      const signup = await makeRecorder('gap-signup');
+      await captureSignup(signup, gap);
+      await finish(signup);
+    }
     const owner = await createOwner(browser);
-    const h = retained.size ? await recreatePurchaseForOverview(owner, browser) : await captureRestaurant(owner);
-    if (!retained.size) {
+    const h = retained.size && !gapUpdate ? await recreatePurchaseForOverview(owner, browser) : await captureRestaurant(owner);
+    if (!retained.size || gapUpdate) {
       await capturePhone(h, browser);
       await captureCompletion(h);
     }
-    if (!retained.has('supplier-confirmation')) await captureWorkspace(h);
+    if (!retained.has('supplier-confirmation') || gapUpdate) await captureWorkspace(h);
     else evidence.supplierConfirmation = { saved: true, onlyOwnContacts: true, category: 'VEGETABLES',
       servedPin: '560001', retainedFromCompletedLocalCapture: true };
     await captureOverview(h);
@@ -645,6 +745,15 @@ if (process.argv.includes('--capture-after-ui-validation')) {
   } catch (error) {
     console.error('Capture stopped at ' + stage + ' (' + error.name + ').');
     console.error(String(error.message).replace(/(?:https?:|mailto:)\S+|[A-Za-z0-9_-]{43,}/g, '[private value]').slice(0, 1400));
+    if (gapUpdate) {
+      for (const r of [...active]) {
+        if (pending.get(r)?.some(name => name !== 'vendor-phone')) {
+          try { await finish(r); }
+          catch (exportError) { console.error('Completed-clip recovery failed: ' + exportError.name); }
+        }
+      }
+      await json(path.join(work, 'capture-evidence.partial.json'), evidence);
+    }
     // Preserve a rejected checkpoint for diagnosis; never replace it with empty claims.
     if (browser) await writeCheckpoint(progressPath, stage, evidence.shots);
     process.exitCode = 1;

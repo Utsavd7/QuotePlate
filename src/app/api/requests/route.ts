@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 import { problemResponse } from '@/lib/api/problem';
 import { privateNoStoreResponse } from '@/lib/api/private-response';
@@ -18,8 +20,10 @@ import {
 } from '@/lib/security/browser-mutation';
 
 export async function GET(request: Request) {
-  const account = await requireAccountContext();
-  if (!account) {
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.userId;
+  const tenantId = session?.user?.tenantId;
+  if (typeof userId !== 'string' || !userId || typeof tenantId !== 'string' || !tenantId) {
     return privateNoStoreResponse(problemResponse(401, 'Unauthorized', 'Authentication is required.'));
   }
 
@@ -27,7 +31,7 @@ export async function GET(request: Request) {
   const limitText = url.searchParams.get('limit');
   try {
     const result = await listProcurementRequests({
-      actor: requestActor(account),
+      actor: { tenantId, userId },
       cursor: url.searchParams.get('cursor') ?? undefined,
       limit: limitText === null ? undefined : Number(limitText),
     });

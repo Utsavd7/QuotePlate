@@ -70,7 +70,7 @@ export function PublicLandingPage() {
             </p>
             <div className="public-hero__actions">
               <a className="public-button" href="#watch-demo">Watch the demo <span aria-hidden="true">↓</span></a>
-              <Link className="public-inline-link" href="/start">Start free pilot <span aria-hidden="true">↗</span></Link>
+              <Link className="public-inline-link" href="/start">Get started <span aria-hidden="true">↗</span></Link>
             </div>
             <p className="public-hero__note">No supplier commission. No card required.</p>
           </div>
@@ -185,11 +185,11 @@ export function PublicLandingPage() {
           </div>
           <div>
             <p>
-              Start with an approved menu and your portions. Choose your suppliers,
+              Start with a shopping list or an approved menu and your portions. Choose your suppliers,
               compare prices and check delivery. No payment card needed.
             </p>
             <div className="public-hero__actions">
-              <Link className="public-button" href="/start">Start free pilot <span aria-hidden="true">→</span></Link>
+              <Link className="public-button" href="/start">Get started <span aria-hidden="true">→</span></Link>
             </div>
           </div>
         </section>

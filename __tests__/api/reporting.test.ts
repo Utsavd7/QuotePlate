@@ -1,4 +1,5 @@
 import { GET as historyRoute } from '@/app/api/history/route';
+import { getServerSession } from 'next-auth';
 import { GET as insightsRoute } from '@/app/api/insights/route';
 import {
   getFactualInsights,
@@ -6,8 +7,10 @@ import {
   ReportingValidationError,
 } from '@/lib/reporting/reporting-service';
 import { requireAccountContext } from '@/lib/server-account';
+import { AuthorizationError } from '@/lib/auth/guards';
 
 jest.mock('@/lib/server-account', () => ({ requireAccountContext: jest.fn() }));
+jest.mock('next-auth', () => ({ getServerSession: jest.fn() }));
 jest.mock('@/lib/reporting/reporting-service', () => ({
   getFactualInsights: jest.fn(),
   listProcurementHistory: jest.fn(),
@@ -21,6 +24,8 @@ const account = {
 
 describe('reporting API', () => {
   beforeEach(() => {
+    jest.mocked(getServerSession).mockReset();
+    jest.mocked(getServerSession).mockResolvedValue({ user: { tenantId: 'tenant-a', userId: 'user-a' } });
     jest.mocked(requireAccountContext).mockReset();
     jest.mocked(getFactualInsights).mockReset();
     jest.mocked(listProcurementHistory).mockReset();
@@ -32,6 +37,7 @@ describe('reporting API', () => {
     const response = await insightsRoute();
     expect(getFactualInsights).toHaveBeenCalledWith({ actor: { tenantId: 'tenant-a', userId: 'user-a' } });
     expect(response.status).toBe(200);
+    expect(requireAccountContext).not.toHaveBeenCalled();
     expect(response.headers.get('cache-control')).toBe('private, no-store');
     expect(response.headers.get('referrer-policy')).toBe('no-referrer');
     await expect(response.json()).resolves.toEqual({ summary: { requestSampleSize: 4 } });
@@ -49,6 +55,7 @@ describe('reporting API', () => {
   });
 
   it('rejects unauthenticated reporting before service access and maps bounded validation errors', async () => {
+    jest.mocked(getServerSession).mockResolvedValueOnce(null);
     jest.mocked(requireAccountContext).mockResolvedValueOnce(null);
     const unauthorized = await insightsRoute();
     expect(unauthorized.status).toBe(401);
@@ -63,5 +70,13 @@ describe('reporting API', () => {
       title: 'Invalid history request',
       errors: { limit: ['Limit must be between 1 and 50.'] },
     });
+  });
+
+  it('rejects database-revoked actors instead of trusting a signed session', async () => {
+    jest.mocked(getFactualInsights).mockRejectedValueOnce(new AuthorizationError());
+    jest.mocked(listProcurementHistory).mockRejectedValueOnce(new AuthorizationError());
+    expect((await insightsRoute()).status).toBe(403);
+    expect((await historyRoute(new Request('http://localhost/api/history'))).status).toBe(403);
+    expect(requireAccountContext).not.toHaveBeenCalled();
   });
 });

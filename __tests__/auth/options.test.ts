@@ -28,6 +28,48 @@ describe('NextAuth production options', () => {
     expect(withGoogle.providers[1].options?.authorization?.params?.scope).toBe(
       'openid email profile',
     );
+    expect(withGoogle.providers[1]).toMatchObject({
+      wellKnown: 'https://accounts.google.com/.well-known/openid-configuration',
+      idToken: true,
+      checks: ['pkce', 'state'],
+    });
+  });
+
+  it.each([undefined, 'another-owner@example.com'])('permits a verified production Google owner without an allowlist (%s)', async (legacyList) => {
+    const owner = {
+      userId: 'new-owner', tenantId: 'new-restaurant', name: 'Asha Rao',
+      email: 'asha@example.com', role: 'OWNER' as const,
+      userIsActive: true, tenantIsActive: true,
+    };
+    const googleIdentityRepository = {
+      findIdentity: jest.fn().mockResolvedValue(null),
+      findUserByEmail: jest.fn().mockResolvedValue(null),
+      createOwnerIdentity: jest.fn().mockResolvedValue(owner),
+      touchLogin: jest.fn(),
+    };
+    const env = {
+      NODE_ENV: 'production', GOOGLE_CLIENT_ID: 'client', GOOGLE_CLIENT_SECRET: 'secret',
+      NEXTAUTH_SECRET: 'production-test-secret-at-least-32-characters',
+      QUOTEPLATE_PILOT_EMAILS: legacyList,
+    };
+    const googleOnboarding = {
+      restaurantName: 'Tamarind Table', ownerName: 'Asha Rao', email: owner.email,
+      addressLine: '12 Market Road', city: 'Bengaluru', state: 'Karnataka',
+      pin: '560001', phone: '+919876543210', timezone: 'Asia/Kolkata', gstin: null,
+      expiresAt: '2026-09-11T00:10:00.000Z',
+    };
+    const options = createAuthOptions({ env, googleOnboarding, googleIdentityRepository });
+    const account = { provider: 'google', providerAccountId: 'google-new-owner', type: 'oauth' as const };
+    await expect(options.callbacks!.signIn!({
+      user: { id: 'provider-user' }, account,
+      profile: { sub: account.providerAccountId, email: owner.email, email_verified: true } as never,
+    })).resolves.toBe(true);
+    expect(googleIdentityRepository.createOwnerIdentity).toHaveBeenCalledWith({
+      ...googleOnboarding, googleSubject: account.providerAccountId,
+    });
+    await expect(options.callbacks!.jwt!({
+      token: { access_token: 'must-not-persist' }, user: { id: 'provider-user' }, account,
+    })).resolves.toEqual({ userId: owner.userId, tenantId: owner.tenantId });
   });
 
   it('uses the dedicated account pages for sign-in and safe callback errors', () => {

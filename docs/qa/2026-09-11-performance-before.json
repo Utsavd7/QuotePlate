@@ -1,0 +1,107 @@
+{
+  "origin": "https://quoteplate.netlify.app",
+  "measuredAt": "2026-09-11T07:42:33.646Z",
+  "method": "Normal demo login; sidebar navigation; first and repeat visible populated controls. A fresh browser session does not guarantee a cold server.",
+  "samples": [
+    {
+      "pass": "first",
+      "route": "/settings",
+      "headingMs": 2835,
+      "dataReadyMs": 2837,
+      "navigationMs": 20
+    },
+    {
+      "pass": "first",
+      "route": "/suppliers",
+      "headingMs": 37,
+      "dataReadyMs": 3840,
+      "navigationMs": 28
+    },
+    {
+      "pass": "first",
+      "route": "/history",
+      "headingMs": 2341,
+      "dataReadyMs": 6658,
+      "navigationMs": 1053
+    },
+    {
+      "pass": "repeat",
+      "route": "/settings",
+      "headingMs": 50,
+      "dataReadyMs": 52,
+      "navigationMs": 26
+    },
+    {
+      "pass": "repeat",
+      "route": "/suppliers",
+      "headingMs": 28,
+      "dataReadyMs": 36,
+      "navigationMs": 24
+    },
+    {
+      "pass": "repeat",
+      "route": "/history",
+      "headingMs": 71,
+      "dataReadyMs": 83,
+      "navigationMs": 70
+    }
+  ],
+  "api": [
+    {
+      "stage": "signin",
+      "path": "/api/account",
+      "status": 200,
+      "ms": 1669,
+      "ttfbMs": 1669,
+      "serverTiming": null
+    },
+    {
+      "stage": "signin",
+      "path": "/api/overview",
+      "status": 200,
+      "ms": 1594,
+      "ttfbMs": 1592,
+      "serverTiming": null
+    },
+    {
+      "stage": "first /settings",
+      "path": "/api/settings",
+      "status": 200,
+      "ms": 2796,
+      "ttfbMs": 2790,
+      "serverTiming": null
+    },
+    {
+      "stage": "first /suppliers",
+      "path": "/api/suppliers/discover",
+      "status": 200,
+      "ms": 2085,
+      "ttfbMs": 2084,
+      "serverTiming": null
+    },
+    {
+      "stage": "first /suppliers",
+      "path": "/api/suppliers",
+      "status": 200,
+      "ms": 3529,
+      "ttfbMs": 3529,
+      "serverTiming": null
+    },
+    {
+      "stage": "first /history",
+      "path": "/api/history",
+      "status": 200,
+      "ms": 6304,
+      "ttfbMs": 6303,
+      "serverTiming": null
+    },
+    {
+      "stage": "first /history",
+      "path": "/api/requests",
+      "status": 200,
+      "ms": 6491,
+      "ttfbMs": 6490,
+      "serverTiming": null
+    }
+  ]
+}

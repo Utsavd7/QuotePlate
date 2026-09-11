@@ -103,7 +103,7 @@ export function ProductDemoVideo() {
           <p className="public-eyebrow">The buying journey · 2:45</p>
           <h2 id="demo-title">Your first purchase, step by step.</h2>
         </div>
-        <p>Follow Monsoon Table, our fictional restaurant, through setup and its first purchase. An approved pilot owner starts with Google. Add menus from a phone photo, an upload, typed or pasted text, or a permitted website link. Share quote links through WhatsApp, Email or Copy link, then watch a supplier quote on a phone. See comparison, delivery checks, supplier workspaces, nearby search, meal planning, reports and repeat purchases.</p>
+        <p>Follow Monsoon Table, our fictional restaurant, through setup and its first purchase. Create your restaurant workspace with a verified Google email. Add menus from a phone photo, an upload, typed or pasted text, or a permitted website link. Share quote links through WhatsApp, Email or Copy link, then watch a supplier quote on a phone. See comparison, delivery checks, supplier workspaces, nearby search, meal planning, reports and repeat purchases.</p>
       </header>
       <div className={styles.player}>
         <video ref={videoRef} controls playsInline muted preload="none" width={3840} height={2400}
@@ -142,7 +142,7 @@ export function ProductDemoVideo() {
       {ended && !failed && <section ref={endPanelRef} className={styles.endPanel} aria-labelledby="video-next-step-title">
         <div>
           <h3 id="video-next-step-title">Ready for your first purchase?</h3>
-          <p>For approved pilot owners. Sign in with Google to begin.</p>
+          <p>Create your workspace with Google to begin.</p>
         </div>
         <div className={styles.endActions}>
           <Link className={styles.start} href="/start">Start your first purchase</Link>

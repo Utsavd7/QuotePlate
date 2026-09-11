@@ -127,7 +127,7 @@ describe('public website contract', () => {
     expect(heroMarkup).not.toContain('href="/product"');
     expect(heroMarkup.match(/href="\/start"/g)).toHaveLength(1);
     expect(heroMarkup).toContain('href="#watch-demo"');
-    expect(heroMarkup.match(/href="\/start">Start free pilot /g)).toHaveLength(1);
+    expect(heroMarkup.match(/href="\/start">Get started /g)).toHaveLength(1);
 
     const journeyMarkup = markup.slice(journeyStart, privacyStart);
     expect(journeyMarkup).toContain('Choose ingredients');
@@ -143,7 +143,7 @@ describe('public website contract', () => {
     expect(closingMarkup).toContain('<div class="public-hero__actions">');
     expect(closingMarkup.match(/href="\/start"/g)).toHaveLength(1);
     expect(closingMarkup).not.toContain('href="/product"');
-    expect(closingMarkup.match(/href="\/start">Start free pilot /g)).toHaveLength(1);
+    expect(closingMarkup.match(/href="\/start">Get started /g)).toHaveLength(1);
   });
 
   test('explains why restaurant teams keep using the product after the first purchase', () => {
@@ -193,7 +193,7 @@ describe('public website contract', () => {
     expect(markup).toContain('enter prices, review the total and submit their quote.');
     expect(markup).toContain('Check dish names, add ingredients and quantities, then approve the menu.');
     expect(markup).toContain('Enter dish names only.');
-    expect(markup).toContain('Purchases require an approved menu.');
+    expect(markup).toContain('Or start a purchase directly from a typed shopping list or photo');
     expect(markup).not.toContain('enter ingredients directly');
     expect(markup).toContain('Use your saved suppliers');
     expect(markup).toContain('allow new suppliers to apply, then approve them yourself');
@@ -260,7 +260,7 @@ describe('public website contract', () => {
     expect(markup).toContain('<a href="#how-it-works">How it works</a>');
     expect(markup).toContain('<a href="#security">Security</a>');
     expect(markup).toContain('<a class="public-text-action" href="/signin">Sign in</a>');
-    expect(markup).toContain('<a class="public-button public-button--small" href="/start">Start a pilot</a>');
+    expect(markup).toContain('<a class="public-button public-button--small" href="/start">Get started</a>');
   });
 
   test('exposes every required public destination with honest calls to action', () => {
@@ -272,7 +272,7 @@ describe('public website contract', () => {
     }
 
     expect(markup).not.toContain('See the product');
-    expect(markup).toContain('Start a pilot');
+    expect(markup).toContain('Get started');
     expect(allPublicSource).not.toMatch(
       /\b(?:AI|artificial intelligence|automatic negotiation|market pricing|guaranteed savings|customer count|integrations?)\b/i,
     );
@@ -280,7 +280,7 @@ describe('public website contract', () => {
 
 
 
-  test('states the controlled-pilot terms before account onboarding', () => {
+  test('explains public verified-Google signup before account onboarding', () => {
     const markup = renderToStaticMarkup(
       <AuthPageShell
         callbackUrl="/dashboard"
@@ -291,11 +291,11 @@ describe('public website contract', () => {
 
     expect(markup).toContain('Keep your team, suppliers, purchases and order history in one restaurant workspace.');
     expect(markup).toContain('Your restaurant chooses the supplier and confirms each order.');
-    expect(markup).toContain('aria-label="Controlled pilot terms"');
-    expect(markup).toContain('Up to twenty approved restaurant workspaces');
-    expect(markup).toContain('Use the Google account approved for your workspace');
+    expect(markup).toContain('aria-label="Create your restaurant workspace"');
+    expect(markup).toContain('Sign up with your verified Google email');
+    expect(markup).toContain('No operator approval needed');
     expect(markup).toContain('No payment card. No billing.');
-    expect(markup.indexOf('Controlled pilot terms')).toBeLessThan(
+    expect(markup.indexOf('Create your restaurant workspace')).toBeLessThan(
       markup.indexOf('Create your workspace'),
     );
   });
@@ -315,6 +315,31 @@ describe('public website contract', () => {
     expect(markup).not.toContain('<span>Password</span>');
   });
 
+  test('explains unavailable Google signup without offering password-only owner creation', () => {
+    const markup = renderToStaticMarkup(
+      <AuthPageShell callbackUrl="/dashboard" googleAvailable={false} emailOwnerSignupAvailable={false} mode="start" />,
+    );
+    expect(markup).toContain('Google signup is temporarily unavailable. Please try again later.');
+    expect(markup).toContain('Choose the same email you entered above.');
+    expect(markup).not.toContain('Create workspace with email');
+    expect(markup).not.toContain('<span>Password</span>');
+    expect(markup).not.toContain('Use email and password');
+    expect(markup).toContain('href="/signin"');
+  });
+
+  test('retains password signup controls for local fixtures and credentials for returning users', () => {
+    const fixture = renderToStaticMarkup(
+      <AuthPageShell callbackUrl="/dashboard" googleAvailable emailOwnerSignupAvailable mode="start" />,
+    );
+    expect(fixture).toContain('Create workspace with email');
+    expect(fixture).toContain('<span>Password</span>');
+    const signin = renderToStaticMarkup(
+      <AuthPageShell callbackUrl="/dashboard" googleAvailable={false} emailOwnerSignupAvailable={false} mode="signin" />,
+    );
+    expect(signin).toContain('Sign in with email');
+    expect(signin).toContain('<span>Password</span>');
+  });
+
   test('keeps sign in focused on account access and states browser session storage accurately', () => {
     const markup = renderToStaticMarkup(
       <AuthPageShell
@@ -326,7 +351,7 @@ describe('public website contract', () => {
 
     expect(markup).toContain('Open your purchases, compare prices and check deliveries.');
     expect(markup).toContain('Your restaurant chooses the supplier and confirms each order.');
-    expect(markup).not.toContain('Controlled pilot terms');
+    expect(markup).not.toContain('Create your restaurant workspace');
     expect(markup).toContain('class="public-header public-header--sticky"');
     expect(markup).not.toContain('href="/product"');
     expect(markup).toContain('href="/#how-it-works">How it works</a>');
@@ -393,10 +418,10 @@ describe('public website contract', () => {
     const privacy = `${source('src/app/privacy/page.tsx')}\n${legalLayout}`;
     const terms = `${source('src/app/terms/page.tsx')}\n${legalLayout}`;
 
-    expect(privacy).toMatch(/pilot/i);
+    expect(privacy).toMatch(/service/i);
     expect(privacy).toMatch(/data (?:we )?collect/i);
     expect(privacy).toContain('href="/"');
-    expect(terms).toMatch(/pilot/i);
+    expect(terms).toMatch(/service/i);
     expect(terms).toMatch(/supplier quote/i);
     expect(terms).toContain('href="/"');
     expect(`${privacy}\n${terms}`).not.toMatch(/registered (?:office|address)|CIN|LLP|Private Limited/i);

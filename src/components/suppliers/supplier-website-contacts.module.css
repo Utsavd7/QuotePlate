@@ -1,0 +1,23 @@
+.review { display: grid; gap: .75rem; min-width: 0; }
+.review p { margin: 0; line-height: 1.6; }
+.contacts { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.contact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .875rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--workspace-line);
+  border-radius: var(--control-radius);
+  background: var(--workspace-surface);
+}
+.details { display: grid; gap: .375rem; min-width: 0; flex: 1 1 15rem; overflow-wrap: anywhere; }
+.details a { color: var(--workspace-accent); text-underline-offset: .15em; }
+.checked { color: var(--workspace-muted); font-size: .8125rem; line-height: 1.5; }
+.contact button { flex: 0 0 auto; max-width: 100%; }
+@media (max-width: 560px) {
+  .contact { align-items: stretch; }
+  .contact button { width: 100%; }
+}

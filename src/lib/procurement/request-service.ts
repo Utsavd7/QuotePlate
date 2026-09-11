@@ -92,8 +92,9 @@ type DeliveryDetails = {
 
 export type ValidProcurementRequestDraft = {
   title: string;
-  menuId: string;
+  menuId: string | null;
   selectedItemIds: string[];
+  additionalItems?: RequestItemsV1;
   defaultSourcing: SourcingSelectionV1;
   sourcingOverrides: Record<string, SourcingSelectionV1>;
   deliveryDetails: DeliveryDetails;
@@ -345,6 +346,7 @@ export function validateProcurementRequestDraftInput(
       'title',
       'menuId',
       'selectedItemIds',
+      'additionalItems',
       'defaultSourcing',
       'sourcingOverrides',
       'deliveryDetails',
@@ -360,13 +362,28 @@ export function validateProcurementRequestDraftInput(
     PROCUREMENT_REQUEST_LIMITS.titleBytes,
     errors,
   ) ?? '';
-  const menuId = boundedId(input.menuId, 'menuId', errors);
-  const selectedItemIds = uniqueIds(
-    input.selectedItemIds,
+  const menuId = input.menuId === undefined || input.menuId === null
+    ? null : boundedId(input.menuId, 'menuId', errors);
+  let additionalItems: RequestItemsV1 | undefined;
+  if (Object.hasOwn(input, 'additionalItems')) {
+    try { additionalItems = validateRequestItems(input.additionalItems); }
+    catch (error) {
+      if (!(error instanceof RequestDocumentValidationError)) throw error;
+      addError(errors, 'additionalItems', error.message);
+    }
+  }
+  const rawSelected = input.selectedItemIds ?? (menuId === null ? [] : undefined);
+  const selectedItemIds = Array.isArray(rawSelected) && rawSelected.length === 0
+    ? [] : uniqueIds(
+    rawSelected,
     'selectedItemIds',
     DOCUMENT_LIMITS.requestItems.items,
     errors,
   );
+  if (menuId === null && selectedItemIds.length) addError(errors, 'menuId', 'Choose an approved menu for the selected menu items.');
+  const combinedIds = [...selectedItemIds, ...(additionalItems?.items.map(item => item.id) ?? [])];
+  if (!combinedIds.length || combinedIds.length > DOCUMENT_LIMITS.requestItems.items) addError(errors, 'additionalItems', `Choose between 1 and ${DOCUMENT_LIMITS.requestItems.items} total items.`);
+  if (new Set(combinedIds).size !== combinedIds.length) addError(errors, 'additionalItems', 'Menu and additional item IDs must be unique.');
   const defaultSourcing = parseSourcingSelection(
     input.defaultSourcing,
     'defaultSourcing',
@@ -393,6 +410,7 @@ export function validateProcurementRequestDraftInput(
     title,
     menuId,
     selectedItemIds,
+    ...(additionalItems ? { additionalItems } : {}),
     defaultSourcing,
     sourcingOverrides,
     deliveryDetails,
@@ -703,6 +721,7 @@ async function requireActiveActor(
       tenantId: actor.tenantId,
       id: actor.userId,
       isActive: true,
+      accountState: 'ACTIVE',
       tenant: { isActive: true },
     },
     select: { id: true },
@@ -1189,16 +1208,16 @@ export async function createProcurementRequestDraft(
   const draft = validateProcurementRequestDraftInput(input.draft, now);
   return withTenant(actor.tenantId, async (transaction) => {
     await requireActiveActor(transaction, actor);
-    const menu = await transaction.menu.findFirst({
-      where: { tenantId: actor.tenantId, id: draft.menuId, status: 'APPROVED' },
-      select: { document: true },
-    });
-    if (!menu) throw new ProcurementRequestNotFoundError();
-    const items = snapshotSelectedMenuItems(
-      menu.document,
-      draft.selectedItemIds,
-      draft.sourcingOverrides,
-    );
+    let items: RequestItemsV1 = { v: 1, items: [] };
+    if (draft.menuId !== null) {
+      const menu = await transaction.menu.findFirst({
+        where: { tenantId: actor.tenantId, id: draft.menuId, status: 'APPROVED' },
+        select: { document: true },
+      });
+      if (!menu) throw new ProcurementRequestNotFoundError();
+      items = snapshotSelectedMenuItems(menu.document, draft.selectedItemIds, draft.sourcingOverrides);
+    }
+    items.items.push(...(draft.additionalItems?.items ?? []));
     const sourcing = { v: 1, default: draft.defaultSourcing } satisfies RequestSourcingV1;
     const documents = requestDocuments(items, sourcing);
     const suppliers = await eligibleSuppliers(
