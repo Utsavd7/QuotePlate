@@ -207,8 +207,12 @@ test('joined workspace reads preserve results and reduce database round trips', 
     });
     let separateCalls = 0;
     let joinedCalls = 0;
-    separate.$on('query', () => { separateCalls++; });
-    joined.$on('query', () => { joinedCalls++; });
+    // Compare business reads only. Transaction-control log events can arrive
+    // after a preceding operation resolves and must not leak into the next
+    // sample; BEGIN/COMMIT and tenant setup are identical for both strategies.
+    const businessRead = (sql: string) => /^SELECT/i.test(sql) && sql.includes('"public".');
+    separate.$on('query', event => { if (businessRead(event.query)) separateCalls++; });
+    joined.$on('query', event => { if (businessRead(event.query)) joinedCalls++; });
     try {
       const actor = await seedHistory(admin, 'a');
       const otherActor = await seedHistory(admin, 'b');
@@ -224,7 +228,8 @@ test('joined workspace reads preserve results and reduce database round trips', 
       const previousSettings = await createPrismaWorkspaceSettingsOperations(separate).load({ actor });
       const joinedSettings = await createPrismaWorkspaceSettingsOperations(joined).load({ actor });
       expect(joinedSettings).toEqual(previousSettings);
-      expect(joinedCalls).toBeLessThan(separateCalls);
+      expect(separateCalls).toBe(3); // Actor, its tenant, and the people list.
+      expect(joinedCalls).toBe(2); // Actor with its tenant, and the people list.
       await expect(listProcurementHistory({ actor: { ...actor, userId: otherActor.userId } }, joined))
         .rejects.toMatchObject({ code: 'FORBIDDEN' });
       await admin.user.update({ where: { id: actor.userId }, data: { accountState: 'DEACTIVATED', isActive: false } });

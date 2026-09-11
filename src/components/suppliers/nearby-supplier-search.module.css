@@ -42,3 +42,4 @@
 .panel .primary { border-color: var(--workspace-accent); }
 .panel .primary:hover:not(:disabled) { background: var(--workspace-accent-hover); border-color: var(--workspace-accent-hover); }
 .panel a:hover { color: var(--workspace-accent-hover); }
+.match { padding: .75rem; border-left: 3px solid currentColor; overflow-wrap: anywhere; }

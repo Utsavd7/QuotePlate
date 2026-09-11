@@ -2,6 +2,7 @@ import type { MenuUrlImportDependencies, MenuUrlTransportResponse } from '@/lib/
 import { robotsAllows, parseWebsiteContacts } from './website-parsing';
 import { createWebsiteLoader, unavailable, websiteDependencies, websiteTarget } from './website-safety';
 import type { WebsiteContact, WebsiteContactResult } from './website-types';
+import { supplierContactKey } from './contact-list';
 
 export class WebsiteInputError extends Error {
   readonly status = 400;
@@ -66,7 +67,8 @@ export async function discoverWebsiteContacts(
         const body = decode(response);
         const parsed = parseWebsiteContacts(body.text, current, checkedAt, body.plain);
         for (const contact of parsed.contacts) {
-          if (contacts.length < 20 && !contacts.some(c => c.kind === contact.kind && c.value === contact.value)) contacts.push(contact);
+          const key = supplierContactKey(contact.kind, contact.value);
+          if (key && contacts.length < 20 && !contacts.some(c => supplierContactKey(c.kind, c.value) === key)) contacts.push(contact);
         }
         for (const link of parsed.links) {
           if (!visited.has(link) && !pending.includes(link) && robotsAllows(robots, new URL(link))) pending.push(link);

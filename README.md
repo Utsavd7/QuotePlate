@@ -12,7 +12,7 @@ This README describes the current repository, including public Google onboarding
 
 [Watch on the website](https://quoteplate.netlify.app/#watch-demo) · 2:45 · 4K, 3840 × 2400
 
-The film follows the fictional Monsoon Table restaurant through Google signup choices, menu entry, reviewed shopping-list photos without a menu, published website contacts, manual sharing, supplier quotes on a phone, comparison and reviewed invoice billing before delivery checks. Short scenes introduce supplier workspaces, nearby discovery, meal planning, reports and repeat purchases. It uses condensed recordings of the app to cover the main feature families; the full feature reference is below.
+The film follows the fictional Monsoon Table restaurant through Google signup choices, menu entry, reviewed shopping-list photos without a menu, published website contacts, manual sharing, supplier quotes on a phone, comparison and reviewed invoice billing before delivery checks. Updated scenes show saved-contact warnings, source photos beside review text and a supplier jumping to an unfinished quantity before submitting. Short scenes introduce supplier workspaces, nearby discovery, meal planning, reports and repeat purchases. It uses condensed recordings of the app to cover the main feature families; the full feature reference is below. [Capture and verification details](docs/media/quoteplate-workflow-pickups.md).
 
 [Transcript](public/media/quoteplate-product-film.txt) · [English captions](public/media/quoteplate-product-film.vtt) · [Media credits](public/media/credits.txt)
 
@@ -50,6 +50,8 @@ In **New purchase**, type a list such as `Tomatoes 5 kg` or choose a printed-Eng
 
 In a purchase's delivery check, **Read invoice photo or text** helps review billed quantities and unit rates. Text such as `Tomatoes 5 kg @ 40` identifies an explicit rate. Only an exact awarded item name and unit can match, and you must check each suggestion before applying it. Existing billing entries are preserved. The helper does not infer physical receipts, tax, totals, credits or payments, and does not save the delivery check for you.
 
+The currently selected photo stays visible beside editable text on wider screens and above it on phones, including during row review and manual correction. Replacing or closing a photo releases its local preview. Text can include earlier appended photos, so compare each row with its actual source.
+
 Photos are read locally in the browser using bundled Tesseract.js; there is no paid OCR API or photo upload for these helpers. Recognition is intended for printed English, with a maximum 8 MB image and bounded dimensions. Unclear handwriting, tables, fractions, units and rates require manual correction. Pasted text is limited to 12,000 characters and 100 nonempty lines. The initial OCR download and processing depend on the device and connection.
 
 ## Supplier onboarding and manual sharing
@@ -57,6 +59,8 @@ Photos are read locally in the browser using bundled Tesseract.js; there is no p
 ### Start with existing contacts
 
 In **Suppliers → Add existing contacts**, paste up to 50 lines of business name, phone and email, separated by commas or spreadsheet tabs, without column headings. Each row needs a name and at least a phone or email. Review, correct or remove rows before explicitly adding them. Duplicate contacts are checked after normalization; an import conflict rejects the whole batch and keeps the editable review. Existing records are not overwritten. Individual entry and full CSV import/export remain available.
+
+Pasted contact reviews, nearby leads and website contacts flag matching phone numbers or emails among supplier records currently loaded. A shared contact is a warning, not proof that two businesses are the same; other pages or filtered-out records are not covered by this early warning. Server duplicate checks still apply when saving. Repeated website suggestions are compared after phone/email normalization while retaining the original published value, source and check time.
 
 Adding contacts saves them for the restaurant; it does not invite or message anyone. Open **Workspace** beside an active supplier to select them in **Orders & messages**, where an owner can create their private workspace link.
 
@@ -110,9 +114,11 @@ On a private quote link, **Use a price list** accepts one JPEG, PNG or WebP phot
 
 Suppliers review source text, matches, units and rates before choosing **Use checked prices**. Only blank eligible price fields are filled. Existing manual prices, quantities and GST choices stay as entered. Ambiguous matches, conflicting prices and incompatible units need correction; the helper does not invent or convert rates or units. Optional guided entry handles one item at a time, followed by delivery and total review and explicit quote submission.
 
+**Go to first unfinished item** shows the number of incomplete item rows and focuses the first missing or invalid quantity, price or GST field in either entry mode. Zero prices and unavailable items follow the existing validation rules. It preserves entered values; delivery, combined totals and final submission still need review.
+
 For repeat requests, suppliers can review and reuse their own earlier prices only for matching items, units and specifications. Historical prices are not live market prices; current quantities, availability and terms still need review and normal submission.
 
-Price-list OCR runs locally in the supplier's browser using bundled assets, without a photo upload or paid AI service. Restaurant menu intake separately supports up to ten device photos, or a QR transfer of up to ten phone originals per batch; transferred photos use temporary encrypted copies. All detected menu text, dishes and ingredients need restaurant review.
+Price-list OCR runs locally in the supplier's browser using bundled assets, without a photo upload or paid AI service. Restaurant menu intake separately supports up to ten device photos, or a QR transfer of up to ten phone originals per batch; transferred photos use temporary encrypted copies. All detected menu text, dishes and ingredients need restaurant review. Cancelling menu reading now stops its owned worker even during startup; startup and each photo are bounded to 120 seconds, with manual entry available after failure.
 
 ## Planning, deliveries and purchase history
 
@@ -184,10 +190,11 @@ npm run test:integration
 npm run typecheck
 npm run lint
 npm run build
+npm run test:components
 npm run test:e2e
 ```
 
-The [procurement validation report](docs/qa/2026-09-11-procurement-gaps.md) records the earlier release checks and loading baseline. The [loading and reliability report](docs/qa/2026-09-11-first-load-reliability.md) covers joined database reads, recovery after temporary role-check failures and bounded shared-read deadlines. First loading still depends on hosting, the database and the connection.
+The [procurement validation report](docs/qa/2026-09-11-procurement-gaps.md) records the earlier release checks and loading baseline. The [loading and reliability report](docs/qa/2026-09-11-first-load-reliability.md) covers joined database reads, recovery after temporary role-check failures and bounded shared-read deadlines. The [workflow improvement report](docs/qa/2026-09-11-easier-workflows.md) covers account-bootstrap recovery, a combined Settings people read, supplier progress, contact warnings and local photo previews. First loading still depends on hosting, the database and the connection.
 
 The [Google onboarding runbook](docs/qa/2026-09-11-google-onboarding.md) distinguishes verified OAuth initiation from a completed new-customer signup. Use the [one-restaurant trial kit](docs/trials/restaurant-first-purchase-trial.md) and [blank observation CSV](docs/trials/restaurant-first-purchase-observations.csv) to test one real purchase with 3–5 existing suppliers. The kit contains unsent invitations; no real trial has been completed.
 

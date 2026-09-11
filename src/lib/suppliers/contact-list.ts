@@ -1,9 +1,31 @@
 import { serializeCsv } from '@/lib/exports/csv';
-import { SupplierValidationError, validateSupplierCreateInput } from './supplier-schema';
+import { normalizeSupplierPhone, SupplierValidationError, validateSupplierCreateInput } from './supplier-schema';
 import { normalizeSupplierContactEmail } from './contact-email';
 
 export type ContactRow = { businessName: string; phone: string; email: string };
+export type ExistingSupplierContact = { id?: string; businessName: string; phone?: string | null; email?: string | null };
 export const CONTACT_LIST_LIMIT = 50;
+
+/** Comparison only: never rewrite published evidence or guess identity from a site/address. */
+export function supplierContactKey(kind: 'phone' | 'email', value: unknown): string | null {
+  if (kind === 'email') {
+    const email = normalizeSupplierContactEmail(value);
+    return email ? `email:${email}` : null;
+  }
+  if (typeof value !== 'string' || value.length > 80 || /[\u0000-\u001f\u007f]/.test(value)) return null;
+  try { return `phone:${normalizeSupplierPhone(value)}`; } catch { return null; }
+}
+
+export function findSupplierContactMatches(
+  contact: Pick<ExistingSupplierContact, 'phone' | 'email'>,
+  existingContacts: readonly ExistingSupplierContact[],
+): { supplier: ExistingSupplierContact; kinds: ('phone' | 'email')[] }[] {
+  const keys = { phone: supplierContactKey('phone', contact.phone), email: supplierContactKey('email', contact.email) };
+  return existingContacts.flatMap(supplier => {
+    const kinds = (['phone', 'email'] as const).filter(kind => keys[kind] && keys[kind] === supplierContactKey(kind, supplier[kind]));
+    return kinds.length ? [{ supplier, kinds }] : [];
+  });
+}
 
 // Small, single-line CSV/TSV reader. Reject ambiguous input instead of losing columns.
 function columns(line: string): string[] {

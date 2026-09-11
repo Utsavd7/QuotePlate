@@ -2,11 +2,14 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { MapPin, Search } from 'lucide-react';
 import { NEARBY_CATEGORIES, nearbyPrefill, type NearbyCategory, type NearbyCenter, type NearbyPrefill, type NearbyResult } from '@/lib/suppliers/nearby-types';
+import { findSupplierContactMatches, type ExistingSupplierContact } from '@/lib/suppliers/contact-list';
 import styles from './nearby-supplier-search.module.css';
-type Props = { onAddSupplier: (prefill?: NearbyPrefill) => void };
-export function NearbySupplierResults({ results, onAddSupplier }: Props & { results: NearbyResult[] }) {
-  return <div className={styles.results}>{results.map(item => {
+type Props = { onAddSupplier: (prefill?: NearbyPrefill) => void; existingContacts?: readonly ExistingSupplierContact[] };
+export function NearbySupplierResults({ results, existingContacts = [], onAddSupplier }: Props & { results: NearbyResult[] }) {
+  return <>{existingContacts.length > 0 && <p className={styles.help}>Contact matches cover only supplier records currently loaded. Other saved suppliers may not appear here.</p>}
+  <div className={styles.results}>{results.map(item => {
     const prefill = nearbyPrefill(item);
+    const matches = findSupplierContactMatches(prefill, existingContacts);
     return <article className={styles.card} key={item.id}>
     <div className={styles.cardHeading}><h3>{item.name}</h3><span>{item.distanceKm} km</span></div>
     <p className={styles.badges}><span>{item.kind}</span><span>Unverified</span></p>
@@ -14,6 +17,7 @@ export function NearbySupplierResults({ results, onAddSupplier }: Props & { resu
     {item.phone && <p>Phone: {item.phone}</p>}
     {prefill.email && <p>Email: {prefill.email}</p>}
     {!item.phone && !item.website && !prefill.email && <p>Contact details not mapped</p>}
+    {matches.length > 0 && <p className={styles.match}>Contact already saved: {matches.map(match => `${match.supplier.businessName} (${match.kinds.join(' and ')})`).join(', ')}. Review whether this is the same supplier or a shared contact before adding.</p>}
     <div className={styles.links}>
       {item.website && <a href={item.website} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Website ↗</a>}
       <a href={item.mapUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Map ↗</a>
@@ -21,9 +25,9 @@ export function NearbySupplierResults({ results, onAddSupplier }: Props & { resu
     </div>
     <button type="button" onClick={() => onAddSupplier(prefill)}>Review and add<span className={styles.srOnly}> {item.name}</span></button>
   </article>;
-  })}</div>;
+  })}</div></>;
 }
-export function NearbySupplierSearch({ onAddSupplier }: Props) {
+export function NearbySupplierSearch({ onAddSupplier, existingContacts }: Props) {
   const [area, setArea] = useState('');
   const [category, setCategory] = useState<NearbyCategory>('produce');
   const [radius, setRadius] = useState(2);
@@ -106,7 +110,7 @@ export function NearbySupplierSearch({ onAddSupplier }: Props) {
       <p role="status" className={styles.center}>{found.results.length ? `${found.results.length} mapped leads` : 'No mapped suppliers found'} within {radius} km of {found.center.label}. Distances are straight-line estimates.</p>
       {!found.results.length && <p className={styles.help}>Map coverage is incomplete. Try another category, a larger radius, or the web search below.</p>}
       {found.limited && <p className={styles.help}>Showing up to 40 leads. Try a smaller radius for a more focused search.</p>}
-      <NearbySupplierResults results={found.results} onAddSupplier={onAddSupplier} />
+      <NearbySupplierResults results={found.results} onAddSupplier={onAddSupplier} existingContacts={existingContacts} />
       {found.results.length > 0 && <p className={styles.help}>Review and add opens an unsaved form. Check contact details, products and delivery before saving. Before saving, confirm that your restaurant has checked the supplier. Saving then marks it as restaurant-verified. No automatic messages.</p>}
     </section>}
     <footer className={styles.help}>Only when you search, your area goes to Photon; the selected coordinates, category and radius go to VK Maps’ Overpass service in Russia. Public results may be cached for up to an hour (areas for 24 hours). No automatic messages or supplier additions. Free services have usage limits and may be busy or unavailable. Data: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a> · <a href="https://github.com/komoot/photon" target="_blank" rel="noopener noreferrer">Photon</a> · <a href="https://maps.mail.ru/osm/tools/overpass/" target="_blank" rel="noopener noreferrer">VK Maps / Overpass</a>.</footer>

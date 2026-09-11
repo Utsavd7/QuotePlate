@@ -7,6 +7,27 @@ test.use({ trace: 'off', video: 'off', screenshot: 'off' });
 const fixtureOrigin = process.env.AUTH_E2E_FIXTURE_ORIGIN ?? 'http://127.0.0.1:52562';
 const isLocal = (url: string) => ['localhost', '127.0.0.1', '[::1]'].includes(new URL(url).hostname);
 
+// The complete suite shares one local demo account. Reuse its normal session
+// within this worker, as the other demo suites do, rather than spending another
+// login attempt for every loading assertion. Each test still has a fresh context.
+// Keep credentials/cookies in memory only; production login limits stay intact.
+let demoCookies: Awaited<ReturnType<ReturnType<Page['context']>['cookies']>> | undefined;
+
+async function signIn(page: Page) {
+  if (demoCookies) {
+    await page.context().addCookies(demoCookies);
+    await page.goto('/dashboard');
+  } else {
+    await page.goto('/signin');
+    await page.getByLabel('Work email').fill(DEMO_OWNER_EMAIL);
+    await page.getByLabel('Password').fill('Local-only demo password 42!');
+    await page.getByRole('button', { name: 'Sign in with email' }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
+    demoCookies = await page.context().cookies();
+  }
+  await expect(page).toHaveURL(/\/dashboard$/);
+}
+
 async function collapseGuide(page: Page) {
   await expect(page.getByRole('complementary', { name: 'Setup guide', exact: true })).toBeVisible();
   const collapse = page.getByRole('button', { name: 'Collapse setup guide', exact: true });
@@ -51,11 +72,7 @@ test('Today → Suppliers → Today renders cached attention without another ove
     if (overviewRequests > 1) await route.abort('failed');
     else await route.fallback();
   });
-  await page.goto('/signin');
-  await page.getByLabel('Work email').fill(DEMO_OWNER_EMAIL);
-  await page.getByLabel('Password').fill('Local-only demo password 42!');
-  await page.getByRole('button', { name: 'Sign in with email' }).click();
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await signIn(page);
   const attention = page.getByRole('region', { name: 'Needs your attention', exact: true });
   await expect(attention).toBeVisible();
   const originalAttention = await attention.innerText();
@@ -92,4 +109,29 @@ test('Today → Suppliers → Today renders cached attention without another ove
   await writeFile(path, JSON.stringify({ ...sample, overviewRequests, project: info.project.name,
     note: 'Includes Playwright click and assertion overhead; fresh TTL held fixed, not a production latency benchmark.' }, null, 2));
   await info.attach('cached Today navigation', { path, contentType: 'application/json' });
+});
+
+test('a stalled account bootstrap offers retry and recovers the actual workspace', async ({ page }, info) => {
+  expect(isLocal(String(info.project.use.baseURL))).toBe(true);
+  expect(isLocal(fixtureOrigin)).toBe(true);
+  const seeded = await page.request.post(`${fixtureOrigin}/__test/database/internal-demo`);
+  expect(seeded.status(), await seeded.text()).toBe(201);
+  await signIn(page);
+  await expect(page.getByRole('region', { name: 'Needs your attention', exact: true })).toBeVisible();
+
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/api/account', async route => {
+    await held;
+    await route.abort().catch(() => undefined);
+  });
+  try {
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Workspace is temporarily unavailable' })).toBeVisible({ timeout: 25_000 });
+    await page.unroute('**/api/account');
+    release();
+    await page.getByRole('button', { name: 'Try again', exact: true }).click();
+    await expect(page.getByRole('region', { name: 'Needs your attention', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Workspace is temporarily unavailable' })).toHaveCount(0);
+  } finally { release(); }
 });

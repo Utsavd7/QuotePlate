@@ -7,11 +7,12 @@ import { supplierSearchEngineId } from '@/lib/suppliers/google-search-element';
 
 import { NearbySupplierSearch } from './NearbySupplierSearch';
 import type { NearbyPrefill } from '@/lib/suppliers/nearby-types';
+import type { ExistingSupplierContact } from '@/lib/suppliers/contact-list';
 
 import { GoogleSupplierSearch } from './GoogleSupplierSearch';
 import styles from './supplier-discovery.module.css';
 
-export function SupplierDiscovery({ onAddSupplier }: { onAddSupplier: (prefill?: NearbyPrefill) => void }) {
+export function SupplierDiscovery({ onAddSupplier, existingContacts }: { onAddSupplier: (prefill?: NearbyPrefill) => void; existingContacts?: readonly ExistingSupplierContact[] }) {
   const searchEngineId = supplierSearchEngineId(process.env.NEXT_PUBLIC_SUPPLIER_SEARCH_ENGINE_ID);
   const [input, setInput] = useState<SupplierDiscoveryInput>({
     ingredient: '', locality: '', city: '', state: '', pin: '',
@@ -36,7 +37,7 @@ export function SupplierDiscovery({ onAddSupplier }: { onAddSupplier: (prefill?:
 
   return (
     <>
-    <NearbySupplierSearch onAddSupplier={onAddSupplier} />
+    <NearbySupplierSearch onAddSupplier={onAddSupplier} existingContacts={existingContacts} />
     <details className={styles.panel}>
       <summary className={styles.summary}>
         <MapPin aria-hidden="true" />

@@ -1,0 +1,27 @@
+QuotePlate final procurement overview — media credits
+165 seconds · 3840 × 2400 (16:10) · 30 fps
+
+Application visuals: actual local QuotePlate recordings following fictional Monsoon Table, Amber Fresh Produce and Copper Pot Produce through a purchase. Public verified-Google signup is shown as form entry; authentication occurs off camera in an isolated ordinary local workspace. No production writes, supplier messages or fabricated application responses.
+
+Capture provenance: six workflow clips were newly recorded after final local UI validation: saved-contact review, shopping-list source/review, phone quote progress, and invoice source/review. The other 22 clips, including Google-only signup and both licensed kitchen bookends, are retained unchanged by hash from the earlier approved film. Only supplier-contact and phone narration changed.
+
+Shopping list and invoice: deterministic fictional printed-text images are read by the application's bundled local OCR. The user reviews the recognized text and explicitly checks rows before applying them. Shopping-list rows create a draft with no menu selected. Reviewed invoice quantities and rates fill billing fields; physical receipts, invoice totals and credits are entered separately. This demonstrates choosing existing photos, not using a physical camera. Pasted-text controls are shown as another available input.
+
+Public supplier contact lookup: the explicit Check website control requests Shubham Trading Company's actual public contact page, https://www.shubhamtradingco.in/contact. Returned contact/source information is reviewed before use and local save. If public access fails or yields no contacts, the real unavailable/empty state is shown and narration reflects that outcome. This public lead is separate from the fictional quote suppliers. Its appearance is not an endorsement, partnership or verified supply commitment; no message or order is sent to it. Nearby discovery also uses actual public-source results or the application's unavailable state.
+
+Phone sequence: the responsive 390 × 600 CSS view is recorded at native 1560 × 2400 and placed unchanged on the existing 3840 × 2400 canvas. The supplier chooses a fictional printed price list, reviews locally recognized Tomato 40/kg, fills the quote, jumps to an unfinished quantity, reviews delivery and submits a real local quote for 10 kg / INR 400. A second fictional supplier's INR 440 quote supports comparison. There is no device frame or upscaling.
+
+Kitchen opening and closing: identical hash-verified clips from the earlier approved edition. Original 3840 × 2160 chef footage is cropped to fill 3840 × 2400 with native brand graphics. Chef working in a large kitchen (Mixkit 43048), Stock Video Free License. People shown do not represent QuotePlate customers or endorsements.
+https://mixkit.co/free-stock-video/chef-working-in-a-large-kitchen-43048/
+https://mixkit.co/license/#videoFree
+
+Capture: native 3840 × 2400 desktop recording with Chrome zoom 8/3 preserves the 1440 × 900 CSS layout. Visible cursor, real clicks, typing, navigation and result review. Real source intervals and hashes document no more than 1.5× total action compression; reading and network waits may be cut between clips. No screenshot substitutes or freeze-frame padding. Private-link text is masked before raw recording; authentication and session secrets are not archived. Temporary browser profiles are removed. WhatsApp and Email controls prepare a handoff; the user sends the message. Filming does not open a messaging application.
+
+Music: existing licensed Relax Beat, Arulo (Mixkit 292), Stock Music Free License.
+https://mixkit.co/free-stock-music/ambient/
+https://mixkit.co/license/#musicFree
+
+Voice: local Kokoro ONNX af_heart synthetic American-English narration. Unchanged narration is reused only when its text, timing, model, voice and waveform hash agree; changed narration is generated locally. Measured English captions are a separate optional VTT, off by default. No burned captions or human voice clone.
+https://github.com/hexgrad/kokoro
+
+Media and generation cost: $0 additional spend. Existing licensed media, installed local models, FFmpeg and Kokoro. No paid service, media purchase, new model download or generation credit.

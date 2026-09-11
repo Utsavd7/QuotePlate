@@ -172,43 +172,32 @@ export function createWorkspaceSettingsOperations(
       const actor = requireActor(input.actor);
       return dependencies.transact(actor.tenantId, async (transaction) => {
         const current = await loadActor(transaction, actor);
-        const [members, invitations] = await Promise.all([
-          transaction.user.findMany({
-            where: {
-              tenantId: actor.tenantId,
-              accountState: 'ACTIVE',
-              isActive: true,
-            },
-            orderBy: [{ role: 'asc' }, { name: 'asc' }, { id: 'asc' }],
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              createdAt: true,
-              lastLoginAt: true,
-            },
-          }),
-          transaction.user.findMany({
-            where: {
-              tenantId: actor.tenantId,
-              accountState: 'INVITED',
-              isActive: false,
-              invitationAcceptedAt: null,
-              invitationRevokedAt: null,
-              invitationExpiresAt: { gt: dependencies.now() },
-            },
-            orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
-            select: {
-              id: true,
-              email: true,
-              role: true,
-              invitationExpiresAt: true,
-              updatedAt: true,
-              invitedBy: { select: { name: true } },
-            },
-          }),
-        ]);
+        // Keep the actor check current, then fetch both visible lists in one
+        // database round trip. The invitation predicate excludes expired/revoked
+        // identities; no password, token digest or other credential is selected.
+        const people = await transaction.user.findMany({
+          where: {
+            tenantId: actor.tenantId,
+            OR: [
+              { accountState: 'ACTIVE', isActive: true },
+              {
+                accountState: 'INVITED', isActive: false,
+                invitationAcceptedAt: null, invitationRevokedAt: null,
+                invitationExpiresAt: { gt: dependencies.now() },
+              },
+            ],
+          },
+          orderBy: [{ role: 'asc' }, { name: 'asc' }, { id: 'asc' }],
+          select: {
+            id: true, name: true, email: true, role: true, accountState: true,
+            createdAt: true, lastLoginAt: true, invitationExpiresAt: true,
+            updatedAt: true, invitedBy: { select: { name: true } },
+          },
+        });
+        const members = people.filter(person => person.accountState === 'ACTIVE');
+        const invitations = people.filter(person => person.accountState === 'INVITED')
+          .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime()
+            || right.id.localeCompare(left.id, 'en'));
         const canManage = current.role === 'OWNER';
         return {
           workspace: {

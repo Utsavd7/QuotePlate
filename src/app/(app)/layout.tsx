@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
+import { readWorkspaceAccount } from '@/lib/client/workspace-account';
 import { DEMO_TENANT_ID } from '@/lib/demo/identity';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { SignOutButton } from '@/components/auth/SignOutButton';
@@ -165,20 +166,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let active = true;
+    const accountRead = new AbortController();
     setWorkspacePrefetchScope(null);
     const redirectToSignIn = () => {
       const currentLocation = `${window.location.pathname}${window.location.search}${window.location.hash}`;
       router.replace(createSignInRedirect(currentLocation));
     };
 
-    fetch('/api/account', { cache: 'no-store' })
-      .then(async (response) => {
-        if (response.status === 401) {
+    readWorkspaceAccount(accountRead.signal)
+      .then(({ status, data: body }) => {
+        if (!active) return null;
+        if (status === 401) {
           redirectToSignIn();
           return null;
         }
-        if (!response.ok) throw new Error('Account request failed');
-        const data = (await response.json()) as {
+        if (status < 200 || status >= 300) throw new Error('Account request failed');
+        const data = body as {
           account?: RestaurantAccount;
           tutorial?: TutorialStateDto;
           workspaceId?: string;
@@ -207,6 +210,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     return () => {
       active = false;
+      accountRead.abort();
       setWorkspaceId('');
       setWorkspacePrefetchScope(null);
     };

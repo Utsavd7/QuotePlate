@@ -1,5 +1,11 @@
 # Final procurement update — 165-second local film
 
+New workflow pickup preparation is tracked in
+[quoteplate-workflow-pickups.md](quoteplate-workflow-pickups.md). That revision has
+six new pickups after parent UI validation and a completed parent-approved public
+copy. See that handoff for the current film/hash. The completed status below
+describes the preserved previous film only.
+
 Status: **complete — corrected bundle verified and copied to public media.**
 The two signup clips were replaced with actual production-mode
 Google-only UI on port 52561. Visual review and browser assertions passed:

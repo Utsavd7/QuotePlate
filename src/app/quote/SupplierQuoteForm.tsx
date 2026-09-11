@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type { PreviousQuotePrices } from '@/lib/quotes/previous-prices';
 import type { ItemSpecificationV1 } from '@/lib/domain/item-specification';
 import { formatInr, parseInrToPaise } from '@/lib/domain/money';
@@ -8,7 +8,7 @@ import type { ProcurementUnit } from '@/lib/domain/quantity';
 import { formatScaledDecimal } from '@/lib/domain/validation';
 
 import styles from './quote-access.module.css';
-import { QuoteReviewError, reviewQuote, reviewQuoteItems } from './quote-review';
+import { QuoteReviewError, quoteItemProgress, reviewQuote, reviewQuoteItems } from './quote-review';
 import { QuotePriceAssistant, type PreparedPrice } from './QuotePriceAssistant';
 
 type PublicQuoteLineDto = {
@@ -143,6 +143,11 @@ export function SupplierQuoteForm({
     ),
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const [remainingItems, setRemainingItems] = useState<number | null>(null);
+  const attachForm = useCallback((form: HTMLFormElement | null) => {
+    formRef.current = form;
+    if (form) setRemainingItems(quoteItemProgress(new FormData(form), request.items).remaining);
+  }, [request.items]);
   const [submitting, setSubmitting] = useState(false);
   const [guided, setGuided] = useState(false);
   const [guidedIndex, setGuidedIndex] = useState(0);
@@ -193,6 +198,27 @@ export function SupplierQuoteForm({
     setError({ message, field });
   }
 
+  function refreshItemProgress() {
+    const form = formRef.current;
+    if (!form || submitting) return null;
+    const values = new FormData(form);
+    // Availability changes fire before React re-enables the row's inputs.
+    // Read their mounted values as well; validation still skips no-quote rows.
+    form.querySelectorAll<HTMLInputElement>('input:disabled').forEach(input => {
+      if (input.name && (input.type !== 'checkbox' || input.checked)) {
+        values.set(input.name, input.value);
+      }
+    });
+    const progress = quoteItemProgress(values, request.items);
+    setRemainingItems(progress.remaining);
+    return progress;
+  }
+
+  function goToFirstUnfinishedItem() {
+    const progress = refreshItemProgress();
+    if (progress?.firstProblem) showProblem(progress.firstProblem.message, progress.firstProblem.field);
+  }
+
   function applyPreparedPrices(prices: PreparedPrice[]) {
     const form = formRef.current;
     if (!form || submitting) return { applied: 0, skipped: prices.length };
@@ -208,6 +234,7 @@ export function SupplierQuoteForm({
     }
     setReview(null);
     setError(null);
+    refreshItemProgress();
     return { applied, skipped: prices.length - applied };
   }
 
@@ -247,6 +274,7 @@ export function SupplierQuoteForm({
       inclusive.checked = previous.taxInclusive;
       filled += 1;
     }
+    refreshItemProgress();
     setMessage(filled
       ? `Previous prices filled for ${filled} item${filled === 1 ? '' : 's'}. Check prices, GST and availability before sending.`
       : 'No blank eligible price rows to fill. Your entries were kept.');
@@ -352,7 +380,7 @@ export function SupplierQuoteForm({
   const instructions = deliveryInstructions(request.deliveryDetails);
 
   return (
-    <form ref={formRef} className={styles.quoteForm} noValidate onSubmit={submit} onChange={() => { setReview(null); setError(null); }} aria-busy={submitting}>
+    <form ref={attachForm} className={styles.quoteForm} noValidate onSubmit={submit} onChange={() => { setReview(null); setError(null); refreshItemProgress(); }} aria-busy={submitting}>
       <fieldset className={styles.formFields} disabled={submitting}>
       <section className={styles.requestSummary} aria-labelledby="request-title">
         <div>
@@ -417,6 +445,15 @@ export function SupplierQuoteForm({
         ) : null}
 
         {!review && <QuotePriceAssistant items={request.items} disabled={submitting} onApply={applyPreparedPrices} />}
+
+        {remainingItems !== null && <div className={styles.guideToolbar} role="group" aria-label="Item progress">
+          <p aria-live="polite" aria-atomic="true">{remainingItems
+            ? `${remainingItems} item${remainingItems === 1 ? '' : 's'} left to complete`
+            : 'All items complete. Review delivery and total before sending.'}</p>
+          {remainingItems > 0 && <button className={styles.reuseButton} type="button" disabled={submitting} onClick={goToFirstUnfinishedItem}>
+            Go to first unfinished item
+          </button>}
+        </div>}
 
         <div className={styles.guideToolbar}>
           <p>{guided ? guidedIndex < request.items.length ? `Item ${guidedIndex + 1} of ${request.items.length}` : 'Prices checked. Confirm delivery below.' : 'Want help? Fill one item at a time.'}</p>

@@ -16,6 +16,24 @@ function fixture(pages: Record<string, MenuUrlTransportResponse> = {}) {
 }
 const lookup = (f: ReturnType<typeof fixture>, path = '/') => discoverWebsiteContacts(new URL(path, origin), f.dependencies);
 
+it('deduplicates normalized phones across pages while preserving the first published value and citation', async () => {
+  const f = fixture({
+    '/': response('<a href="tel:98765 43210">Call</a><a href="/contact">Contact</a>'),
+    '/contact': response('<a href="tel:+91 9876543210">Call</a><a href="tel:+91 9988776655">Other branch</a>'),
+  });
+  const result = await lookup(f);
+  expect(result.contacts).toEqual([
+    { kind: 'phone', value: '98765 43210', sourceUrl: `${origin}/`, checkedAt },
+    { kind: 'phone', value: '+91 9988776655', sourceUrl: `${origin}/contact`, checkedAt },
+  ]);
+});
+
+it('deduplicates local and international variants on one page', () => {
+  const parsed = parseWebsiteContacts('<a href="tel:98765 43210">Call</a><a href="tel:+91 9876543210">Call</a>', new URL(origin), checkedAt);
+  expect(parsed.contacts).toHaveLength(1);
+  expect(parsed.contacts[0].value).toBe('98765 43210');
+});
+
 it.each(['http://supplier.com', 'https://supplier.com:8443', 'https://u:p@supplier.com', 'https://localhost',
   'https://metadata.internal', 'https://x.local', 'https://supplier.com?token=private', 'https://supplier.com/account',
   'https://supplier.com/%6cogin', 'https://supplier.com\\@public.com', 'https://example.org', 'https://127.1', 'https://2130706433',
