@@ -120,7 +120,9 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toMatch(/suppliers/i);
   expect(text).toMatch(/add them to your draft[\s\S]*choose suppliers and save/i);
   expect(text).toMatch(/price-list photo/i);
-  expect(text).toMatch(/one item at a time/i);
+  expect(text).toMatch(/jump to unfinished items/i);
+  expect(text).toMatch(/saved-contact warnings/i);
+  expect(text).toMatch(/check the photo and matched rate/i);
   expect(text).toMatch(/compar(?:e|ing)/i);
   expect(text).toMatch(/choos(?:e|ing)/i);
   expect(text).toMatch(/delivery/i);
