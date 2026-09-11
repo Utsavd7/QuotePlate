@@ -25,6 +25,8 @@ The integrated laptop/mobile subset initially passed 30 of 32 checks. Two mobile
 
 The updated film passed 15 media contract checks, final source/output visual review, full decoding and audio checks. It remains 165 seconds, 4,950 frames and native 3840×2400; captions remain optional. Six new clips show saved-contact review, shopping/invoice photo review and phone quote progress. The other 22 clips and opening/ending are retained by hash. The approved MP4 SHA-256 is `ac5bdd58c450360b4fc7fb590e335f940191102125a8570158ebc6b6f92175b0`. See the [media record](../media/quoteplate-workflow-pickups.md) for exact provenance and limitations.
 
+The first complete CI run passed 192 browser cases and intentionally skipped 22, but its two final mobile loading cases exceeded the shared demo email's ten-login limit. The loading suite now reuses a normally authenticated session in memory within each worker, while every case keeps a fresh browser context. Production limits and authentication code are unchanged. Locally, eight prior normal logins followed by all four desktop/mobile loading cases passed in 33.8 seconds; an additional login was then rejected at the unchanged limit. Type checking and focused lint passed. The final rerun is recorded in PR #39.
+
 ## Limits
 
 First loading is not promised instant. Production timing must be observed after deployment. Recognition remains intended for printed English; source previews do not establish OCR accuracy on restaurant handwriting or regional languages. The selected preview may represent only the latest photo when text has earlier appended content. No messages, real orders, Google consent or actual restaurant trial were performed. No new paid service was added.
