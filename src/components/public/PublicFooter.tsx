@@ -19,7 +19,7 @@ export function PublicFooter() {
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/signin">Sign in</Link>
-          <Link href="/start">Start a pilot</Link>
+          <Link href="/start">Get started</Link>
         </nav>
       </div>
       <div className="public-container public-footer__legal">

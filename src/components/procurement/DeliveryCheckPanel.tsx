@@ -9,6 +9,8 @@ import { formatIndiaDate as displayDate } from '@/lib/domain/india-date';
 import { formatInr, parseInrToPaise } from '@/lib/domain/money';
 import type { ReceivingSummary } from '@/lib/receiving/receiving-document';
 import { calculateReceivingDetails, validateReceivingDetails, type ReceivingDetails } from '@/lib/receiving/receiving-details';
+import { invoiceMatch, invoiceRowErrors } from '@/lib/procurement/photo-text-intake';
+import { ReviewedTextIntake } from './ReviewedTextIntake';
 import ui from './purchase-ui.module.css';
 import detailStyles from './delivery-check.module.css';
 import styles from './request-detail.module.css';
@@ -182,6 +184,18 @@ export function SupplierCheckForm({ awardId, supplier, onSaved }: {
       </header>
       <label className={styles.invoiceField}><span>Invoice total in rupees *</span><span><b>₹</b><input inputMode="decimal" value={invoiceInr} placeholder="1,250.00" onChange={(event) => setInvoiceInr(event.target.value.replace(/,/g, ''))} /></span></label>
       {supplier.items?.length ? <div className={detailStyles.details}>
+        <ReviewedTextIntake mode="invoice" awarded={supplier.items} billing={rows} disabled={saving} onApply={checked => {
+          const matches = checked.map(row => ({ row, item: invoiceMatch(row, supplier.items ?? []).item }));
+          if (matches.some(({ row, item }) => !item || invoiceRowErrors(row).length) || new Set(matches.map(({ item }) => item?.requestItemId)).size !== matches.length) return 'Check unique awarded items, units and billed values before applying.';
+          if (matches.some(({ item }) => rows.some(current => current.requestItemId === item!.requestItemId && (current.billedQuantity || current.billedRateInr)))) return 'Existing billed values were kept. Edit them directly in the receiving form.';
+          setRows(current => current.map(row => {
+            const match = matches.find(({ item }) => item!.requestItemId === row.requestItemId);
+            // Recheck the latest state so a concurrent manual edit is never replaced.
+            return match && !row.billedQuantity && !row.billedRateInr ? { ...row, billedQuantity: match.row.quantity, billedRateInr: match.row.rate } : row;
+          }));
+          setBillingDetailsOpen(current => ({ ...current, ...Object.fromEntries(matches.map(({ item }) => [item!.requestItemId, true])) }));
+          return null;
+        }} />
         <p>Enter totals so far, including rejected units in received counts. Each save replaces the previous totals. Rejected units stay outstanding until accepted replacements arrive.</p>
         {supplier.check && !supplier.check.details && <p>Add the item counts you have checked.</p>}
         {supplier.items.map((item, index) => <fieldset key={item.requestItemId} className={detailStyles.item}>

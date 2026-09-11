@@ -83,17 +83,36 @@ describe('Google OAuth identity resolution', () => {
     expect(repo.createOwnerIdentity).not.toHaveBeenCalled();
   });
 
-  it('rejects unverified Google email before any database access', async () => {
+  it.each([false, null, undefined])('rejects unverified Google email (%s) before any database access', async (email_verified) => {
     const repo = repository();
 
     await expect(
       resolveGoogleIdentity(
-        { account, profile: { ...profile, email_verified: false }, onboarding },
+        { account, profile: { ...profile, email_verified }, onboarding },
         repo,
       ),
     ).rejects.toMatchObject<Partial<GoogleIdentityError>>({
       code: 'GOOGLE_EMAIL_UNVERIFIED',
     });
+    expect(repo.findIdentity).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { provider: 'other', providerAccountId: 'google-sub-123' },
+    { provider: 'google', providerAccountId: 'different-sub' },
+    { provider: 'google', providerAccountId: '' },
+  ])('rejects invalid provider identity before database access (%j)', async (invalidAccount) => {
+    const repo = repository();
+    await expect(resolveGoogleIdentity({ account: invalidAccount, profile, onboarding }, repo))
+      .rejects.toMatchObject({ code: 'INVALID_GOOGLE_IDENTITY' });
+    expect(repo.findIdentity).not.toHaveBeenCalled();
+  });
+
+  it('does not trust a truthy string as Google email verification', async () => {
+    const repo = repository();
+    await expect(resolveGoogleIdentity({
+      account, profile: { ...profile, email_verified: 'true' as never }, onboarding,
+    }, repo)).rejects.toMatchObject({ code: 'GOOGLE_EMAIL_UNVERIFIED' });
     expect(repo.findIdentity).not.toHaveBeenCalled();
   });
 
@@ -162,21 +181,37 @@ describe('Google OAuth identity resolution', () => {
     expect(repo.createOwnerIdentity).not.toHaveBeenCalled();
   });
 
-  it('refuses owner creation when the verified email is outside the controlled pilot', async () => {
+  it('requires explicit onboarding before creating a new owner', async () => {
     const repo = repository();
-    await expect(resolveGoogleIdentity(
-      {
-        account: { provider: 'google', providerAccountId: 'google-subject-1' },
-        profile: {
-          sub: 'google-subject-1',
-          email: 'asha@example.com',
-          email_verified: true,
-        },
-        onboarding,
-        pilotAccess: () => false,
-      },
-      repo,
-    )).rejects.toMatchObject({ code: 'PILOT_ACCESS_REQUIRED' });
+    await expect(resolveGoogleIdentity({ account, profile, onboarding: null }, repo))
+      .rejects.toMatchObject({ code: 'GOOGLE_ACCOUNT_NOT_REGISTERED' });
+    expect(repo.createOwnerIdentity).not.toHaveBeenCalled();
+  });
+
+  it('rejects a different Google email during signup even for an existing identity', async () => {
+    const repo = repository({ findIdentity: jest.fn().mockResolvedValue(activeOwner) });
+    await expect(resolveGoogleIdentity({
+      account,
+      profile: { ...profile, email: 'different@example.com' },
+      onboarding,
+    }, repo)).rejects.toMatchObject({ code: 'GOOGLE_EMAIL_MISMATCH' });
+    expect(repo.touchLogin).not.toHaveBeenCalled();
+    expect(repo.createOwnerIdentity).not.toHaveBeenCalled();
+  });
+
+  it('reuses an existing matching identity without creating another workspace', async () => {
+    const repo = repository({ findIdentity: jest.fn().mockResolvedValue(activeOwner) });
+    await expect(resolveGoogleIdentity({ account, profile, onboarding }, repo)).resolves.toEqual(activeOwner);
+    expect(repo.touchLogin).toHaveBeenCalledWith('tenant-1', 'user-1');
+    expect(repo.createOwnerIdentity).not.toHaveBeenCalled();
+  });
+
+  it('keeps an invited email reserved for invitation acceptance', async () => {
+    const repo = repository({
+      findUserByEmail: jest.fn().mockResolvedValue({ ...activeOwner, role: 'MEMBER', userIsActive: false }),
+    });
+    await expect(resolveGoogleIdentity({ account, profile, onboarding }, repo))
+      .rejects.toMatchObject({ code: 'EMAIL_ALREADY_REGISTERED' });
     expect(repo.createOwnerIdentity).not.toHaveBeenCalled();
   });
 

@@ -35,6 +35,8 @@ import workspace from '../workspace/workspace.module.css';
 import { WorkspaceHeader, WorkspaceSearch, WorkspaceToolbar } from '../workspace/Workspace';
 import { SupplierDiscovery } from './SupplierDiscovery';
 import { ExistingSupplierContacts } from './ExistingSupplierContacts';
+import { SupplierWebsiteContacts } from './SupplierWebsiteContacts';
+import { fillReviewedWebsiteContacts } from '@/lib/suppliers/website-types';
 import type { NearbyPrefill } from '@/lib/suppliers/nearby-types';
 
 type SupplierSummary = {
@@ -933,6 +935,13 @@ export function SupplierWorkspace({
                 disabled={saving || editorLoading || !editorReady}
                 aria-busy={editorLoading}
               >
+                <SupplierWebsiteContacts
+                  key={editing?.id ?? 'new-supplier'}
+                  phone={draft.phone}
+                  email={draft.email}
+                  disabled={saving || editorLoading || !editorReady}
+                  onReview={(contact) => setDraft((current) => fillReviewedWebsiteContacts(current, [contact]))}
+                />
                 <div className={styles.formGrid}>
                   {input('businessName', 'Business name', { required: true, placeholder: 'GreenLeaf Fresh Foods' })}
                   {input('contactName', 'Contact person', { placeholder: 'Meera Shah' })}

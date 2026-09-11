@@ -6,7 +6,11 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 import { workspaceMutationFetch } from '@/lib/client/workspace-prefetch';
 import type { MenuDocumentV1 } from '@/lib/menu/menu-document';
-import { buildDefaultSourcingSelection } from '@/lib/procurement/request-document';
+import { buildDefaultSourcingSelection, validateRequestItems, type RequestItemsV1 } from '@/lib/procurement/request-document';
+import { DOCUMENT_LIMITS } from '@/lib/domain/document-limits';
+import { PROCUREMENT_CATEGORIES, type ProcurementCategory } from '@/lib/domain/procurement-categories';
+import { intakeUnits, shoppingRowErrors, type IntakeRow } from '@/lib/procurement/photo-text-intake';
+import { ReviewedTextIntake } from './ReviewedTextIntake';
 
 import { PurchaseJourney } from './PurchaseJourney';
 import { WorkspaceHeader } from '../workspace/Workspace';
@@ -70,6 +74,10 @@ type RequestFormError =
   | { message: string; kind: 'operation' }
   | null;
 
+function draftItemKey(name: string, id: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 80).replace(/^-+|-+$/g, '') || id;
+}
+
 export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
   const router = useRouter();
   const [menus, setMenus] = useState(initialData?.menus.filter(({ status }) => status === 'APPROVED') ?? []);
@@ -85,6 +93,7 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
   const [openToNewSuppliers, setOpenToNewSuppliers] = useState(false);
   const [selectionMode, setSelectionMode] = useState<'ALL' | 'SELECTED'>('ALL');
   const [ingredientIds, setIngredientIds] = useState<string[]>([]);
+  const [additionalItems, setAdditionalItems] = useState<RequestItemsV1['items']>([]);
   const [title, setTitle] = useState('');
   const [addressLine, setAddressLine] = useState(initialData?.account.addressLine ?? '');
   const [city, setCity] = useState(initialData?.account.city ?? '');
@@ -246,10 +255,35 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
     setIngredientIds((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
   }
 
+  const selectedItemIds = selectedMenu
+    ? selectionMode === 'ALL' ? selectedMenu.document.dishes.flatMap(({ ingredients }) => ingredients.map(({ id }) => id)) : ingredientIds
+    : [];
+  const itemCount = selectedItemIds.length + additionalItems.length;
+  let validAdditionalItems = true;
+  try { if (additionalItems.length) validateRequestItems({ v: 1, items: additionalItems }); }
+  catch { validAdditionalItems = false; }
+
+  function appendCheckedRows(rows: IntakeRow[]) {
+    if (saving) return 'Wait for the current draft save to finish.';
+    if (itemCount + rows.length > DOCUMENT_LIMITS.requestItems.items) return `A draft can contain at most ${DOCUMENT_LIMITS.requestItems.items} items. Remove some rows first.`;
+    if (rows.some(row => shoppingRowErrors(row).length)) return 'Check each item name, quantity and unit.';
+    const additions = rows.map(row => {
+      const id = `list-${crypto.randomUUID().replace(/-/g, '').slice(0, 24)}`;
+      return {
+        id, itemKey: draftItemKey(row.name, id),
+        name: row.name.trim(), quantity: row.quantity, unit: row.unit as RequestItemsV1['items'][number]['unit'],
+        specification: { v: 1 as const, category: 'OTHER' as const }, sourcingOverride: null,
+      };
+    });
+    setAdditionalItems(current => [...current, ...additions]);
+    return null;
+  }
+
   const valid = Boolean(
-    title.trim() && menuId && (supplierIds.length > 0 || openToNewSuppliers) && addressLine.trim() && city.trim() &&
+    title.trim() && (!menuId || selectedMenu) && !loadingMenu && itemCount > 0 && itemCount <= DOCUMENT_LIMITS.requestItems.items && validAdditionalItems &&
+    (supplierIds.length > 0 || openToNewSuppliers) && addressLine.trim() && city.trim() &&
     state.trim() && /^[1-9]\d{5}$/.test(pin) && deliveryDate && deadlineBeforeDelivery(quoteDeadline, deliveryDate) &&
-    (selectionMode === 'ALL' || ingredientIds.length > 0),
+    (selectionMode === 'ALL' || ingredientIds.length > 0 || additionalItems.length > 0),
   );
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -259,11 +293,7 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
     setError(null);
     setFieldErrors({});
     try {
-      if (!selectedMenu) throw new Error('Choose an approved menu before saving.');
-      const selectedItemIds = selectionMode === 'ALL'
-        ? selectedMenu.document.dishes.flatMap(({ ingredients }) =>
-            ingredients.map(({ id }) => id))
-        : ingredientIds;
+      if (menuId && !selectedMenu) throw new Error('Wait for the approved menu to load before saving.');
       const defaultSourcing = buildDefaultSourcingSelection(
         suppliers,
         supplierIds,
@@ -274,8 +304,9 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title.trim(),
-          menuId,
+          menuId: menuId || null,
           selectedItemIds,
+          ...(additionalItems.length ? { additionalItems: { v: 1, items: additionalItems } } : {}),
           defaultSourcing,
           sourcingOverrides: {},
           deliveryDetails: {
@@ -310,7 +341,7 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
   return (
     <main className={`${styles.page} ${ui.surface}`}>
       <button className={styles.back} type="button" onClick={() => router.push('/procurement')}><ArrowLeft aria-hidden="true" /> Purchases</button>
-      <WorkspaceHeader title="Choose ingredients" description="Start with an approved menu. Review your draft before sharing." actions={<span className={styles.draftStatus}>Not sent</span>} />
+      <WorkspaceHeader title="Choose ingredients" description="Start with an approved menu or a shopping list. Review your draft before sharing." actions={<span className={styles.draftStatus}>Not sent</span>} />
 
       <PurchaseJourney current={0} />
 
@@ -326,17 +357,33 @@ export function NewRequestForm({ initialData }: { initialData?: InitialData }) {
               {fieldErrors.title?.[0] && <small>{fieldErrors.title[0]}</small>}
             </label>
             <label className={`${styles.field} ${styles.selectField}`}>
-              <span>Approved menu *</span>
+              <span>Approved menu (optional with a shopping list)</span>
               <select value={menuId} disabled={loadingMenu} onChange={(event) => void chooseMenu(event.target.value)}>
-                <option value="">Choose an approved menu</option>
+                <option value="">Use a shopping list, or choose an approved menu</option>
                 {menus.map((menu) => <option value={menu.id} key={menu.id}>{menu.name}</option>)}
               </select><ChevronDown aria-hidden="true" />
             </label>
             {loadingMenu && <p className={styles.choiceStatus} role="status">Loading the checked ingredient list…</p>}
             {menuNextCursor && <button className={styles.choiceMore} type="button" disabled={loadingMoreMenus} onClick={() => void loadMoreMenus()}>{loadingMoreMenus ? 'Loading…' : 'Load more approved menus'}</button>}
             {menus.length === 0 && (
-              <div className={styles.inlineEmpty}>No approved menu yet. <button type="button" onClick={() => router.push('/menus')}>Review a menu first</button>.</div>
+              <div className={styles.inlineEmpty}>No approved menu yet. Add a shopping list below, or <button type="button" onClick={() => router.push('/menus')}>review a menu</button>.</div>
             )}
+            <ReviewedTextIntake mode="shopping" onApply={appendCheckedRows} disabled={saving} />
+            {additionalItems.length > 0 && <div className={styles.listDraft}>
+              <h3>Shopping list draft rows</h3>
+              <p>These reviewed rows are added alongside selected menu ingredients. Category starts as Other; choose a category if useful.</p>
+              {additionalItems.map((item, index) => <fieldset key={item.id} disabled={saving}>
+                <legend>Draft row {index + 1}</legend>
+                <div className={styles.twoColumns}>
+                  <label className={styles.field}><span>Item name *</span><input aria-label={`Draft item name, row ${index + 1}`} required maxLength={160} value={item.name} onChange={event => setAdditionalItems(current => current.map(row => row.id === item.id ? { ...row, name: event.target.value, itemKey: draftItemKey(event.target.value, row.id) } : row))} /></label>
+                  <label className={styles.field}><span>Quantity *</span><input aria-label={`Draft quantity, row ${index + 1}`} required inputMode="decimal" maxLength={24} value={item.quantity} onChange={event => setAdditionalItems(current => current.map(row => row.id === item.id ? { ...row, quantity: event.target.value } : row))} /></label>
+                  <label className={styles.field}><span>Unit *</span><select aria-label={`Draft unit, row ${index + 1}`} value={item.unit} onChange={event => setAdditionalItems(current => current.map(row => row.id === item.id ? { ...row, unit: event.target.value as typeof item.unit } : row))}>{intakeUnits.map(unit => <option key={unit} value={unit}>{unit.toLowerCase()}</option>)}</select></label>
+                  <label className={styles.field}><span>Category</span><select aria-label={`Draft category, row ${index + 1}`} value={item.specification.category} onChange={event => setAdditionalItems(current => current.map(row => row.id === item.id ? { ...row, specification: { ...row.specification, category: event.target.value as ProcurementCategory } } : row))}>{Object.entries(PROCUREMENT_CATEGORIES).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
+                </div>
+                <button className={styles.secondaryButton} type="button" onClick={() => setAdditionalItems(current => current.filter(row => row.id !== item.id))}>Remove draft row {index + 1}</button>
+              </fieldset>)}
+              {!validAdditionalItems && <p role="alert">Check each draft name, quantity and unit before saving. Quantities must be positive with at most three decimal places.</p>}
+            </div>}
             {selectedMenu && (
               <div className={styles.demand}>
                 <div className={styles.segmented}>

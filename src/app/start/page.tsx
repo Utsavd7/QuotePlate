@@ -9,8 +9,8 @@ import { productionEmailOwnerSignupAllowed } from '@/lib/auth/pilot-access';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Start a pilot',
-  description: 'Create a QuotePlate workspace built for restaurants in India.',
+  title: 'Create a workspace',
+  description: 'Create your private restaurant workspace with a verified Google email.',
   robots: { index: false, follow: false },
 };
 

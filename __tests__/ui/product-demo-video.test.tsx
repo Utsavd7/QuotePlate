@@ -7,7 +7,7 @@ it('introduces the 2:45 first-purchase journey with fictional records', () => {
   expect(root.querySelector('h2')?.text).toBe('Your first purchase, step by step.');
   expect(root.text).toContain('2:45');
   expect(root.text).toMatch(/fictional restaurant/i);
-  expect(root.text).toMatch(/approved pilot owner/i);
+  expect(root.text).toMatch(/verified Google email/i);
   expect(root.text).toMatch(/Google/);
   expect(root.text).toMatch(/phone photo/i);
   expect(root.text).toMatch(/upload/i);

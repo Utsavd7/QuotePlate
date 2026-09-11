@@ -93,7 +93,7 @@ test('demo autoplays muted, keeps subtitles optional and fits the viewport', asy
 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(section).toContainText(/fictional restaurant/i);
-  await expect(section).toContainText(/approved pilot owner/i);
+  await expect(section).toContainText(/verified Google email/i);
   await expect(section).toContainText(/Google/);
   await expect(section.getByRole('link', { name: 'Read transcript' })).toHaveCount(0);
   await expect(section.getByRole('link', { name: 'Download video', exact: true })).toHaveCount(0);
@@ -109,12 +109,16 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(transcript.ok()).toBe(true);
   const text = await transcript.text();
   expect(text).toContain('QuotePlate');
-  expect(text).toMatch(/approved pilot/i);
   expect(text).toMatch(/Google/i);
-  expect(text).toMatch(/restaurant(?:['’]s)? (?:details|name)/i);
+  expect(text).toMatch(/shopping-list photo or text/i);
+  expect(text).toMatch(/no menu needed/i);
+  expect(text).toMatch(/invoice photo/i);
+  expect(text).toMatch(/review and apply billed quantities and rates/i);
+  expect(text).toMatch(/public website.*review the source/is);
+  expect(text).toMatch(/add your restaurant and delivery address/i);
   expect(text).toMatch(/menu/i);
   expect(text).toMatch(/suppliers/i);
-  expect(text).toMatch(/new purchase|create a purchase/i);
+  expect(text).toMatch(/add them to your draft.*choose suppliers and save/is);
   expect(text).toMatch(/price-list photo/i);
   expect(text).toMatch(/one item at a time/i);
   expect(text).toMatch(/compar(?:e|ing)/i);
@@ -127,7 +131,7 @@ test('failed video offers a direct link and a readable transcript', async ({ pag
   expect(text).toMatch(/email/i);
   expect(text).toMatch(/copy/i);
   expect(text).toMatch(/you send the message/i);
-  expect(text).toMatch(/confirm contacts, categories and delivery terms/i);
+  expect(text).toMatch(/confirm business details and delivery terms/i);
   expect(text).toMatch(/public listings for nearby supplier leads/i);
   expect(text).toMatch(/plan portions, check stock/i);
   expect(text).toMatch(/delivery performance/i);
@@ -189,7 +193,7 @@ test('signup appears only after playback ends, stays below controls, and replay 
   const signup = nextStep.getByRole('link', { name: 'Start your first purchase', exact: true });
   await expect(signup).toHaveAttribute('href', '/start');
   await expect(signup).toHaveCSS('color', 'rgb(255, 255, 255)');
-  await expect(nextStep).toContainText('For approved pilot owners. Sign in with Google to begin.');
+  await expect(nextStep).toContainText('Create your workspace with Google to begin.');
   await expect(video).toHaveAttribute('controls', '');
   const playerBox = await video.boundingBox();
   const panelBox = await nextStep.boundingBox();

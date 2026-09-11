@@ -1,3 +1,5 @@
+import { getServerSession } from 'next-auth';
+import { AuthorizationError } from '@/lib/auth/guards';
 import { GET as listRequests, POST as createRequest } from '@/app/api/requests/route';
 import {
   GET as getRequest,
@@ -17,6 +19,9 @@ import {
   updateProcurementRequestDraft,
 } from '@/lib/procurement/request-service';
 import { requireAccountContext } from '@/lib/server-account';
+
+jest.mock('next-auth', () => ({ getServerSession: jest.fn() }));
+jest.mock('@/lib/auth', () => ({ authOptions: {} }));
 
 jest.mock('@/lib/server-account', () => ({
   requireAccountContext: jest.fn(),
@@ -104,6 +109,7 @@ const routeContext = (id: string) => ({ params: Promise.resolve({ id }) });
 describe('procurement request API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(getServerSession).mockResolvedValue({ user: { userId: 'member-a', tenantId: 'tenant-a' } } as never);
     jest.mocked(requireAccountContext).mockResolvedValue(account as never);
   });
 
@@ -145,6 +151,20 @@ describe('procurement request API', () => {
       requests: [{ id: 'request-a' }],
       nextCursor: 'next-page',
     });
+  });
+
+  it('uses the service live-account check without a duplicate account transaction', async () => {
+    jest.mocked(listProcurementRequests).mockResolvedValueOnce({ requests: [], nextCursor: null } as never);
+    const response = await listRequests(new Request('http://localhost/api/requests'));
+    expect(response.status).toBe(200);
+    expect(requireAccountContext).not.toHaveBeenCalled();
+  });
+
+  it('denies a revoked account even with a signed session', async () => {
+    jest.mocked(listProcurementRequests).mockRejectedValueOnce(new AuthorizationError());
+    const response = await listRequests(new Request('http://localhost/api/requests'));
+    expect(response.status).toBe(403);
+    expect(response.headers.get('cache-control')).toBe('private, no-store');
   });
 
   it('loads and updates only the tenant request selected by the route', async () => {
@@ -312,7 +332,7 @@ describe('procurement request API', () => {
       }),
       routeContext('request-a') as never,
     );
-    jest.mocked(requireAccountContext).mockResolvedValueOnce(null);
+    jest.mocked(getServerSession).mockResolvedValueOnce(null);
     const unauthorized = await listRequests(
       new Request('http://localhost/api/requests'),
     );

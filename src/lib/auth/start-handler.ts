@@ -19,10 +19,7 @@ import {
   GoogleOnboardingError,
 } from '@/lib/auth/oauth-start';
 import { consumeWorkspaceCreationRateLimit } from '@/lib/auth/rate-limit';
-import {
-  pilotEmailAllowed,
-  productionEmailOwnerSignupAllowed,
-} from '@/lib/auth/pilot-access';
+import { productionEmailOwnerSignupAllowed } from '@/lib/auth/pilot-access';
 import {
   browserJsonMutationRejection,
   privateMutationResponse,
@@ -94,18 +91,12 @@ export function createAuthStartHandler(dependencies: AuthStartDependencies) {
       ));
     }
 
-    if (!pilotEmailAllowed(body.email, dependencies.env)) {
-      return privateMutationResponse(NextResponse.json(
-        { error: 'This pilot is available only to approved restaurant owners.' },
-        { status: 403 },
-      ));
-    }
     if (
       body.method === 'email' &&
       !productionEmailOwnerSignupAllowed(dependencies.env)
     ) {
       return privateMutationResponse(NextResponse.json(
-        { error: 'Use your approved Google account to activate this pilot.' },
+        { error: 'Create your workspace with a verified Google email. Password-only signup is unavailable.' },
         { status: 403 },
       ));
     }
@@ -147,14 +138,14 @@ export function createAuthStartHandler(dependencies: AuthStartDependencies) {
 
     if (!googleAuthAvailable(dependencies.env)) {
       return privateMutationResponse(NextResponse.json(
-        { error: 'Google sign-in is not configured. Use email and password.' },
+        { error: 'Google sign-in is not configured. Try again shortly.' },
         { status: 503 },
       ));
     }
     const secret = dependencies.env.NEXTAUTH_SECRET?.trim();
     if (!secret) {
       return privateMutationResponse(NextResponse.json(
-        { error: 'Google sign-in is temporarily unavailable. Use email and password.' },
+        { error: 'Google sign-in is temporarily unavailable. Try again shortly.' },
         { status: 503 },
       ));
     }

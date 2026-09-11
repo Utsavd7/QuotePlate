@@ -98,6 +98,10 @@ export function AuthForm({
   async function handleEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!ready || pending) return;
+    if (mode === 'start' && !emailOwnerSignupAvailable) {
+      await handleGoogle();
+      return;
+    }
     const form = event.currentTarget;
     if (!form.reportValidity()) return;
 
@@ -178,7 +182,7 @@ export function AuthForm({
     <form className={styles.form} method="post" onSubmit={handleEmail} ref={formRef}>
       <div className={styles.formIntro}>
         <div>
-          <p className={styles.formKicker}>{mode === 'signin' ? 'Welcome back' : 'Controlled pilot'}</p>
+          <p className={styles.formKicker}>{mode === 'signin' ? 'Welcome back' : 'Restaurant owner signup'}</p>
           <h2>{mode === 'signin' ? 'Sign in to QuotePlate' : 'Create your workspace'}</h2>
         </div>
         <p>
@@ -293,12 +297,12 @@ export function AuthForm({
           <p className={styles.providerNote}>
             {mode === 'signin'
               ? 'Google sign-in is not configured for this deployment. Use email and password.'
-              : 'Google pilot access is not configured for this deployment yet.'}
+              : 'Google signup is temporarily unavailable. Please try again later.'}
           </p>
         )}
         {mode === 'start' && !emailOwnerSignupAvailable && (
           <p className={styles.providerNote}>
-            Pilot activation uses the approved owner&apos;s verified Google email.
+            Create your workspace with a verified Google email. Choose the same email you entered above.
           </p>
         )}
       </div>
@@ -312,7 +316,7 @@ export function AuthForm({
 
       {mode === 'start' && (
         <p className={styles.terms}>
-          By creating a workspace, you agree to the <Link href="/terms">pilot terms</Link>{' '}
+          By creating a workspace, you agree to the <Link href="/terms">terms</Link>{' '}
           and acknowledge the <Link href="/privacy">privacy notice</Link>.
         </p>
       )}

@@ -326,7 +326,7 @@ test.describe('public landing responsive contract', () => {
         await expect(demoCta).toBeVisible();
         await expect(demoCta).toHaveAttribute('href', '#watch-demo');
         await expect(
-          closingCta.getByRole('link', { name: 'Start free pilot', exact: true }),
+          closingCta.getByRole('link', { name: 'Get started', exact: true }),
         ).toHaveAttribute('href', '/start');
         await expect(page.locator('a[href^="/product"]')).toHaveCount(0);
 
@@ -362,11 +362,11 @@ test.describe('public landing responsive contract', () => {
           await expect(header.getByRole('link', { name: 'How it works' })).toHaveAttribute('href', '#how-it-works');
           await expect(header.getByRole('link', { name: 'Security' })).toBeVisible();
           await expect(header.getByRole('link', { name: 'Security' })).toHaveAttribute('href', '#security');
-          await expect(header.getByRole('link', { name: 'Start a pilot' })).toBeVisible();
-          await expect(header.getByRole('link', { name: 'Start a pilot' })).toHaveAttribute('href', '/start');
+          await expect(header.getByRole('link', { name: 'Get started' })).toBeVisible();
+          await expect(header.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/start');
         } else if (size.width > 620) {
-          await expect(header.getByRole('link', { name: 'Start a pilot' })).toBeVisible();
-          await expect(header.getByRole('link', { name: 'Start a pilot' })).toHaveAttribute('href', '/start');
+          await expect(header.getByRole('link', { name: 'Get started' })).toBeVisible();
+          await expect(header.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/start');
         }
 
         await expectNoPageOverflow(page);

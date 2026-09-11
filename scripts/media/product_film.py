@@ -143,17 +143,20 @@ def export_text(story, timing, work):
     (work / 'quoteplate-product-film.vtt').write_text('WEBVTT\n\n' + '\n\n'.join(cues) + '\n')
     transcript = [
         'QuotePlate — 2:45 product film',
-        'An overview of QuotePlate’s major feature families, following one fictional restaurant’s first purchase. '
+        story.get('transcriptIntroduction', 'An overview of QuotePlate’s major feature families, following one fictional restaurant’s first purchase. '
         'Actual local application recordings with illustrative licensed kitchen opening and closing footage. '
-        'Restaurant details and Google entry are shown for approved pilot owners; authentication is completed off camera. '
+        'Restaurant details and signup entry are shown; authentication is completed off camera. '
         'Communication controls create drafts for the user to send. '
         'Actions may be condensed; this is not a claim of loading speed. '
-        'Synthetic American-English narration.',
+        'Synthetic American-English narration.'),
     ]
     transcript.extend(scene['text'] for scene in story['scenes'])
     transcript.append('Start your first purchase: https://quoteplate.netlify.app/start')
     (work / 'quoteplate-product-film.txt').write_text('\n\n'.join(transcript) + '\n')
-    (work / 'credits.txt').write_text(Path(__file__).with_name('credits.txt').read_text())
+    credits_file = story.get('creditsFile', 'credits.txt')
+    if Path(credits_file).name != credits_file or not credits_file.endswith('.txt'):
+        raise ValueError('Credits must name a local media text file.')
+    (work / 'credits.txt').write_text(Path(__file__).with_name(credits_file).read_text())
 
 
 def generate_audio(args, story):
@@ -306,6 +309,8 @@ def render_video_shot(source, shot, frame_filter, output):
 def render(args, story):
     timing = validate_inputs(args, story)
     capture_hashes = {shot['file']: digest(args.captures / shot['file']) for scene in story['scenes'] for shot in scene.get('shots', [])}
+    narration_hashes = {name: row['wavSha256'] for name, row in timing['scenes'].items()}
+    music_hash = digest(args.music)
     export_text(story, timing['scenes'], args.work)
     edit = args.work / 'edit'
     edit.mkdir(exist_ok=True)
@@ -359,6 +364,8 @@ def render(args, story):
     info = probe(output)
     if any(digest(args.captures / name) != value for name, value in capture_hashes.items()):
         raise ValueError('A capture changed during rendering. Rerun with the completed capture handoff.')
+    if digest(args.music) != music_hash or any(digest(args.work / 'audio' / f'{name}.wav') != value for name, value in narration_hashes.items()):
+        raise ValueError('An audio source changed during rendering. Rerun with the completed audio handoff.')
     video = next(stream for stream in info['streams'] if stream['codec_type'] == 'video')
     audio = next(stream for stream in info['streams'] if stream['codec_type'] == 'audio')
     seconds = float(info['format']['duration'])
@@ -377,8 +384,8 @@ def render(args, story):
         for shot in shots:
             label = sheet_frames / f'{frame_index:02}.txt'
             label.write_text(f"{stamp(at)} / {scene['id']}")
-            vf = (f"scale=480:270,pad=480:300:0:0:color=0x172521,drawtext=fontfile='{filter_path(font)}':"
-                  f"textfile='{filter_path(label)}':expansion=none:fontsize=15:fontcolor=white:x=10:y=277")
+            vf = (f"scale=480:300,pad=480:330:0:0:color=0x172521,drawtext=fontfile='{filter_path(font)}':"
+                  f"textfile='{filter_path(label)}':expansion=none:fontsize=15:fontcolor=white:x=10:y=307")
             ffmpeg('-ss', at + shot['duration'] / 2, '-i', output, '-vf', vf,
                    '-frames:v', '1', '-q:v', '3', sheet_frames / f'frame-{frame_index:02}.jpg')
             frame_index += 1
@@ -391,6 +398,8 @@ def render(args, story):
         'videoCodec': video['codec_name'], 'audioCodec': audio['codec_name'], 'fullDecode': 'passed',
         'storyboardSha256': digest(args.storyboard), 'sourceSha256': digest(args.source_film),
         'outputSha256': digest(output), 'freshCaptures': capture_hashes, 'posterAtSeconds': poster_at,
+        'narrationSha256': narration_hashes, 'musicSha256': music_hash,
+        'musicSource': str(args.music.resolve()), 'sourceFilm': str(args.source_film.resolve()),
         'brandSources': story.get('brandSources', []),
         'videoShots': [shot for scene in story['scenes'] for shot in scene.get('shots', [])],
     })

@@ -1,21 +1,29 @@
+import { isIP } from 'node:net';
+
 type PilotEnvironment = {
   DATABASE_URL?: string;
   NEXTAUTH_URL?: string;
   NODE_ENV?: string;
   QUOTEPLATE_LOCAL_E2E?: string;
-  QUOTEPLATE_PILOT_EMAILS?: string;
 };
 
-const MAXIMUM_PILOT_OWNERS = 20;
+// Accept URL-parsed hostnames only: URL normalizes IPv6 and retains its brackets.
+export function isLoopbackHostname(hostname: string) {
+  const normalized = hostname.toLowerCase();
+  if (normalized === 'localhost') return true;
+  const address = normalized.startsWith('[') && normalized.endsWith(']')
+    ? normalized.slice(1, -1)
+    : normalized;
+  const version = isIP(address);
+  return (version === 4 && address.startsWith('127.')) ||
+    (version === 6 && address === '::1');
+}
 
 function hasLoopbackUrl(value: string | undefined, protocols: string[]) {
   if (!value?.trim()) return false;
   try {
     const parsed = new URL(value.trim());
-    const hostname = parsed.hostname.toLowerCase();
-    return protocols.includes(parsed.protocol) && (
-      hostname === 'localhost' || hostname === '::1' || hostname.startsWith('127.')
-    );
+    return protocols.includes(parsed.protocol) && isLoopbackHostname(parsed.hostname);
   } catch {
     return false;
   }
@@ -28,33 +36,6 @@ export function localPilotTestModeAllowed(environment: PilotEnvironment) {
     hasLoopbackUrl(environment.NEXTAUTH_URL, ['http:', 'https:']) &&
     hasLoopbackUrl(environment.DATABASE_URL, ['postgres:', 'postgresql:'])
   );
-}
-
-export function configuredPilotEmails(environment: PilotEnvironment) {
-  const entries = (environment.QUOTEPLATE_PILOT_EMAILS ?? '')
-    .split(',')
-    .map((entry) => entry.trim().toLowerCase())
-    .filter(Boolean);
-  if (
-    entries.length === 0 ||
-    entries.length > MAXIMUM_PILOT_OWNERS ||
-    new Set(entries).size !== entries.length ||
-    entries.some((entry) => entry.length > 320 || !/^\S+@\S+\.\S+$/.test(entry))
-  ) {
-    return null;
-  }
-  return new Set(entries);
-}
-
-export function pilotEmailAllowed(
-  email: unknown,
-  environment: PilotEnvironment = process.env,
-) {
-  if (environment.NODE_ENV !== 'production') return true;
-  if (localPilotTestModeAllowed(environment)) return true;
-  if (typeof email !== 'string') return false;
-  const configured = configuredPilotEmails(environment);
-  return configured?.has(email.trim().toLowerCase()) ?? false;
 }
 
 export function productionEmailOwnerSignupAllowed(

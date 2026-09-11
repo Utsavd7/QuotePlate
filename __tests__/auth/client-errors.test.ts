@@ -30,6 +30,10 @@ describe('authentication client errors', () => {
     );
   });
 
+  it.each(['Signin', 'OAuthSignin', 'OAuthCallback', 'OAuthCreateAccount', 'Callback', 'Configuration'])('offers valid recovery for Google-only owners (%s)', (code) => {
+    expect(authErrorMessage(code)).toBe('Google sign-in is temporarily unavailable. Try again shortly.');
+  });
+
   it('keeps the exact safe Google outage message useful', () => {
     expect(
       authErrorMessage(

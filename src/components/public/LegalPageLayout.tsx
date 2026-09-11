@@ -18,7 +18,7 @@ export function LegalPageLayout({ title, intro, children }: LegalPageLayoutProps
       <main className="legal-page public-container" id="main-content">
         <Link className="legal-page__back" href="/">← Back to {brand.productName}</Link>
         <header>
-          <p className="public-eyebrow">Controlled pilot draft · Last updated 7 September 2026</p>
+          <p className="public-eyebrow">Service information · Last updated 11 September 2026</p>
           <h1>{title}</h1>
           <p>{intro}</p>
         </header>

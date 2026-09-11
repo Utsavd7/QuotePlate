@@ -25,12 +25,15 @@ import {
 } from '@/lib/suppliers/supplier-service';
 import { SupplierValidationError } from '@/lib/suppliers/supplier-schema';
 import { requireAccountContext } from '@/lib/server-account';
+import { getServerSession } from 'next-auth';
+import { AuthorizationError } from '@/lib/auth/guards';
 import { validateSupplierCapabilities } from '@/lib/suppliers/supplier-capabilities';
 import { SUPPLIER_REQUEST_BODY_BYTES } from '@/lib/suppliers/supplier-http';
 
 jest.mock('@/lib/server-account', () => ({
   requireAccountContext: jest.fn(),
 }));
+jest.mock('next-auth', () => ({ getServerSession: jest.fn() }));
 
 jest.mock('@/lib/suppliers/supplier-service', () => ({
   createSupplier: jest.fn(),
@@ -85,6 +88,8 @@ const routeContext = (id: string) => ({ params: Promise.resolve({ id }) });
 
 describe('tenant supplier API', () => {
   beforeEach(() => {
+    jest.mocked(getServerSession).mockReset();
+    jest.mocked(getServerSession).mockResolvedValue({ user: { userId: 'member-a', tenantId: 'tenant-a' } });
     jest.mocked(requireAccountContext).mockReset();
     jest.mocked(requireAccountContext).mockResolvedValue(account as never);
     for (const fn of [
@@ -99,6 +104,14 @@ describe('tenant supplier API', () => {
     ]) {
       jest.mocked(fn).mockReset();
     }
+  });
+
+  it('authorizes list reads in the service without a duplicate account transaction', async () => {
+    jest.mocked(listSuppliers).mockResolvedValue({ suppliers: [], nextCursor: null } as never);
+    expect((await listSupplierRoute(new Request('http://localhost/api/suppliers'))).status).toBe(200);
+    expect(requireAccountContext).not.toHaveBeenCalled();
+    jest.mocked(listSuppliers).mockRejectedValueOnce(new AuthorizationError());
+    expect((await listSupplierRoute(new Request('http://localhost/api/suppliers'))).status).toBe(403);
   });
 
   it('creates and lists through the authenticated actor without trusting client tenancy', async () => {
@@ -537,6 +550,7 @@ describe('tenant supplier API', () => {
   });
 
   it('rejects every supplier endpoint before reading data when unauthenticated', async () => {
+    jest.mocked(getServerSession).mockResolvedValue(null);
     jest.mocked(requireAccountContext).mockResolvedValue(null);
     const responses = await Promise.all([
       listSupplierRoute(new Request('http://localhost/api/suppliers')),

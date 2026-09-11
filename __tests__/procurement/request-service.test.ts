@@ -89,6 +89,36 @@ function item(
 const requestItems: RequestItemsV1 = { v: 1, items: [item('ingredient-a')] };
 const requestSourcing: RequestSourcingV1 = { v: 1, default: currentAndVerified };
 
+describe('reviewed additional draft items', () => {
+  const draft = {
+    title: 'Shopping list', defaultSourcing: verifiedNew, sourcingOverrides: {},
+    deliveryDetails: { addressLine: '12 Market Road', city: 'Mumbai', state: 'Maharashtra', pin: '400001' },
+    deliveryDate: '2027-01-10', quoteDeadline: '2027-01-09T10:00:00.000Z',
+    additionalItems: requestItems,
+  };
+  it('allows validated list-only rows without an approved menu', () => {
+    expect(validateProcurementRequestDraftInput(draft, now)).toMatchObject({ menuId: null, selectedItemIds: [], additionalItems: requestItems });
+  });
+  it('preserves the menu contract while appending separately identified rows', () => {
+    expect(validateProcurementRequestDraftInput({ ...draft, menuId: 'menu-a', selectedItemIds: ['menu-row'] }, now)).toMatchObject({ menuId: 'menu-a', selectedItemIds: ['menu-row'], additionalItems: requestItems });
+  });
+  it('rejects empty demand, unbound menu rows, collisions and combined overflow', () => {
+    for (const invalid of [
+      { ...draft, additionalItems: undefined },
+      { ...draft, additionalItems: { v: 1, items: [] } },
+      { ...draft, selectedItemIds: ['menu-row'] },
+      { ...draft, menuId: 'menu-a', selectedItemIds: ['ingredient-a'] },
+      { ...draft, menuId: 'menu-a', selectedItemIds: Array.from({ length: 250 }, (_, i) => `menu-${i}`) },
+      { ...draft, additionalItems: { v: 1, items: [item('same'), item('same')] } },
+    ]) expect(() => validateProcurementRequestDraftInput(invalid, now)).toThrow(ProcurementRequestValidationError);
+  });
+  it('does not invent missing quantities, units or specifications', () => {
+    for (const change of [{ quantity: '' }, { unit: '' }, { quantity: '0' }, { specification: { v: 1, category: 'GUESSED' } }]) {
+      expect(() => validateProcurementRequestDraftInput({ ...draft, additionalItems: { v: 1, items: [{ ...item('row'), ...change }] } }, now)).toThrow(ProcurementRequestValidationError);
+    }
+  });
+});
+
 describe('compact request documents and request commands', () => {
   it('validates the exact item shape while preserving exact quantities, specifications, and duplicate item keys', () => {
     expect(validateRequestItems({

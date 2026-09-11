@@ -35,38 +35,32 @@ function allowRateLimit() {
 }
 
 describe('POST /api/auth/start', () => {
-  it('keeps production workspace creation inside the four-restaurant pilot', async () => {
+  it.each([undefined, 'another-owner@example.com'])('starts public Google signup without operator approval (%s)', async (legacyList) => {
     const emailSignup = jest.fn();
-    const rateLimit = jest.fn();
+    const rateLimit = allowRateLimit();
+    const env = {
+      NODE_ENV: 'production',
+      GOOGLE_CLIENT_ID: 'client',
+      GOOGLE_CLIENT_SECRET: 'secret',
+      NEXTAUTH_SECRET: 'test-secret-that-is-long-enough',
+      QUOTEPLATE_PILOT_EMAILS: legacyList,
+    };
     const handler = createAuthStartHandler({
-      env: {
-        NODE_ENV: 'production',
-        GOOGLE_CLIENT_ID: 'client',
-        GOOGLE_CLIENT_SECRET: 'secret',
-        NEXTAUTH_SECRET: 'test-secret-that-is-long-enough',
-        QUOTEPLATE_PILOT_EMAILS: 'pilot-one@example.com,pilot-two@example.com',
-      },
+      env,
       emailSignup,
       now: () => new Date('2026-08-28T00:00:00.000Z'),
       rateLimit,
     });
 
-    for (const method of ['email', 'google']) {
-      const response = await handler(request({
-        ...workspace,
-        method,
-        password: 'secure password',
-      }));
-      expect(response.status).toBe(403);
-      await expect(response.json()).resolves.toEqual({
-        error: 'This pilot is available only to approved restaurant owners.',
-      });
-    }
-    expect(rateLimit).not.toHaveBeenCalled();
+    const response = await handler(request({ ...workspace, method: 'google' }));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('set-cookie')).toContain('autorfp.google-onboarding.');
+    expect(response.headers.get('cache-control')).toBe('private, no-store');
+    expect(rateLimit).toHaveBeenCalledTimes(1);
     expect(emailSignup).not.toHaveBeenCalled();
   });
 
-  it('uses verified Google—not an unverified password—to activate a production pilot owner', async () => {
+  it('disables password-only owner creation in production', async () => {
     const emailSignup = jest.fn();
     const rateLimit = allowRateLimit();
     const handler = createAuthStartHandler({
@@ -75,7 +69,6 @@ describe('POST /api/auth/start', () => {
         GOOGLE_CLIENT_ID: 'client',
         GOOGLE_CLIENT_SECRET: 'secret',
         NEXTAUTH_SECRET: 'test-secret-that-is-long-enough',
-        QUOTEPLATE_PILOT_EMAILS: workspace.email,
       },
       emailSignup,
       now: () => new Date('2026-08-28T00:00:00.000Z'),
@@ -91,6 +84,64 @@ describe('POST /api/auth/start', () => {
     expect(response.status).toBe(403);
     expect(emailSignup).not.toHaveBeenCalled();
     expect(rateLimit).not.toHaveBeenCalled();
+  });
+
+  it('preserves password signup for the explicit all-loopback production fixture', async () => {
+    const emailSignup = jest.fn().mockResolvedValue({ userId: 'fixture-owner', tenantId: 'fixture-tenant' });
+    const handler = createAuthStartHandler({
+      env: {
+        NODE_ENV: 'production', NEXTAUTH_URL: 'http://localhost',
+        DATABASE_URL: 'postgresql://autorfp_app:test@127.0.0.1:5432/fixture',
+        QUOTEPLATE_LOCAL_E2E: '1',
+      },
+      emailSignup, rateLimit: allowRateLimit(), now: () => new Date(),
+    });
+    const response = await handler(request({ ...workspace, method: 'email', password: 'secure password' }));
+    expect(response.status).toBe(201);
+    expect(emailSignup).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects cross-origin production Google signup before rate-limit or cookie work', async () => {
+    const rateLimit = allowRateLimit();
+    const handler = createAuthStartHandler({
+      env: { NODE_ENV: 'production', GOOGLE_CLIENT_ID: 'client', GOOGLE_CLIENT_SECRET: 'secret', NEXTAUTH_SECRET: 'secret' },
+      emailSignup: jest.fn(), rateLimit, now: () => new Date(),
+    });
+    const response = await handler(new Request('http://localhost/api/auth/start', {
+      method: 'POST', headers: { origin: 'https://attacker.example', 'content-type': 'application/json' },
+      body: JSON.stringify({ ...workspace, method: 'google' }),
+    }));
+    expect(response.status).toBe(403);
+    expect(response.headers.get('set-cookie')).toBeNull();
+    expect(rateLimit).not.toHaveBeenCalled();
+  });
+
+  it('enforces public Google signup rate limits without issuing an onboarding cookie', async () => {
+    const handler = createAuthStartHandler({
+      env: { NODE_ENV: 'production', GOOGLE_CLIENT_ID: 'client', GOOGLE_CLIENT_SECRET: 'secret', NEXTAUTH_SECRET: 'secret' },
+      emailSignup: jest.fn(), now: () => new Date(),
+      rateLimit: jest.fn().mockResolvedValue({ allowed: false, retryAfterSeconds: 137 }),
+    });
+    const response = await handler(request({ ...workspace, method: 'google' }));
+    expect(response.status).toBe(429);
+    expect(response.headers.get('retry-after')).toBe('137');
+    expect(response.headers.get('set-cookie')).toBeNull();
+  });
+
+  it.each([
+    { GOOGLE_CLIENT_ID: 'client' },
+    { GOOGLE_CLIENT_ID: 'client', GOOGLE_CLIENT_SECRET: 'secret' },
+  ])('does not offer disabled password signup when production Google is unavailable', async (config) => {
+    const emailSignup = jest.fn();
+    const handler = createAuthStartHandler({
+      env: { NODE_ENV: 'production', ...config }, emailSignup,
+      rateLimit: allowRateLimit(), now: () => new Date(),
+    });
+    const response = await handler(request({ ...workspace, method: 'google' }));
+    expect(response.status).toBe(503);
+    expect((await response.json()).error).not.toContain('Use email and password');
+    expect(response.headers.get('set-cookie')).toBeNull();
+    expect(emailSignup).not.toHaveBeenCalled();
   });
 
   it('rejects cross-origin and non-JSON signup attempts before consuming quota', async () => {
@@ -293,7 +344,7 @@ describe('POST /api/auth/start', () => {
 
     expect(response.status).toBe(503);
     await expect(response.json()).resolves.toEqual({
-      error: 'Google sign-in is not configured. Use email and password.',
+      error: 'Google sign-in is not configured. Try again shortly.',
     });
     expect(response.headers.get('set-cookie')).toBeNull();
   });
@@ -306,7 +357,6 @@ describe('POST /api/auth/start', () => {
         GOOGLE_CLIENT_SECRET: 'secret',
         NEXTAUTH_SECRET: secret,
         NODE_ENV: 'production',
-        QUOTEPLATE_PILOT_EMAILS: workspace.email,
       },
       emailSignup: jest.fn(),
       now: () => new Date('2026-08-28T00:00:00.000Z'),
@@ -354,7 +404,6 @@ describe('POST /api/auth/start', () => {
         GOOGLE_CLIENT_SECRET: 'secret',
         NEXTAUTH_SECRET: 'test-secret-that-is-long-enough',
         NODE_ENV: 'production',
-        QUOTEPLATE_PILOT_EMAILS: workspace.email,
       },
       emailSignup: jest.fn(),
       now: () => new Date('2026-08-28T00:00:00.000Z'),

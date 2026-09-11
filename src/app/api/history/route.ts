@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 import { privateNoStoreResponse as privateResponse } from '@/lib/api/private-response';
 import { problemResponse } from '@/lib/api/problem';
@@ -7,16 +9,17 @@ import {
   listProcurementHistory,
   ReportingValidationError,
 } from '@/lib/reporting/reporting-service';
-import { requireAccountContext } from '@/lib/server-account';
 
 export async function GET(request: Request) {
-  const account = await requireAccountContext();
-  if (!account) return privateResponse(problemResponse(401, 'Unauthorized', 'Authentication is required.'));
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.userId;
+  const tenantId = session?.user?.tenantId;
+  if (typeof userId !== 'string' || !userId || typeof tenantId !== 'string' || !tenantId) return privateResponse(problemResponse(401, 'Unauthorized', 'Authentication is required.'));
   const url = new URL(request.url);
   const limit = url.searchParams.get('limit');
   try {
     const history = await listProcurementHistory({
-      actor: { tenantId: account.tenant.id, userId: account.user.id },
+      actor: { tenantId, userId },
       cursor: url.searchParams.get('cursor') ?? undefined,
       limit: limit === null ? undefined : Number(limit),
     });
