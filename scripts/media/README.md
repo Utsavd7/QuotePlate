@@ -1,5 +1,12 @@
 # QuotePlate local film pipeline
 
+The current public film includes six completed workflow pickups and 22 unchanged
+clips, including Google-only signup and the licensed kitchen bookends. Parent
+image review and finalizer checks passed before public copy. See
+[workflow pickup handoff](../../docs/media/quoteplate-workflow-pickups.md) for the
+current artifacts, provenance, checks and final hash. The signup-only account
+below documents the preserved previous edition.
+
 The production Google-only signup pickup is complete. Both replacement clips
 were visually reviewed and checked for an enabled Google control, no password
 field and no email-based workspace creation control. The corrected final render, contact-sheet review and full publication checks
