@@ -23,10 +23,11 @@ type CacheEntry = {
 const TTL_MS = 30_000;
 // Keep the existing instant stale-while-revalidate path, but never extend it on failure.
 const STALE_GRACE_MS = 30_000;
+const READ_DEADLINE_MS = 15_000;
 const cacheableRequests = new Set<string>(Object.values(WORKSPACE_FIRST_REQUESTS));
 const responseCache = new Map<string, CacheEntry>();
 const mutations = new Set<Promise<void>>();
-const evictFailedBodies = new WeakMap<Response, () => void>();
+const evictFailedBodies = new WeakMap<Response, (timeout?: DOMException) => void>();
 let activeWorkspaceScope: string | null = null;
 let cacheGeneration = 0;
 let sessionGeneration = 0;
@@ -56,6 +57,10 @@ function aborted(signal?: AbortSignal | null) {
   return signal?.reason ?? new DOMException('Workspace read cancelled.', 'AbortError');
 }
 
+function loadingTimeout() {
+  return new DOMException('Loading took too long. Please try again.', 'TimeoutError');
+}
+
 // A component's cancellation ends only its wait, not another component's/prefetch's fetch.
 function waitFor<T>(promise: Promise<T>, signal?: AbortSignal | null): Promise<T> {
   if (!signal) return promise;
@@ -72,14 +77,21 @@ function waitFor<T>(promise: Promise<T>, signal?: AbortSignal | null): Promise<T
 }
 
 function cloneForReader(response: Response, callerSignal?: AbortSignal | null): Response {
-  const signal = callerSignal
-    ? AbortSignal.any([callerSignal, readerLifetime.signal])
-    : readerLifetime.signal;
   const copy = response.clone();
   if (!copy.body) return copy;
+  const deadline = new AbortController();
+  const signal = AbortSignal.any([
+    deadline.signal, readerLifetime.signal, ...(callerSignal ? [callerSignal] : []),
+  ]);
   const reader = copy.body.getReader();
+  const timer = setTimeout(() => deadline.abort(loadingTimeout()), READ_DEADLINE_MS);
+  let finished = false;
   let cancel: () => void;
-  const cleanup = () => signal.removeEventListener('abort', cancel);
+  const cleanup = () => {
+    finished = true;
+    clearTimeout(timer);
+    signal.removeEventListener('abort', cancel);
+  };
   // Preserve fetch's body-level cancellation while leaving the shared cache branch intact.
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -87,6 +99,8 @@ function cloneForReader(response: Response, callerSignal?: AbortSignal | null): 
         cleanup();
         controller.error(aborted(signal));
         void reader.cancel().catch(() => undefined);
+        // Only our deadline cancels transport; caller/session cancellation remains separate.
+        if (deadline.signal.aborted) evictFailedBodies.get(response)?.(deadline.signal.reason);
       };
       if (signal.aborted) cancel();
       else signal.addEventListener('abort', cancel, { once: true });
@@ -94,10 +108,11 @@ function cloneForReader(response: Response, callerSignal?: AbortSignal | null): 
     async pull(controller) {
       try {
         const chunk = await reader.read();
-        if (signal.aborted) return;
+        if (finished) return;
         if (chunk.done) { cleanup(); controller.close(); }
         else controller.enqueue(chunk.value);
       } catch (error) {
+        if (finished) return;
         cleanup();
         // A broken transport poisons all clones, but cancelling this reader does not.
         if (!signal.aborted) evictFailedBodies.get(response)?.();
@@ -123,19 +138,26 @@ function startWorkspaceRefresh(url: WorkspaceRequest, init?: RequestInit): Promi
   const current = responseCache.get(url);
   if (current?.refresh) return current.refresh;
   const entry: CacheEntry = current ?? { controller: new AbortController(), expiresAt: 0, response: null, refresh: null };
-  entry.controller = new AbortController();
+  const transport = new AbortController();
+  entry.controller = transport;
   responseCache.set(url, entry);
-  const refresh = fetch(url, { ...init, signal: entry.controller.signal })
+  const headerTimer = setTimeout(() => transport.abort(loadingTimeout()), READ_DEADLINE_MS);
+  const refresh = fetch(url, { ...init, signal: transport.signal })
     .then(response => {
+      let cached: Response | null = null;
+      const evict = (timeout?: DOMException) => {
+        // An old body cannot evict a replacement or discard a newer in-flight refresh.
+        if (cached && responseCache.get(url) === entry && entry.response === cached) {
+          if (entry.controller === transport) responseCache.delete(url);
+          else { entry.response = null; entry.expiresAt = 0; }
+        }
+        if (timeout) transport.abort(timeout);
+      };
+      evictFailedBodies.set(response, evict);
       if (responseCache.get(url) === entry) {
         if (response.ok && !response.redirected) {
-          const cached = response.clone();
+          cached = response.clone();
           entry.response = cached;
-          const evict = () => {
-            // An old reader must not evict a newer successful refresh or another session.
-            if (responseCache.get(url) === entry && entry.response === cached) responseCache.delete(url);
-          };
-          evictFailedBodies.set(response, evict);
           evictFailedBodies.set(cached, evict);
           entry.expiresAt = Date.now() + TTL_MS;
         } else {
@@ -145,6 +167,7 @@ function startWorkspaceRefresh(url: WorkspaceRequest, init?: RequestInit): Promi
             authorizationGeneration += 1;
             revokeReaders();
             authorizationDenial = response.clone();
+            evictFailedBodies.set(authorizationDenial, evict);
             for (const other of responseCache.values()) other.controller.abort();
             responseCache.clear();
           }
@@ -156,7 +179,7 @@ function startWorkspaceRefresh(url: WorkspaceRequest, init?: RequestInit): Promi
       if (!entry.response && responseCache.get(url) === entry) responseCache.delete(url);
       throw error;
     })
-    .finally(() => { entry.refresh = null; });
+    .finally(() => { clearTimeout(headerTimer); entry.refresh = null; });
   entry.refresh = refresh;
   return refresh;
 }
