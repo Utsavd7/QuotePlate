@@ -35,6 +35,22 @@ export function reviewQuoteItems(form: FormData, requestItems: PublicQuoteReques
   return { items, subtotal, gst };
 }
 
+// Progress is advisory: reuse each item's actual validation without changing
+// entries or bypassing the complete quote and combined-total review.
+export function quoteItemProgress(form: FormData, requestItems: PublicQuoteRequestDto['items']) {
+  let remaining = 0;
+  let firstProblem: QuoteReviewError | null = null;
+  for (const item of requestItems) {
+    try { reviewQuoteItems(form, [item]); }
+    catch (problem) {
+      if (!(problem instanceof QuoteReviewError)) throw problem;
+      remaining += 1;
+      firstProblem ??= problem;
+    }
+  }
+  return { remaining, firstProblem };
+}
+
 export function reviewQuote(form: FormData, request: PublicQuoteRequestDto) {
   const { items, subtotal, gst } = reviewQuoteItems(form, request.items);
   let freight: bigint;

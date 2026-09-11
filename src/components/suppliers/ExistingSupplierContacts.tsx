@@ -2,11 +2,11 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { contactRowsCsv, parseContactList, reviewContactRows, type ContactRow } from '@/lib/suppliers/contact-list';
+import { contactRowsCsv, findSupplierContactMatches, parseContactList, reviewContactRows, type ContactRow, type ExistingSupplierContact } from '@/lib/suppliers/contact-list';
 import { workspaceMutationFetch } from '@/lib/client/workspace-prefetch';
 import styles from './existing-supplier-contacts.module.css';
 
-export function ExistingSupplierContacts({ onImported }: { onImported: (count: number) => Promise<void> }) {
+export function ExistingSupplierContacts({ onImported, existingContacts = [] }: { onImported: (count: number) => Promise<void>; existingContacts?: readonly ExistingSupplierContact[] }) {
   const [source, setSource] = useState('');
   const [rows, setRows] = useState<ContactRow[] | null>(null);
   const [error, setError] = useState('');
@@ -66,14 +66,17 @@ export function ExistingSupplierContacts({ onImported }: { onImported: (count: n
       </> : <>
         <h2 ref={heading} tabIndex={-1}>Check {rows.length} supplier{rows.length === 1 ? '' : 's'}</h2>
         <p className={styles.help}>Correct any details before adding. Existing supplier records will not be overwritten.</p>
+        {existingContacts.length > 0 && <p className={styles.help}>Contact matches cover only supplier records currently loaded. Remove rows already saved, or review whether they belong to a different business with a shared contact.</p>}
         <div className={styles.tableWrap}>
           <table><thead><tr><th scope="col">Business name</th><th scope="col">Phone</th><th scope="col">Email</th><th scope="col"><span className={styles.srOnly}>Actions</span></th></tr></thead>
             <tbody>{rows.map((row, index) => {
               const issue = review?.errors.find(item => item.row === index);
+              const matches = findSupplierContactMatches(row, existingContacts);
               return <tr key={index}>
                 {(['businessName', 'phone', 'email'] as const).map((key, column) => <td key={key} data-label={['Business name', 'Phone', 'Email'][column]}>
                   <input aria-label={`${['Business name', 'Phone', 'Email'][column]}, row ${index + 1}`} value={row[key]} type={key === 'phone' ? 'tel' : key === 'email' ? 'email' : 'text'} maxLength={key === 'businessName' ? 160 : key === 'phone' ? 80 : 320} disabled={busy} aria-invalid={Boolean(issue)} aria-describedby={issue ? `contact-row-error-${index}` : undefined} onChange={event => edit(index, key, event.target.value)} />
                   {column === 0 && issue && <small id={`contact-row-error-${index}`} className={styles.error}>{issue.message}</small>}
+                  {column === 0 && matches.length > 0 && <small className={styles.help}>Contact already saved: {matches.map(match => `${match.supplier.businessName} (${match.kinds.join(' and ')})`).join(', ')}. Review before adding.</small>}
                 </td>)}
                 <td><button type="button" className={styles.secondary} aria-label={`Remove row ${index + 1}`} disabled={busy} onClick={() => { setRows(current => current?.filter((_, i) => i !== index) ?? null); setError(''); }}>Remove</button></td>
               </tr>;

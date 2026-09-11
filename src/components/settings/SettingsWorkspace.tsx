@@ -407,7 +407,8 @@ function ConfirmActionDialog({
 function LoadingState() {
   return (
     <main aria-label="Loading workspace settings" className={styles.page}>
-      <div className={styles.loadingHeader}><span /><span /></div>
+      <WorkspaceHeader title="Restaurant settings" description="Manage your restaurant details and who can use this account." />
+      <p role="status">Loading settings…</p>
       <div className={styles.loadingGrid}><span /><span /></div>
     </main>
   );

@@ -24,9 +24,18 @@ export function ReviewedTextIntake({ mode, awarded = [], billing = [], onApply, 
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
   const active = useRef<AbortController | null>(null);
+  const previewImage = useRef<HTMLImageElement>(null);
   const sequence = useRef(0);
   const panelId = useId();
   useEffect(() => () => { active.current?.abort(); active.current = null; }, []);
+  useEffect(() => {
+    const image = previewImage.current;
+    if (!open || !photo || !image || !['image/jpeg', 'image/png', 'image/webp'].includes(photo.type) || photo.size > 8 * 1024 * 1024) return;
+    let url: string;
+    try { url = URL.createObjectURL(photo); } catch { return; }
+    image.src = url;
+    return () => { image.removeAttribute('src'); URL.revokeObjectURL(url); };
+  }, [photo, open]);
   const invoice = mode === 'invoice';
   const label = invoice ? 'Invoice' : 'Shopping list';
 
@@ -112,6 +121,13 @@ export function ReviewedTextIntake({ mode, awarded = [], billing = [], onApply, 
     {open && <div id={panelId} className={styles.body}>
       <p>Printed English photos are read in this browser and are not uploaded. Enter one item per line. Handwriting and complex tables may need manual correction.</p>
       <p>{invoice ? 'Use the exact awarded name and unit, for example: Tomatoes 10 kg @ 40.25. Rates are rupees per unit. Check the tax basis against the award. Only billed quantities and rates can be filled; received counts, invoice totals and credits stay manual.' : 'For example: tomatoes 10 kg or 5 kg onions. Missing quantities and units must be entered before a row can be checked.'}</p>
+      <div className={photo && rows.length === 0 ? styles.sourceReview : undefined}>
+        {photo && <figure className={styles.preview}>
+          {/* Local blob URLs must never go through an image optimization server. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img ref={previewImage} alt={`Selected photo: ${photo.name}`} />
+          <figcaption>Selected photo: {photo.name}. Compare it with the text and each review row. If it is unreadable, enter the values manually.</figcaption>
+        </figure>}
       <fieldset hidden={rows.length > 0} disabled={busy || disabled || rows.length > 0} className={styles.source}>
         <label>{label} photo<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => { setPhoto(event.target.files?.[0] ?? null); setError(''); }} /></label>
         <small>JPEG, PNG or WebP · up to 8 MB and 20 megapixels.</small>
@@ -119,6 +135,7 @@ export function ReviewedTextIntake({ mode, awarded = [], billing = [], onApply, 
         <label>{label} text or description<textarea rows={5} value={text} maxLength={INTAKE_TEXT_LIMIT} onChange={event => { setText(event.target.value); setRows([]); setStatus(''); }} /></label>
         <button type="button" onClick={review}>Review text</button>
       </fieldset>
+      </div>
       {!invoice && <button type="button" onClick={() => setRows(current => [...current, { id: ++sequence.current, name: '', quantity: '', unit: '', rate: '', source: 'Manual entry', issues: [], checked: false }])} disabled={busy || disabled || rows.length >= 100}>Add item manually</button>}
       {busy && <div className={styles.progress}><progress aria-label="Reading photo" max={100} value={progress} /><button type="button" onClick={cancel}>Cancel reading</button></div>}
       {error && <p role="alert">{error}</p>}

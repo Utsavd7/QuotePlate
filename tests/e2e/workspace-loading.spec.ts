@@ -93,3 +93,32 @@ test('Today → Suppliers → Today renders cached attention without another ove
     note: 'Includes Playwright click and assertion overhead; fresh TTL held fixed, not a production latency benchmark.' }, null, 2));
   await info.attach('cached Today navigation', { path, contentType: 'application/json' });
 });
+
+test('a stalled account bootstrap offers retry and recovers the actual workspace', async ({ page }, info) => {
+  expect(isLocal(String(info.project.use.baseURL))).toBe(true);
+  expect(isLocal(fixtureOrigin)).toBe(true);
+  const seeded = await page.request.post(`${fixtureOrigin}/__test/database/internal-demo`);
+  expect(seeded.status(), await seeded.text()).toBe(201);
+  await page.goto('/signin');
+  await page.getByLabel('Work email').fill(DEMO_OWNER_EMAIL);
+  await page.getByLabel('Password').fill('Local-only demo password 42!');
+  await page.getByRole('button', { name: 'Sign in with email' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page.getByRole('region', { name: 'Needs your attention', exact: true })).toBeVisible();
+
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/api/account', async route => {
+    await held;
+    await route.abort().catch(() => undefined);
+  });
+  try {
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Workspace is temporarily unavailable' })).toBeVisible({ timeout: 25_000 });
+    await page.unroute('**/api/account');
+    release();
+    await page.getByRole('button', { name: 'Try again', exact: true }).click();
+    await expect(page.getByRole('region', { name: 'Needs your attention', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Workspace is temporarily unavailable' })).toHaveCount(0);
+  } finally { release(); }
+});

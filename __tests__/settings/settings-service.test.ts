@@ -39,6 +39,7 @@ function fakeTransaction() {
       name: owner.name,
       email: owner.email,
       role: owner.role,
+      accountState: 'ACTIVE',
       createdAt: owner.createdAt,
       lastLoginAt: owner.lastLoginAt,
     },
@@ -47,6 +48,7 @@ function fakeTransaction() {
       name: 'Ravi Kumar',
       email: 'ravi@monsoontable.in',
       role: 'MEMBER',
+      accountState: 'ACTIVE',
       createdAt: new Date('2026-03-04T00:00:00.000Z'),
       lastLoginAt: null,
     },
@@ -54,6 +56,7 @@ function fakeTransaction() {
   const pendingInvitations = [
     {
       id: 'invited-user-a',
+      accountState: 'INVITED',
       email: 'chef@monsoontable.in',
       role: 'MEMBER',
       invitationExpiresAt: new Date('2026-09-04T12:00:00.000Z'),
@@ -66,9 +69,9 @@ function fakeTransaction() {
     user: {
       findFirst: jest.fn().mockResolvedValue(owner),
       findMany: jest.fn().mockImplementation(
-        ({ where }: { where: { accountState: string } }) =>
+        ({ where }: { where: { accountState?: string; OR?: unknown[] } }) =>
           Promise.resolve(
-            where.accountState === 'INVITED' ? pendingInvitations : members,
+            where.OR ? [...members, ...pendingInvitations] : where.accountState === 'INVITED' ? pendingInvitations : members,
           ),
       ),
       update: jest.fn().mockResolvedValue({ ...owner, email: 'ops@monsoontable.in' }),
@@ -94,6 +97,15 @@ function operationsFor(transaction: ReturnType<typeof fakeTransaction>) {
 }
 
 describe('workspace settings service', () => {
+  it('reads active members and live invitations in one list query after authorizing the actor', async () => {
+    const transaction = fakeTransaction();
+    const { operations } = operationsFor(transaction);
+    const result = await operations.load({ actor: { tenantId: 'tenant-a', userId: 'owner-a' } });
+    expect(transaction.user.findMany).toHaveBeenCalledTimes(1);
+    expect(result.members).toHaveLength(2);
+    expect(result.pendingInvitations).toHaveLength(1);
+  });
+
   it('returns only safe current-tenant settings, members, and live invitations', async () => {
     const transaction = fakeTransaction();
     const { operations, transact } = operationsFor(transaction);
@@ -106,36 +118,20 @@ describe('workspace settings service', () => {
     expect(transaction.user.findMany).toHaveBeenCalledWith({
       where: {
         tenantId: 'tenant-a',
-        accountState: 'ACTIVE',
-        isActive: true,
+        OR: [
+          { accountState: 'ACTIVE', isActive: true },
+          {
+            accountState: 'INVITED', isActive: false,
+            invitationAcceptedAt: null, invitationRevokedAt: null,
+            invitationExpiresAt: { gt: new Date('2026-08-28T12:30:00.000Z') },
+          },
+        ],
       },
       orderBy: [{ role: 'asc' }, { name: 'asc' }, { id: 'asc' }],
       select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-        lastLoginAt: true,
-      },
-    });
-    expect(transaction.user.findMany).toHaveBeenCalledWith({
-      where: {
-        tenantId: 'tenant-a',
-        accountState: 'INVITED',
-        isActive: false,
-        invitationAcceptedAt: null,
-        invitationRevokedAt: null,
-        invitationExpiresAt: { gt: new Date('2026-08-28T12:30:00.000Z') },
-      },
-      orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        invitationExpiresAt: true,
-        updatedAt: true,
-        invitedBy: { select: { name: true } },
+        id: true, name: true, email: true, role: true, accountState: true,
+        createdAt: true, lastLoginAt: true, invitationExpiresAt: true,
+        updatedAt: true, invitedBy: { select: { name: true } },
       },
     });
     expect(result).toEqual({

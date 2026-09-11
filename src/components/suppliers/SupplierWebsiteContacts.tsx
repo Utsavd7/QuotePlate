@@ -2,14 +2,36 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { WebsiteContact, WebsiteContactResult } from '@/lib/suppliers/website-types';
+import { findSupplierContactMatches, type ExistingSupplierContact } from '@/lib/suppliers/contact-list';
 import styles from './supplier-workspace.module.css';
 import websiteStyles from './supplier-website-contacts.module.css';
 
-export function WebsiteContactReview({ result, phone, email, disabled = false, onReview }: {
+function PublishedContact({ contact, filled, disabled, existingContacts, onReview }: {
+  contact: WebsiteContact;
+  filled: boolean;
+  disabled: boolean;
+  existingContacts: readonly ExistingSupplierContact[];
+  onReview: (contact: WebsiteContact) => void;
+}) {
+  const matches = findSupplierContactMatches({ [contact.kind]: contact.value }, existingContacts);
+  return <li className={websiteStyles.contact}>
+    <div className={websiteStyles.details}>
+      <strong>{contact.kind === 'email' ? 'Email' : 'Phone'}: {contact.value}</strong>
+      <a href={contact.sourceUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Published source</a>
+      <span className={websiteStyles.checked}>Checked <time dateTime={contact.checkedAt}>{contact.checkedAt.replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC')}</time></span>
+      {matches.length > 0 && <p>Same {contact.kind} saved for {matches.map(match => match.supplier.businessName).join(', ')}. Check whether this is the same supplier or a shared contact.</p>}
+    </div>
+    <button type="button" className={styles.secondaryButton} disabled={disabled || filled}
+      onClick={() => { if (!disabled && !filled) onReview(contact); }}>Use this {contact.kind}</button>
+  </li>;
+}
+
+export function WebsiteContactReview({ result, phone, email, disabled = false, existingContacts = [], onReview }: {
   result: WebsiteContactResult;
   phone: string | null;
   email: string | null;
   disabled?: boolean;
+  existingContacts?: readonly ExistingSupplierContact[];
   onReview: (contact: WebsiteContact) => void;
 }) {
   if (result.status !== 'found') return <p role="status">{result.status === 'unavailable'
@@ -17,26 +39,21 @@ export function WebsiteContactReview({ result, phone, email, disabled = false, o
     : 'No public phone numbers or email addresses were found on the checked pages. You can add them manually.'}</p>;
   return <section className={websiteStyles.review} aria-label="Review published website contacts">
     <p>Check that each contact belongs to this supplier. Use a contact to fill an empty field, then save the supplier form.</p>
+    {existingContacts.length > 0 && <p className={websiteStyles.checked}>Contact matches cover only supplier records currently loaded. Other saved suppliers may not appear here.</p>}
     <ul className={websiteStyles.contacts}>
-    {result.contacts.map(contact => <li className={websiteStyles.contact} key={`${contact.kind}:${contact.value}`}>
-      <div className={websiteStyles.details}>
-        <strong>{contact.kind === 'email' ? 'Email' : 'Phone'}: {contact.value}</strong>
-        <a href={contact.sourceUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Published source</a>
-        <span className={websiteStyles.checked}>Checked <time dateTime={contact.checkedAt}>{contact.checkedAt.replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC')}</time></span>
-      </div>
-      <button type="button" className={styles.secondaryButton}
-        disabled={disabled || Boolean((contact.kind === 'phone' ? phone : email)?.trim())}
-        onClick={() => onReview(contact)}>Use this {contact.kind}</button>
-    </li>)}
+    {result.contacts.map(contact => <PublishedContact key={JSON.stringify([contact.kind, contact.value, contact.sourceUrl, contact.checkedAt])}
+      contact={contact} filled={Boolean((contact.kind === 'phone' ? phone : email)?.trim())} disabled={disabled}
+      existingContacts={existingContacts} onReview={onReview} />)}
     </ul>
     <p>Existing phone, email and WhatsApp details are preserved. These contacts have not been verified by QuotePlate.</p>
   </section>;
 }
 
-export function SupplierWebsiteContacts({ phone, email, disabled, onReview }: {
+export function SupplierWebsiteContacts({ phone, email, disabled, existingContacts = [], onReview }: {
   phone: string | null;
   email: string | null;
   disabled: boolean;
+  existingContacts?: readonly ExistingSupplierContact[];
   onReview: (contact: WebsiteContact) => void;
 }) {
   const [url, setUrl] = useState('');
@@ -78,6 +95,6 @@ export function SupplierWebsiteContacts({ phone, email, disabled, onReview }: {
     </button>
     {busy && <p role="status">Checking permitted public pages…</p>}
     {error && <p role="alert">{error}</p>}
-    {result && <WebsiteContactReview result={result} phone={phone} email={email} disabled={disabled || busy} onReview={onReview} />}
+    {result && <WebsiteContactReview result={result} phone={phone} email={email} disabled={disabled || busy} existingContacts={existingContacts} onReview={onReview} />}
   </details>;
 }

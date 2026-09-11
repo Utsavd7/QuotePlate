@@ -46,6 +46,13 @@ const ownerSettings: WorkspaceSettingsData = {
 };
 
 describe('settings workspace UI', () => {
+  it('shows the page heading immediately while private settings are loading', () => {
+    const html = renderToStaticMarkup(<SettingsWorkspace />);
+    expect(html).toContain('Restaurant settings');
+    expect(html).toContain('Loading settings');
+    expect(html).not.toContain('Save restaurant details');
+  });
+
   it('renders a professional owner workspace with real restaurant and people controls', () => {
     const html = renderToStaticMarkup(<SettingsWorkspace initialData={ownerSettings} />);
 

@@ -762,7 +762,7 @@ export function SupplierWorkspace({
         </div></details>
       </WorkspaceToolbar>
 
-      <ExistingSupplierContacts onImported={async (count) => {
+      <ExistingSupplierContacts existingContacts={suppliers} onImported={async (count) => {
         setNotice(`${count} suppliers added. Open a supplier workspace to request their business details.`);
         await loadSuppliers(search, activeFilter, undefined, false, 'operation');
       }} />
@@ -899,7 +899,7 @@ export function SupplierWorkspace({
 
       <details id="supplier-discovery" ref={discoveryDetails} className={styles.discovery}>
         <summary><MapPin aria-hidden="true" /> Find nearby suppliers <span>Search your area</span></summary>
-        <SupplierDiscovery onAddSupplier={openCreate} />
+        <SupplierDiscovery existingContacts={suppliers} onAddSupplier={openCreate} />
       </details>
 
       <details className={styles.privacyDetails} aria-label="Restaurant data privacy">
@@ -937,6 +937,7 @@ export function SupplierWorkspace({
               >
                 <SupplierWebsiteContacts
                   key={editing?.id ?? 'new-supplier'}
+                  existingContacts={suppliers.filter(supplier => supplier.id !== editing?.id)}
                   phone={draft.phone}
                   email={draft.email}
                   disabled={saving || editorLoading || !editorReady}

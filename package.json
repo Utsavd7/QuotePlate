@@ -13,6 +13,7 @@
     "lint": "eslint",
     "test": "jest --runInBand --testPathIgnorePatterns=/__tests__/integration/",
     "test:integration": "jest --config jest.integration.config.cjs --runInBand",
+    "test:components": "node --test --test-concurrency=1 tests/component/*.test.mjs",
     "test:e2e": "playwright test",
     "test:e2e:auth": "playwright test tests/e2e/auth.spec.ts",
     "test:e2e:google-live": "AUTH_E2E_LIVE_GOOGLE=1 playwright test tests/e2e/google-live.spec.ts --project=desktop-chromium",

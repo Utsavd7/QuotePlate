@@ -5,6 +5,16 @@ import { fillReviewedWebsiteContacts, type WebsiteContact } from '@/lib/supplier
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 const contact: WebsiteContact = { kind: 'email', value: 'orders@supplier.com', sourceUrl: 'https://supplier.com/contact', checkedAt: '2026-09-11T00:00:00.000Z' };
+it('warns about saved contact matches without an extra review step or blocking distinct businesses', () => {
+  const root = parse(renderToStaticMarkup(<WebsiteContactReview result={{ status: 'found', contacts: [contact], checkedAt: contact.checkedAt }}
+    phone="" email="" existingContacts={[{ businessName: 'Saved supplier', email: 'ORDERS@supplier.com' }]} onReview={jest.fn()} />));
+  expect(root.text).toContain('Saved supplier');
+  expect(root.text).toContain('shared contact');
+  expect(root.text).toContain('currently loaded');
+  expect(root.querySelector('input[type="checkbox"]')).toBeNull();
+  expect(root.querySelector('button')?.hasAttribute('disabled')).toBe(false);
+  expect(root.querySelector('a')?.getAttribute('href')).toBe(contact.sourceUrl);
+});
 it('does not fetch or fill on render and makes checking an explicit non-submit action', () => {
   const fetcher = jest.spyOn(global, 'fetch'); const review = jest.fn();
   try {

@@ -56,8 +56,14 @@ async function harness(run, { member = false, mobile = false } = {}) {
   } finally { await browser.close(); }
 }
 
+async function openPlanning(page) {
+  const section = page.locator('details').filter({ has: page.getByLabel('Saved service plan') });
+  if (!(await section.evaluate(element => element.open))) await section.locator('summary').click();
+}
+
 test('owner explicitly shares exact selected keys, sees outdated estimate, withdraws and handles stale plan', async () => {
   await harness(async ({ page, mutations, setConflict }) => {
+    await openPlanning(page);
     await page.getByLabel('Saved service plan').selectOption('p1');
     await expect(page.getByRole('checkbox')).toHaveCount(2);
     const share = page.getByRole('button', { name: /Share .*selected ingredient/ });
@@ -67,9 +73,12 @@ test('owner explicitly shares exact selected keys, sees outdated estimate, withd
     await expect(page.getByText('Outdated estimate', { exact: true })).toBeVisible();
     assert.deepEqual(mutations[0].body, { planId: 'p1', expectedPlanVersion: 4, itemKeys: ['rice'] });
     await page.getByRole('button', { name: /Withdraw estimate/ }).click();
+    await expect(page.getByRole('status')).toContainText('Estimate withdrawn');
+    await openPlanning(page);
     await expect(page.getByText('No demand estimates shared with this supplier.')).toBeVisible();
     assert.deepEqual(mutations[1].body, { shareId: 'share1' });
     setConflict();
+    await openPlanning(page);
     await page.getByRole('checkbox', { name: /Rice/ }).check();
     await share.click();
     await expect(page.getByRole('alert')).toContainText('Plan changed');
@@ -119,6 +128,7 @@ test('mobile owner reviews exact shortages without overflow and changing supplie
   await harness(async ({ page }) => {
     await page.getByRole('button', { name: 'Create private link' }).click();
     await expect(page.getByLabel('New private link')).toBeVisible();
+    await openPlanning(page);
     await page.getByLabel('Saved service plan').selectOption('p1');
     await page.getByRole('checkbox', { name: /Rice/ }).check();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
@@ -128,6 +138,7 @@ test('mobile owner reviews exact shortages without overflow and changing supplie
     await page.screenshot({ path: '/tmp/restaurant-supplier-portal-mobile.png', fullPage: true });
     await page.getByLabel('Supplier', { exact: true }).selectOption('s2');
     await expect(page.getByRole('heading', { name: 'Farm Two', exact: true })).toBeVisible();
+    await openPlanning(page);
     await expect(page.getByRole('checkbox')).toHaveCount(0);
     await expect(page.getByLabel('Saved service plan')).toHaveValue('');
     await expect(page.getByRole('button', { name: /Share .*selected ingredient/ })).toBeDisabled();

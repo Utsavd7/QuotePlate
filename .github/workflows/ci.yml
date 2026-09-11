@@ -66,6 +66,9 @@ jobs:
           echo "$(pg_config --bindir)" >> "$GITHUB_PATH"
           npx playwright install --with-deps chromium
 
+      - name: Browser component regressions
+        run: npm run test:components
+
       - name: Responsive end-to-end release tests
         run: npm run test:e2e
 

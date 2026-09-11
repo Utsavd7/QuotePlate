@@ -14,12 +14,14 @@ function appDatabaseUrl(databaseUrl: string, password: string) {
   return url.toString();
 }
 
-async function provisionAppClient(admin: PrismaClient, databaseUrl: string) {
+async function provisionAppClient(admin: PrismaClient, databaseUrl: string, onQuery?: (sql: string) => void) {
   const password = randomBytes(24).toString('hex');
   await admin.$executeRawUnsafe(`ALTER ROLE autorfp_app PASSWORD '${password}'`);
   const client = new PrismaClient({
     datasources: { db: { url: appDatabaseUrl(databaseUrl, password) } },
+    log: [{ emit: 'event', level: 'query' }],
   });
+  if (onQuery) client.$on('query', event => onQuery(event.query));
   await client.$connect();
   return client;
 }
@@ -81,12 +83,27 @@ test('settings enforce active actors and tenant isolation for reads and owner mu
     try {
       const a = await seedWorkspace(admin, { tenantId: 'tenant-a', suffix: 'a' });
       const b = await seedWorkspace(admin, { tenantId: 'tenant-b', suffix: 'b' });
-      app = await provisionAppClient(admin, databaseUrl);
+      for (const [id, fields] of [
+        ['expired', { invitationExpiresAt: new Date('2000-01-01') }],
+        ['revoked', { invitationExpiresAt: new Date('2099-01-01'), invitationRevokedAt: new Date() }],
+        ['accepted', { invitationExpiresAt: new Date('2099-01-01'), invitationAcceptedAt: new Date() }],
+      ] as const) {
+        await admin.user.create({ data: {
+          id, tenantId: 'tenant-a', name: id, email: `${id}@example.test`,
+          role: 'MEMBER', accountState: 'INVITED', isActive: false,
+          invitedByUserId: a.ownerId, ...fields,
+        } });
+      }
+      const userReads: string[] = [];
+      app = await provisionAppClient(admin, databaseUrl, sql => {
+        if (/^SELECT/i.test(sql) && sql.includes('"public"."User"')) userReads.push(sql);
+      });
       const operations = createPrismaWorkspaceSettingsOperations(app);
 
       const ownerSettings = await operations.load({
         actor: { tenantId: 'tenant-a', userId: a.ownerId },
       });
+      expect(userReads).toHaveLength(2); // Actor + combined people read, previously three.
       expect(ownerSettings.workspace).toMatchObject({
         name: 'a Restaurant',
         city: 'Mumbai',

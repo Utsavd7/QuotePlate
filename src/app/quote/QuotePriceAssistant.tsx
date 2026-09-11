@@ -18,6 +18,7 @@ export function QuotePriceAssistant({ items, disabled, onApply }: {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
+  const [photo, setPhoto] = useState<File | null>(null);
   const [rows, setRows] = useState<ReviewRow[]>([]);
   const [unresolved, setUnresolved] = useState<string[]>([]);
   const [hasRead, setHasRead] = useState(false);
@@ -31,8 +32,17 @@ export function QuotePriceAssistant({ items, disabled, onApply }: {
   const source = useRef<HTMLTextAreaElement>(null);
   const opener = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const previewImage = useRef<HTMLImageElement>(null);
 
   useEffect(() => () => controller.current?.abort(), []);
+  useEffect(() => {
+    const image = previewImage.current;
+    if (!open || !photo || !image || !['image/jpeg', 'image/png', 'image/webp'].includes(photo.type) || photo.size > 8 * 1024 * 1024) return;
+    let url: string;
+    try { url = URL.createObjectURL(photo); } catch { return; }
+    image.src = url;
+    return () => { image.removeAttribute('src'); URL.revokeObjectURL(url); };
+  }, [photo, open]);
 
   function cancelReading() {
     controller.current?.abort();
@@ -65,6 +75,7 @@ export function QuotePriceAssistant({ items, disabled, onApply }: {
   async function readPhoto(file: File | undefined) {
     if (!file || disabled) return;
     cancelReading();
+    setPhoto(file);
     const active = new AbortController();
     controller.current = active;
     setReading(true);
@@ -157,6 +168,13 @@ export function QuotePriceAssistant({ items, disabled, onApply }: {
         <progress aria-label="Reading price list photo" value={progress} max={100} />
         <button type="button" className={styles.button} onClick={cancelReading}>Cancel photo reading</button>
       </div>}
+      <div className={photo ? styles.sourceReview : undefined}>
+        {photo && <figure className={styles.preview}>
+          {/* Local blob URLs must never go through an image optimization server. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img ref={previewImage} alt={`Selected photo: ${photo.name}`} />
+          <figcaption>Selected photo: {photo.name}. Compare every item, price and unit with the photo. If it is unreadable, enter prices manually.</figcaption>
+        </figure>}
       <label className={styles.sourceLabel}>Prices from your list
         <textarea ref={source} value={text} rows={4} disabled={disabled || reading} placeholder={'Tomato 42/kg\nPaneer 320/kg'} onPaste={event => {
           const field = event.currentTarget;
@@ -167,6 +185,7 @@ export function QuotePriceAssistant({ items, disabled, onApply }: {
           setText(event.target.value); setHasRead(false); setRows([]); setUnresolved([]); setError(''); setMessage('');
         }} />
       </label>
+      </div>
       <div className={styles.actions}><button type="button" className={styles.button} disabled={disabled || reading || !text.trim()} onClick={() => prepare(text)}>Read prices</button><span className={styles.hint}>One item and price per line. Include the unit when you can.</span></div>
       {hasRead && <section className={styles.results} aria-label="Prepared prices">
         <h4>Check these prices</h4>

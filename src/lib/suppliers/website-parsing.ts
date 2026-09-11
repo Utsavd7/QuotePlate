@@ -2,6 +2,7 @@ import { normalizeSupplierContactEmail } from '@/lib/suppliers/contact-email';
 import type { WebsiteContact } from './website-types';
 import { unavailable, websiteTarget } from './website-safety';
 import { scanWebsiteHtml } from './website-html';
+import { supplierContactKey } from './contact-list';
 
 // A bounded glob matcher avoids regular-expression backtracking on untrusted robots rules.
 function robotsPathMatches(rule: string, target: string) {
@@ -115,8 +116,8 @@ export function parseWebsiteContacts(html: string, sourceUrl: URL, checkedAt: st
   if (/\b(?:sign in|log in|login|subscribe)\s+(?:to|for)\s+(?:view|access|see|continue)\b/i.test(text)) unavailable();
   const contacts: WebsiteContact[] = [];
   const add = (kind: WebsiteContact['kind'], value: string | null) => {
-    const key = (candidate: string) => kind === 'phone' ? candidate.replace(/[\s().-]/g, '').replace(/^00/, '+') : candidate;
-    if (value && contacts.length < 20 && !contacts.some(c => c.kind === kind && key(c.value) === key(value))) {
+    const key = supplierContactKey(kind, value);
+    if (value && key && contacts.length < 20 && !contacts.some(c => supplierContactKey(c.kind, c.value) === key)) {
       contacts.push({ kind, value, sourceUrl: sourceUrl.href, checkedAt });
     }
   };

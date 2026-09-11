@@ -18,6 +18,10 @@
 .sourceLabel, .rowFields label { display:grid; gap:6px; min-width:0; font-weight:600; }
 .sourceLabel textarea, .rowFields select, .rowFields input { width:100%; min-width:0; min-height:44px; padding:10px 12px; border:1px solid var(--workspace-control-line); border-radius:8px; color:var(--workspace-ink); background:var(--workspace-surface); font:400 1rem/1.5 var(--font-ui),sans-serif; }
 .sourceLabel textarea { resize:vertical; }
+.sourceReview { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start; }
+.preview { margin:0; min-width:0; display:grid; gap:8px; }
+.preview img { display:block; width:100%; max-height:28rem; object-fit:contain; background:var(--workspace-canvas); border:1px solid var(--workspace-line); border-radius:8px; }
+.preview figcaption { color:var(--workspace-muted); font-size:.875rem; line-height:1.5; overflow-wrap:anywhere; }
 .sourceLabel textarea::placeholder { color:var(--workspace-muted); opacity:1; }
 .results { display:grid; gap:12px; padding-top:16px; border-top:1px solid var(--workspace-line); }
 .results h4 { margin:0; font-size:1rem; }
@@ -42,7 +46,7 @@
 .panel > .button:last-child { justify-self:start; }
 @media(max-width:600px) {
   .intro { align-items:stretch; flex-direction:column; gap:12px; }
-  .rowFields { grid-template-columns:minmax(0,1fr); }
+  .rowFields, .sourceReview { grid-template-columns:minmax(0,1fr); }
   .actions .button { flex:1 1 auto; }
   .primary, .panel > .button:last-child { justify-self:stretch; }
 }
