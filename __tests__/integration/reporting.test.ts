@@ -8,6 +8,8 @@ import {
 } from '@/lib/reporting/reporting-service';
 
 import { withMigratedPostgres } from './setup/postgres';
+import { createPrismaWorkspaceSettingsOperations } from '@/lib/account/workspace-settings';
+import { assertRuntimeDatabaseRole } from '@/lib/db/runtime-role';
 import {
   awardDocuments,
   emptyCapabilities,
@@ -182,6 +184,53 @@ test('history exposes bounded quote revisions and allow-listed activity through 
     } finally {
       await app?.$disconnect();
       await admin.$disconnect();
+    }
+  });
+});
+
+
+test('joined workspace reads preserve results and reduce database round trips', async () => {
+  await withMigratedPostgres(async databaseUrl => {
+    const admin = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+    const password = randomBytes(24).toString('hex');
+    await admin.$executeRawUnsafe(`ALTER ROLE autorfp_app PASSWORD '${password}'`);
+    const url = appDatabaseUrl(databaseUrl, password);
+    const separate = new PrismaClient({ datasources: { db: { url } }, log: [{ emit: 'event', level: 'query' }] });
+    const joined = new PrismaClient({ datasources: { db: { url } }, log: [{ emit: 'event', level: 'query' }] });
+    // Compare the old relation strategy using the same generated client and
+    // services. Only this test client opts out of database joins.
+    separate.$use(async (params, next) => {
+      if (params.action === 'findFirst' || params.action === 'findMany') {
+        params.args = { ...params.args, relationLoadStrategy: 'query' };
+      }
+      return next(params);
+    });
+    let separateCalls = 0;
+    let joinedCalls = 0;
+    separate.$on('query', () => { separateCalls++; });
+    joined.$on('query', () => { joinedCalls++; });
+    try {
+      const actor = await seedHistory(admin, 'a');
+      const otherActor = await seedHistory(admin, 'b');
+      await assertRuntimeDatabaseRole(separate);
+      await assertRuntimeDatabaseRole(joined);
+      separateCalls = 0; joinedCalls = 0;
+      const before = await listProcurementHistory({ actor }, separate);
+      const after = await listProcurementHistory({ actor }, joined);
+      expect(after).toEqual(before);
+      expect(joinedCalls).toBeLessThan(separateCalls);
+      expect(JSON.stringify(after)).not.toContain('Private City');
+      separateCalls = 0; joinedCalls = 0;
+      const previousSettings = await createPrismaWorkspaceSettingsOperations(separate).load({ actor });
+      const joinedSettings = await createPrismaWorkspaceSettingsOperations(joined).load({ actor });
+      expect(joinedSettings).toEqual(previousSettings);
+      expect(joinedCalls).toBeLessThan(separateCalls);
+      await expect(listProcurementHistory({ actor: { ...actor, userId: otherActor.userId } }, joined))
+        .rejects.toMatchObject({ code: 'FORBIDDEN' });
+      await admin.user.update({ where: { id: actor.userId }, data: { accountState: 'DEACTIVATED', isActive: false } });
+      await expect(listProcurementHistory({ actor }, joined)).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    } finally {
+      await separate.$disconnect(); await joined.$disconnect(); await admin.$disconnect();
     }
   });
 });

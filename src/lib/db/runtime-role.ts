@@ -24,7 +24,7 @@ export function assertRuntimeDatabaseRole(client: RuntimeRoleClient) {
   const cached = assertions.get(client);
   if (cached) return cached;
 
-  const assertion = (async () => {
+  const assertion: Promise<void> = (async () => {
     const [role] = await client.$queryRaw<RuntimeRoleRow[]>(Prisma.sql`
       SELECT
         current_user::TEXT AS "currentUser",
@@ -52,7 +52,15 @@ export function assertRuntimeDatabaseRole(client: RuntimeRoleClient) {
     ) {
       throw new RuntimeDatabaseRoleError();
     }
-  })();
+  })().catch((error: unknown) => {
+    // Reject this request, but do not poison a warm server after a temporary
+    // connection failure. A later request must successfully recheck the role.
+    // A confirmed unsafe role remains a cached, closed failure.
+    if (!(error instanceof RuntimeDatabaseRoleError) && assertions.get(client) === assertion) {
+      assertions.delete(client);
+    }
+    throw error;
+  });
 
   assertions.set(client, assertion);
   return assertion;

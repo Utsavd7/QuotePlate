@@ -187,7 +187,9 @@ npm run build
 npm run test:e2e
 ```
 
-The [11 September validation report](docs/qa/2026-09-11-procurement-gaps.md) records the release checks, measured first/repeat loading and external limits.
+The [procurement validation report](docs/qa/2026-09-11-procurement-gaps.md) records the earlier release checks and loading baseline. The [loading and reliability report](docs/qa/2026-09-11-first-load-reliability.md) covers joined database reads, recovery after temporary role-check failures and bounded shared-read deadlines. First loading still depends on hosting, the database and the connection.
+
+The [Google onboarding runbook](docs/qa/2026-09-11-google-onboarding.md) distinguishes verified OAuth initiation from a completed new-customer signup. Use the [one-restaurant trial kit](docs/trials/restaurant-first-purchase-trial.md) and [blank observation CSV](docs/trials/restaurant-first-purchase-observations.csv) to test one real purchase with 3–5 existing suppliers. The kit contains unsent invitations; no real trial has been completed.
 
 The suites cover access control, tenant isolation, authentication, menu/OCR boundaries, supplier onboarding and sharing, nearby email extraction, quote integrity, costs, awards, delivery checks, repeat ordering, exports, responsive layouts, accessibility, migrations and a bounded twenty-restaurant load profile. Passing results must be established for the revision being released; this README is not a deployment or test-run report.
 
