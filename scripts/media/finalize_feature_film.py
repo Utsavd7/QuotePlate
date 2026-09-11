@@ -27,10 +27,14 @@ def probe(path):
 
 def validate_gap_evidence(work, story, evidence, review, verification):
     """Tie final-gap claims to the actual recorded intervals and reviewed render."""
-    assert evidence['parentValidation']['status'] == 'local final UI validated'
-    assert evidence['parentValidation']['origin'] == 'http://127.0.0.1:52560'
-    assert evidence['parentValidation']['parentMessage'].strip()
-    assert evidence['parentValidation']['uiSourceManifestSha256'] == digest(work / 'ui-source-hashes.json')
+    workflow = bool(story.get('workflowPickup'))
+    if workflow:
+        validate_workflow_evidence(work, story, evidence, verification)
+    else:
+        assert evidence['parentValidation']['status'] == 'local final UI validated'
+        assert evidence['parentValidation']['origin'] == 'http://127.0.0.1:52560'
+        assert evidence['parentValidation']['parentMessage'].strip()
+        assert evidence['parentValidation']['uiSourceManifestSha256'] == digest(work / 'ui-source-hashes.json')
     assert digest(Path(verification['musicSource'])) == verification['musicSha256']
     assert digest(Path(verification['sourceFilm'])) == verification['sourceSha256']
     assert set(verification['narrationSha256']) == {scene['id'] for scene in story['scenes']}
@@ -46,12 +50,14 @@ def validate_gap_evidence(work, story, evidence, review, verification):
     assert evidence['signup']['formSubmitted'] is False and evidence['signup']['deniedRequests'] == 0
     retained = evidence['signup']['unchangedCaptureSha256']
     assert set(retained) == set(verification['freshCaptures']) - {'first-restaurant.mp4', 'first-owner.mp4'}
-    for name, expected in retained.items():
-        assert verification['freshCaptures'][name] == expected
+    if not workflow:
+        for name, expected in retained.items():
+            assert verification['freshCaptures'][name] == expected
     retained_audio = evidence['signup']['unchangedNarrationSha256']
     assert set(retained_audio) == {name + '.wav' for name in verification['narrationSha256']}
-    for name, expected in retained_audio.items():
-        assert verification['narrationSha256'][Path(name).stem] == expected
+    if not workflow:
+        for name, expected in retained_audio.items():
+            assert verification['narrationSha256'][Path(name).stem] == expected
     assert evidence['shopping']['realOCR'] and evidence['shopping']['reviewed'] and evidence['shopping']['savedDraft']
     assert evidence['shopping']['menuSelected'] is False and evidence['shopping']['savedMenuId'] is None
     assert evidence['invoice']['realOCR'] and evidence['invoice']['reviewed'] and evidence['invoice']['applied']
@@ -93,6 +99,68 @@ def validate_gap_evidence(work, story, evidence, review, verification):
             assert compression * shot.get('playbackRate', 1) <= 1.5, 'Double acceleration: ' + name
 
 
+def validate_workflow_evidence(work, story, evidence, verification):
+    """Require explicit new provenance while preserving historical signup/source facts."""
+    pickup = evidence['workflowPickup']
+    plan = json.loads((work / 'pickup-plan.json').read_text())
+    baseline = json.loads((work / 'baseline/verification.json').read_text())
+    old = json.loads((work / 'baseline/capture-evidence.json').read_text())
+    old_story = json.loads((work / 'baseline/storyboard.json').read_text())
+    manifest = json.loads((work / 'baseline-manifest.json').read_text())
+    for name in ('verification.json', 'capture-evidence.json', 'storyboard.json', 'visual-review.json'):
+        assert digest(work / 'baseline' / name) == manifest['files'][str(Path(plan['prior']) / name)]
+    assert pickup['baselineManifestSha256'] == digest(work / 'baseline-manifest.json')
+    assert pickup['pickupPlanSha256'] == digest(work / 'pickup-plan.json')
+    approval = json.loads((work / 'workflow-parent-ui-validation.json').read_text())
+    assert pickup['approval'] == approval
+    subprocess.run(['node', str(ROOT / 'scripts/media/prepare_workflow_pickups.mjs'),
+                    '--check-barrier', str(work), approval['origin']], check=True, capture_output=True)
+    changed = {'supplier-contacts.mp4', 'shopping-source.mp4', 'shopping-review.mp4',
+               'invoice-source.mp4', 'invoice-review.mp4', 'vendor-phone.mp4'}
+    assert set(pickup['changedClips']) == changed == set(story['workflowPickup']['changedClips'])
+    retained = set(baseline['freshCaptures']) - changed
+    assert set(pickup['retainedClips']) == retained == set(story['workflowPickup']['retainedClips'])
+    assert set(story['visualRefresh']['clips']) == changed
+    assert len(retained) == 22
+    for name, expected in baseline['freshCaptures'].items():
+        actual = verification['freshCaptures'][name]
+        if name in changed:
+            assert actual != expected, 'Unchanged footage cannot be called a new pickup'
+        else:
+            assert actual == expected, 'Unplanned changed capture: ' + name
+            key = Path(name).stem
+            if key in old['motion']:
+                current = evidence['motion'][key]
+                assert {k: v for k, v in current.items() if k != 'raw'} == {k: v for k, v in old['motion'][key].items() if k != 'raw'}
+    for key in ('signup', 'parentValidation', 'website', 'nearby', 'supplierConfirmation', 'reuse'):
+        assert evidence[key] == old[key], 'Historical evidence must stay unchanged: ' + key
+    changed_audio = {'suppliers', 'replies'}
+    assert set(pickup['changedNarrationScenes']) == changed_audio
+    for name, expected in baseline['narrationSha256'].items():
+        actual = verification['narrationSha256'][name]
+        assert (actual != expected) if name in changed_audio else (actual == expected)
+    for current, previous in zip(story['scenes'], old_story['scenes'], strict=True):
+        excluded = {'phrases', 'text', 'phraseStarts'} if current['id'] in changed_audio else set()
+        assert {k: v for k, v in current.items() if k not in excluded} == {k: v for k, v in previous.items() if k not in excluded}
+    actions = evidence['workflowActions']
+    contact = actions['contactPickup']
+    assert contact['savedContactWarning'] and contact['duplicateRemovedByUser'] and contact['remainingSupplierSaved']
+    assert contact['savedSupplierCount'] == 2 and contact['automaticDeduplicationClaimed'] is False
+    for mode in ('shopping', 'invoice'):
+        assert all(actions[mode + 'Preview'][key] for key in ('visible', 'decoded', 'reviewedAlongsideText'))
+    phone = actions['phonePickup']
+    assert all(phone[key] for key in ('sourcePreview', 'realOCR', 'unfinishedQuantity', 'jumpFocusedQuantity', 'allItemsComplete', 'realLocalSubmission'))
+    assert phone['totalPaise'] == '40000'
+    assert pickup['uniqueFictionalTenant'] and pickup['externalMessages'] == pickup['productionWrites'] == 0
+    for name in changed:
+        motion = evidence['motion'][Path(name).stem]
+        recording = json.loads((work / motion['recordingManifest']).read_text())
+        assert recording['raw'] == motion['raw']
+        shot_name = 'phone-native' if name == 'vendor-phone.mp4' else Path(name).stem
+        interval = next(s for s in recording['shots'] if s['name'] == shot_name)
+        assert all(interval[key] == motion[key] for key in ('start', 'elapsed', 'duration'))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--work', type=Path, required=True)
@@ -103,6 +171,8 @@ def main():
     evidence = json.loads((work / 'capture-evidence.json').read_text())
     review = json.loads((work / 'visual-review.json').read_text())
     story = json.loads((work / 'storyboard.json').read_text())
+    if (work / 'pickup-plan.json').exists():
+        assert story.get('workflowPickup') and evidence.get('workflowPickup'), 'Workflow pickups not complete'
     assert verification['frames'] == 4950
     assert verification['durationSeconds'] == 165
     assert verification['resolution'] == [3840, 2400]
@@ -150,11 +220,23 @@ def main():
     assert peak < 0, 'Clipped output audio'
     verification.update(featureOverview=evidence, visualReview=review,
                         maxVolumeDb=peak, profilesRemoved=True,
-                        releaseStatus='passed',
+                        releaseStatus='staged; awaiting parent output review' if story.get('workflowPickup') and not args.copy_public else 'passed',
                         bundleSha256={name: digest(work / name) for name in BUNDLE})
     verification.pop('releaseBlocker', None)
+    if story.get('workflowPickup'):
+        verification['captureProvenance'] = {
+            'newClips': evidence['workflowPickup']['changedClips'],
+            'retainedClips': evidence['workflowPickup']['retainedClips'],
+            'note': 'The legacy freshCaptures map hashes all timeline inputs; only newClips were newly recorded.',
+        }
     (work / 'verification.json').write_text(json.dumps(verification, ensure_ascii=False, indent=2) + '\n')
     if args.copy_public:
+        if story.get('workflowPickup'):
+            approval = json.loads((work / 'parent-output-review.json').read_text())
+            assert approval['status'] == 'approved for public copy'
+            assert approval['outputSha256'] == verification['outputSha256']
+            assert approval['contactSheetSha256'] == digest(work / 'contact-sheet.jpg')
+            assert approval['parentMessage'].strip(), 'Record actual parent image review before publication'
         for name, expected in verification['bundleSha256'].items():
             destination = ROOT / 'public/media' / name
             shutil.copy2(work / name, destination)

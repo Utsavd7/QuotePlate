@@ -1,10 +1,10 @@
 {
   "durationSeconds": 165,
-  "creditsFile": "gap-credits.txt",
+  "creditsFile": "workflow-credits.txt",
   "resolution": "3840x2400",
   "fps": 30,
   "narration": "Local Kokoro ONNX af_heart, American English; feature-overview narration with measured optional caption cues.",
-  "sources": "Fresh native local application recordings after parent UI validation, including public verified-Google signup, reviewed shopping-list and invoice intake, and an explicit public supplier website lookup. Existing licensed kitchen motion retained by hash. No production writes, supplier messages or fabricated public results.",
+  "sources": "Six new local workflow clips after parent UI validation; 22 unchanged previous captures retained by hash, including the licensed kitchen bookends and Google-only signup. No production writes or supplier messages.",
   "scenes": [
     {
       "id": "intro",
@@ -102,9 +102,9 @@
       "title": "Bring your supplier contacts",
       "duration": 7,
       "phrases": [
-        "Paste your supplier contacts. Review the list, then add them to your restaurant."
+        "Review saved-contact warnings. Remove duplicates, then add the remaining supplier."
       ],
-      "text": "Paste your supplier contacts. Review the list, then add them to your restaurant.",
+      "text": "Review saved-contact warnings. Remove duplicates, then add the remaining supplier.",
       "shots": [
         {
           "file": "supplier-contacts.mp4",
@@ -205,11 +205,11 @@
       "title": "Quote from your phone",
       "duration": 19,
       "phrases": [
-        "Suppliers can quote on their phone. Choose a clear price-list photo, or paste prices.",
-        "Check the matched item and rate, then fill the quote.",
-        "Use one item at a time if helpful. Review delivery and the total, then send."
+        "Use a price-list photo or paste prices. Check the photo and matched rate.",
+        "Fill the quote, then jump to unfinished items.",
+        "Review delivery and the total, then send."
       ],
-      "text": "Suppliers can quote on their phone. Choose a clear price-list photo, or paste prices. Check the matched item and rate, then fill the quote. Use one item at a time if helpful. Review delivery and the total, then send.",
+      "text": "Use a price-list photo or paste prices. Check the photo and matched rate. Fill the quote, then jump to unfinished items. Review delivery and the total, then send.",
       "shots": [
         {
           "file": "vendor-phone.mp4",
@@ -221,8 +221,8 @@
       "at": 75,
       "phraseStarts": [
         0.2,
-        6,
-        11
+        7,
+        12
       ]
     },
     {
@@ -465,25 +465,27 @@
     }
   ],
   "visualRefresh": {
-    "date": "2026-09-11",
     "clips": [
+      "supplier-contacts.mp4",
+      "shopping-source.mp4",
+      "shopping-review.mp4",
+      "invoice-source.mp4",
+      "invoice-review.mp4",
+      "vendor-phone.mp4"
+    ],
+    "retainedClips": [
+      "kitchen-intro.mp4",
       "first-restaurant.mp4",
       "first-owner.mp4",
       "first-workspace.mp4",
       "menu-options.mp4",
       "first-menu.mp4",
-      "supplier-contacts.mp4",
       "website-lookup.mp4",
       "website-review.mp4",
-      "shopping-source.mp4",
-      "shopping-review.mp4",
       "first-request.mp4",
       "request-sharing.mp4",
-      "vendor-phone.mp4",
       "completion-comparison.mp4",
       "completion-award.mp4",
-      "invoice-source.mp4",
-      "invoice-review.mp4",
       "completion-delivery.mp4",
       "completion-credit.mp4",
       "completion-today.mp4",
@@ -492,10 +494,45 @@
       "nearby-discovery.mp4",
       "meal-planning.mp4",
       "purchase-reports.mp4",
-      "purchase-history.mp4"
+      "purchase-history.mp4",
+      "kitchen-end.mp4"
     ],
-    "description": "Fresh local recordings after parent UI validation: public signup, shopping-list OCR without a menu, public website contact review, invoice OCR, and all retained major feature families."
+    "description": "Six new local workflow clips after parent UI validation; 22 unchanged previous captures retained by hash, including the licensed kitchen bookends and Google-only signup. No production writes or supplier messages."
   },
   "edition": "procurement-gaps-2026-09-11",
-  "transcriptIntroduction": "An overview of QuotePlate’s major feature families, following a fictional restaurant’s first purchase. Actual local application recordings with illustrative licensed kitchen opening and closing footage. Public verified-Google signup is shown without completing authentication on camera. Shopping-list and invoice examples are fictional. Public website contacts and nearby results are actual source responses, or the application’s unavailable state. Communication controls prepare messages for the user to send. Reading and lookup waits may be cut; actual actions are condensed by no more than 1.5×. Synthetic American-English narration."
+  "transcriptIntroduction": "An overview of QuotePlate’s major feature families, following a fictional restaurant’s first purchase. Actual local application recordings with illustrative licensed kitchen opening and closing footage. Public verified-Google signup is shown without completing authentication on camera. Shopping-list and invoice examples are fictional. Public website contacts and nearby results are actual source responses, or the application’s unavailable state. Communication controls prepare messages for the user to send. Reading and lookup waits may be cut; actual actions are condensed by no more than 1.5×. Synthetic American-English narration.",
+  "workflowPickup": {
+    "changedClips": [
+      "supplier-contacts.mp4",
+      "shopping-source.mp4",
+      "shopping-review.mp4",
+      "invoice-source.mp4",
+      "invoice-review.mp4",
+      "vendor-phone.mp4"
+    ],
+    "retainedClips": [
+      "kitchen-intro.mp4",
+      "first-restaurant.mp4",
+      "first-owner.mp4",
+      "first-workspace.mp4",
+      "menu-options.mp4",
+      "first-menu.mp4",
+      "website-lookup.mp4",
+      "website-review.mp4",
+      "first-request.mp4",
+      "request-sharing.mp4",
+      "completion-comparison.mp4",
+      "completion-award.mp4",
+      "completion-delivery.mp4",
+      "completion-credit.mp4",
+      "completion-today.mp4",
+      "workspace-sharing.mp4",
+      "supplier-confirmation.mp4",
+      "nearby-discovery.mp4",
+      "meal-planning.mp4",
+      "purchase-reports.mp4",
+      "purchase-history.mp4",
+      "kitchen-end.mp4"
+    ]
+  }
 }

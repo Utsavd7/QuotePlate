@@ -8,9 +8,9 @@
   "videoCodec": "h264",
   "audioCodec": "aac",
   "fullDecode": "passed",
-  "storyboardSha256": "efa089d5e5ecadb690d9d51969c77dee76102a6c29b7d62529014232d8d934c8",
+  "storyboardSha256": "89357e09540fc99117741d37119483dbe2abe6395c48b46fcbe5bab10f0618d5",
   "sourceSha256": "3d6b220f9505315ebefbc0aaf8570aa31e9da65e1d8d3b0587fa76e3ed236202",
-  "outputSha256": "03a82e26ef8f7ac07ba7fa575b14bbc30b50c8695249a6d8914ed22bef29abda",
+  "outputSha256": "ac5bdd58c450360b4fc7fb590e335f940191102125a8570158ebc6b6f92175b0",
   "freshCaptures": {
     "kitchen-intro.mp4": "18d46ffd9e38d84d97cf01bcda98b0f1b0c30d1586e8c1660ae3afb8e8c48f69",
     "first-restaurant.mp4": "104f17d18bef2e4d9ce3471af715ad000c0afcb58321fdec485c3c2cd1455e0a",
@@ -18,18 +18,18 @@
     "first-workspace.mp4": "cb17fedf7ed85089d5fb256ebb77e1bb336e2172fdba1160f10a88474da72d5c",
     "menu-options.mp4": "e5ecbede50ecf21a99a1f544fead93e3ccbf95736fc4596779f880e49a05c809",
     "first-menu.mp4": "a50dce58ef69f5717d02fc0b982e8031c6c54eecf5a3908875e179538a0464b4",
-    "supplier-contacts.mp4": "c45198f269cda7a30b4493b0f5c307b8db199d33cf7054c4d749c78ea795e64a",
+    "supplier-contacts.mp4": "69328013a1d75f08eb932b3cf71e1495bb9d7690543a17ccedad25454d3b546a",
     "website-lookup.mp4": "8c5f61ff40a8dfc2d02898e6d63804fe1dc70a5967af5a4747a4eede25561600",
     "website-review.mp4": "95b9cc601410e45793ff8d6902640e611fd4c66763151b2c2bb3f6b66fe2cf9c",
-    "shopping-source.mp4": "076ec1ef072a640a60eefd608758c53c44f44fa6899f332b693227b4813b5f81",
-    "shopping-review.mp4": "60592f55e38e7b268f9a1b7d49aa47aca1d1d6ceb3b05d3e4d3168ab7066d4e9",
+    "shopping-source.mp4": "e7529006769b5cc6aad332adfb93cae00f35466d2aaf9249f0dca668c449a5e3",
+    "shopping-review.mp4": "c6213e8ec03557e3133e06c08472e28f4b7f1391da2acf1cf54eded05a9d3321",
     "first-request.mp4": "171c6d5e0e5fe03929fbb406f716e217f03579b3cfb5f7023327142a7ae0bed4",
     "request-sharing.mp4": "388ae5e47a073eb070d49fc6c639f1845445dcbc9ed0717987794bd1eaa75251",
-    "vendor-phone.mp4": "d0a25f0d5ed7d327d270423a2b56cd67f4bf88d29add147dd373ca7863fe264f",
+    "vendor-phone.mp4": "22887dc5e94e19c0f62513bb36a09e2fe12de2a2e468542c45c04931cf0607e3",
     "completion-comparison.mp4": "8d708a06ae6f5a8cb397f464fc7bc95c500283df9ef3041d51e87b21e3623cf4",
     "completion-award.mp4": "49fa54e817de66c2da78ebf7b4a914b9f0dacaf1e243fe31756072938c3b17f8",
-    "invoice-source.mp4": "430eae79a97955d74ccc55e9d99e2512ad1561d2a373f9a14ea7b3b561a037aa",
-    "invoice-review.mp4": "acefb051365ab706f8dc7b0e45eda75ab8c8957a298f3feda272928da89458d3",
+    "invoice-source.mp4": "8c5a21b3302108071bef456fa8ec3d019eb60b3c924b8901f0d51062d649856d",
+    "invoice-review.mp4": "9345686d2c7a085aa774b68cb09dd92d2d03b1959f035acaa883e11c85f2214c",
     "completion-delivery.mp4": "a387542e9146c71a78e1812fe152467455f1219708761865a02d6c5ccb443906",
     "completion-credit.mp4": "f34acc00bcd9cce716dd13c2c9cb5cd9f2edf6495b2b89d2aa99673e28454c70",
     "completion-today.mp4": "a63a311a89fc3309ac2b0f084bbb9b2a912f8c75fd66e03a99a9fc69e73b53ab",
@@ -47,11 +47,11 @@
     "signup": "606b8f5ce49d77da2ef45a1c4fae18bd0a93048f8d5e5baeb89eaa31c0ea38a1",
     "setup": "93be547fadbb1a4cd471329e774f43ce2ad6e5559cb0c8ad04535ccd62367a2f",
     "menu": "8f65781aee476c5f4478fec3ab5778db1ac49e6280dc9ab4f7586fbdda4c57d4",
-    "suppliers": "79163ce1b68ffbe760a0e5720bb9a8a4a8878714ed69eb0140f11e425e006410",
+    "suppliers": "810f7e2286cc7a34d5c4068d4559e8de4d8ea1bcb8592a5a0bdc2529270a1fbe",
     "website": "2608dea91f9ef198ae85d0134a5abc3e9f8ccadddf37495f323149e2f52fd232",
     "purchase": "5c77e35d8d3e084a30409ea5cbfb8c3e097b28831df86460596790fd1218b983",
     "sharing": "a37fb1a4e76ae77ef25b6d8123cfe090fa47f8eb1b1edef85bef992142e45ced",
-    "replies": "6dfbb2770c314c4a6ca08eab2032ae5137219f60a835ddd2cb3677e7e5590d45",
+    "replies": "b154a4d39b7542c0b91c047e562813278d516e553d5d65a93063ba9bd4497400",
     "compare": "ca61018cca49fcf332073c9143ec16aeacca0f18d78f94b43fff5f1eb02d4845",
     "delivery": "cd4d31b205a0a7d6c01ebe001122d0bf429611a40d0db781bfc2c655eaba7950",
     "today": "895270282f46b99ca6dd4d6c14503ac4cc1fcdadc1e4cf2b2ddb730f67d4e863",
@@ -273,6 +273,36 @@
     "externalMessages": 0,
     "privacy": "Private link text masked in capture only; authentication off camera.",
     "shots": {
+      "supplier-contacts": {
+        "duration": 7,
+        "completed": true,
+        "sha256": "69328013a1d75f08eb932b3cf71e1495bb9d7690543a17ccedad25454d3b546a"
+      },
+      "shopping-source": {
+        "duration": 4,
+        "completed": true,
+        "sha256": "e7529006769b5cc6aad332adfb93cae00f35466d2aaf9249f0dca668c449a5e3"
+      },
+      "shopping-review": {
+        "duration": 4,
+        "completed": true,
+        "sha256": "c6213e8ec03557e3133e06c08472e28f4b7f1391da2acf1cf54eded05a9d3321"
+      },
+      "vendor-phone": {
+        "duration": 19,
+        "completed": true,
+        "sha256": "22887dc5e94e19c0f62513bb36a09e2fe12de2a2e468542c45c04931cf0607e3"
+      },
+      "invoice-source": {
+        "duration": 4,
+        "completed": true,
+        "sha256": "8c5a21b3302108071bef456fa8ec3d019eb60b3c924b8901f0d51062d649856d"
+      },
+      "invoice-review": {
+        "duration": 5,
+        "completed": true,
+        "sha256": "9345686d2c7a085aa774b68cb09dd92d2d03b1959f035acaa883e11c85f2214c"
+      },
       "first-restaurant": {
         "duration": 6,
         "completed": true,
@@ -298,11 +328,6 @@
         "completed": true,
         "sha256": "a50dce58ef69f5717d02fc0b982e8031c6c54eecf5a3908875e179538a0464b4"
       },
-      "supplier-contacts": {
-        "duration": 7,
-        "completed": true,
-        "sha256": "c45198f269cda7a30b4493b0f5c307b8db199d33cf7054c4d749c78ea795e64a"
-      },
       "website-lookup": {
         "duration": 3,
         "completed": true,
@@ -312,16 +337,6 @@
         "duration": 7,
         "completed": true,
         "sha256": "95b9cc601410e45793ff8d6902640e611fd4c66763151b2c2bb3f6b66fe2cf9c"
-      },
-      "shopping-source": {
-        "duration": 4,
-        "completed": true,
-        "sha256": "076ec1ef072a640a60eefd608758c53c44f44fa6899f332b693227b4813b5f81"
-      },
-      "shopping-review": {
-        "duration": 4,
-        "completed": true,
-        "sha256": "60592f55e38e7b268f9a1b7d49aa47aca1d1d6ceb3b05d3e4d3168ab7066d4e9"
       },
       "first-request": {
         "duration": 9,
@@ -333,11 +348,6 @@
         "completed": true,
         "sha256": "388ae5e47a073eb070d49fc6c639f1845445dcbc9ed0717987794bd1eaa75251"
       },
-      "vendor-phone": {
-        "duration": 19,
-        "completed": true,
-        "sha256": "d0a25f0d5ed7d327d270423a2b56cd67f4bf88d29add147dd373ca7863fe264f"
-      },
       "completion-comparison": {
         "duration": 6,
         "completed": true,
@@ -347,16 +357,6 @@
         "duration": 6,
         "completed": true,
         "sha256": "49fa54e817de66c2da78ebf7b4a914b9f0dacaf1e243fe31756072938c3b17f8"
-      },
-      "invoice-source": {
-        "duration": 4,
-        "completed": true,
-        "sha256": "430eae79a97955d74ccc55e9d99e2512ad1561d2a373f9a14ea7b3b561a037aa"
-      },
-      "invoice-review": {
-        "duration": 5,
-        "completed": true,
-        "sha256": "acefb051365ab706f8dc7b0e45eda75ab8c8957a298f3feda272928da89458d3"
       },
       "completion-delivery": {
         "duration": 4,
@@ -439,8 +439,86 @@
       "uiSourceManifestSha256": "97dee3541785942f61141674c808a2c7762819c7c38267ce9e842dbb85bc5715"
     },
     "motion": {
+      "supplier-contacts": {
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/page@d7a529a3efae9acb808ae2b169481c24.webm",
+        "rawSha256": "63f72cea4e018acb63111edfe049b4c1ef788c86e79f4746bad0db3487030e1c",
+        "start": 2.0289582920000004,
+        "elapsed": 7.000943207999999,
+        "duration": 7,
+        "actionCompression": 1.000134744,
+        "nativeResolution": [
+          3840,
+          2400
+        ],
+        "recordingManifest": "workflow-intake-c67c8310-recording.json"
+      },
+      "shopping-source": {
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/page@d7a529a3efae9acb808ae2b169481c24.webm",
+        "rawSha256": "63f72cea4e018acb63111edfe049b4c1ef788c86e79f4746bad0db3487030e1c",
+        "start": 9.9590165,
+        "elapsed": 4.000486958,
+        "duration": 4,
+        "actionCompression": 1.0001217395,
+        "nativeResolution": [
+          3840,
+          2400
+        ],
+        "recordingManifest": "workflow-intake-c67c8310-recording.json"
+      },
+      "shopping-review": {
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/page@d7a529a3efae9acb808ae2b169481c24.webm",
+        "rawSha256": "63f72cea4e018acb63111edfe049b4c1ef788c86e79f4746bad0db3487030e1c",
+        "start": 14.486629416999998,
+        "elapsed": 4.0009400830000015,
+        "duration": 4,
+        "actionCompression": 1.0002350207500004,
+        "nativeResolution": [
+          3840,
+          2400
+        ],
+        "recordingManifest": "workflow-intake-c67c8310-recording.json"
+      },
+      "vendor-phone": {
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/page@c2bc421daaa65200acedbe9991ee6ad7.webm",
+        "rawSha256": "f8651204ea3d595199b4a72c06878cf38e970d289e7e3a63c540e4f783e24e59",
+        "start": 2.3811927500000003,
+        "elapsed": 19.001336124999995,
+        "duration": 19,
+        "actionCompression": 1.0000703223684209,
+        "nativeResolution": [
+          1560,
+          2400
+        ],
+        "recordingManifest": "workflow-phone-paced-55889b06-recording.json"
+      },
+      "invoice-source": {
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/page@2332931883f7fcf71696d67156c2c768.webm",
+        "rawSha256": "af882e02d132c1fe45515b19da717e5d68f0004e7ebd3cdf8ea1d3053f96c9c3",
+        "start": 0.9633262910000049,
+        "elapsed": 4.000323292000001,
+        "duration": 4,
+        "actionCompression": 1.0000808230000002,
+        "nativeResolution": [
+          3840,
+          2400
+        ],
+        "recordingManifest": "workflow-invoice-c67c8310-recording.json"
+      },
+      "invoice-review": {
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/page@2332931883f7fcf71696d67156c2c768.webm",
+        "rawSha256": "af882e02d132c1fe45515b19da717e5d68f0004e7ebd3cdf8ea1d3053f96c9c3",
+        "start": 5.511735832999999,
+        "elapsed": 5.000518500000006,
+        "duration": 5,
+        "actionCompression": 1.0001037000000013,
+        "nativeResolution": [
+          3840,
+          2400
+        ],
+        "recordingManifest": "workflow-invoice-c67c8310-recording.json"
+      },
       "first-restaurant": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@b61103e6a0faf3306d35a862b33baffe.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@b61103e6a0faf3306d35a862b33baffe.webm",
         "rawSha256": "7286b9235aa43a503ee4245a6f85b56e60716f58053ceb7b3dd8a93331e5e7a8",
         "start": 1.1941012919999998,
         "elapsed": 6.000874207999999,
@@ -453,7 +531,7 @@
         "recordingManifest": "production-signup-751b8f52-recording.json"
       },
       "first-owner": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@b61103e6a0faf3306d35a862b33baffe.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@b61103e6a0faf3306d35a862b33baffe.webm",
         "rawSha256": "7286b9235aa43a503ee4245a6f85b56e60716f58053ceb7b3dd8a93331e5e7a8",
         "start": 7.701936749999999,
         "elapsed": 4.001224542,
@@ -466,7 +544,7 @@
         "recordingManifest": "production-signup-751b8f52-recording.json"
       },
       "first-workspace": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
         "rawSha256": "0596c6a2bead1d7eca5d3f28626d876ff5c1652bb4dd481a48cb1db930506074",
         "start": 0.9688911659999995,
         "elapsed": 1.9994961250000014,
@@ -479,7 +557,7 @@
         "recordingManifest": "overview-restaurant-aecdd85c-recording.json"
       },
       "menu-options": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
         "rawSha256": "0596c6a2bead1d7eca5d3f28626d876ff5c1652bb4dd481a48cb1db930506074",
         "start": 3.822399791000002,
         "elapsed": 7.0001076249999965,
@@ -492,7 +570,7 @@
         "recordingManifest": "overview-restaurant-aecdd85c-recording.json"
       },
       "first-menu": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
         "rawSha256": "0596c6a2bead1d7eca5d3f28626d876ff5c1652bb4dd481a48cb1db930506074",
         "start": 11.357662708000001,
         "elapsed": 11.000580917000002,
@@ -504,21 +582,8 @@
         ],
         "recordingManifest": "overview-restaurant-aecdd85c-recording.json"
       },
-      "supplier-contacts": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
-        "rawSha256": "0596c6a2bead1d7eca5d3f28626d876ff5c1652bb4dd481a48cb1db930506074",
-        "start": 23.08818475,
-        "elapsed": 7.000775999999998,
-        "duration": 7,
-        "actionCompression": 1.000110857142857,
-        "nativeResolution": [
-          3840,
-          2400
-        ],
-        "recordingManifest": "overview-restaurant-aecdd85c-recording.json"
-      },
       "website-lookup": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
         "rawSha256": "0596c6a2bead1d7eca5d3f28626d876ff5c1652bb4dd481a48cb1db930506074",
         "start": 31.603133500000002,
         "elapsed": 3.0011907910000026,
@@ -531,7 +596,7 @@
         "recordingManifest": "overview-restaurant-aecdd85c-recording.json"
       },
       "website-review": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
         "rawSha256": "0596c6a2bead1d7eca5d3f28626d876ff5c1652bb4dd481a48cb1db930506074",
         "start": 35.124772166,
         "elapsed": 7.000542291999999,
@@ -543,34 +608,8 @@
         ],
         "recordingManifest": "overview-restaurant-aecdd85c-recording.json"
       },
-      "shopping-source": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@cbb1be1fa06de47c384f3d3a7d2496d7.webm",
-        "rawSha256": "0596c6a2bead1d7eca5d3f28626d876ff5c1652bb4dd481a48cb1db930506074",
-        "start": 43.10034,
-        "elapsed": 4.0009532079999985,
-        "duration": 4,
-        "actionCompression": 1.0002383019999996,
-        "nativeResolution": [
-          3840,
-          2400
-        ],
-        "recordingManifest": "overview-restaurant-aecdd85c-recording.json"
-      },
-      "shopping-review": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@c7cb67cfb6a9ad08dfcacb6db8851a4c.webm",
-        "rawSha256": "52d8a4c8f570f3366c92f0181f93aa2cc7a39627d15dd02c381f3cba61019583",
-        "start": 24.138270499999997,
-        "elapsed": 4.000549667000001,
-        "duration": 4,
-        "actionCompression": 1.0001374167500003,
-        "nativeResolution": [
-          3840,
-          2400
-        ],
-        "recordingManifest": "overview-restaurant-9bce9322-recording.json"
-      },
       "first-request": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@c7cb67cfb6a9ad08dfcacb6db8851a4c.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@c7cb67cfb6a9ad08dfcacb6db8851a4c.webm",
         "rawSha256": "52d8a4c8f570f3366c92f0181f93aa2cc7a39627d15dd02c381f3cba61019583",
         "start": 28.66381025,
         "elapsed": 8.999944416999998,
@@ -583,7 +622,7 @@
         "recordingManifest": "overview-restaurant-9bce9322-recording.json"
       },
       "request-sharing": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@c7cb67cfb6a9ad08dfcacb6db8851a4c.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@c7cb67cfb6a9ad08dfcacb6db8851a4c.webm",
         "rawSha256": "52d8a4c8f570f3366c92f0181f93aa2cc7a39627d15dd02c381f3cba61019583",
         "start": 38.1761805,
         "elapsed": 6.000714875,
@@ -595,21 +634,8 @@
         ],
         "recordingManifest": "overview-restaurant-9bce9322-recording.json"
       },
-      "vendor-phone": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@cdec93c3018e6b71d3ea410563a4037f.webm",
-        "rawSha256": "26b060ad34b9edf9df798ccb0bc180f455cdec0f2aa2d5a2aeab1fe37819cccb",
-        "start": 0.6527577080000047,
-        "elapsed": 18.999310916999995,
-        "duration": 19,
-        "actionCompression": 0.999963732473684,
-        "nativeResolution": [
-          1560,
-          2400
-        ],
-        "recordingManifest": "overview-phone-9bce9322-recording.json"
-      },
       "completion-comparison": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@58a780828c7c5b23965a1eedbe8441d9.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@58a780828c7c5b23965a1eedbe8441d9.webm",
         "rawSha256": "14a36e81bee324ceb7baf84936dd0957fd54a6a49a3a1d22f46377162fac5665",
         "start": 0.9851911249999975,
         "elapsed": 6.000364333999999,
@@ -622,7 +648,7 @@
         "recordingManifest": "overview-completion-9bce9322-recording.json"
       },
       "completion-award": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@58a780828c7c5b23965a1eedbe8441d9.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@58a780828c7c5b23965a1eedbe8441d9.webm",
         "rawSha256": "14a36e81bee324ceb7baf84936dd0957fd54a6a49a3a1d22f46377162fac5665",
         "start": 7.518216333999997,
         "elapsed": 6.000708333000001,
@@ -634,34 +660,8 @@
         ],
         "recordingManifest": "overview-completion-9bce9322-recording.json"
       },
-      "invoice-source": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@58a780828c7c5b23965a1eedbe8441d9.webm",
-        "rawSha256": "14a36e81bee324ceb7baf84936dd0957fd54a6a49a3a1d22f46377162fac5665",
-        "start": 14.058627250000004,
-        "elapsed": 4.001137874999987,
-        "duration": 4,
-        "actionCompression": 1.0002844687499968,
-        "nativeResolution": [
-          3840,
-          2400
-        ],
-        "recordingManifest": "overview-completion-9bce9322-recording.json"
-      },
-      "invoice-review": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@58a780828c7c5b23965a1eedbe8441d9.webm",
-        "rawSha256": "14a36e81bee324ceb7baf84936dd0957fd54a6a49a3a1d22f46377162fac5665",
-        "start": 18.574616667000008,
-        "elapsed": 5.000953291999991,
-        "duration": 5,
-        "actionCompression": 1.0001906583999982,
-        "nativeResolution": [
-          3840,
-          2400
-        ],
-        "recordingManifest": "overview-completion-9bce9322-recording.json"
-      },
       "completion-delivery": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@58a780828c7c5b23965a1eedbe8441d9.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@58a780828c7c5b23965a1eedbe8441d9.webm",
         "rawSha256": "14a36e81bee324ceb7baf84936dd0957fd54a6a49a3a1d22f46377162fac5665",
         "start": 24.111608167000014,
         "elapsed": 4.000722916999976,
@@ -674,7 +674,7 @@
         "recordingManifest": "overview-completion-9bce9322-recording.json"
       },
       "completion-credit": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@58a780828c7c5b23965a1eedbe8441d9.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@58a780828c7c5b23965a1eedbe8441d9.webm",
         "rawSha256": "14a36e81bee324ceb7baf84936dd0957fd54a6a49a3a1d22f46377162fac5665",
         "start": 28.62819462499999,
         "elapsed": 5.000951250000011,
@@ -687,7 +687,7 @@
         "recordingManifest": "overview-completion-9bce9322-recording.json"
       },
       "completion-today": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@58a780828c7c5b23965a1eedbe8441d9.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@58a780828c7c5b23965a1eedbe8441d9.webm",
         "rawSha256": "14a36e81bee324ceb7baf84936dd0957fd54a6a49a3a1d22f46377162fac5665",
         "start": 34.137908125,
         "elapsed": 3.0006965839999893,
@@ -700,7 +700,7 @@
         "recordingManifest": "overview-completion-9bce9322-recording.json"
       },
       "workspace-sharing": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@955bd5ba52c6706bab416656bf8af279.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@955bd5ba52c6706bab416656bf8af279.webm",
         "rawSha256": "5b80080a7f511ff11b421e81dfb93c10d91fe2e5b0e56b9a155ac35f5a482f36",
         "start": 1.2365013749999925,
         "elapsed": 3.000378541000013,
@@ -713,7 +713,7 @@
         "recordingManifest": "overview-workspace-9bce9322-recording.json"
       },
       "supplier-confirmation": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@f3ec845d305f0b8c354d875df2604c3f.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@f3ec845d305f0b8c354d875df2604c3f.webm",
         "rawSha256": "5de6d1faa69a0a1b8f4c4fd202c5d0eb229321ecd3eac21b6a1210c7a7b19418",
         "start": 1.3412010829999927,
         "elapsed": 8.000257792000019,
@@ -726,7 +726,7 @@
         "recordingManifest": "overview-confirmation-9bce9322-recording.json"
       },
       "nearby-discovery": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@ad086980a944696473b053c876f7ec6f.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@ad086980a944696473b053c876f7ec6f.webm",
         "rawSha256": "d284926154f27d0eba3cdfaa3464241963c3d9a77e816ade982cd8cd10cb2ad7",
         "start": 13.540955790999986,
         "elapsed": 3.999871708999999,
@@ -739,7 +739,7 @@
         "recordingManifest": "overview-features-9bce9322-recording.json"
       },
       "meal-planning": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@ad086980a944696473b053c876f7ec6f.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@ad086980a944696473b053c876f7ec6f.webm",
         "rawSha256": "d284926154f27d0eba3cdfaa3464241963c3d9a77e816ade982cd8cd10cb2ad7",
         "start": 18.536534874999983,
         "elapsed": 5.001220415999995,
@@ -752,7 +752,7 @@
         "recordingManifest": "overview-features-9bce9322-recording.json"
       },
       "purchase-reports": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@ad086980a944696473b053c876f7ec6f.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@ad086980a944696473b053c876f7ec6f.webm",
         "rawSha256": "d284926154f27d0eba3cdfaa3464241963c3d9a77e816ade982cd8cd10cb2ad7",
         "start": 25.42434133299999,
         "elapsed": 4.999484082999988,
@@ -765,7 +765,7 @@
         "recordingManifest": "overview-features-9bce9322-recording.json"
       },
       "purchase-history": {
-        "raw": "/tmp/quoteplate-gap-film/raw/page@ad086980a944696473b053c876f7ec6f.webm",
+        "raw": "/tmp/quoteplate-workflow-final-20260911-b/raw/retained-page@ad086980a944696473b053c876f7ec6f.webm",
         "rawSha256": "d284926154f27d0eba3cdfaa3464241963c3d9a77e816ade982cd8cd10cb2ad7",
         "start": 31.23380091599998,
         "elapsed": 5.001313084000024,
@@ -871,8 +871,8 @@
       "item": "Tomato",
       "quantity": "10",
       "unit": "KILOGRAM",
-      "savedMenuId": null,
-      "savedDraft": true
+      "savedDraft": true,
+      "savedMenuId": null
     },
     "phone": {
       "realOCR": true,
@@ -928,11 +928,118 @@
       "resultsMocked": false,
       "searchStatus": 200,
       "resultCount": 5
+    },
+    "workflowActions": {
+      "contactPickup": {
+        "savedContactWarning": true,
+        "duplicateRemovedByUser": true,
+        "remainingSupplierSaved": true,
+        "automaticDeduplicationClaimed": false,
+        "savedSupplierCount": 2
+      },
+      "shoppingPreview": {
+        "visible": true,
+        "decoded": true,
+        "reviewedAlongsideText": true
+      },
+      "shopping": {
+        "realOCR": true,
+        "reviewed": true,
+        "applied": true,
+        "menuSelected": false,
+        "item": "Tomato",
+        "quantity": "10",
+        "unit": "KILOGRAM",
+        "savedDraft": true,
+        "savedMenuId": null
+      },
+      "phonePickup": {
+        "sourcePreview": true,
+        "realOCR": true,
+        "unfinishedQuantity": true,
+        "jumpFocusedQuantity": true,
+        "allItemsComplete": true,
+        "realLocalSubmission": true,
+        "totalPaise": "40000"
+      },
+      "invoicePreview": {
+        "visible": true,
+        "decoded": true,
+        "reviewedAlongsideText": true
+      },
+      "invoice": {
+        "realOCR": true,
+        "reviewed": true,
+        "applied": true,
+        "billedQuantity": "10",
+        "billedRateInr": "40",
+        "physicalCountsTotalCreditsUnchanged": true
+      }
+    },
+    "workflowPickup": {
+      "status": "captured; awaiting source and final render review",
+      "approval": {
+        "status": "local final UI validated",
+        "origin": "http://127.0.0.1:52560",
+        "parentMessage": "local final UI validated. Harness origin http://127.0.0.1:52560, gateway http://127.0.0.1:52562; normal fixture signup /api/auth/start with method email as in tests/e2e/history-settings.spec.ts. App source is final/frozen for capture. Evidence: 30/32 integrated desktop/mobile tests passed initial run; two mobile timing failures both passed isolated rerun in23.3s without application changes; 25/25 real Chromium component checks passed including real bundled OCR. Parent reviewed app diffs and no-overflow/manual-preservation tests. Record this actual barrier message and current source hash, finish six planned actual moving pickups and finalizer, render/inspect then send strips/contact sheet for parent inspection BEFORE copy-public. Do not touch public bundle until parent reviews output images; can render/stage without additional approval. Use unique local fictional tenant through same guarded setup, preserve prior source provenance/hashes and Google signupclips. No server reset/restart or outbound messages. Tell parent if selector/layout issue needs correction; do not fabricate success/capture.",
+        "receivedAt": "2026-09-11T13:21:13.377Z",
+        "isolatedFictionalTenant": true,
+        "pickupPlanSha256": "a7ce05ca1a10104150491f8815fd99d1d76bf0b3d5606de78d70a8c9423a5180",
+        "uiSourceManifestSha256": "54963033d96f0531cfbeed9005cdebb7f778428e6c616021a2a9361e7d90747b"
+      },
+      "pickupPlanSha256": "a7ce05ca1a10104150491f8815fd99d1d76bf0b3d5606de78d70a8c9423a5180",
+      "baselineManifestSha256": "44c0f2ff44d0b93a10f53ee28ea18f2e2ff2e8480d64ce4f7f2b42aec9f8c045",
+      "changedClips": [
+        "supplier-contacts.mp4",
+        "shopping-source.mp4",
+        "shopping-review.mp4",
+        "invoice-source.mp4",
+        "invoice-review.mp4",
+        "vendor-phone.mp4"
+      ],
+      "retainedClips": [
+        "kitchen-intro.mp4",
+        "first-restaurant.mp4",
+        "first-owner.mp4",
+        "first-workspace.mp4",
+        "menu-options.mp4",
+        "first-menu.mp4",
+        "website-lookup.mp4",
+        "website-review.mp4",
+        "first-request.mp4",
+        "request-sharing.mp4",
+        "completion-comparison.mp4",
+        "completion-award.mp4",
+        "completion-delivery.mp4",
+        "completion-credit.mp4",
+        "completion-today.mp4",
+        "workspace-sharing.mp4",
+        "supplier-confirmation.mp4",
+        "nearby-discovery.mp4",
+        "meal-planning.mp4",
+        "purchase-reports.mp4",
+        "purchase-history.mp4",
+        "kitchen-end.mp4"
+      ],
+      "changedNarrationScenes": [
+        "suppliers",
+        "replies"
+      ],
+      "uniqueFictionalTenant": true,
+      "workspaceIdSha256": "f910b800feeef6fd09f80013429f84a35ad49a5a3b608ae0054ffe9353cf3776",
+      "externalMessages": 0,
+      "productionWrites": 0,
+      "phonePacingCorrection": {
+        "sourceDirectory": "/tmp/quoteplate-workflow-final-20260911-b/phone-pacing-2",
+        "previousClipSha256": "bc1241d037daf99dbc2012b7873b8c8f65e5d37876f90acba55f1a1ac801bade",
+        "replacementClipSha256": "22887dc5e94e19c0f62513bb36a09e2fe12de2a2e468542c45c04931cf0607e3",
+        "reason": "Readable source/rate/progress/total timing and visible sent confirmation; same frozen UI, new unique fictional tenant."
+      }
     }
   },
   "visualReview": {
     "status": "passed",
-    "method": "Opening, middle and end source frames reviewed for all 28 clips, actual recorded UI action assertions and source intervals checked. Parent separately approved shopping, invoice and website review strips. Not a claim of uninterrupted human playback.",
+    "method": "Inspected FFmpeg source strips and extra phone action frames; actual Playwright action assertions and raw intervals checked. No uninterrupted playback claim.",
     "clips": {
       "kitchen-intro.mp4": {
         "sha256": "18d46ffd9e38d84d97cf01bcda98b0f1b0c30d1586e8c1660ae3afb8e8c48f69",
@@ -941,7 +1048,8 @@
           3,
           90,
           176
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "first-restaurant.mp4": {
         "sha256": "104f17d18bef2e4d9ce3471af715ad000c0afcb58321fdec485c3c2cd1455e0a",
@@ -951,7 +1059,8 @@
           90,
           176
         ],
-        "productionSignupReview": "Real production-mode UI: Google enabled; no password or email-creation control. Fictional fields filled and Google hovered, no submission."
+        "productionSignupReview": "Real production-mode UI: Google enabled; no password or email-creation control. Fictional fields filled and Google hovered, no submission.",
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "first-owner.mp4": {
         "sha256": "4eb6646644fb593d12f53a35b73a1b0b485f0960a90acaefd3048880a75b9dd2",
@@ -961,7 +1070,8 @@
           60,
           116
         ],
-        "productionSignupReview": "Real production-mode UI: Google enabled; no password or email-creation control. Fictional fields filled and Google hovered, no submission."
+        "productionSignupReview": "Real production-mode UI: Google enabled; no password or email-creation control. Fictional fields filled and Google hovered, no submission.",
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "first-workspace.mp4": {
         "sha256": "cb17fedf7ed85089d5fb256ebb77e1bb336e2172fdba1160f10a88474da72d5c",
@@ -970,7 +1080,8 @@
           3,
           30,
           56
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "menu-options.mp4": {
         "sha256": "e5ecbede50ecf21a99a1f544fead93e3ccbf95736fc4596779f880e49a05c809",
@@ -979,7 +1090,8 @@
           3,
           105,
           206
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "first-menu.mp4": {
         "sha256": "a50dce58ef69f5717d02fc0b982e8031c6c54eecf5a3908875e179538a0464b4",
@@ -988,16 +1100,14 @@
           3,
           165,
           326
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "supplier-contacts.mp4": {
-        "sha256": "c45198f269cda7a30b4493b0f5c307b8db199d33cf7054c4d749c78ea795e64a",
+        "sha256": "69328013a1d75f08eb932b3cf71e1495bb9d7690543a17ccedad25454d3b546a",
         "review": "passed",
-        "sampleFrames": [
-          3,
-          105,
-          206
-        ]
+        "provenance": "new workflow pickup",
+        "method": "Source strip inspection plus actual action assertions; phone includes extra source/progress/sent frames."
       },
       "website-lookup.mp4": {
         "sha256": "8c5f61ff40a8dfc2d02898e6d63804fe1dc70a5967af5a4747a4eede25561600",
@@ -1006,7 +1116,8 @@
           3,
           45,
           86
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "website-review.mp4": {
         "sha256": "95b9cc601410e45793ff8d6902640e611fd4c66763151b2c2bb3f6b66fe2cf9c",
@@ -1015,25 +1126,20 @@
           3,
           105,
           206
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "shopping-source.mp4": {
-        "sha256": "076ec1ef072a640a60eefd608758c53c44f44fa6899f332b693227b4813b5f81",
+        "sha256": "e7529006769b5cc6aad332adfb93cae00f35466d2aaf9249f0dca668c449a5e3",
         "review": "passed",
-        "sampleFrames": [
-          3,
-          60,
-          116
-        ]
+        "provenance": "new workflow pickup",
+        "method": "Source strip inspection plus actual action assertions; phone includes extra source/progress/sent frames."
       },
       "shopping-review.mp4": {
-        "sha256": "60592f55e38e7b268f9a1b7d49aa47aca1d1d6ceb3b05d3e4d3168ab7066d4e9",
+        "sha256": "c6213e8ec03557e3133e06c08472e28f4b7f1391da2acf1cf54eded05a9d3321",
         "review": "passed",
-        "sampleFrames": [
-          3,
-          60,
-          116
-        ]
+        "provenance": "new workflow pickup",
+        "method": "Source strip inspection plus actual action assertions; phone includes extra source/progress/sent frames."
       },
       "first-request.mp4": {
         "sha256": "171c6d5e0e5fe03929fbb406f716e217f03579b3cfb5f7023327142a7ae0bed4",
@@ -1042,7 +1148,8 @@
           3,
           135,
           266
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "request-sharing.mp4": {
         "sha256": "388ae5e47a073eb070d49fc6c639f1845445dcbc9ed0717987794bd1eaa75251",
@@ -1051,16 +1158,14 @@
           3,
           90,
           176
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "vendor-phone.mp4": {
-        "sha256": "d0a25f0d5ed7d327d270423a2b56cd67f4bf88d29add147dd373ca7863fe264f",
+        "sha256": "22887dc5e94e19c0f62513bb36a09e2fe12de2a2e468542c45c04931cf0607e3",
         "review": "passed",
-        "sampleFrames": [
-          3,
-          285,
-          566
-        ]
+        "provenance": "new workflow pickup",
+        "method": "Source strip inspection plus actual action assertions; phone includes extra source/progress/sent frames."
       },
       "completion-comparison.mp4": {
         "sha256": "8d708a06ae6f5a8cb397f464fc7bc95c500283df9ef3041d51e87b21e3623cf4",
@@ -1069,7 +1174,8 @@
           3,
           90,
           176
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "completion-award.mp4": {
         "sha256": "49fa54e817de66c2da78ebf7b4a914b9f0dacaf1e243fe31756072938c3b17f8",
@@ -1078,25 +1184,20 @@
           3,
           90,
           176
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "invoice-source.mp4": {
-        "sha256": "430eae79a97955d74ccc55e9d99e2512ad1561d2a373f9a14ea7b3b561a037aa",
+        "sha256": "8c5a21b3302108071bef456fa8ec3d019eb60b3c924b8901f0d51062d649856d",
         "review": "passed",
-        "sampleFrames": [
-          3,
-          60,
-          116
-        ]
+        "provenance": "new workflow pickup",
+        "method": "Source strip inspection plus actual action assertions; phone includes extra source/progress/sent frames."
       },
       "invoice-review.mp4": {
-        "sha256": "acefb051365ab706f8dc7b0e45eda75ab8c8957a298f3feda272928da89458d3",
+        "sha256": "9345686d2c7a085aa774b68cb09dd92d2d03b1959f035acaa883e11c85f2214c",
         "review": "passed",
-        "sampleFrames": [
-          3,
-          75,
-          146
-        ]
+        "provenance": "new workflow pickup",
+        "method": "Source strip inspection plus actual action assertions; phone includes extra source/progress/sent frames."
       },
       "completion-delivery.mp4": {
         "sha256": "a387542e9146c71a78e1812fe152467455f1219708761865a02d6c5ccb443906",
@@ -1105,7 +1206,8 @@
           3,
           60,
           116
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "completion-credit.mp4": {
         "sha256": "f34acc00bcd9cce716dd13c2c9cb5cd9f2edf6495b2b89d2aa99673e28454c70",
@@ -1114,7 +1216,8 @@
           3,
           75,
           146
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "completion-today.mp4": {
         "sha256": "a63a311a89fc3309ac2b0f084bbb9b2a912f8c75fd66e03a99a9fc69e73b53ab",
@@ -1123,7 +1226,8 @@
           3,
           45,
           86
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "workspace-sharing.mp4": {
         "sha256": "a7a62e1a3bdab52e1e10f9b380c9944b355147cc7e9f33186950f296f4996051",
@@ -1132,7 +1236,8 @@
           3,
           45,
           86
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "supplier-confirmation.mp4": {
         "sha256": "af76928f58f4ab9264bcc91858b27ac172b26256d294ba23bea77635f24acb3e",
@@ -1141,7 +1246,8 @@
           3,
           120,
           236
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "nearby-discovery.mp4": {
         "sha256": "84419ba32c2e3e73b242b51351973a3234fc7bb4a3254a1eef5a24516561bb46",
@@ -1150,7 +1256,8 @@
           3,
           60,
           116
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "meal-planning.mp4": {
         "sha256": "5d72e8bdfb95fc3ba6dcc46b454f79a5465c6f0755856a413852d8d9c3a72502",
@@ -1159,7 +1266,8 @@
           3,
           75,
           146
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "purchase-reports.mp4": {
         "sha256": "ecd076e1bde8a34d31543d616b57c098f4fc291e1b6b42fe6ffdda20b039401a",
@@ -1168,7 +1276,8 @@
           3,
           75,
           146
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "purchase-history.mp4": {
         "sha256": "ebafc5718dbd57d9fd8af72a5902449b4f0223edf21c00d16a0bd2247d7654ef",
@@ -1177,7 +1286,8 @@
           3,
           75,
           146
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       },
       "kitchen-end.mp4": {
         "sha256": "f033cfe90a1d4c31ead13a7ab9ebf2fd28038cbfc0780176c40334b9cc8d88df",
@@ -1186,36 +1296,70 @@
           3,
           120,
           236
-        ]
+        ],
+        "provenance": "unchanged retained capture; previous review preserved by hash"
       }
     },
     "finalContactSheet": "passed",
+    "outputSha256": "ac5bdd58c450360b4fc7fb590e335f940191102125a8570158ebc6b6f92175b0",
+    "contactSheetSha256": "280bd1c1e2cb584bc29b43b8b3a7b20a60c559f4a24e6c85e7e29c9aebda43b3",
     "motionAndContinuity": "passed",
     "audioReview": "passed",
     "captionsOffByDefault": true,
-    "captionsEvidence": "Parent reports all 12 player checks covered: 10 passed, two transcript assertions updated and rerun 2/2 passed.",
     "noBurnedCaptions": true,
-    "outputSha256": "03a82e26ef8f7ac07ba7fa575b14bbc30b50c8695249a6d8914ed22bef29abda",
-    "contactSheetSha256": "82d5be087991d59a8a7e3c9104af651d0ea8b3e022a2f5d5a4d30dae9af66a9e",
-    "audioReviewMethod": "All narration text and measured cues matched the storyboard and visible actions; every WAV duration/hash/peak checked, mixed audio decoded and peak measured. Not a claim of uninterrupted human listening.",
-    "phoneActionSamples": [
-      3.5,
-      5.5,
-      14.5,
-      16.5
-    ],
-    "finalContactSheetNote": "All 28 rendered shot samples inspected. The history midpoint shows a real loading transition; its opening shows Repeat order and final source sample shows the created draft.",
-    "signupCorrection": "Actual production Google-only signup clips visually reviewed by media worker and parent; corrected 165-second rendered contact sheet inspected, with other source footage and narration unchanged.",
-    "parentSignupReview": "Parent independently viewed corrected first-restaurant.jpg and first-owner.jpg; confirmed actual production Google form, no password/email creation, approved visual correction."
+    "parentOutputReview": "approved",
+    "audioReviewMethod": "Measured phrase cues checked against source actions; narration waveform hashes/durations/peaks and full rendered AAC decode/peak checked. No uninterrupted human listening claim.",
+    "finalVisualMethod": "Inspected every shot on the final contact sheet, six source strips, extra phone action frames and full-resolution final supplier-contact frame. Retained clips match previously reviewed hashes; no uninterrupted human playback claim.",
+    "parentOutputReviewSha256": "bc5ca19a0415abc7efc1253c8fd6d8c816149e0caf55433e8b833e320ffd829f",
+    "finalOutputStrips": {
+      "status": "passed",
+      "manifestSha256": "5951ddfb1e9467f9d2d44bf4fc62d1e20431b8d3200554c15a3a13719b077f77",
+      "outputSha256": "ac5bdd58c450360b4fc7fb590e335f940191102125a8570158ebc6b6f92175b0"
+    }
   },
   "maxVolumeDb": -4.9,
   "profilesRemoved": true,
   "releaseStatus": "passed",
   "bundleSha256": {
-    "quoteplate-product-film.mp4": "03a82e26ef8f7ac07ba7fa575b14bbc30b50c8695249a6d8914ed22bef29abda",
+    "quoteplate-product-film.mp4": "ac5bdd58c450360b4fc7fb590e335f940191102125a8570158ebc6b6f92175b0",
     "quoteplate-product-film.jpg": "babec4028bafa83bde9f4f9432d131387e10b91d2d9a55c8aaffac99de7fd2b1",
-    "quoteplate-product-film.vtt": "9a62bdaf57b4b8ba1281770e5c603f0b4605abdc92a743266e2b169b11500f06",
-    "quoteplate-product-film.txt": "a83f619e7e378dd03eaaaeeef0077618566161a744a5127762545be8cc23132b",
-    "credits.txt": "f1c7ed283f25383da5ce9e9c0e9e8f492a80b9247d16c07a6669e46989e9fbd3"
+    "quoteplate-product-film.vtt": "f408a73809a6c5f0771a2e23e34dfead160515a0776dacea76cf639e5b34af1d",
+    "quoteplate-product-film.txt": "38c52ff91d0ef0ec5947339defc71554f707e89a4d3b0729f2a55ab6321f3734",
+    "credits.txt": "00fb2e5fc9e9106a646f77c66c857277e7f89db0c20ce67de29f870301c54422"
+  },
+  "captureProvenance": {
+    "newClips": [
+      "supplier-contacts.mp4",
+      "shopping-source.mp4",
+      "shopping-review.mp4",
+      "invoice-source.mp4",
+      "invoice-review.mp4",
+      "vendor-phone.mp4"
+    ],
+    "retainedClips": [
+      "kitchen-intro.mp4",
+      "first-restaurant.mp4",
+      "first-owner.mp4",
+      "first-workspace.mp4",
+      "menu-options.mp4",
+      "first-menu.mp4",
+      "website-lookup.mp4",
+      "website-review.mp4",
+      "first-request.mp4",
+      "request-sharing.mp4",
+      "completion-comparison.mp4",
+      "completion-award.mp4",
+      "completion-delivery.mp4",
+      "completion-credit.mp4",
+      "completion-today.mp4",
+      "workspace-sharing.mp4",
+      "supplier-confirmation.mp4",
+      "nearby-discovery.mp4",
+      "meal-planning.mp4",
+      "purchase-reports.mp4",
+      "purchase-history.mp4",
+      "kitchen-end.mp4"
+    ],
+    "note": "The legacy freshCaptures map hashes all timeline inputs; only newClips were newly recorded."
   }
 }

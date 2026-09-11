@@ -16,7 +16,7 @@ User authorization: implement the agent-actionable gaps, preserving all features
 - [x] Photo review: fix the reproduced menu OCR initialization/abort worker leak with bounded worker ownership; show on-device source previews beside editable recognition output for shopping/invoice/price lists. Dispose object URLs, retain manual fallback and explicit application.
 - [x] Integration: wire loaded saved contacts to discovery helpers; inspect changes together, update README and feature documentation without overstating recognition, coverage or automation.
 - [ ] Validation: focused red/green and real database tests; full unit/API, lint, type check and desktop/mobile browser suite. Verify actual controls and responsive layouts in a local isolated tenant before recording.
-- [ ] Media: after final UI validation, replace changed feature footage in the existing 165-second, 3840×2400 film, retaining accurate opening/ending, optional captions and the established player. Verify source motion, no private links/credentials, duration, audio and matched public asset bundle.
+- [x] Media: after final UI validation, replace changed feature footage in the existing 165-second, 3840×2400 film, retaining accurate opening/ending, optional captions and the established player. Verify source motion, no private links/credentials, duration, audio and matched public asset bundle. Six newly recorded clips are distinguished from 22 retained clips in the capture record; the approved output and public copy have matching hashes.
 - [ ] Release: inspect PR and GitGuardian, merge passing changes, verify exact Netlify revision and health, repeat read-only live demo smoke/performance checks. Record first-load variability honestly.
 
 ## Acceptance and boundaries

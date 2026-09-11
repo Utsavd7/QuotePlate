@@ -12,7 +12,7 @@ This README describes the current repository, including public Google onboarding
 
 [Watch on the website](https://quoteplate.netlify.app/#watch-demo) · 2:45 · 4K, 3840 × 2400
 
-The film follows the fictional Monsoon Table restaurant through Google signup choices, menu entry, reviewed shopping-list photos without a menu, published website contacts, manual sharing, supplier quotes on a phone, comparison and reviewed invoice billing before delivery checks. Short scenes introduce supplier workspaces, nearby discovery, meal planning, reports and repeat purchases. It uses condensed recordings of the app to cover the main feature families; the full feature reference is below.
+The film follows the fictional Monsoon Table restaurant through Google signup choices, menu entry, reviewed shopping-list photos without a menu, published website contacts, manual sharing, supplier quotes on a phone, comparison and reviewed invoice billing before delivery checks. Updated scenes show saved-contact warnings, source photos beside review text and a supplier jumping to an unfinished quantity before submitting. Short scenes introduce supplier workspaces, nearby discovery, meal planning, reports and repeat purchases. It uses condensed recordings of the app to cover the main feature families; the full feature reference is below. [Capture and verification details](docs/media/quoteplate-workflow-pickups.md).
 
 [Transcript](public/media/quoteplate-product-film.txt) · [English captions](public/media/quoteplate-product-film.vtt) · [Media credits](public/media/credits.txt)
 

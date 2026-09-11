@@ -10,7 +10,7 @@ Sign up with a verified Google email.
 
 Type or paste dishes, use your phone, upload photos, or use a permitted website. Review the ingredients, quantities and units. Then approve the menu for purchasing.
 
-Paste your supplier contacts. Review the list, then add them to your restaurant.
+Review saved-contact warnings. Remove duplicates, then add the remaining supplier.
 
 Check a supplier’s public website. Review the source, use a contact, then save.
 
@@ -18,7 +18,7 @@ Start with a shopping-list photo or text. No menu needed. Check the rows, then a
 
 Use WhatsApp, email, or copy the private link. You send the message.
 
-Suppliers can quote on their phone. Choose a clear price-list photo, or paste prices. Check the matched item and rate, then fill the quote. Use one item at a time if helpful. Review delivery and the total, then send.
+Use a price-list photo or paste prices. Check the photo and matched rate. Fill the quote, then jump to unfinished items. Review delivery and the total, then send.
 
 Compare the four-hundred and four-hundred-forty rupee offers. Choose the suitable supplier and confirm.
 
